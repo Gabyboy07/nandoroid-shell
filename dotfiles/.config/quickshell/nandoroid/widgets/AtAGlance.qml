@@ -37,8 +37,9 @@ Item {
     property string timePeriod: {
         if (currentHour >= 5 && currentHour < 12) return "morning";
         if (currentHour >= 12 && currentHour < 17) return "afternoon";
-        if (currentHour >= 17 && currentHour < 22) return "evening";
-        return "midnight";
+        if (currentHour >= 17 && currentHour < 21) return "evening";
+        if (currentHour >= 21) return "night";
+        return "midnight"; // 00:00 to 04:59
     }
 
     // ── Schedule Integration ──
@@ -223,7 +224,7 @@ Item {
         interval: 10 * 60 * 1000 // 10 minutes in ms
         running: true
         repeat: true
-        onTriggered: updateQuoteOnly()
+        onTriggered: { updateGreetingOnly(); updateQuoteOnly(); }
     }
 
     // Load Quotes JSON via Process
@@ -265,15 +266,28 @@ Item {
         }
     }
 
+    // Pick a random greeting for the current period from quotes.json ("greetings").
+    // Falls back to a sensible default if the data isn't loaded yet.
+    function updateGreetingOnly() {
+        let greetings = quotesData && quotesData["greetings"] ? quotesData["greetings"][timePeriod] : null;
+        if (greetings && greetings.length > 0) {
+            currentGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+        } else {
+            // Fallbacks while JSON is still loading
+            if (timePeriod === "morning") currentGreeting = "Good morning";
+            else if (timePeriod === "afternoon") currentGreeting = "Good afternoon";
+            else if (timePeriod === "evening") currentGreeting = "Good evening";
+            else if (timePeriod === "night") currentGreeting = "Good night";
+            else currentGreeting = "Solemn midnight";
+        }
+    }
+
     function updateText() {
         if (!quotesData) return;
-        
-        // Greetings
-        if (timePeriod === "morning") currentGreeting = "Good morning";
-        else if (timePeriod === "afternoon") currentGreeting = "Good afternoon";
-        else if (timePeriod === "evening") currentGreeting = "Good evening";
-        else currentGreeting = "Good night";
-        
+
+        // Greeting (random variation per period)
+        updateGreetingOnly();
+
         // Quotes
         updateQuoteOnly();
     }
