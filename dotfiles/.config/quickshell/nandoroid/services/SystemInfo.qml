@@ -15,6 +15,7 @@ Singleton {
     property string hostname: "localhost"
     property string kernel: "Unknown"
     property string userAvatarPath: `/var/lib/AccountsService/icons/${username}`
+    property bool userAvatarValid: false
     property string logo: ""
     
     // Hardware Info
@@ -201,6 +202,15 @@ Singleton {
                 const name = data.trim()
                 if (name !== "") root.realName = name
             }
+        }
+        onExited: checkAvatar.running = true
+    }
+
+    Process {
+        id: checkAvatar
+        command: ["bash", "-c", `[ -f "${root.userAvatarPath}" ] && echo 1 || echo 0`]
+        stdout: SplitParser {
+            onRead: data => root.userAvatarValid = data.trim() === "1"
         }
     }
 

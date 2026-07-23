@@ -362,6 +362,7 @@ Scope {
         { name: "Widgets", component: "panels/Settings/pages/Widgets/WidgetsSettings.qml" },
         { name: "System", component: "panels/Settings/pages/System/SystemSettings.qml" },
         { name: "Services", component: "panels/Settings/pages/Services/ServicesSettings.qml" },
+        { name: "Profile", component: "panels/Settings/pages/Profile/ProfileSettings.qml" },
         { name: "About", component: "panels/Settings/pages/About/AboutSettings.qml" }
     ]
 }

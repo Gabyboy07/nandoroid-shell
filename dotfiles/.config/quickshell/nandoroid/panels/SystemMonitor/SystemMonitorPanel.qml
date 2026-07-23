@@ -202,6 +202,11 @@ Scope {
                             UserProfile {
                                 compact: false
                                 Layout.fillWidth: true
+                                onClicked: {
+                                    GlobalStates.systemMonitorOpen = false
+                                    GlobalStates.settingsPageIndex = 8
+                                    GlobalStates.activateSettings()
+                                }
                             }
                         }
                     }

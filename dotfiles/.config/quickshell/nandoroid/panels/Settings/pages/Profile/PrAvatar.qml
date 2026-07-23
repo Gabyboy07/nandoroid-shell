@@ -1,0 +1,200 @@
+import "../../../../core"
+import "../../../../core/functions" as Functions
+import "../../../../services"
+import "../../../../widgets"
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import Qt5Compat.GraphicalEffects
+import Quickshell
+import Quickshell.Io
+
+ColumnLayout {
+    Layout.fillWidth: true
+    spacing: 0
+
+    SearchHandler {
+        searchString: "Avatar"
+        aliases: ["Profile Picture", "User Image", "Avatar Path", "Profile Photo"]
+    }
+
+    Process {
+        id: avatarPickerProc
+        command: ["bash", "-c", "quickshell -c nandoroid ipc call spotlight browse_avatar"]
+    }
+
+    ColumnLayout {
+        Layout.fillWidth: true
+        spacing: 4 * Appearance.effectiveScale
+
+        RowLayout {
+            spacing: 12 * Appearance.effectiveScale
+            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            MaterialSymbol {
+                text: "person"
+                iconSize: 24 * Appearance.effectiveScale
+                color: Appearance.colors.colPrimary
+            }
+            StyledText {
+                text: "Avatar"
+                font.pixelSize: Appearance.font.pixelSize.large
+                font.weight: Font.Medium
+                color: Appearance.colors.colOnLayer1
+            }
+        }
+
+        SegmentedWrapper {
+            Layout.fillWidth: true
+            implicitHeight: avatarRow.implicitHeight + 40 * Appearance.effectiveScale
+            orientation: Qt.Vertical
+            maxRadius: 20 * Appearance.effectiveScale
+            color: Appearance.m3colors.m3surfaceContainerHigh
+
+            RowLayout {
+                id: avatarRow
+                anchors.fill: parent
+                anchors.margins: 20 * Appearance.effectiveScale
+                spacing: 20 * Appearance.effectiveScale
+
+                Item {
+                    Layout.preferredWidth: 64 * Appearance.effectiveScale
+                    Layout.preferredHeight: 64 * Appearance.effectiveScale
+
+                    Image {
+                        id: avatarPreview
+                        anchors.fill: parent
+                        source: {
+                            const path = Config.options.profile.avatarPicture
+                            if (path && path !== "") return "file://" + path
+                            const barPath = Config.options.bar?.avatar_path
+                            if (barPath && barPath !== "") return "file://" + barPath
+                            if (SystemInfo.userAvatarValid) return "file://" + SystemInfo.userAvatarPath
+                            return ""
+                        }
+                        sourceSize: Qt.size(64 * Appearance.effectiveScale, 64 * Appearance.effectiveScale)
+                        fillMode: Image.PreserveAspectCrop
+                        visible: false
+                    }
+
+                    Rectangle {
+                        id: avatarMask
+                        anchors.fill: parent
+                        radius: width / 2
+                        visible: false
+                    }
+
+                    OpacityMask {
+                        anchors.fill: parent
+                        source: avatarPreview
+                        maskSource: avatarMask
+                        visible: avatarPreview.status === Image.Ready
+                    }
+
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        visible: avatarPreview.status !== Image.Ready
+                        text: "person"
+                        iconSize: 32 * Appearance.effectiveScale
+                        color: Appearance.colors.colSubtext
+                    }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignVCenter
+                    spacing: 2 * Appearance.effectiveScale
+
+                    StyledText {
+                        text: "Avatar Picture"
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnLayer1
+                    }
+
+                    StyledText {
+                        text: Config.options.profile.avatarPicture !== ""
+                            ? Config.options.profile.avatarPicture
+                            : "No custom avatar set"
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: Appearance.colors.colSubtext
+                        elide: Text.ElideRight
+                        Layout.fillWidth: true
+                    }
+                }
+
+                ColumnLayout {
+                    spacing: 8 * Appearance.effectiveScale
+                    Layout.alignment: Qt.AlignVCenter
+
+                    RippleButton {
+                        implicitWidth: 120 * Appearance.effectiveScale
+                        implicitHeight: 36 * Appearance.effectiveScale
+                        buttonRadius: 18 * Appearance.effectiveScale
+                        colBackground: Appearance.m3colors.m3primaryContainer
+
+                        RowLayout {
+                            anchors.centerIn: parent
+                            spacing: 6 * Appearance.effectiveScale
+                            MaterialSymbol {
+                                text: "folder_open"
+                                iconSize: 16 * Appearance.effectiveScale
+                                color: Appearance.m3colors.m3onPrimaryContainer
+                            }
+                            StyledText {
+                                text: "Browse"
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                color: Appearance.m3colors.m3onPrimaryContainer
+                            }
+                        }
+
+                        onClicked: {
+                            avatarPickerProc.running = true
+                        }
+                    }
+
+                    Item {
+                        implicitWidth: 120 * Appearance.effectiveScale
+                        implicitHeight: 36 * Appearance.effectiveScale
+                        visible: Config.options.profile.avatarPicture !== ""
+
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 18 * Appearance.effectiveScale
+                            color: "transparent"
+                            border.width: 1 * Appearance.effectiveScale
+                            border.color: Appearance.colors.colError
+                            opacity: mouseArea.containsMouse ? 0.8 : 1
+                            Behavior on opacity { NumberAnimation { duration: 150 } }
+                        }
+
+                        RowLayout {
+                            anchors.centerIn: parent
+                            spacing: 6 * Appearance.effectiveScale
+                            MaterialSymbol {
+                                text: "close"
+                                iconSize: 16 * Appearance.effectiveScale
+                                color: Appearance.colors.colError
+                            }
+                            StyledText {
+                                text: "Clear"
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                color: Appearance.colors.colError
+                            }
+                        }
+
+                        MouseArea {
+                            id: mouseArea
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            hoverEnabled: true
+                            onClicked: {
+                                Config.options.profile.avatarPicture = ""
+                                Config.options.bar.avatar_path = ""
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -564,6 +564,13 @@ property JsonObject background: JsonObject {
                 property JsonObject annotation: JsonObject { property bool useSatty: false }
             }
 
+            // --- Profile ---
+            property JsonObject profile: JsonObject {
+                property string avatarPicture: ""
+                property string displayName: ""
+                property string descriptionText: "::distro::"
+            }
+
             // --- GitHub ---
             property JsonObject github: JsonObject { property string githubUsername: ""; property string githubToken: "" }
 

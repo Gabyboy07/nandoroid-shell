@@ -86,6 +86,7 @@ Rectangle {
                     { name: "Widgets", icon: "widgets" },
                     { name: "System", icon: "settings_applications" },
                     { name: "Services", icon: "cloud" },
+                    { name: "Profile", icon: "person" },
                     { name: "About", icon: "info" }
                 ]
 

@@ -511,11 +511,12 @@ MouseArea {
                                 id: lockM3AvatarImage
                                 anchors.fill: parent
                                 source: {
+                                    const profPath = Config.options.profile?.avatarPicture;
+                                    if (profPath && profPath !== "") return "file://" + profPath;
                                     const cfgPath = Config.options.bar?.avatar_path;
                                     if (cfgPath && cfgPath !== "") return `file://${cfgPath}`;
-                                    const sysPath = SystemInfo.userAvatarPath;
-                                    if (!sysPath || sysPath.includes("/var/lib/AccountsService/icons/")) return "";
-                                    return `file://${sysPath}`;
+                                    if (SystemInfo.userAvatarValid) return "file://" + SystemInfo.userAvatarPath;
+                                    return "";
                                 }
                                 sourceSize: Qt.size(width, height)
                                 fillMode: Image.PreserveAspectCrop
@@ -544,7 +545,11 @@ MouseArea {
                         }
 
                         StyledText {
-                            text: SystemInfo.username
+                            text: {
+                                const displayName = Config.options.profile?.displayName;
+                                if (displayName && displayName !== "") return displayName;
+                                return SystemInfo.realName || SystemInfo.username;
+                            }
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.Medium
                             color: lockM3UserWrapper.contentColor

@@ -368,11 +368,12 @@ Item {
                         id: avatarImage
                         anchors.fill: parent
                         source: {
+                            const profPath = Config.options.profile?.avatarPicture;
+                            if (profPath && profPath !== "") return `file://${profPath}`;
                             const cfgPath = Config.options.bar?.avatar_path;
                             if (cfgPath && cfgPath !== "") return `file://${cfgPath}`;
-                            const sysPath = SystemInfo.userAvatarPath;
-                            if (!sysPath || sysPath.includes("/var/lib/AccountsService/icons/")) return "";
-                            return `file://${sysPath}`;
+                            if (SystemInfo.userAvatarValid) return "file://" + SystemInfo.userAvatarPath;
+                            return "";
                         }
                         sourceSize: Qt.size(44 * Appearance.effectiveScale, 44 * Appearance.effectiveScale)
                         fillMode: Image.PreserveAspectCrop
@@ -405,7 +406,11 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: avatarPickerProc.running = true
+                        onClicked: {
+                            root.close()
+                            GlobalStates.settingsPageIndex = 8
+                            GlobalStates.activateSettings()
+                        }
                     }
                 }
 
@@ -414,7 +419,11 @@ Item {
                     spacing: -2 * Appearance.effectiveScale
 
                     StyledText {
-                        text: SystemInfo.realName
+                        text: {
+                            const displayName = Config.options.profile?.displayName;
+                            if (displayName && displayName !== "") return displayName;
+                            return SystemInfo.realName || SystemInfo.username;
+                        }
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.m3colors.m3onSurface
@@ -423,7 +432,11 @@ Item {
                     }
 
                     StyledText {
-                        text: `Up ${DateTime.uptime}`
+                        text: {
+                            const descMode = Config.options.profile?.descriptionText || "::distro::";
+                            if (descMode === "::uptime::") return "Up " + DateTime.uptime;
+                            return SystemInfo.distroName || "Linux System";
+                        }
                         font.pixelSize: Appearance.font.pixelSize.smaller
                         color: Appearance.m3colors.m3outline
                     }
@@ -927,8 +940,5 @@ Item {
         }
     }
     
-    Process {
-        id: avatarPickerProc
-        command: ["bash", "-c", "cd /tmp && quickshell -c nandoroid ipc call spotlight browse_avatar"]
-    }
+
 }

@@ -600,7 +600,7 @@ Singleton {
     // --- Folder Picker ---
     Process {
         id: folderPickerProc
-        command: ["zenity", "--file-selection", "--directory", "--title=Select Wallpaper Folder"]
+        command: ["zenity", "--file-selection", "--directory", "--title=Select Wallpaper Folder", "--modal"]
         stdout: StdioCollector {
             onStreamFinished: {
                 const path = this.text.trim();
@@ -631,6 +631,24 @@ Singleton {
     function browseFolder() {
         GlobalStates.wallpaperSelectorOpen = false;
         folderPickerProc.running = true;
+    }
+
+    // --- Auto-Cycle Folder Picker ---
+    Process {
+        id: cycleFolderPickerProc
+        command: ["zenity", "--file-selection", "--directory", "--title=Select Wallpapers Directory", "--modal"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const path = this.text.trim();
+                if (path !== "") {
+                    root.setAutoCycleDirectory(path);
+                }
+            }
+        }
+    }
+
+    function browseCycleFolder() {
+        cycleFolderPickerProc.running = true;
     }
 
     // Model for grid view

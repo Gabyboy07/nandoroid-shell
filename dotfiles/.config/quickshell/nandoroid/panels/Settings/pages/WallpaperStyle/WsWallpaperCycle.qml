@@ -21,7 +21,7 @@ ColumnLayout {
 
     Process {
         id: folderPickerProc
-        command: ["zenity", "--file-selection", "--directory", "--title=Select Wallpapers Directory"]
+        command: ["zenity", "--file-selection", "--directory", "--title=Select Wallpapers Directory", "--modal"]
         stdout: StdioCollector {
             onStreamFinished: {
                 const path = this.text.trim();

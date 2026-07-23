@@ -161,12 +161,13 @@ ShellRoot {
 
     Process {
         id: avatarPickerProc
-        command: ["zenity", "--file-selection", "--title=Select Avatar", "--file-filter=Images | *.png *.jpg *.jpeg *.webp *.svg"]
+        command: ["zenity", "--file-selection", "--title=Select Avatar", "--file-filter=Images | *.png *.jpg *.jpeg *.webp *.svg", "--modal"]
         stdout: StdioCollector {
             onStreamFinished: {
                 const path = this.text.trim();
                 if (path !== "") {
                     Config.options.bar.avatar_path = path;
+                    Config.options.profile.avatarPicture = path;
                 }
             }
         }

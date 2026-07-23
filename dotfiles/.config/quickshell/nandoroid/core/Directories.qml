@@ -25,6 +25,10 @@ Singleton {
     property string shellConfigName: "config.json"
     property string shellConfigPath: `${shellConfig}/${shellConfigName}`
 
+    // Presets
+    property string presetsPath: `${shellConfig}/presets`
+    property string presetsScriptPath: `${Quickshell.shellPath("scripts")}/presets.sh`
+
     // Matugen colors path
     property string generatedMaterialThemePath: Functions.FileUtils.trimFileProtocol(`${state}/user/generated/colors.json`)
     property string generatedLockColorsPath: Functions.FileUtils.trimFileProtocol(`${state}/user/generated/lockscreencolors.json`)
@@ -43,6 +47,7 @@ Singleton {
     // Ensure dirs and temp files exist (silences FileView warnings)
     Component.onCompleted: {
         Quickshell.execDetached(["mkdir", "-p", `${shellConfig}`])
+        Quickshell.execDetached(["mkdir", "-p", `${presetsPath}`])
         Quickshell.execDetached(["mkdir", "-p", `${screenshotTemp}`])
         Quickshell.execDetached(["mkdir", "-p", `${cache.toString().substring(7)}/nandoroid`])
         
