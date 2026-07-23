@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import "../../core"
 import "../../core/functions" as Functions
+import "../../services"
 import "../../widgets"
 import QtQuick
 import QtQuick.Layouts
@@ -26,9 +27,19 @@ Scope {
                 anchors { top: true; left: true; right: true; bottom: true }
                 color: "transparent"
                 WlrLayershell.namespace: "nandoroid:datepicker"
-                WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+                WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
                 WlrLayershell.layer: GlobalStates.datePickerOpen && isActive ? WlrLayer.Overlay : WlrLayer.Background
                 exclusionMode: ExclusionMode.Ignore
+
+                Component.onCompleted: GlobalFocusGrab.addDismissable(panelWindow)
+                Component.onDestruction: GlobalFocusGrab.removeDismissable(panelWindow)
+
+                Connections {
+                    target: GlobalFocusGrab
+                    function onDismissed() {
+                        GlobalStates.datePickerOpen = false
+                    }
+                }
 
                 Rectangle {
                     anchors.fill: parent
