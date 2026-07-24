@@ -244,28 +244,15 @@ ColumnLayout {
                     color: Appearance.colors.colSubtext
                 }
 
-                Rectangle {
+                StyledTextInput {
+                    id: cityInput
                     Layout.fillWidth: true
-                    height: 40 * Appearance.effectiveScale
-                    radius: 8 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3surfaceContainerLow
-                    border.width: cityInput.activeFocus ? Math.max(1, 2 * Appearance.effectiveScale) : 0
-                    border.color: Appearance.colors.colPrimary
-
-                    TextInput {
-                        id: cityInput
-                        anchors.fill: parent
-                        anchors.leftMargin: 12 * Appearance.effectiveScale
-                        anchors.rightMargin: 12 * Appearance.effectiveScale
-                        verticalAlignment: TextInput.AlignVCenter
-                        font.family: Appearance.font.family.main
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        color: Appearance.colors.colOnLayer1
-                        text: (Config.ready && Config.options.weather) ? Config.options.weather.location : ""
-                        onEditingFinished: {
-                            if (Config.ready && Config.options.weather)
-                                Config.options.weather.location = text;
-                        }
+                    Layout.preferredHeight: 40 * Appearance.effectiveScale
+                    inputRadius: 8
+                    text: (Config.ready && Config.options.weather) ? Config.options.weather.location : ""
+                    onEditingFinished: {
+                        if (Config.ready && Config.options.weather)
+                            Config.options.weather.location = text;
                     }
                 }
             }

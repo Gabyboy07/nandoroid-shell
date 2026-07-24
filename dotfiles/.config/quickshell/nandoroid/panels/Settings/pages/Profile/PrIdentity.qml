@@ -68,38 +68,13 @@ ColumnLayout {
 
                 Item { Layout.fillWidth: true }
 
-                Rectangle {
-                    implicitWidth: 250 * Appearance.effectiveScale
-                    implicitHeight: 48 * Appearance.effectiveScale
-                    radius: 12 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3surfaceContainerLow
-                    border.width: displayNameInput.activeFocus ? Math.max(1, 2 * Appearance.effectiveScale) : 0
-                    border.color: Appearance.colors.colPrimary
+                StyledTextInput {
+                    id: displayNameInput
+                    Layout.preferredWidth: 250 * Appearance.effectiveScale
+                    text: Config.options.profile.displayName
+                    placeholder: SystemInfo.realName || SystemInfo.username
 
-                    TextInput {
-                        id: displayNameInput
-                        anchors.fill: parent
-                        anchors.leftMargin: 16 * Appearance.effectiveScale
-                        anchors.rightMargin: 16 * Appearance.effectiveScale
-                        verticalAlignment: TextInput.AlignVCenter
-                        font.family: Appearance.font.family.main
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        color: Appearance.colors.colOnLayer1
-                        clip: true
-                        text: Config.options.profile.displayName
-
-                        onEditingFinished: {
-                            displayNameDebounceTimer.restart()
-                        }
-
-                        StyledText {
-                            anchors.fill: parent
-                            verticalAlignment: Text.AlignVCenter
-                            text: SystemInfo.realName || SystemInfo.username
-                            color: Appearance.colors.colSubtext
-                            visible: displayNameInput.text === "" && !displayNameInput.activeFocus
-                        }
-                    }
+                    onEditingFinished: displayNameDebounceTimer.restart()
                 }
 
                 Timer {

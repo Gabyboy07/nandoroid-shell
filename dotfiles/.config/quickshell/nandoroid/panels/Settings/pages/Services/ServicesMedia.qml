@@ -66,26 +66,12 @@ ColumnLayout {
                 }
                 Item { Layout.fillWidth: true }
                 
-                Rectangle {
+                StyledTextInput {
+                    id: priorityInput
                     Layout.preferredWidth: 200 * Appearance.effectiveScale
-                    height: 48 * Appearance.effectiveScale
-                    radius: 12 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3surfaceContainerLow
-                    border.width: priorityInput.activeFocus ? Math.max(1, 2 * Appearance.effectiveScale) : 0
-                    border.color: Appearance.colors.colPrimary
-
-                    TextInput {
-                        id: priorityInput
-                        anchors.fill: parent
-                        anchors.leftMargin: 16 * Appearance.effectiveScale
-                        anchors.rightMargin: 16 * Appearance.effectiveScale
-                        verticalAlignment: TextInput.AlignVCenter
-                        font.family: Appearance.font.family.main
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        color: Appearance.colors.colOnLayer1
-                        text: (Config.ready && Config.options.media) ? Config.options.media.priority : ""
-                        onEditingFinished: { if (Config.ready && Config.options.media) Config.options.media.priority = text; }
-                    }
+                    Layout.preferredHeight: 48 * Appearance.effectiveScale
+                    text: (Config.ready && Config.options.media) ? Config.options.media.priority : ""
+                    onEditingFinished: { if (Config.ready && Config.options.media) Config.options.media.priority = text; }
                 }
             }
         }

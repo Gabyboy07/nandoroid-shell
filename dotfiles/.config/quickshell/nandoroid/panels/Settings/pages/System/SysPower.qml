@@ -117,37 +117,15 @@ ColumnLayout {
 
                 Item { Layout.fillWidth: true }
 
-                Rectangle {
+                StyledTextInput {
+                    id: powerPathInput
                     Layout.preferredWidth: 250 * Appearance.effectiveScale
                     Layout.preferredHeight: 48 * Appearance.effectiveScale
-                    radius: 12 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3surfaceContainerLow
-                    border.width: powerPathInput.activeFocus ? Math.max(1, 2 * Appearance.effectiveScale) : 0
-                    border.color: Appearance.colors.colPrimary
-
-                    TextInput {
-                        id: powerPathInput
-                        anchors.fill: parent
-                        anchors.leftMargin: 16 * Appearance.effectiveScale
-                        anchors.rightMargin: 16 * Appearance.effectiveScale
-                        verticalAlignment: TextInput.AlignVCenter
-                        font.family: Appearance.font.family.main
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        color: Appearance.colors.colOnLayer1
-                        clip: true
-                        text: (Config.ready && Config.options.powerProfile) ? Config.options.powerProfile.customPath : "/tmp/ryzen_mode"
-                        onEditingFinished: { 
-                            if (Config.ready && Config.options.powerProfile) {
-                                Config.options.powerProfile.customPath = text;
-                            }
-                        }
-                        
-                        StyledText {
-                            anchors.fill: parent
-                            verticalAlignment: Text.AlignVCenter
-                            text: "Enter path (e.g., /tmp/ryzen_mode)"
-                            color: Appearance.colors.colSubtext
-                            visible: powerPathInput.text === "" && !powerPathInput.activeFocus
+                    text: (Config.ready && Config.options.powerProfile) ? Config.options.powerProfile.customPath : "/tmp/ryzen_mode"
+                    placeholder: "Enter path (e.g., /tmp/ryzen_mode)"
+                    onEditingFinished: { 
+                        if (Config.ready && Config.options.powerProfile) {
+                            Config.options.powerProfile.customPath = text;
                         }
                     }
                 }

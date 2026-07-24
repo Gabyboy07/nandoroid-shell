@@ -189,36 +189,15 @@ ColumnLayout {
                     Layout.preferredWidth: 200 * Appearance.effectiveScale
                 }
                 
-                Rectangle {
+                StyledTextInput {
+                    id: pathInput
                     Layout.fillWidth: true
                     Layout.preferredHeight: 48 * Appearance.effectiveScale
-                    radius: 12 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3surfaceContainerLow
-                    border.width: pathInput.activeFocus ? Math.max(1, 2 * Appearance.effectiveScale) : 0
-                    border.color: Appearance.colors.colPrimary
-
-                    TextInput {
-                        id: pathInput
-                        anchors.fill: parent
-                        anchors.leftMargin: 16 * Appearance.effectiveScale
-                        anchors.rightMargin: 16 * Appearance.effectiveScale
-                        verticalAlignment: TextInput.AlignVCenter
-                        font.family: Appearance.font.family.main
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        color: Appearance.colors.colOnLayer1
-                        text: (Config.ready && Config.options.screenshot) ? Config.options.screenshot.savePath : ""
-                        onEditingFinished: {
-                            if (Config.ready && Config.options.screenshot) {
-                                Config.options.screenshot.savePath = Functions.FileUtils.trimFileProtocol(text);
-                            }
-                        }
-                        
-                        StyledText {
-                            anchors.fill: parent
-                            verticalAlignment: Text.AlignVCenter
-                            text: "Enter screenshot directory path"
-                            color: Appearance.colors.colSubtext
-                            visible: pathInput.text === "" && !pathInput.activeFocus
+                    text: (Config.ready && Config.options.screenshot) ? Config.options.screenshot.savePath : ""
+                    placeholder: "Enter screenshot directory path"
+                    onEditingFinished: {
+                        if (Config.ready && Config.options.screenshot) {
+                            Config.options.screenshot.savePath = Functions.FileUtils.trimFileProtocol(text);
                         }
                     }
                 }
@@ -248,36 +227,15 @@ ColumnLayout {
                     Layout.preferredWidth: 200 * Appearance.effectiveScale
                 }
                 
-                Rectangle {
+                StyledTextInput {
+                    id: recordPathInput
                     Layout.fillWidth: true
                     Layout.preferredHeight: 48 * Appearance.effectiveScale
-                    radius: 12 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3surfaceContainerLow
-                    border.width: recordPathInput.activeFocus ? Math.max(1, 2 * Appearance.effectiveScale) : 0
-                    border.color: Appearance.colors.colPrimary
-
-                    TextInput {
-                        id: recordPathInput
-                        anchors.fill: parent
-                        anchors.leftMargin: 16 * Appearance.effectiveScale
-                        anchors.rightMargin: 16 * Appearance.effectiveScale
-                        verticalAlignment: TextInput.AlignVCenter
-                        font.family: Appearance.font.family.main
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        color: Appearance.colors.colOnLayer1
-                        text: (Config.ready && Config.options.screenshot) ? Config.options.screenshot.recordPath : ""
-                        onEditingFinished: {
-                            if (Config.ready && Config.options.screenshot) {
-                                Config.options.screenshot.recordPath = Functions.FileUtils.trimFileProtocol(text);
-                            }
-                        }
-                        
-                        StyledText {
-                            anchors.fill: parent
-                            verticalAlignment: Text.AlignVCenter
-                            text: "Enter recording directory path"
-                            color: Appearance.colors.colSubtext
-                            visible: recordPathInput.text === "" && !recordPathInput.activeFocus
+                    text: (Config.ready && Config.options.screenshot) ? Config.options.screenshot.recordPath : ""
+                    placeholder: "Enter recording directory path"
+                    onEditingFinished: {
+                        if (Config.ready && Config.options.screenshot) {
+                            Config.options.screenshot.recordPath = Functions.FileUtils.trimFileProtocol(text);
                         }
                     }
                 }
