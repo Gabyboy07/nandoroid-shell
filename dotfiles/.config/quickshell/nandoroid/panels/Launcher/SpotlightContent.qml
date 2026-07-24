@@ -13,7 +13,7 @@ Rectangle {
     readonly property bool isSpotlight: true
     
     color: Appearance.colors.colLayer1
-    radius: 20 * Appearance.effectiveScale
+    radius: Appearance.rounding.large
     
     // MD3 Outline Style
     border.width: 1 * Appearance.effectiveScale
@@ -25,9 +25,9 @@ Rectangle {
     property bool isKeyboardNavigation: false
     readonly property bool hasQuery: LauncherSearch.query !== ""
     
-    width: 700 * Appearance.effectiveScale
-    height: 500 * Appearance.effectiveScale
-    implicitHeight: 500 * Appearance.effectiveScale
+    width: 560 * Appearance.effectiveScale
+    height: 460 * Appearance.effectiveScale
+    implicitHeight: 460 * Appearance.effectiveScale
     
     function executeSelected() {
         if (root.resultsProxy && root.resultsProxy.length > 0 && selectedIndex >= 0 && selectedIndex < root.resultsProxy.length) {
@@ -50,8 +50,8 @@ Rectangle {
     ColumnLayout {
         id: layout
         anchors.fill: parent
-        anchors.margins: 20 * Appearance.effectiveScale
-        spacing: 16 * Appearance.effectiveScale
+        anchors.margins: 16 * Appearance.effectiveScale
+        spacing: 12 * Appearance.effectiveScale
         
         LauncherSearchField {
             id: searchField
@@ -68,7 +68,7 @@ Rectangle {
             visible: true
             interactive: true
             clip: true
-            spacing: 8 * Appearance.effectiveScale
+            spacing: 4 * Appearance.effectiveScale
             
             model: root.resultsProxy
             delegate: LauncherListView {
@@ -91,7 +91,6 @@ Rectangle {
         RowLayout {
             id: footer
             Layout.fillWidth: true
-            Layout.topMargin: 8 * Appearance.effectiveScale
             spacing: 12 * Appearance.effectiveScale
             
             // Mode Indicator (Prefix-based)

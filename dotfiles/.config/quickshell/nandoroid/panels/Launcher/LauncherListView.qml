@@ -16,7 +16,7 @@ RippleButton {
     height: 64 * Appearance.effectiveScale
     
     colBackground: root.selected ? Qt.alpha(Appearance.m3colors.m3primary, 0.1) : "transparent"
-    buttonRadius: 12 * Appearance.effectiveScale
+    buttonRadius: Appearance.rounding.normal
     
     onClicked: {
         if (result) {
