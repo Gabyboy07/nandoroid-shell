@@ -40,6 +40,26 @@ case "$action" in
         fi
         jq -s '.[0] * .[1] | del(._presetMeta)' "$CONFIG_FILE" "$preset_file" \
             > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
+
+        matugen_enabled=$(jq -r '.appearance.background.matugen // false' "$CONFIG_FILE")
+        if [ "$matugen_enabled" = "true" ]; then
+            wallpaper=$(jq -r '.appearance.background.wallpaperPath // ""' "$CONFIG_FILE")
+            wallpaper="${wallpaper#file://}"
+            if [ -n "$wallpaper" ] && [ -f "$wallpaper" ]; then
+                scheme=$(jq -r '.appearance.background.matugenScheme // "scheme-tonal-spot"' "$CONFIG_FILE")
+                darkmode=$(jq -r '.appearance.background.darkmode // true' "$CONFIG_FILE")
+                [ "$darkmode" = "true" ] && mode="dark" || mode="light"
+                matugen -c ~/.config/matugen/config.toml -t "$scheme" -m "$mode" image "$wallpaper" --source-color-index 0
+            fi
+        else
+            custom_color=$(jq -r '.appearance.background.matugenCustomColor // ""' "$CONFIG_FILE")
+            if [ -n "$custom_color" ]; then
+                scheme=$(jq -r '.appearance.background.matugenScheme // "scheme-tonal-spot"' "$CONFIG_FILE")
+                darkmode=$(jq -r '.appearance.background.darkmode // true' "$CONFIG_FILE")
+                [ "$darkmode" = "true" ] && mode="dark" || mode="light"
+                matugen -c ~/.config/matugen/config.toml -t "$scheme" -m "$mode" color hex "$custom_color"
+            fi
+        fi
         ;;
     *)
         echo "Error: unknown action: $action" >&2
