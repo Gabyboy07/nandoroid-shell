@@ -345,183 +345,420 @@ Item {
         }
         spacing: 12 * Appearance.effectiveScale
 
-        // Main QS Header
-        Rectangle {
-            id: qsHeader
+        // Main QS Header / Banner
+        Loader {
+            id: qsHeaderLoader
             Layout.fillWidth: true
-            implicitHeight: 64 * Appearance.effectiveScale
-            radius: Appearance.rounding.panel
-            color: Appearance.colors.colLayer1
-            
-            RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 12 * Appearance.effectiveScale
-                anchors.rightMargin: 12 * Appearance.effectiveScale
-                spacing: 12 * Appearance.effectiveScale
+            Layout.preferredHeight: item ? item.implicitHeight : 0
+            sourceComponent: Config.options.quickSettings.showBanner ? bannerComponent : normalHeaderComponent
+        }
 
-                // User avatar
-                Item {
-                    Layout.preferredWidth: 44 * Appearance.effectiveScale
-                    Layout.preferredHeight: 44 * Appearance.effectiveScale
-                    
-                    Image {
-                        id: avatarImage
-                        anchors.fill: parent
-                        source: {
-                            const profPath = Config.options.profile?.avatarPicture;
-                            if (profPath && profPath !== "") return `file://${profPath}`;
-                            const cfgPath = Config.options.bar?.avatar_path;
-                            if (cfgPath && cfgPath !== "") return `file://${cfgPath}`;
-                            if (SystemInfo.userAvatarValid) return "file://" + SystemInfo.userAvatarPath;
-                            return "";
+        Component {
+            id: normalHeaderComponent
+            Rectangle {
+                implicitHeight: 64 * Appearance.effectiveScale
+                radius: Appearance.rounding.panel
+                color: Appearance.colors.colLayer1
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 12 * Appearance.effectiveScale
+                    anchors.rightMargin: 12 * Appearance.effectiveScale
+                    spacing: 12 * Appearance.effectiveScale
+
+                    // User avatar
+                    Item {
+                        Layout.preferredWidth: 44 * Appearance.effectiveScale
+                        Layout.preferredHeight: 44 * Appearance.effectiveScale
+
+                        Image {
+                            id: avatarImage
+                            anchors.fill: parent
+                            source: {
+                                const profPath = Config.options.profile?.avatarPicture;
+                                if (profPath && profPath !== "") return "file://" + profPath;
+                                const cfgPath = Config.options.bar?.avatar_path;
+                                if (cfgPath && cfgPath !== "") return "file://" + cfgPath;
+                                if (SystemInfo.userAvatarValid) return "file://" + SystemInfo.userAvatarPath;
+                                return "";
+                            }
+                            sourceSize: Qt.size(44 * Appearance.effectiveScale, 44 * Appearance.effectiveScale)
+                            fillMode: Image.PreserveAspectCrop
+                            visible: false
                         }
-                        sourceSize: Qt.size(44 * Appearance.effectiveScale, 44 * Appearance.effectiveScale)
-                        fillMode: Image.PreserveAspectCrop
-                        visible: false
-                    }
 
-                    Rectangle {
-                        id: avatarMask
-                        anchors.fill: parent
-                        radius: 22 * Appearance.effectiveScale
-                        visible: false
-                    }
+                        Rectangle {
+                            id: avatarMask
+                            anchors.fill: parent
+                            radius: 22 * Appearance.effectiveScale
+                            visible: false
+                        }
 
-                    OpacityMask {
-                        anchors.fill: parent
-                        source: avatarImage
-                        maskSource: avatarMask
-                        visible: avatarImage.status === Image.Ready
-                    }
+                        OpacityMask {
+                            anchors.fill: parent
+                            source: avatarImage
+                            maskSource: avatarMask
+                            visible: avatarImage.status === Image.Ready
+                        }
 
-                    MaterialSymbol {
-                        anchors.centerIn: parent
-                        visible: avatarImage.status !== Image.Ready
-                        text: "person"
-                        iconSize: 24 * Appearance.effectiveScale
-                        fill: 1
-                        color: Appearance.m3colors.m3onPrimaryContainer
-                    }
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            visible: avatarImage.status !== Image.Ready
+                            text: "person"
+                            iconSize: 24 * Appearance.effectiveScale
+                            fill: 1
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            root.close()
-                            GlobalStates.settingsPageIndex = 8
-                            GlobalStates.activateSettings()
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                root.close()
+                                GlobalStates.settingsPageIndex = 8
+                                GlobalStates.activateSettings()
+                            }
                         }
                     }
-                }
 
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: -2 * Appearance.effectiveScale
-
-                    StyledText {
-                        text: {
-                            const displayName = Config.options.profile?.displayName;
-                            if (displayName && displayName !== "") return displayName;
-                            return SystemInfo.realName || SystemInfo.username;
-                        }
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.m3colors.m3onSurface
-                        elide: Text.ElideRight
+                    ColumnLayout {
                         Layout.fillWidth: true
+                        spacing: -2 * Appearance.effectiveScale
+
+                        StyledText {
+                            text: {
+                                const displayName = Config.options.profile?.displayName;
+                                if (displayName && displayName !== "") return displayName;
+                                return SystemInfo.realName || SystemInfo.username;
+                            }
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            font.weight: Font.Medium
+                            color: Appearance.m3colors.m3onSurface
+                            elide: Text.ElideRight
+                            Layout.fillWidth: true
+                        }
+
+                        StyledText {
+                            text: {
+                                const descMode = Config.options.profile?.descriptionText || "::distro::";
+                                if (descMode === "::uptime::") return "Up " + DateTime.uptime;
+                                return SystemInfo.distroName || "Linux System";
+                            }
+                            font.pixelSize: Appearance.font.pixelSize.smaller
+                            color: Appearance.m3colors.m3outline
+                        }
                     }
 
-                    StyledText {
-                        text: {
-                            const descMode = Config.options.profile?.descriptionText || "::distro::";
-                            if (descMode === "::uptime::") return "Up " + DateTime.uptime;
-                            return SystemInfo.distroName || "Linux System";
+                    // Right-side buttons
+                    Row {
+                        spacing: 4 * Appearance.effectiveScale
+
+                        RippleButton {
+                            implicitWidth: 36 * Appearance.effectiveScale
+                            implicitHeight: 36 * Appearance.effectiveScale
+                            buttonRadius: 18 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer2
+                            colRipple: Appearance.colors.colLayer2Active
+                            onClicked: {
+                                root.close()
+                                GlobalStates.wallpaperSelectorTarget = "desktop"
+                                GlobalStates.wallpaperSelectorOpen = true
+                            }
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "palette"
+                                iconSize: 18 * Appearance.effectiveScale
+                                color: Appearance.m3colors.m3onSurface
+                            }
+                            StyledToolTip { text: "Change Wallpaper" }
                         }
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.m3colors.m3outline
+
+                        RippleButton {
+                            implicitWidth: 36 * Appearance.effectiveScale
+                            implicitHeight: 36 * Appearance.effectiveScale
+                            buttonRadius: 18 * Appearance.effectiveScale
+                            colBackground: root.editMode ? Appearance.m3colors.m3primaryContainer : "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer2
+                            colRipple: Appearance.colors.colLayer2Active
+                            onClicked: GlobalStates.quickSettingsEditMode = !GlobalStates.quickSettingsEditMode
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: root.editMode ? "check" : "edit"
+                                iconSize: 18 * Appearance.effectiveScale
+                                color: root.editMode ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
+                            }
+                            StyledToolTip { text: root.editMode ? "Done Editing" : "Edit Toggles" }
+                        }
+
+                        RippleButton {
+                            implicitWidth: 36 * Appearance.effectiveScale
+                            implicitHeight: 36 * Appearance.effectiveScale
+                            buttonRadius: 18 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer2
+                            colRipple: Appearance.colors.colLayer2Active
+                            onClicked: {
+                                GlobalStates.quickSettingsOpen = false
+                                GlobalStates.activateSettings()
+                            }
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "settings"
+                                iconSize: 18 * Appearance.effectiveScale
+                                color: Appearance.m3colors.m3onSurface
+                            }
+                            StyledToolTip { text: "System Settings" }
+                        }
+
+                        RippleButton {
+                            implicitWidth: 36 * Appearance.effectiveScale
+                            implicitHeight: 36 * Appearance.effectiveScale
+                            buttonRadius: 18 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer2
+                            colRipple: Appearance.colors.colLayer2Active
+                            onClicked: {
+                                GlobalStates.quickSettingsOpen = false
+                                GlobalStates.sessionOpen = true
+                            }
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "power_settings_new"
+                                iconSize: 18 * Appearance.effectiveScale
+                                color: Appearance.m3colors.m3onSurface
+                            }
+                            StyledToolTip { text: "Power Menu" }
+                        }
+                    }
+                }
+            }
+        }
+
+        Component {
+            id: bannerComponent
+            Rectangle {
+                implicitHeight: 180 * Appearance.effectiveScale
+                radius: Appearance.rounding.panel
+                color: Appearance.colors.colLayer1
+                clip: true
+
+                Rectangle {
+                    id: bannerImgRect
+                    anchors {
+                        top: parent.top; left: parent.left; right: parent.right
+                        topMargin: 2; leftMargin: 2; rightMargin: 2
+                    }
+                    height: 120 * Appearance.effectiveScale
+                    radius: parent.radius - 2
+                    color: "transparent"
+
+                    StyledImage {
+                        anchors.fill: parent
+                        fillMode: Image.PreserveAspectCrop
+                        source: Config.options.profile.bannerImage !== ""
+                            ? "file://" + Config.options.profile.bannerImage
+                            : Config.options.appearance.background.wallpaperPath
+                        cache: false
+                        antialiasing: true
+                        sourceSize.width: bannerImgRect.width * 2
+                        sourceSize.height: bannerImgRect.height * 2
+                        layer.enabled: true
+                        layer.effect: OpacityMask {
+                            maskSource: Rectangle {
+                                width: bannerImgRect.width
+                                height: bannerImgRect.height
+                                radius: bannerImgRect.radius
+                            }
+                        }
                     }
                 }
 
-                 // Right-side buttons
-                Row {
-                    spacing: 4 * Appearance.effectiveScale
-
-                    RippleButton {
-                        implicitWidth: 36 * Appearance.effectiveScale
-                        implicitHeight: 36 * Appearance.effectiveScale
-                        buttonRadius: 18 * Appearance.effectiveScale
-                        colBackground: "transparent"
-                        colBackgroundHover: Appearance.colors.colLayer2
-                        colRipple: Appearance.colors.colLayer2Active
-                        onClicked: {
-                            root.close()
-                            GlobalStates.wallpaperSelectorTarget = "desktop"
-                            GlobalStates.wallpaperSelectorOpen = true
-                        }
-                        MaterialSymbol {
-                            anchors.centerIn: parent
-                            text: "palette"
-                            iconSize: 18 * Appearance.effectiveScale
-                            color: Appearance.m3colors.m3onSurface
-                        }
-                        StyledToolTip { text: "Change Wallpaper" }
+                // Bottom area: avatar + identity (left), buttons (right), vertically centered
+                Item {
+                    anchors {
+                        top: bannerImgRect.bottom
+                        left: parent.left
+                        right: parent.right
+                        bottom: parent.bottom
                     }
 
-                    RippleButton {
-                        implicitWidth: 36 * Appearance.effectiveScale
-                        implicitHeight: 36 * Appearance.effectiveScale
-                        buttonRadius: 18 * Appearance.effectiveScale
-                        colBackground: root.editMode ? Appearance.m3colors.m3primaryContainer : "transparent"
-                        colBackgroundHover: Appearance.colors.colLayer2
-                        colRipple: Appearance.colors.colLayer2Active
-                        onClicked: GlobalStates.quickSettingsEditMode = !GlobalStates.quickSettingsEditMode
-                        MaterialSymbol {
-                            anchors.centerIn: parent
-                            text: root.editMode ? "check" : "edit"
-                            iconSize: 18 * Appearance.effectiveScale
-                            color: root.editMode ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
+                    RowLayout {
+                        anchors {
+                            left: parent.left
+                            right: buttonsRow.left
+                            verticalCenter: parent.verticalCenter
+                            leftMargin: 12 * Appearance.effectiveScale
+                            rightMargin: 8 * Appearance.effectiveScale
                         }
-                        StyledToolTip { text: root.editMode ? "Done Editing" : "Edit Toggles" }
+                        spacing: 10 * Appearance.effectiveScale
+
+                        Rectangle {
+                            width: 44 * Appearance.effectiveScale
+                            height: 44 * Appearance.effectiveScale
+                            radius: width / 2
+                            color: Appearance.colors.colPrimaryContainer
+
+                            Image {
+                                id: bannerAvatar
+                                anchors.fill: parent
+                                source: {
+                                    const profPath = Config.options.profile?.avatarPicture;
+                                    if (profPath && profPath !== "") return "file://" + profPath;
+                                    const cfgPath = Config.options.bar?.avatar_path;
+                                    if (cfgPath && cfgPath !== "") return "file://" + cfgPath;
+                                    if (SystemInfo.userAvatarValid) return "file://" + SystemInfo.userAvatarPath;
+                                    return "";
+                                }
+                                sourceSize: Qt.size(44 * Appearance.effectiveScale, 44 * Appearance.effectiveScale)
+                                fillMode: Image.PreserveAspectCrop
+                                layer.enabled: true
+                                layer.effect: OpacityMask {
+                                    maskSource: Rectangle {
+                                        width: 44 * Appearance.effectiveScale
+                                        height: 44 * Appearance.effectiveScale
+                                        radius: 22 * Appearance.effectiveScale
+                                    }
+                                }
+                                onStatusChanged: {
+                                    if (status === Image.Error) visible = false
+                                }
+                            }
+
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "account_circle"
+                                iconSize: 28 * Appearance.effectiveScale
+                                color: Appearance.colors.colOnPrimaryContainer
+                                visible: bannerAvatar.status === Image.Error
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    root.close()
+                                    GlobalStates.settingsPageIndex = 8
+                                    GlobalStates.activateSettings()
+                                }
+                            }
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: -2 * Appearance.effectiveScale
+
+                            StyledText {
+                                text: {
+                                    const displayName = Config.options.profile?.displayName;
+                                    if (displayName && displayName !== "") return displayName;
+                                    return SystemInfo.realName || SystemInfo.username;
+                                }
+                                font.pixelSize: Appearance.font.pixelSize.normal
+                                font.weight: Font.Medium
+                                color: Appearance.colors.colOnLayer1
+                                elide: Text.ElideRight
+                                Layout.fillWidth: true
+                            }
+
+                            StyledText {
+                                text: {
+                                    const descMode = Config.options.profile?.descriptionText || "::distro::";
+                                    if (descMode === "::uptime::") return "Up " + DateTime.uptime;
+                                    return SystemInfo.distroName || "Linux System";
+                                }
+                                font.pixelSize: Appearance.font.pixelSize.smaller
+                                color: Appearance.m3colors.m3outline
+                            }
+                        }
                     }
 
-                    RippleButton {
-                        implicitWidth: 36 * Appearance.effectiveScale
-                        implicitHeight: 36 * Appearance.effectiveScale
-                        buttonRadius: 18 * Appearance.effectiveScale
-                        colBackground: "transparent"
-                        colBackgroundHover: Appearance.colors.colLayer2
-                        colRipple: Appearance.colors.colLayer2Active
-                        onClicked: {
-                            GlobalStates.quickSettingsOpen = false
-                            GlobalStates.activateSettings()
+                    Row {
+                        id: buttonsRow
+                        anchors {
+                            right: parent.right
+                            verticalCenter: parent.verticalCenter
+                            rightMargin: 12 * Appearance.effectiveScale
                         }
-                        MaterialSymbol {
-                            anchors.centerIn: parent
-                            text: "settings"
-                            iconSize: 18 * Appearance.effectiveScale
-                            color: Appearance.m3colors.m3onSurface
-                        }
-                        StyledToolTip { text: "System Settings" }
-                    }
+                        spacing: 4 * Appearance.effectiveScale
 
-                    RippleButton {
-                        implicitWidth: 36 * Appearance.effectiveScale
-                        implicitHeight: 36 * Appearance.effectiveScale
-                        buttonRadius: 18 * Appearance.effectiveScale
-                        colBackground: "transparent"
-                        colBackgroundHover: Appearance.colors.colLayer2
-                        colRipple: Appearance.colors.colLayer2Active
-                        onClicked: {
-                            GlobalStates.quickSettingsOpen = false
-                            GlobalStates.sessionOpen = true
+                        RippleButton {
+                            implicitWidth: 36 * Appearance.effectiveScale
+                            implicitHeight: 36 * Appearance.effectiveScale
+                            buttonRadius: 18 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer2
+                            colRipple: Appearance.colors.colLayer2Active
+                            onClicked: {
+                                root.close()
+                                GlobalStates.wallpaperSelectorTarget = "desktop"
+                                GlobalStates.wallpaperSelectorOpen = true
+                            }
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "palette"
+                                iconSize: 18 * Appearance.effectiveScale
+                                color: Appearance.m3colors.m3onSurface
+                            }
+                            StyledToolTip { text: "Change Wallpaper" }
                         }
-                        MaterialSymbol {
-                            anchors.centerIn: parent
-                            text: "power_settings_new"
-                            iconSize: 18 * Appearance.effectiveScale
-                            color: Appearance.m3colors.m3onSurface
+
+                        RippleButton {
+                            implicitWidth: 36 * Appearance.effectiveScale
+                            implicitHeight: 36 * Appearance.effectiveScale
+                            buttonRadius: 18 * Appearance.effectiveScale
+                            colBackground: root.editMode ? Appearance.m3colors.m3primaryContainer : "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer2
+                            colRipple: Appearance.colors.colLayer2Active
+                            onClicked: GlobalStates.quickSettingsEditMode = !GlobalStates.quickSettingsEditMode
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: root.editMode ? "check" : "edit"
+                                iconSize: 18 * Appearance.effectiveScale
+                                color: root.editMode ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
+                            }
+                            StyledToolTip { text: root.editMode ? "Done Editing" : "Edit Toggles" }
                         }
-                        StyledToolTip { text: "Power Menu" }
+
+                        RippleButton {
+                            implicitWidth: 36 * Appearance.effectiveScale
+                            implicitHeight: 36 * Appearance.effectiveScale
+                            buttonRadius: 18 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer2
+                            colRipple: Appearance.colors.colLayer2Active
+                            onClicked: {
+                                GlobalStates.quickSettingsOpen = false
+                                GlobalStates.activateSettings()
+                            }
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "settings"
+                                iconSize: 18 * Appearance.effectiveScale
+                                color: Appearance.m3colors.m3onSurface
+                            }
+                            StyledToolTip { text: "System Settings" }
+                        }
+
+                        RippleButton {
+                            implicitWidth: 36 * Appearance.effectiveScale
+                            implicitHeight: 36 * Appearance.effectiveScale
+                            buttonRadius: 18 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer2
+                            colRipple: Appearance.colors.colLayer2Active
+                            onClicked: {
+                                GlobalStates.quickSettingsOpen = false
+                                GlobalStates.sessionOpen = true
+                            }
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "power_settings_new"
+                                iconSize: 18 * Appearance.effectiveScale
+                                color: Appearance.m3colors.m3onSurface
+                            }
+                            StyledToolTip { text: "Power Menu" }
+                        }
                     }
                 }
             }

@@ -399,6 +399,7 @@ property JsonObject background: JsonObject {
             // --- Quick Settings ---
             property JsonObject quickSettings: JsonObject {
                 property bool caffeineActive: false
+                property bool showBanner: false
                 property bool showPerformanceStats: true
                 property string quickActionsPosition: "top" 
                 property list<var> toggles: [
@@ -567,6 +568,7 @@ property JsonObject background: JsonObject {
             // --- Profile ---
             property JsonObject profile: JsonObject {
                 property string avatarPicture: ""
+                property string bannerImage: ""
                 property string displayName: ""
                 property string descriptionText: "::distro::"
             }

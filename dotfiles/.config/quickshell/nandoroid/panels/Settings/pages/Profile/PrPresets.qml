@@ -111,6 +111,15 @@ ColumnLayout {
             spacing: 12 * Appearance.effectiveScale
             visible: presetsModel.count > 0
 
+            property real cardWidth: 240 * Appearance.effectiveScale
+
+            onWidthChanged: Qt.callLater(() => {
+                const sp = presetsFlow.spacing
+                const available = presetsFlow.width - 2 * sp
+                if (available > 0) presetsFlow.cardWidth = Math.floor(available / 3)
+            })
+            Component.onCompleted: presetsFlow.widthChanged()
+
             Repeater {
                 model: presetsModel
 
@@ -137,12 +146,7 @@ ColumnLayout {
                     readonly property real cardRadius: 20 * Appearance.effectiveScale
                     readonly property real imgHeight: 120 * Appearance.effectiveScale
 
-                    readonly property real cardWidth: {
-                        const sp = presetsFlow.spacing
-                        const available = parent.width - 2 * sp
-                        return available > 0 ? available / 3 : 240 * Appearance.effectiveScale
-                    }
-                    width: cardWidth
+                    width: presetsFlow.cardWidth
                     radius: cardRadius
                     color: Appearance.m3colors.m3surfaceContainerHigh
 

@@ -15,12 +15,28 @@ ColumnLayout {
 
     SearchHandler {
         searchString: "Avatar"
-        aliases: ["Profile Picture", "User Image", "Avatar Path", "Profile Photo"]
+        aliases: ["Profile Picture", "User Image", "Avatar Path", "Profile Photo", "Banner Image", "Quick Settings Banner"]
     }
 
     Process {
         id: avatarPickerProc
         command: ["bash", "-c", "quickshell -c nandoroid ipc call spotlight browse_avatar"]
+    }
+
+    Process {
+        id: bannerPickerProc
+        command: ["zenity", "--file-selection", "--title=Select Banner Image", "--file-filter=Images | *.png *.jpg *.jpeg *.webp", "--modal"]
+        stdout: StdioCollector {
+            id: bannerPickerOutput
+        }
+        onExited: (code) => {
+            if (code === 0) {
+                const path = bannerPickerOutput.text.trim()
+                if (path !== "") {
+                    Config.options.profile.bannerImage = path
+                }
+            }
+        }
     }
 
     ColumnLayout {
@@ -190,6 +206,181 @@ ColumnLayout {
                             onClicked: {
                                 Config.options.profile.avatarPicture = ""
                                 Config.options.bar.avatar_path = ""
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ── Banner Image ──
+    ColumnLayout {
+        Layout.fillWidth: true
+        Layout.topMargin: 16 * Appearance.effectiveScale
+        spacing: 4 * Appearance.effectiveScale
+
+        RowLayout {
+            spacing: 12 * Appearance.effectiveScale
+            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            MaterialSymbol {
+                text: "panorama"
+                iconSize: 24 * Appearance.effectiveScale
+                color: Appearance.colors.colPrimary
+            }
+            StyledText {
+                text: "Banner Image"
+                font.pixelSize: Appearance.font.pixelSize.large
+                font.weight: Font.Medium
+                color: Appearance.colors.colOnLayer1
+            }
+        }
+
+        SegmentedWrapper {
+            Layout.fillWidth: true
+            implicitHeight: bannerRow.implicitHeight + 40 * Appearance.effectiveScale
+            orientation: Qt.Vertical
+            maxRadius: 20 * Appearance.effectiveScale
+            color: Appearance.m3colors.m3surfaceContainerHigh
+
+            RowLayout {
+                id: bannerRow
+                anchors.fill: parent
+                anchors.margins: 20 * Appearance.effectiveScale
+                spacing: 20 * Appearance.effectiveScale
+
+                Item {
+                    Layout.preferredWidth: 80 * Appearance.effectiveScale
+                    Layout.preferredHeight: 50 * Appearance.effectiveScale
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 8 * Appearance.effectiveScale
+                        color: Appearance.colors.colLayer1
+                        clip: true
+
+                        Image {
+                            id: bannerPreview
+                            anchors.fill: parent
+                            source: Config.options.profile.bannerImage !== ""
+                                ? "file://" + Config.options.profile.bannerImage
+                                : ""
+                            sourceSize: Qt.size(160 * Appearance.effectiveScale, 100 * Appearance.effectiveScale)
+                            fillMode: Image.PreserveAspectCrop
+                            visible: false
+                        }
+
+                        OpacityMask {
+                            anchors.fill: parent
+                            source: bannerPreview
+                            maskSource: Rectangle {
+                                width: 80 * Appearance.effectiveScale
+                                height: 50 * Appearance.effectiveScale
+                                radius: 8 * Appearance.effectiveScale
+                            }
+                            visible: bannerPreview.status === Image.Ready
+                        }
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            visible: bannerPreview.status !== Image.Ready
+                            text: "image"
+                            iconSize: 24 * Appearance.effectiveScale
+                            color: Appearance.colors.colSubtext
+                        }
+                    }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignVCenter
+                    spacing: 2 * Appearance.effectiveScale
+
+                    StyledText {
+                        text: "Quick Settings Banner"
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnLayer1
+                    }
+
+                    StyledText {
+                        text: Config.options.profile.bannerImage !== ""
+                            ? Config.options.profile.bannerImage
+                            : "Uses current wallpaper"
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: Appearance.colors.colSubtext
+                        elide: Text.ElideRight
+                        Layout.fillWidth: true
+                    }
+                }
+
+                ColumnLayout {
+                    spacing: 8 * Appearance.effectiveScale
+                    Layout.alignment: Qt.AlignVCenter
+
+                    RippleButton {
+                        implicitWidth: 120 * Appearance.effectiveScale
+                        implicitHeight: 36 * Appearance.effectiveScale
+                        buttonRadius: 18 * Appearance.effectiveScale
+                        colBackground: Appearance.m3colors.m3primaryContainer
+
+                        RowLayout {
+                            anchors.centerIn: parent
+                            spacing: 6 * Appearance.effectiveScale
+                            MaterialSymbol {
+                                text: "folder_open"
+                                iconSize: 16 * Appearance.effectiveScale
+                                color: Appearance.m3colors.m3onPrimaryContainer
+                            }
+                            StyledText {
+                                text: "Browse"
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                color: Appearance.m3colors.m3onPrimaryContainer
+                            }
+                        }
+
+                        onClicked: {
+                            bannerPickerProc.running = true
+                        }
+                    }
+
+                    Item {
+                        implicitWidth: 120 * Appearance.effectiveScale
+                        implicitHeight: 36 * Appearance.effectiveScale
+                        visible: Config.options.profile.bannerImage !== ""
+
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 18 * Appearance.effectiveScale
+                            color: "transparent"
+                            border.width: 1 * Appearance.effectiveScale
+                            border.color: Appearance.colors.colError
+                            opacity: bannerClearMouse.containsMouse ? 0.8 : 1
+                            Behavior on opacity { NumberAnimation { duration: 150 } }
+                        }
+
+                        RowLayout {
+                            anchors.centerIn: parent
+                            spacing: 6 * Appearance.effectiveScale
+                            MaterialSymbol {
+                                text: "close"
+                                iconSize: 16 * Appearance.effectiveScale
+                                color: Appearance.colors.colError
+                            }
+                            StyledText {
+                                text: "Clear"
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                color: Appearance.colors.colError
+                            }
+                        }
+
+                        MouseArea {
+                            id: bannerClearMouse
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            hoverEnabled: true
+                            onClicked: {
+                                Config.options.profile.bannerImage = ""
                             }
                         }
                     }

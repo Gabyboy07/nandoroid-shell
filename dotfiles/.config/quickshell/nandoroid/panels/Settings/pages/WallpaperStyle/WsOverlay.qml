@@ -13,7 +13,7 @@ ColumnLayout {
         searchString: "Overlays"
         aliases: [
             "Notification Center", "Quick Settings", "Media Card", "Weather Card",
-            "Performance Stats", "System Monitor"
+            "Performance Stats", "System Monitor", "Banner Image"
         ]
     }
 
@@ -156,6 +156,27 @@ ColumnLayout {
                         checked: Config.ready && Config.options.quickSettings && Config.options.quickSettings.showPerformanceStats
                         onToggled: if (Config.ready && Config.options.quickSettings)
                             Config.options.quickSettings.showPerformanceStats = !Config.options.quickSettings.showPerformanceStats
+                    }
+                }
+            }
+
+            SegmentedWrapper {
+                Layout.fillWidth: true
+                implicitHeight: showQsBannerRow.implicitHeight + (32 * Appearance.effectiveScale)
+                orientation: Qt.Vertical
+                maxRadius: 20 * Appearance.effectiveScale
+                color: Appearance.m3colors.m3surfaceContainerHigh
+                RowLayout {
+                    id: showQsBannerRow
+                    anchors.fill: parent
+                    anchors.margins: 16 * Appearance.effectiveScale
+                    spacing: 16 * Appearance.effectiveScale
+                    MaterialSymbol { text: "panorama"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText { text: "Show Banner Image"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    AndroidToggle {
+                        checked: Config.ready && Config.options.quickSettings && Config.options.quickSettings.showBanner
+                        onToggled: if (Config.ready && Config.options.quickSettings)
+                            Config.options.quickSettings.showBanner = !Config.options.quickSettings.showBanner
                     }
                 }
             }
