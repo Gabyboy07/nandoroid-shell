@@ -39,7 +39,7 @@ ColumnLayout {
                     visible: PomodoroService.rotations > 0
                     height: 18 * Appearance.effectiveScale
                     width: rotationText.implicitWidth + 12 * Appearance.effectiveScale
-                    radius: 9 * Appearance.effectiveScale
+                    radius: Appearance.rounding.verysmall
                     color: Appearance.m3colors.m3secondaryContainer
                     StyledText {
                         id: rotationText
@@ -190,7 +190,7 @@ ColumnLayout {
                     anchors.verticalCenter: parent.verticalCenter
                     width: 16 * Appearance.effectiveScale
                     height: 16 * Appearance.effectiveScale
-                    radius: 8 * Appearance.effectiveScale
+                    radius: Appearance.rounding.verysmall
                     color: PomodoroService.autoContinue ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer1
                     Behavior on x { NumberAnimation { duration: 200 } }
                 }

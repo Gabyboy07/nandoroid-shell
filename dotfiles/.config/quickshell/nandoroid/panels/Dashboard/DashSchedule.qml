@@ -247,7 +247,7 @@ Item {
                                 Rectangle {
                                     implicitWidth: 24 * Appearance.effectiveScale
                                     implicitHeight: 24 * Appearance.effectiveScale
-                                    radius: 12 * Appearance.effectiveScale
+                                    radius: Appearance.rounding.small
                                     color: inDeleteZone ? Appearance.m3colors.m3surfaceContainerHigh : "transparent"
                                     MaterialSymbol {
                                         anchors.centerIn: parent

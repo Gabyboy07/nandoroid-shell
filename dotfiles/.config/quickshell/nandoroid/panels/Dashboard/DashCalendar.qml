@@ -192,7 +192,7 @@ RowLayout {
                     anchors.right: parent.right; anchors.bottom: parent.bottom
                     anchors.rightMargin: 8 * Appearance.effectiveScale; anchors.bottomMargin: 8 * Appearance.effectiveScale
                     visible: PomodoroService.rotations > 0
-                    width: 22 * Appearance.effectiveScale; height: 22 * Appearance.effectiveScale; radius: 11 * Appearance.effectiveScale
+                    width: 22 * Appearance.effectiveScale; height: 22 * Appearance.effectiveScale; radius: width / 2
                     color: Appearance.m3colors.m3secondaryContainer
                     StyledText {
                         anchors.centerIn: parent
@@ -287,7 +287,7 @@ RowLayout {
                         Rectangle {
                             x: PomodoroService.autoContinue ? parent.width - width - 3 * Appearance.effectiveScale : 3 * Appearance.effectiveScale
                             anchors.verticalCenter: parent.verticalCenter
-                            width: 16 * Appearance.effectiveScale; height: 16 * Appearance.effectiveScale; radius: 8 * Appearance.effectiveScale
+                            width: 16 * Appearance.effectiveScale; height: 16 * Appearance.effectiveScale; radius: Appearance.rounding.verysmall
                             color: PomodoroService.autoContinue
                                 ? Appearance.m3colors.m3onPrimary : Appearance.colors.colSubtext
                             Behavior on x { NumberAnimation { duration: 180 } }

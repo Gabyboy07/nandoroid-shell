@@ -151,7 +151,7 @@ Item {
                         Layout.fillWidth: true
                         spacing: 6 * Appearance.effectiveScale
                         Rectangle {
-                            width: 6 * Appearance.effectiveScale; height: 6 * Appearance.effectiveScale; radius: 3 * Appearance.effectiveScale
+                            width: 6 * Appearance.effectiveScale; height: 6 * Appearance.effectiveScale; radius: width / 2
                             color: Appearance.colors.colPrimary
                             Layout.alignment: Qt.AlignTop
                             Layout.topMargin: 6 * Appearance.effectiveScale
