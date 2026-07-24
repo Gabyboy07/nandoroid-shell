@@ -146,14 +146,26 @@ Flickable {
                     
                     const mode = Config.options.appearance.background.darkmode ? "dark" : "light";
                     let colors = [];
-                    
+
                     // Handle various matugen JSON formats (old vs new)
                     if (data.colors) {
                         if (data.colors.primary && typeof data.colors.primary === 'object') {
+                            // Pick a tone by mode, falling back to .default.
+                            const tone = (node) => (node && (node[mode] || node.default)) || "";
+                            // In light mode the normal primary/secondary/tertiary tones are deliberately
+                            // dark (inverse of the bright surface), making the preview swatches look harshly
+                            // contrasted against the card. Use *_container tones instead — they stay closer
+                            // to each scheme's real character while staying distinguishable. Dark mode keeps
+                            // the natural tones.
+                            const useContainer = (mode === "light");
+                            const container = (key) => {
+                                const node = data.colors[key + "_container"];
+                                return tone(node);
+                            };
                             colors = [
-                                data.colors.primary[mode] || data.colors.primary.default, 
-                                data.colors.secondary[mode] || data.colors.secondary.default, 
-                                data.colors.tertiary[mode] || data.colors.tertiary.default
+                                (useContainer && container("primary"))   || tone(data.colors.primary),
+                                (useContainer && container("secondary")) || tone(data.colors.secondary),
+                                (useContainer && container("tertiary"))  || tone(data.colors.tertiary)
                             ];
                         } else if (data.colors.light) {
                              colors = [data.colors.light.primary, data.colors.light.surface_container_high, data.colors.light.secondary];
