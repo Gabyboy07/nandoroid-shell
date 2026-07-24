@@ -260,19 +260,22 @@ Item {
                             MaterialSymbol {
                                 text: "search"; iconSize: 22 * Appearance.effectiveScale; color: Appearance.colors.colSubtext
                             }
-                            TextInput {
+                            StyledTextInput {
                                 id: headerSearch
                                 Layout.fillWidth: true
                                 Layout.rightMargin: 16 * Appearance.effectiveScale
-                                color: Appearance.colors.colOnLayer1
+                                inputRadius: 0
+                                backgroundColor: "transparent"
+                                borderInactiveWidth: 0
+                                showActiveBorder: false
+                                placeholder: mainSelector.wallhavenMode ? "Search Wallhaven..." : (mainSelector.naiveMode ? "Search NA-ive Walls..." : "Search wallpapers...")
+                                leftMargin: 0
+                                rightMargin: 0
                                 font.pixelSize: Appearance.font.pixelSize.normal
-                                verticalAlignment: TextInput.AlignVCenter
-                                clip: true
                                 
                                 onTextChanged: {
                                     if (mainSelector._switchingMode) return;
                                     
-                                    // Save state immediately on change
                                     if (mainSelector.wallhavenMode) mainSelector.wallhavenSearch = text;
                                     else if (mainSelector.naiveMode) mainSelector.naiveSearch = text;
                                     else if (mainSelector.liveMode) mainSelector.liveSearch = text;
@@ -296,16 +299,6 @@ Item {
                                             WallhavenService.search(text);
                                         }
                                     }
-                                }
-
-                                StyledText {
-                                    visible: !headerSearch.text && !headerSearch.activeFocus
-                                    text: mainSelector.wallhavenMode ? "Search Wallhaven..." : (mainSelector.naiveMode ? "Search NA-ive Walls..." : "Search wallpapers...")
-                                    font.pixelSize: Math.round(headerSearch.font.pixelSize)
-                                    color: Appearance.colors.colSubtext
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    anchors.verticalCenterOffset: 1 * Appearance.effectiveScale
-                                    verticalAlignment: Text.AlignVCenter
                                 }
                             }
                         }

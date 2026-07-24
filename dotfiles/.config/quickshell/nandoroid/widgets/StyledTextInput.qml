@@ -8,6 +8,7 @@ Item {
 
     property alias text: input.text
     property string placeholder: ""
+    property color placeholderColor: Appearance.colors.colSubtext
     property alias font: input.font
     property alias color: input.color
     property alias echoMode: input.echoMode
@@ -30,6 +31,16 @@ Item {
 
     implicitWidth: 200 * Appearance.effectiveScale
     implicitHeight: 48 * Appearance.effectiveScale
+
+    onFocusChanged: {
+        if (focus)
+            input.forceActiveFocus()
+    }
+
+    Component.onCompleted: {
+        if (focus)
+            input.forceActiveFocus()
+    }
 
     Rectangle {
         id: bg
@@ -59,7 +70,7 @@ Item {
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: input.horizontalAlignment
             text: root.placeholder
-            color: Appearance.colors.colSubtext
+            color: root.placeholderColor
             visible: input.text === "" && !input.activeFocus
         }
 

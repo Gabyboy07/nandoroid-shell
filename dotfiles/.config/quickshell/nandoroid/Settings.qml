@@ -141,14 +141,19 @@ Scope {
                                     iconSize: 22 * Appearance.effectiveScale
                                     color: Appearance.colors.colSubtext
                                 }
-                                TextInput {
+                                StyledTextInput {
                                     id: searchInput
                                     Layout.fillWidth: true
                                     Layout.rightMargin: 16 * Appearance.effectiveScale
-                                    verticalAlignment: TextInput.AlignVCenter
+                                    inputRadius: 0
+                                    backgroundColor: "transparent"
+                                    borderInactiveWidth: 0
+                                    showActiveBorder: false
                                     font.pixelSize: Appearance.font.pixelSize.normal
-                                    color: Appearance.colors.colOnLayer1
-                                    clip: true
+                                    placeholder: searchInput.hasNoResults ? "No results found" : "Search all settings.."
+                                    placeholderColor: searchInput.hasNoResults ? Appearance.m3colors.m3error : Appearance.colors.colSubtext
+                                    leftMargin: 0
+                                    rightMargin: 0
                                     
                                     property bool hasNoResults: false
                                     
@@ -159,10 +164,8 @@ Scope {
                                         if (query === "") return;
 
                                         if (query.toLowerCase() === root.lastQuery.toLowerCase() && root.searchResults.length > 0) {
-                                            // Jump to next result
                                             root.navigateToResult(root.currentResultIndex + 1);
                                         } else {
-                                            // New search - reset state
                                             root.lastQuery = query;
                                             let results = SearchRegistry.getResultsRanked(query);
                                             
@@ -177,14 +180,6 @@ Scope {
                                                 hasNoResults = true;
                                             }
                                         }
-                                    }
-
-                                    StyledText {
-                                        visible: !searchInput.text && !searchInput.activeFocus
-                                        text: searchInput.hasNoResults ? "No results found" : "Search all settings.."
-                                        font: searchInput.font
-                                        color: searchInput.hasNoResults ? Appearance.m3colors.m3error : Appearance.colors.colSubtext
-                                        anchors.verticalCenter: parent.verticalCenter
                                     }
                                 }
 
