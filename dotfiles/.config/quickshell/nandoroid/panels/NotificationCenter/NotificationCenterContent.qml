@@ -88,7 +88,7 @@ Item {
             Layout.preferredHeight: Appearance.sizes.notificationIslandMaxHeight
             
             color: Appearance.colors.colLayer1
-            radius: Appearance.rounding.panel
+            radius: Appearance.rounding.large
             
             ColumnLayout {
                 id: islandColumn

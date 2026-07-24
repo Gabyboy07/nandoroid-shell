@@ -430,7 +430,8 @@ Singleton {
         property int extraLarge: Math.round(32 * scale)
         property int full: 9999
         property int statusBar: 0
-        property int panel: Math.round(28 * scale)
+        property int screenRounding: Math.round(28 * scale)
+        property int panel: screenRounding
         property int card: Math.round(24 * scale)
         property int button: Math.round(20 * scale)
     }

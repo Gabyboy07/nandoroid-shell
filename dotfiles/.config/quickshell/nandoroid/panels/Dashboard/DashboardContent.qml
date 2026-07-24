@@ -220,10 +220,10 @@ Item {
                 y: -root.panelHeight
                 opacity: 0
                 color: Appearance.m3colors.m3surfaceContainerLow
-                topLeftRadius: root.showShoulders ? 0 : Appearance.rounding.large
-                topRightRadius: root.showShoulders ? 0 : Appearance.rounding.large
-                bottomLeftRadius: Appearance.rounding.large
-                bottomRightRadius: Appearance.rounding.large
+                topLeftRadius: root.showShoulders ? 0 : Appearance.rounding.panel
+                topRightRadius: root.showShoulders ? 0 : Appearance.rounding.panel
+                bottomLeftRadius: Appearance.rounding.panel
+                bottomRightRadius: Appearance.rounding.panel
 
                 // MD3 Outline Style (Active when not fused with status bar)
                 border.width: root.showShoulders ? 0 : Math.max(1, 1 * Appearance.effectiveScale)

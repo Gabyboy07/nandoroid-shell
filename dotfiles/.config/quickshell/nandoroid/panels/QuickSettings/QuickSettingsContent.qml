@@ -538,7 +538,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: sliderCol.implicitHeight + (20 * Appearance.effectiveScale)
-            radius: Appearance.rounding.normal
+            radius: Appearance.rounding.large
             color: Appearance.colors.colLayer1
 
             ColumnLayout {
@@ -631,7 +631,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: toggleColumn.implicitHeight + (root.togglePadding * 2)
-            radius: Appearance.rounding.normal
+            radius: Appearance.rounding.large
             color: Appearance.colors.colLayer1
 
             Column {
@@ -764,7 +764,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: privacyCol.implicitHeight + (20 * Appearance.effectiveScale)
-            radius: Appearance.rounding.normal
+            radius: Appearance.rounding.large
             color: Appearance.colors.colLayer1
             visible: Privacy.anyActive
 
@@ -820,7 +820,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: 40 * Appearance.effectiveScale
-            radius: Appearance.rounding.normal
+            radius: Appearance.rounding.large
             color: Appearance.colors.colLayer1
             visible: root.editMode
             opacity: root.editMode ? 1 : 0

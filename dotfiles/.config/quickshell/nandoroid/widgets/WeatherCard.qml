@@ -11,7 +11,7 @@ import "./weather"
 Rectangle {
     id: root
     implicitHeight: mainLayout.implicitHeight
-    radius: 30 * Appearance.effectiveScale
+    radius: Appearance.rounding.card
     color: Appearance.colors.colOnPrimary
 
     layer.enabled: true
@@ -113,7 +113,7 @@ Rectangle {
             Layout.margins: 20 * Appearance.effectiveScale
             Layout.bottomMargin: 10 * Appearance.effectiveScale
             implicitHeight: hourlyRow.implicitHeight + 24 * Appearance.effectiveScale
-            radius: 14 * Appearance.effectiveScale
+            radius: Appearance.rounding.small
             color: Qt.rgba(1, 1, 1, 0.03)
 
             RowLayout {
@@ -177,7 +177,7 @@ Rectangle {
 
             Rectangle {
                 implicitHeight: Math.round(54 * Appearance.effectiveScale)
-                radius: 12 * Appearance.effectiveScale
+                radius: Appearance.rounding.small
                 color: Qt.rgba(1, 1, 1, 0.03)
 
                 RowLayout {
@@ -233,7 +233,7 @@ Rectangle {
                         delegate: Rectangle {
                             Layout.fillWidth: true
                             implicitHeight: Math.round(54 * Appearance.effectiveScale)
-                            radius: 12 * Appearance.effectiveScale
+                            radius: Appearance.rounding.small
                             color: Qt.rgba(1, 1, 1, 0.03)
 
                             ColumnLayout {
