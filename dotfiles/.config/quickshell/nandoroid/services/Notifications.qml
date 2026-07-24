@@ -124,12 +124,7 @@ Singleton {
         property bool expanded: false
         property bool isRestartRequired: false
 
-        property list<var> actions: {
-            if (notification && notification.actions) {
-                 return notification.actions.map(a => ({identifier: a.identifier, text: a.text}))
-            }
-            return []
-        }
+        property list<var> actions: []
 
         // Sync from live notification when it arrives/changes
         onNotificationChanged: {
@@ -218,6 +213,10 @@ Singleton {
                 }
             }
 
+            const mappedActions = notification.actions
+                ? notification.actions.map(a => ({identifier: a.identifier, text: a.text}))
+                : [];
+
             const newNotif = notifComponent.createObject(root, {
                 "notificationId": notification.id + root.idOffset,
                 "notification": notification,
@@ -228,7 +227,8 @@ Singleton {
                 "summary":  notification.summary  ?? "",
                 "urgency":  notification.urgency?.toString() ?? "normal",
                 "time":     Date.now(),
-                "isRestartRequired": isRestart
+                "isRestartRequired": isRestart,
+                "actions":  mappedActions
             });
             
             // Add to list and handle popup state
@@ -413,7 +413,8 @@ Singleton {
             summary: n.summary,
             time: n.time,
             urgency: n.urgency,
-            isRestartRequired: n.isRestartRequired
+            isRestartRequired: n.isRestartRequired,
+            actions: n.actions ? n.actions.map(a => ({identifier: a.identifier, text: a.text})) : []
         })), null, 2);
     }
 
@@ -436,7 +437,8 @@ Singleton {
                     "summary": n.summary ?? "",
                     "time": n.time ?? 0,
                     "urgency": n.urgency ?? "normal",
-                    "isRestartRequired": n.isRestartRequired ?? false
+                    "isRestartRequired": n.isRestartRequired ?? false,
+                    "actions": n.actions ? n.actions.map(a => ({identifier: a.identifier, text: a.text})) : []
                 }));
                 // Find max ID to avoid collisions
                 let maxId = 0;

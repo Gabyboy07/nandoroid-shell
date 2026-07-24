@@ -265,8 +265,9 @@ Item { // Notification item area
                             
                             readonly property bool isWarning: notificationObject && notificationObject.isRestartRequired
                             readonly property bool hasDefaultAction: {
-                                for (var i = 0; i < notificationObject && notificationObject.actions.length; i++) {
-                                    if (notificationObject && notificationObject.actions[i].identifier === "default") return true;
+                                if (!notificationObject) return false;
+                                for (var i = 0; i < notificationObject.actions.length; i++) {
+                                    if (notificationObject.actions[i].identifier === "default") return true;
                                 }
                                 return false;
                             }
