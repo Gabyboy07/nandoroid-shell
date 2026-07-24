@@ -61,12 +61,18 @@ Singleton {
     }
 
     property bool _ready: false
+    property bool _cycleGuard: false
 
-    // Watch for schedule changes to recalculate timing
-    property var _eventWatch: ScheduleService.events
-    on_EventWatchChanged: if (_ready) {
-        scheduleNext();
-        runAutomationCycle();
+    Connections {
+        target: ScheduleService
+        function onEventsChanged() {
+            if (_ready && !_cycleGuard) {
+                _cycleGuard = true;
+                scheduleNext();
+                runAutomationCycle();
+                _cycleGuard = false;
+            }
+        }
     }
 
     function runThenSchedule() {
