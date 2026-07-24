@@ -86,34 +86,32 @@ hl.config({
     }
 })
 
+-- --- Animation Curves ---
+hl.curve("expressiveFastSpatial", { type = "bezier", points = {{0.42, 1.67}, {0.21, 0.90}} })
+hl.curve("expressiveDefaultSpatial", { type = "bezier", points = {{0.38, 1.21}, {0.22, 1.00}} })
+hl.curve("expressiveSlowSpatial", { type = "bezier", points = {{0.39, 1.29}, {0.35, 0.98}} })
+hl.curve("expressiveEffects", { type = "bezier", points = {{0.34, 0.80}, {0.34, 1.00}} })
+hl.curve("emphasized", { type = "bezier", points = {{0.05, 0}, {0.133, 0.06}} })
+hl.curve("emphasizedAccel", { type = "bezier", points = {{0.3, 0}, {0.8, 0.15}} })
+hl.curve("emphasizedDecel", { type = "bezier", points = {{0.05, 0.7}, {0.1, 1}} })
+hl.curve("standard", { type = "bezier", points = {{0.2, 0}, {0, 1}} })
+hl.curve("standardAccel", { type = "bezier", points = {{0.3, 0}, {1, 1}} })
+hl.curve("standardDecel", { type = "bezier", points = {{0, 0}, {0, 1}} })
+
+-- New anim curves
+hl.curve("subtleBounce", { type = "bezier", points = {{0.14, 1.1}, {0.2, 1.0}} })
+hl.curve("easeOutQuint", { type = "bezier", points = {{0.23, 1}, {0.32, 1}} })
+hl.curve("easeOutExpo", { type = "bezier", points = {{0.16, 1}, {0.3, 1}} })
+
 -- --- Animations ---
-hl.config({
-    animations = {
-        enabled = true,
-        bezier = {
-            "expressiveFastSpatial, 0.42, 1.67, 0.21, 0.90",
-            "expressiveDefaultSpatial, 0.38, 1.21, 0.22, 1.00",
-            "expressiveSlowSpatial, 0.39, 1.29, 0.35, 0.98",
-            "expressiveEffects, 0.34, 0.80, 0.34, 1.00",
-            "emphasized, 0.05, 0, 0.133, 0.06",
-            "emphasizedAccel, 0.3, 0, 0.8, 0.15",
-            "emphasizedDecel, 0.05, 0.7, 0.1, 1",
-            "standard, 0.2, 0, 0, 1",
-            "standardAccel, 0.3, 0, 1, 1",
-            "standardDecel, 0, 0, 0, 1"
-        },
-        animation = {
-            "windows, 1, 5, expressiveDefaultSpatial, slide",
-            "windowsIn, 1, 4, emphasizedDecel, slide",
-            "windowsOut, 1, 2, emphasizedAccel, slide",
-            "windowsMove, 1, 5, expressiveDefaultSpatial, slide",
-            "border, 1, 10, default",
-            "borderangle, 1, 8, default",
-            "fade, 1, 7, default",
-            "workspaces, 1, 6.5, expressiveSlowSpatial, slidevert"
-        }
-    }
-})
+hl.animation({ leaf = "windows",     enabled = true, speed = 4, bezier = "subtleBounce", style = "popin 85%" })
+hl.animation({ leaf = "windowsIn",   enabled = true, speed = 4, bezier = "emphasizedDecel", style = "popin 85%" })
+hl.animation({ leaf = "windowsOut",  enabled = true, speed = 3, bezier = "emphasizedAccel", style = "popin 80%" })
+hl.animation({ leaf = "windowsMove", enabled = true, speed = 4, bezier = "easeOutQuint", style = "slide" })
+hl.animation({ leaf = "border",      enabled = true, speed = 10, bezier = "default" })
+hl.animation({ leaf = "borderangle", enabled = true, speed = 8, bezier = "default" })
+hl.animation({ leaf = "fade",        enabled = true, speed = 5, bezier = "standard" })
+hl.animation({ leaf = "workspaces",  enabled = true, speed = 5, bezier = "easeOutExpo", style = "slidevert" })
 
 -- --- Input ---
 hl.config({

@@ -1,44 +1,26 @@
 -- --- Window Rules ---
 
-hl.config({
-    windowrule = {
-        -- Dialogs & File Pickers
-        "center, title:^(Open File)(.*)$",
-        "float, title:^(Open File)(.*)$",
-        "center, title:^(Select a File)(.*)$",
-        "float, title:^(Select a File)(.*)$",
-        "center, title:^(Choose wallpaper)(.*)$",
-        "float, title:^(Choose wallpaper)(.*)$",
-        "center, title:^(Open Folder)(.*)$",
-        "float, title:^(Open Folder)(.*)$",
-        "center, title:^(Save As)(.*)$",
-        "float, title:^(Save As)(.*)$",
-        "center, title:^(Library)(.*)$",
-        "float, title:^(Library)(.*)$",
-        "center, title:^(File Upload)(.*)$",
-        "float, title:^(File Upload)(.*)$",
+-- Dialogs & File Pickers
+hl.window_rule({ match = { title = "^(Open File)(.*)$" },            center = 1, float = 1 })
+hl.window_rule({ match = { title = "^(Select a File)(.*)$" },         center = 1, float = 1 })
+hl.window_rule({ match = { title = "^(Choose wallpaper)(.*)$" },      center = 1, float = 1 })
+hl.window_rule({ match = { title = "^(Open Folder)(.*)$" },           center = 1, float = 1 })
+hl.window_rule({ match = { title = "^(Save As)(.*)$" },               center = 1, float = 1 })
+hl.window_rule({ match = { title = "^(Library)(.*)$" },               center = 1, float = 1 })
+hl.window_rule({ match = { title = "^(File Upload)(.*)$" },           center = 1, float = 1 })
 
-        -- System Tools
-        "float, class:^(pavucontrol)$",
-        "center, class:^(pavucontrol)$",
-        "size (monitor_w*.45) (monitor_h*.45), class:^(pavucontrol)$",
-        "float, class:^(nm-connection-editor)$",
-        "center, class:^(nm-connection-editor)$",
-        "size (monitor_w*.45) (monitor_h*.45), class:^(nm-connection-editor)$",
+-- System Tools
+hl.window_rule({ match = { class = "^(pavucontrol)$" },               float = 1, center = 1, size = { "monitor_w*0.45", "monitor_h*0.45" } })
+hl.window_rule({ match = { class = "^(nm-connection-editor)$" },      float = 1, center = 1, size = { "monitor_w*0.45", "monitor_h*0.45" } })
 
-        -- Portals
-        "float, class:org.freedesktop.impl.portal.desktop.kde",
-        "float, class:xdg-desktop-portal-gtk",
-        "float, class:xdg-desktop-portal-hyprland",
+-- Portals
+hl.window_rule({ match = { class = "org.freedesktop.impl.portal.desktop.kde" }, float = 1 })
+hl.window_rule({ match = { class = "^(xdg-desktop-portal-gtk)$" },               float = 1 })
+hl.window_rule({ match = { class = "xdg-desktop-portal-hyprland" },             float = 1 })
 
-        -- Picture-in-Picture
-        "float, title:^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$",
-        "pin, title:^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$",
+-- Picture-in-Picture
+hl.window_rule({ match = { title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, float = 1, pin = 1 })
 
-        -- NAnDoroid Panels (Native Floating)
-        "float, title:^(Settings)$",
-        "center, title:^(Settings)$",
-        "float, title:^(System Monitor)$",
-        "center, title:^(System Monitor)$"
-    }
-})
+-- NAnDoroid Panels (Native Floating)
+hl.window_rule({ match = { title = "^(Settings)$" },       float = 1, center = 1 })
+hl.window_rule({ match = { title = "^(System Monitor)$" },  float = 1, center = 1 })
