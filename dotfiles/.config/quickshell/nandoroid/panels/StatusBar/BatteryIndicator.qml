@@ -30,7 +30,7 @@ Item {
     readonly property color textColor: {
         if (isLow && !isCharging) return Appearance.m3colors.m3onError
         if (isCharging && Math.round(root.percentage * 100) < 100) return Appearance.m3colors.m3onSuccess
-        return Appearance.m3colors.m3surface
+        return ColorUtils.getContrastingTextColor(root.color)
     }
 
     // Battery Body (Pill Shape)
