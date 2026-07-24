@@ -214,35 +214,15 @@ Item {
                 Layout.fillWidth: true
                 spacing: 8 * Appearance.effectiveScale
 
-                Rectangle {
+                StyledTextInput {
+                    id: titleInput
                     Layout.fillWidth: true
                     implicitHeight: 40 * Appearance.effectiveScale
-                    radius: Appearance.rounding.small
-                    color: Appearance.m3colors.m3surfaceContainer
-                    border.color: titleInput.activeFocus ? Appearance.colors.colPrimary : "transparent"
-                    border.width: 2 * Appearance.effectiveScale
-
-                    TextInput {
-                        id: titleInput
-                        anchors.fill: parent; anchors.margins: 10 * Appearance.effectiveScale
-                        clip: true
-                        font.family: Appearance.font.family.main
-                        font.pixelSize: Appearance.font.pixelSize.large
-                        font.weight: Font.DemiBold
-                        color: Appearance.colors.colOnLayer1
-                        verticalAlignment: TextInput.AlignVCenter
-                        onTextChanged: saveTimer.restart()
-
-                        StyledText {
-                            anchors.fill: parent
-                            text: "Note title..."
-                            color: Appearance.colors.colSubtext
-                            visible: !parent.text && !parent.activeFocus
-                            font.pixelSize: Appearance.font.pixelSize.large
-                            font.weight: Font.DemiBold
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                    }
+                    inputRadius: Appearance.rounding.small / Appearance.effectiveScale
+                    backgroundColor: Appearance.m3colors.m3surfaceContainer
+                    text: ""
+                    placeholder: "Note title..."
+                    onTextChanged: saveTimer.restart()
                 }
 
                 RippleButton {

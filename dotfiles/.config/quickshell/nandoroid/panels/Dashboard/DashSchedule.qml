@@ -333,35 +333,15 @@ Item {
             }
 
             // Title field
-            Rectangle {
+            StyledTextInput {
+                id: titleField
                 Layout.fillWidth: true
                 implicitHeight: 44 * Appearance.effectiveScale
-                radius: Appearance.rounding.small
-                color: Appearance.m3colors.m3surfaceContainer
-                border.color: titleField.activeFocus ? Appearance.colors.colPrimary : "transparent"
-                border.width: 2 * Appearance.effectiveScale
-
-                TextInput {
-                    id: titleField
-                    anchors.fill: parent
-                    anchors.margins: 12 * Appearance.effectiveScale
-                    clip: true
-                    text: root.formTitle
-                    font.family: Appearance.font.family.main
-                    font.pixelSize: Appearance.font.pixelSize.normal
-                    color: Appearance.colors.colOnLayer1
-                    verticalAlignment: TextInput.AlignVCenter
-                    onTextChanged: { root.formTitle = text; if(root.selectedId && titleField.activeFocus) autoSaveTimer.restart() }
-
-                    StyledText {
-                        anchors.fill: parent
-                        text: "Event title..."
-                        color: Appearance.colors.colSubtext
-                        visible: !parent.text && !parent.activeFocus
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        verticalAlignment: Text.AlignVCenter
-                    }
-                }
+                inputRadius: Appearance.rounding.small / Appearance.effectiveScale
+                backgroundColor: Appearance.m3colors.m3surfaceContainer
+                placeholder: "Event title..."
+                text: root.formTitle
+                onTextChanged: { root.formTitle = text; if(root.selectedId && titleField.input.activeFocus) autoSaveTimer.restart() }
             }
 
             // Start row: Start label + Start Date + Start Time
@@ -382,20 +362,24 @@ Item {
                     Layout.fillWidth: true; implicitHeight: 44 * Appearance.effectiveScale
                     radius: Appearance.rounding.small
                     color: Appearance.m3colors.m3surfaceContainer
-                    border.color: dateField.activeFocus || root._datePickerTarget === "start" ? Appearance.colors.colPrimary : "transparent"
+                    border.color: dateField.input.activeFocus || root._datePickerTarget === "start" ? Appearance.colors.colPrimary : "transparent"
                     border.width: 2 * Appearance.effectiveScale
                     RowLayout {
                         anchors.fill: parent; anchors.margins: 10 * Appearance.effectiveScale; spacing: 6 * Appearance.effectiveScale
                         MaterialSymbol { text: "calendar_today"; iconSize: 16 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
-                        TextInput {
+                        StyledTextInput {
                             id: dateField
                             Layout.fillWidth: true
+                            Layout.fillHeight: true
                             text: root.formDate
-                            font.family: Appearance.font.family.main
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.colors.colOnLayer1
                             inputMask: "9999-99-99"
-                            onTextChanged: { root.formDate = text; if(root.selectedId && dateField.activeFocus) autoSaveTimer.restart() }
+                            backgroundColor: "transparent"
+                            inputRadius: 0
+                            borderInactiveWidth: 0
+                            showActiveBorder: false
+                            leftMargin: 0
+                            rightMargin: 0
+                            onTextChanged: { root.formDate = text; if(root.selectedId && dateField.input.activeFocus) autoSaveTimer.restart() }
                         }
                         RippleButton {
                             implicitWidth: 28 * Appearance.effectiveScale
@@ -417,20 +401,24 @@ Item {
                     Layout.fillWidth: true; implicitHeight: 44 * Appearance.effectiveScale
                     radius: Appearance.rounding.small
                     color: Appearance.m3colors.m3surfaceContainer
-                    border.color: timeField.activeFocus ? Appearance.colors.colPrimary : "transparent"
+                    border.color: timeField.input.activeFocus ? Appearance.colors.colPrimary : "transparent"
                     border.width: 2 * Appearance.effectiveScale
                     RowLayout {
                         anchors.fill: parent; anchors.margins: 10 * Appearance.effectiveScale; spacing: 6 * Appearance.effectiveScale
                         MaterialSymbol { text: "schedule"; iconSize: 16 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
-                        TextInput {
+                        StyledTextInput {
                             id: timeField
                             Layout.fillWidth: true
+                            Layout.fillHeight: true
                             text: root.formTime
-                            font.family: Appearance.font.family.main
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.colors.colOnLayer1
                             inputMask: "99:99"
-                            onTextChanged: { root.formTime = text; if(root.selectedId && timeField.activeFocus) autoSaveTimer.restart() }
+                            backgroundColor: "transparent"
+                            inputRadius: 0
+                            borderInactiveWidth: 0
+                            showActiveBorder: false
+                            leftMargin: 0
+                            rightMargin: 0
+                            onTextChanged: { root.formTime = text; if(root.selectedId && timeField.input.activeFocus) autoSaveTimer.restart() }
                         }
                     }
                 }
@@ -454,28 +442,24 @@ Item {
                     Layout.fillWidth: true; implicitHeight: 44 * Appearance.effectiveScale
                     radius: Appearance.rounding.small
                     color: Appearance.m3colors.m3surfaceContainer
-                    border.color: endDateField.activeFocus || root._datePickerTarget === "end" ? Appearance.colors.colPrimary : "transparent"
+                    border.color: endDateField.input.activeFocus || root._datePickerTarget === "end" ? Appearance.colors.colPrimary : "transparent"
                     border.width: 2 * Appearance.effectiveScale
                     RowLayout {
                         anchors.fill: parent; anchors.margins: 10 * Appearance.effectiveScale; spacing: 6 * Appearance.effectiveScale
                         MaterialSymbol { text: "calendar_month"; iconSize: 16 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
-                        TextInput {
+                        StyledTextInput {
                             id: endDateField
                             Layout.fillWidth: true
+                            Layout.fillHeight: true
                             text: root.formEndDate
-                            font.family: Appearance.font.family.main
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.colors.colOnLayer1
-                            onTextChanged: { root.formEndDate = text; if(root.selectedId && endDateField.activeFocus) autoSaveTimer.restart() }
-
-                            StyledText {
-                                anchors.fill: parent
-                                text: "yyyy-mm-dd"
-                                color: Appearance.colors.colSubtext
-                                visible: !parent.text && !parent.activeFocus
-                                font.pixelSize: Appearance.font.pixelSize.small
-                                verticalAlignment: Text.AlignVCenter
-                            }
+                            placeholder: "yyyy-mm-dd"
+                            backgroundColor: "transparent"
+                            inputRadius: 0
+                            borderInactiveWidth: 0
+                            showActiveBorder: false
+                            leftMargin: 0
+                            rightMargin: 0
+                            onTextChanged: { root.formEndDate = text; if(root.selectedId && endDateField.input.activeFocus) autoSaveTimer.restart() }
                         }
                         RippleButton {
                             implicitWidth: 28 * Appearance.effectiveScale
@@ -497,20 +481,24 @@ Item {
                     Layout.fillWidth: true; implicitHeight: 44 * Appearance.effectiveScale
                     radius: Appearance.rounding.small
                     color: Appearance.m3colors.m3surfaceContainer
-                    border.color: endTimeField.activeFocus ? Appearance.colors.colPrimary : "transparent"
+                    border.color: endTimeField.input.activeFocus ? Appearance.colors.colPrimary : "transparent"
                     border.width: 2 * Appearance.effectiveScale
                     RowLayout {
                         anchors.fill: parent; anchors.margins: 10 * Appearance.effectiveScale; spacing: 6 * Appearance.effectiveScale
                         MaterialSymbol { text: "event_busy"; iconSize: 16 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
-                        TextInput {
+                        StyledTextInput {
                             id: endTimeField
                             Layout.fillWidth: true
+                            Layout.fillHeight: true
                             text: root.formEndTime
-                            font.family: Appearance.font.family.main
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.colors.colOnLayer1
                             inputMask: "99:99"
-                            onTextChanged: { root.formEndTime = text; if(root.selectedId && endTimeField.activeFocus) autoSaveTimer.restart() }
+                            backgroundColor: "transparent"
+                            inputRadius: 0
+                            borderInactiveWidth: 0
+                            showActiveBorder: false
+                            leftMargin: 0
+                            rightMargin: 0
+                            onTextChanged: { root.formEndTime = text; if(root.selectedId && endTimeField.input.activeFocus) autoSaveTimer.restart() }
                         }
                     }
                 }

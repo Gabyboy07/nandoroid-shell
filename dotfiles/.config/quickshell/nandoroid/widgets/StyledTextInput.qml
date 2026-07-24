@@ -15,11 +15,15 @@ Item {
     property alias readOnly: input.readOnly
     property alias selectByMouse: input.selectByMouse
     property alias horizontalAlignment: input.horizontalAlignment
+    property alias inputMask: input.inputMask
 
     property real inputRadius: 12
     property color backgroundColor: Appearance.m3colors.m3surfaceContainerLow
     property real borderInactiveWidth: 0
     property bool showActiveBorder: true
+    property color borderInactiveColor: "transparent"
+    property real leftMargin: 16
+    property real rightMargin: 16
 
     signal editingFinished()
     signal accepted()
@@ -33,14 +37,14 @@ Item {
         radius: root.inputRadius * Appearance.effectiveScale
         color: root.backgroundColor
         border.width: input.activeFocus && root.showActiveBorder ? Math.max(1, 2 * Appearance.effectiveScale) : root.borderInactiveWidth * Appearance.effectiveScale
-        border.color: Appearance.colors.colPrimary
+        border.color: input.activeFocus && root.showActiveBorder ? Appearance.colors.colPrimary : root.borderInactiveColor
     }
 
     TextInput {
         id: input
         anchors.fill: parent
-        anchors.leftMargin: 16 * Appearance.effectiveScale
-        anchors.rightMargin: 16 * Appearance.effectiveScale
+        anchors.leftMargin: root.leftMargin * Appearance.effectiveScale
+        anchors.rightMargin: root.rightMargin * Appearance.effectiveScale
         verticalAlignment: TextInput.AlignVCenter
         font.family: Appearance.font.family.main
         font.pixelSize: Appearance.font.pixelSize.normal

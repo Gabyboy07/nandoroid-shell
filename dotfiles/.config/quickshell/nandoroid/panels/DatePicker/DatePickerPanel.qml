@@ -5,6 +5,7 @@ import "../../core/functions" as Functions
 import "../../services"
 import "../../widgets"
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
@@ -31,12 +32,23 @@ Scope {
                 WlrLayershell.layer: GlobalStates.datePickerOpen && isActive ? WlrLayer.Overlay : WlrLayer.Background
                 exclusionMode: ExclusionMode.Ignore
 
+                Shortcut {
+                    sequence: "Escape"
+                    onActivated: {
+                        if (GlobalStates.datePickerOnCancelled)
+                            GlobalStates.datePickerOnCancelled()
+                        GlobalStates.datePickerOpen = false
+                    }
+                }
+
                 Component.onCompleted: GlobalFocusGrab.addDismissable(panelWindow)
                 Component.onDestruction: GlobalFocusGrab.removeDismissable(panelWindow)
 
                 Connections {
                     target: GlobalFocusGrab
                     function onDismissed() {
+                        if (GlobalStates.datePickerOnCancelled)
+                            GlobalStates.datePickerOnCancelled()
                         GlobalStates.datePickerOpen = false
                     }
                 }
@@ -49,7 +61,11 @@ Scope {
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: GlobalStates.datePickerOpen = false
+                        onClicked: {
+                            if (GlobalStates.datePickerOnCancelled)
+                                GlobalStates.datePickerOnCancelled()
+                            GlobalStates.datePickerOpen = false
+                        }
                     }
                 }
 
@@ -57,13 +73,6 @@ Scope {
                     id: picker
                     anchors.centerIn: parent
                     currentDateStr: GlobalStates.datePickerCurrentDate
-
-                    Keys.onPressed: event => {
-                        if (event.key === Qt.Key_Escape) {
-                            GlobalStates.datePickerOpen = false
-                            event.accepted = true
-                        }
-                    }
 
                     onDateSelected: dateStr => {
                         if (GlobalStates.datePickerOnSelected)
