@@ -219,32 +219,11 @@ Item {
     property color dateColor: getColorForStyle(cfg.dateColorStyle)
     property color quoteColor: getColorForStyle(cfg.quoteColorStyle)
 
-    // Wall-clock aligned timer: triggers at :00, :10, :20, :30, :40, :50
-    Timer {
-        id: wallClockTimer
-        interval: wallClockInterval()
-        running: true
-        repeat: false
-        onTriggered: {
-            updateGreetingOnly();
-            updateQuoteOnly();
-            wallClockTimer.interval = wallClockInterval();
-            wallClockTimer.restart();
-        }
-    }
-
-    function wallClockInterval() {
-        var now = new Date();
-        var next = new Date(now);
-        var minutes = now.getMinutes();
-        var nextMinute = Math.ceil(minutes / 10) * 10;
-        if (nextMinute === minutes) nextMinute += 10;
-        if (nextMinute >= 60) {
-            next.setHours(now.getHours() + 1, 0, 0, 0);
-        } else {
-            next.setMinutes(nextMinute, 0, 0);
-        }
-        return Math.max(1000, next.getTime() - now.getTime());
+    // Wall-clock aligned 10-minute tick via property binding (no drift, no double-fire)
+    readonly property int _tenMinuteBlock: Math.floor(DateTime.minutes / 10)
+    on_TenMinuteBlockChanged: {
+        updateGreetingOnly();
+        updateQuoteOnly();
     }
 
     // Load Quotes JSON via Process

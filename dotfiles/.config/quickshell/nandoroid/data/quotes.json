@@ -3,38 +3,40 @@
     "morning": [
       "Good morning",
       "Morning",
-      "A fresh start",
-      "New day, new chances",
+      "Rise and shine",
       "Hello there",
+      "Hey",
+      "A fresh start",
       "Here's to today"
     ],
     "afternoon": [
       "Good afternoon",
       "Afternoon",
-      "Hope your day's going well",
-      "Still going strong",
-      "Hope the day's treating you well"
+      "Keep going",
+      "Halfway there",
+      "Still going"
     ],
     "evening": [
       "Good evening",
       "Evening",
-      "Almost time to unwind",
-      "The day's winding down",
-      "Evening, take it easy"
+      "Wind down",
+      "Take it easy",
+      "Almost there"
     ],
     "night": [
       "Good night",
+      "Night",
+      "Still up?",
+      "Late night",
       "Quiet hours",
-      "Quiet night",
-      "Still up",
-      "Late evening"
+      "Quiet night"
     ],
     "midnight": [
       "Solemn midnight",
       "Deep night",
       "Still awake?",
-      "The world is asleep",
-      "Past midnight"
+      "Past midnight",
+      "Midnight"
     ]
   },
   "morning": [
