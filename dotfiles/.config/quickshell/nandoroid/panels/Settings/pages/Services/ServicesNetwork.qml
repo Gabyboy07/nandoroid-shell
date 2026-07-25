@@ -69,13 +69,12 @@ ColumnLayout {
                 
                 Item { Layout.fillWidth: true }
                 
-                // Custom Switch
                 AndroidToggle {
-                        checked: (Config.ready && Config.options.bar && Config.options.bar.show_network_speed)
-                        onToggled: {
-                            if (Config.ready && Config.options.bar) {
-                                Config.options.bar.show_network_speed = !Config.options.bar.show_network_speed;
-                    }
+                    checked: (Config.ready && Config.options.bar && Config.options.bar.show_network_speed)
+                    onToggled: {
+                        if (Config.ready && Config.options.bar) {
+                            Config.options.bar.show_network_speed = !Config.options.bar.show_network_speed;
+                        }
                     }
                 }
             }
@@ -144,6 +143,65 @@ ColumnLayout {
                 }
             }
         }
+
+        SegmentedWrapper {
+            Layout.fillWidth: true
+            implicitHeight: netIntervalRow.implicitHeight + 40 * Appearance.effectiveScale
+            orientation: Qt.Vertical
+            color: Appearance.m3colors.m3surfaceContainerHigh
+            smallRadius: 8 * Appearance.effectiveScale
+            fullRadius: 20 * Appearance.effectiveScale
+            
+            opacity: (Config.ready && Config.options.bar && Config.options.bar.show_network_speed) ? 1.0 : 0.4
+            enabled: (Config.ready && Config.options.bar && Config.options.bar.show_network_speed)
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            RowLayout {
+                id: netIntervalRow
+                anchors.fill: parent
+                anchors.margins: 20 * Appearance.effectiveScale
+                spacing: 20 * Appearance.effectiveScale
+
+                ColumnLayout {
+                    spacing: 2 * Appearance.effectiveScale
+                    StyledText {
+                        text: "Update Interval"
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnLayer1
+                    }
+                    StyledText {
+                        text: "How often to poll network speeds."
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: Appearance.colors.colSubtext
+                    }
+                }
+
+                Item { Layout.fillWidth: true }
+
+                StyledSlider {
+                    id: intervalSlider
+                    Layout.preferredWidth: 200 * Appearance.effectiveScale
+                    Layout.maximumWidth: 200 * Appearance.effectiveScale
+                    value: Config.ready ? Config.options.bar.networkSpeedInterval : 3000
+                    defaultValue: 3000
+                    from: 1000; to: 10000; stepSize: 500
+                    onMoved: if (Config.ready) Config.options.bar.networkSpeedInterval = Math.round(value)
+                }
+
+                StyledText {
+                    text: {
+                        let ms = Config.ready ? Config.options.bar.networkSpeedInterval : 3000;
+                        if (ms < 2000) return ms + "ms";
+                        return (ms / 1000).toFixed(ms % 1000 === 0 ? 0 : 1) + "s";
+                    }
+                    font.pixelSize: Appearance.font.pixelSize.normal
+                    font.weight: Font.Medium
+                    color: Appearance.colors.colOnLayer1
+                    Layout.preferredWidth: 48 * Appearance.effectiveScale
+                    horizontalAlignment: Text.AlignRight
+                }
+            }
+        }
     }
 }
-

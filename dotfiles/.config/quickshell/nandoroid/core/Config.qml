@@ -368,7 +368,7 @@ property JsonObject background: JsonObject {
                 property string avatar_path: ""
                 property bool show_network_speed: false
                 property string network_speed_unit: "KB"
-                property int networkSpeedInterval: 1000
+                property int networkSpeedInterval: 3000
             }
 
             // --- Status Bar ---
