@@ -154,7 +154,7 @@ Singleton {
 
     Timer {
         id: positionTimer
-        interval: 200
+        interval: 3000
         running: root.isPlaying
         repeat: true
         onTriggered: {
