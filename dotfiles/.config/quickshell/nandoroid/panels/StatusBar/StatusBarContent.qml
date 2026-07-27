@@ -225,8 +225,18 @@ Item {
                 ActiveWindowTitle {
                     Layout.alignment: Qt.AlignVCenter
                     Layout.fillWidth: true
-                    Layout.maximumWidth: Math.min(implicitWidth, Math.min(400 * Appearance.effectiveScale, root.width * 0.25))
-                    maxWidth: Math.min(400 * Appearance.effectiveScale, root.width * 0.25)
+                    Layout.maximumWidth: {
+                        let sysMonVisible = Config.ready && Config.options.statusBar ? (Config.options.statusBar.systemMonitorPosition ?? "hidden") === "left" : false;
+                        let maxW = sysMonVisible ? 180 * Appearance.effectiveScale : 400 * Appearance.effectiveScale;
+                        let maxPct = sysMonVisible ? 0.12 : 0.25;
+                        return Math.min(implicitWidth, Math.min(maxW, root.width * maxPct));
+                    }
+                    maxWidth: {
+                        let sysMonVisible = Config.ready && Config.options.statusBar ? (Config.options.statusBar.systemMonitorPosition ?? "hidden") === "left" : false;
+                        let maxW = sysMonVisible ? 180 * Appearance.effectiveScale : 400 * Appearance.effectiveScale;
+                        let maxPct = sysMonVisible ? 0.12 : 0.25;
+                        return Math.min(maxW, root.width * maxPct);
+                    }
                     monitor: root.monitor
                     color: root.contentColor
                     subtextColor: root.subtextColor
@@ -309,8 +319,18 @@ Item {
             ActiveWindowTitle {
                 Layout.alignment: Qt.AlignVCenter
                 Layout.fillWidth: true
-                Layout.maximumWidth: Math.min(implicitWidth, Math.min(400 * Appearance.effectiveScale, root.width * 0.25))
-                maxWidth: Math.min(400 * Appearance.effectiveScale, root.width * 0.25)
+                Layout.maximumWidth: {
+                    let sysMonVisible = Config.ready && Config.options.statusBar ? (Config.options.statusBar.systemMonitorPosition ?? "hidden") === "right" : false;
+                    let maxW = sysMonVisible ? 180 * Appearance.effectiveScale : 400 * Appearance.effectiveScale;
+                    let maxPct = sysMonVisible ? 0.12 : 0.25;
+                    return Math.min(implicitWidth, Math.min(maxW, root.width * maxPct));
+                }
+                maxWidth: {
+                    let sysMonVisible = Config.ready && Config.options.statusBar ? (Config.options.statusBar.systemMonitorPosition ?? "hidden") === "right" : false;
+                    let maxW = sysMonVisible ? 180 * Appearance.effectiveScale : 400 * Appearance.effectiveScale;
+                    let maxPct = sysMonVisible ? 0.12 : 0.25;
+                    return Math.min(maxW, root.width * maxPct);
+                }
                 monitor: root.monitor
                 color: root.contentColor
                 subtextColor: root.subtextColor
