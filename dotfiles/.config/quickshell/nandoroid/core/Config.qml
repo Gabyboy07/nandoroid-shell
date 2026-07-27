@@ -298,6 +298,7 @@ property JsonObject background: JsonObject {
                     property real desktopCenterY: -1
                     property real desktopRightX: -1
                     property bool showLyrics: false
+                    property string sizeMode: "3x2" // Supports "3x2", "2x2"
                 }
 
                 property JsonObject systemMonitor: JsonObject {

@@ -9,8 +9,42 @@ import "."
 
 Item {
     id: root
-    implicitWidth: 420 * Appearance.effectiveScale
+    property var cfg: Config.ready ? Config.options.appearance.mediaWidget : null
+    property string sizeMode: cfg ? (cfg.sizeMode || "3x2") : "3x2"
+
+    readonly property real baseWidth: 132 * Appearance.effectiveScale
+    readonly property real gap: 12 * Appearance.effectiveScale
+
+    readonly property real width2x2: (baseWidth * 2) + gap
+    readonly property real width3x2: (baseWidth * 3) + (gap * 2)
+
+    function getModeForWidth(targetWidth) {
+        let mid = (width2x2 + width3x2) / 2;
+        if (targetWidth < mid) return "2x2";
+        return "3x2";
+    }
+
+    implicitWidth: sizeMode === "2x2" ? width2x2 : width3x2
     implicitHeight: 228 * Appearance.effectiveScale
+    width: implicitWidth
+    height: implicitHeight
+
+    Behavior on width {
+        NumberAnimation {
+            duration: 250
+            easing.bezierCurve: Appearance.animation?.elementResize?.numberAnimation?.easing?.bezierCurve || [0.2, 0, 0, 1]
+        }
+    }
+
+    HoverHandler {
+        id: widgetHoverHandler
+    }
+
+    onSizeModeChanged: {
+        if (sizeMode === "2x2") {
+            viewLyrics = false;
+        }
+    }
 
     property bool showLyrics: Config.options.appearance.mediaWidget.showLyrics
     property bool viewLyrics: false
@@ -28,11 +62,15 @@ Item {
         anchors.fill: parent
         radius: 30 * Appearance.effectiveScale
         color: Appearance.colors.colOnPrimary // Card bg = play/pause icon color (user request)
+        clip: true
     }
 
     // Toggle button in top right corner (M3 Styled Shape)
     Item {
         id: lyricsToggleBtn
+        opacity: root.sizeMode !== "2x2" ? 1 : 0
+        visible: opacity > 0
+        Behavior on opacity { NumberAnimation { duration: 150 } }
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.topMargin: 16 * Appearance.effectiveScale
@@ -74,18 +112,21 @@ Item {
         }
     }
 
-    // StackLayout to toggle between Media Control (0) and Lyrics View (1)
-    StackLayout {
+    // Main Content Container
+    Item {
         id: mainStack
         anchors.fill: parent
-        anchors.margins: 17 * Appearance.effectiveScale
-        anchors.bottomMargin: 22 * Appearance.effectiveScale
-        currentIndex: viewLyrics ? 1 : 0
+        anchors.margins: 16 * Appearance.effectiveScale
+        clip: true
 
-        // PAGE 0: Media Control & Info View
+        // PAGE 0 (3x2 Variant): Media Control & Info View
         ColumnLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            anchors.fill: parent
+            visible: opacity > 0
+            opacity: (!viewLyrics && root.sizeMode !== "2x2") ? 1 : 0
+            Behavior on opacity {
+                NumberAnimation { duration: 180 }
+            }
             spacing: 2 * Appearance.effectiveScale // Tighter spacing for title/artist
 
             // 1. TITLE (Centered, bounded from lyrics button)
@@ -308,10 +349,295 @@ Item {
             }
         }
 
+        // PAGE 0 (2x2 Variant): Thumbnail Masking Rounded + Controls + Progress Slider + Timer
+        ColumnLayout {
+            anchors.fill: parent
+            visible: opacity > 0
+            opacity: (!viewLyrics && root.sizeMode === "2x2") ? 1 : 0
+            Behavior on opacity {
+                NumberAnimation { duration: 180 }
+            }
+            spacing: 0
+
+            // 1. Thumbnail masking rounded (Full Rounded / Capsule Shape)
+            Item {
+                id: artContainer2x2
+                Layout.fillWidth: true
+                Layout.preferredHeight: 102 * Appearance.effectiveScale
+
+                Item {
+                    anchors.fill: parent
+                    layer.enabled: true
+                    layer.effect: OpacityMask {
+                        maskSource: Rectangle {
+                            width: artContainer2x2.width
+                            height: artContainer2x2.height
+                            radius: artContainer2x2.height / 2
+                        }
+                    }
+
+                    // Placeholder background when no image
+                    Rectangle {
+                        anchors.fill: parent
+                        color: Appearance.m3colors.darkmode ? Appearance.colors.colOnTertiaryContainer : Appearance.colors.colSecondaryContainer
+                        visible: !artImg2x2.visible
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: "music_note"
+                            iconSize: 32 * Appearance.effectiveScale
+                            color: Appearance.m3colors.darkmode ? Appearance.colors.colTertiaryContainer : Appearance.colors.colOnSecondaryContainer
+                        }
+                    }
+
+                    // Album Art Image
+                    Image {
+                        id: artImg2x2
+                        anchors.fill: parent
+                        source: MprisController.displayedArtFilePath
+                        visible: source.toString() !== ""
+                        fillMode: Image.PreserveAspectCrop
+                        asynchronous: true
+                        cache: false
+                    }
+
+                    // Gradient overlay for title text visibility
+                    Rectangle {
+                        anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: 44 * Appearance.effectiveScale
+                        gradient: Gradient {
+                            GradientStop { position: 0.0; color: "transparent" }
+                            GradientStop { position: 1.0; color: Functions.ColorUtils.applyAlpha(Appearance.colors.colOnPrimary, 0.8) }
+                        }
+                    }
+
+                    // Title & Artist on Thumbnail
+                    ColumnLayout {
+                        anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.margins: 4 * Appearance.effectiveScale
+                        anchors.bottomMargin: 6 * Appearance.effectiveScale
+                        spacing: 0
+
+                        // Title (Bigger font size with '...' truncation)
+                        StyledText {
+                            Layout.fillWidth: true
+                            Layout.leftMargin: 12 * Appearance.effectiveScale
+                            Layout.rightMargin: 12 * Appearance.effectiveScale
+                            horizontalAlignment: Text.AlignHCenter
+                            text: (MprisController.trackTitle && MprisController.trackTitle !== "No media") ? Functions.StringUtils.cleanMusicTitle(MprisController.trackTitle) : "No media"
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.Bold
+                            color: Appearance.colors.colPrimary
+                            elide: Text.ElideRight
+                        }
+
+                        // Artist (With '...' truncation)
+                        StyledText {
+                            Layout.fillWidth: true
+                            Layout.leftMargin: 12 * Appearance.effectiveScale
+                            Layout.rightMargin: 12 * Appearance.effectiveScale
+                            horizontalAlignment: Text.AlignHCenter
+                            text: (MprisController.activePlayer && MprisController.trackTitle !== "No media") ? (MprisController.trackArtist || "Unknown Artist") : "Play some media"
+                            font.pixelSize: Appearance.font.pixelSize.smallest
+                            font.weight: Font.Normal
+                            color: Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.8)
+                            elide: Text.ElideRight
+                        }
+                    }
+                }
+            }
+
+            Item { Layout.preferredHeight: 6 * Appearance.effectiveScale }
+
+            // 2. Control Buttons [prev][play/pause][next]
+            RowLayout {
+                Layout.alignment: Qt.AlignHCenter
+                spacing: 12 * Appearance.effectiveScale
+
+                // Prev Button (Simple Rounded Circle)
+                Item {
+                    id: prevBtn2x2
+                    implicitWidth: 38 * Appearance.effectiveScale
+                    implicitHeight: 38 * Appearance.effectiveScale
+
+                    property bool hovered: false
+                    property bool pressed: false
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: width / 2
+                        color: prevBtn2x2.pressed
+                            ? Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.3)
+                            : (Appearance.m3colors.darkmode ? Appearance.colors.colOnTertiaryContainer : Appearance.colors.colSecondaryContainer)
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: "skip_previous"
+                            iconSize: 20 * Appearance.effectiveScale
+                            fill: 0
+                            color: prevBtn2x2.hovered
+                                ? (Appearance.m3colors.darkmode ? Appearance.colors.colTertiaryContainer : Appearance.colors.colPrimary)
+                                : (Appearance.m3colors.darkmode ? Appearance.colors.colTertiaryContainer : Appearance.colors.colOnSecondaryContainer)
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            hoverEnabled: true
+                            onEntered: prevBtn2x2.hovered = true
+                            onExited: prevBtn2x2.hovered = false
+                            onPressed: prevBtn2x2.pressed = true
+                            onReleased: prevBtn2x2.pressed = false
+                            onClicked: MprisController.previous()
+                        }
+                    }
+                }
+
+                // Play/Pause Button (Flower Cookie 12-Sided)
+                Item {
+                    id: playBtn2x2
+                    implicitWidth: 46 * Appearance.effectiveScale
+                    implicitHeight: 46 * Appearance.effectiveScale
+
+                    property bool hovered: false
+                    property bool pressed: false
+
+                    MaterialShape {
+                        anchors.fill: parent
+                        shape: MaterialShape.Shape.Cookie12Sided
+                        color: Appearance.colors.colPrimary
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: MprisController.isPlaying ? "pause" : "play_arrow"
+                            iconSize: 26 * Appearance.effectiveScale
+                            fill: 0
+                            color: playBtn2x2.pressed
+                                ? Functions.ColorUtils.applyAlpha(Appearance.colors.colOnPrimary, 0.7)
+                                : Appearance.colors.colOnPrimary
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            hoverEnabled: true
+                            onEntered: playBtn2x2.hovered = true
+                            onExited: playBtn2x2.hovered = false
+                            onPressed: playBtn2x2.pressed = true
+                            onReleased: playBtn2x2.pressed = false
+                            onClicked: MprisController.togglePlaying()
+                        }
+                    }
+                }
+
+                // Next Button (Simple Rounded Circle)
+                Item {
+                    id: nextBtn2x2
+                    implicitWidth: 38 * Appearance.effectiveScale
+                    implicitHeight: 38 * Appearance.effectiveScale
+
+                    property bool hovered: false
+                    property bool pressed: false
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: width / 2
+                        color: nextBtn2x2.pressed
+                            ? Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.3)
+                            : (Appearance.m3colors.darkmode ? Appearance.colors.colOnTertiaryContainer : Appearance.colors.colSecondaryContainer)
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: "skip_next"
+                            iconSize: 20 * Appearance.effectiveScale
+                            fill: 0
+                            color: nextBtn2x2.hovered
+                                ? (Appearance.m3colors.darkmode ? Appearance.colors.colTertiaryContainer : Appearance.colors.colPrimary)
+                                : (Appearance.m3colors.darkmode ? Appearance.colors.colTertiaryContainer : Appearance.colors.colOnSecondaryContainer)
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            hoverEnabled: true
+                            onEntered: nextBtn2x2.hovered = true
+                            onExited: nextBtn2x2.hovered = false
+                            onPressed: nextBtn2x2.pressed = true
+                            onReleased: nextBtn2x2.pressed = false
+                            onClicked: MprisController.next()
+                        }
+                    }
+                }
+            }
+
+            Item { Layout.preferredHeight: 8 * Appearance.effectiveScale }
+
+            // 3. Progress Slider (Same as 3x2)
+            StyledSlider {
+                id: progressSlider2x2
+                Layout.fillWidth: true
+                Layout.preferredHeight: 12 * Appearance.effectiveScale
+                handleMargins: 0
+                configuration: StyledSlider.Configuration.X0
+                stopIndicatorValues: []
+                animateValue: false
+                value: (MprisController.length > 0 ? (MprisController.position / MprisController.length) : 0) || 0
+                highlightColor: Appearance.colors.colPrimary
+                trackColor: Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.25)
+
+                handle: Rectangle {
+                    x: progressSlider2x2.leftPadding + (progressSlider2x2.visualPosition * (progressSlider2x2.availableWidth - width))
+                    y: (progressSlider2x2.height - height) / 2
+                    width: 14 * Appearance.effectiveScale
+                    height: 14 * Appearance.effectiveScale
+                    radius: width / 2
+                    color: Appearance.colors.colPrimary
+                }
+
+                onMoved: {
+                    if (MprisController.activePlayer && MprisController.activePlayer.canSeek) {
+                        MprisController.activePlayer.position = value * MprisController.activePlayer.length;
+                    }
+                }
+
+                Connections {
+                    target: MprisController
+                    function onPositionChanged() {
+                        if (!progressSlider2x2.pressed) {
+                            progressSlider2x2.value = (MprisController.length > 0 ? (MprisController.position / MprisController.length) : 0) || 0;
+                        }
+                    }
+                }
+            }
+
+            Item { Layout.preferredHeight: 6 * Appearance.effectiveScale }
+
+            // 4. Timer Media (Formatted Position / Length)
+            StyledText {
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                text: Functions.StringUtils.friendlyTimeForSeconds(MprisController.position) + " / " + Functions.StringUtils.friendlyTimeForSeconds(MprisController.length)
+                font.pixelSize: Appearance.font.pixelSize.smallest
+                font.family: Appearance.font.family.numbers
+                font.features: { "tnum": 1 }
+                font.weight: Font.DemiBold
+                color: Appearance.colors.colPrimary
+                renderType: Text.QtRendering
+            }
+        }
+
         // PAGE 1: Lyrics View (Clean 5 Lines Display)
         ColumnLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            anchors.fill: parent
+            visible: opacity > 0
+            opacity: (viewLyrics && root.sizeMode !== "2x2") ? 1 : 0
+            Behavior on opacity {
+                NumberAnimation { duration: 180 }
+            }
             spacing: 0
 
             Item { Layout.fillHeight: true } // Spacer
@@ -413,6 +739,67 @@ Item {
                 onClicked: {
                     if (Config.ready) {
                         Config.options.appearance.lyrics.lyricsUseRomaji = !Config.options.appearance.lyrics.lyricsUseRomaji;
+                    }
+                }
+            }
+        }
+    }
+
+    // Bottom-right Drag Resize Handle (matching WeatherWidget / CurrencyWidget)
+    Rectangle {
+        id: resizeHandle
+        z: 30
+        implicitWidth: 24 * Appearance.effectiveScale
+        implicitHeight: 24 * Appearance.effectiveScale
+        radius: 8 * Appearance.effectiveScale
+        color: Appearance.m3colors.darkmode ? Appearance.colors.colOnTertiaryContainer : Appearance.colors.colSecondaryContainer
+
+        anchors {
+            right: root.right
+            bottom: root.bottom
+            margins: -8 * Appearance.effectiveScale
+        }
+
+        opacity: (cfg && !cfg.locked) && (widgetHoverHandler.hovered || resizeArea.containsMouse || resizeArea.pressed) ? 0.9 : 0
+        visible: opacity > 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: 150 }
+        }
+
+        MaterialSymbol {
+            anchors.centerIn: parent
+            text: "swap_horiz"
+            iconSize: 15 * Appearance.effectiveScale
+            color: Appearance.m3colors.darkmode ? Appearance.colors.colTertiaryContainer : Appearance.colors.colOnSecondaryContainer
+        }
+
+        MouseArea {
+            id: resizeArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.SizeHorCursor
+            preventStealing: true
+
+            property real startWidth: 0
+            property real startGlobalX: 0
+
+            onPressed: (mouse) => {
+                startWidth = root.width;
+                let p = mapToItem(null, mouse.x, mouse.y);
+                startGlobalX = p.x;
+            }
+
+            onPositionChanged: (mouse) => {
+                if (!pressed) return;
+                let p = mapToItem(null, mouse.x, mouse.y);
+                let deltaX = p.x - startGlobalX;
+                let targetWidth = startWidth + deltaX;
+
+                let targetMode = root.getModeForWidth(targetWidth);
+                if (targetMode !== root.sizeMode) {
+                    if (cfg) {
+                        cfg.sizeMode = targetMode;
                     }
                 }
             }

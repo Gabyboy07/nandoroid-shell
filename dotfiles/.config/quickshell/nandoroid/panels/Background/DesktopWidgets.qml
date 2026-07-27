@@ -350,39 +350,13 @@ Variants {
 
                 property string childId: "mediaWidgetWrapper"
 
-                property real targetX: {
-                    if (!Config.ready) return (parent.width - width) / 2;
-                    if (Config.options.appearance.mediaWidget.desktopCenterX !== -1) {
-                        return Config.options.appearance.mediaWidget.desktopCenterX - (width / 2);
-                    }
-                    if (Config.options.appearance.mediaWidget.desktopX !== -1) {
-                        return Config.options.appearance.mediaWidget.desktopX;
-                    }
-                    return (parent.width - width) / 2;
-                }
-
-                property real targetY: {
-                    if (!Config.ready) return (parent.height - height) / 2;
-                    if (Config.options.appearance.mediaWidget.desktopCenterY !== -1) {
-                        return Config.options.appearance.mediaWidget.desktopCenterY - (height / 2);
-                    }
-                    if (Config.options.appearance.mediaWidget.desktopY !== -1) {
-                        return Config.options.appearance.mediaWidget.desktopY;
-                    }
-                    return (parent.height - height) / 2;
-                }
-                
-                x: targetX
-                y: targetY
+                x: Config.ready && Config.options.appearance.mediaWidget.desktopX !== -1 ? Config.options.appearance.mediaWidget.desktopX : (parent.width - width) / 2
+                y: Config.ready && Config.options.appearance.mediaWidget.desktopY !== -1 ? Config.options.appearance.mediaWidget.desktopY : (parent.height - height) / 2
 
                 onDragFinished: (newX, newY) => {
                     if (Config.ready) {
-                        Config.options.appearance.mediaWidget.desktopY = newY;
-                        Config.options.appearance.mediaWidget.desktopCenterY = newY + (height / 2);
-                        
                         Config.options.appearance.mediaWidget.desktopX = newX;
-                        Config.options.appearance.mediaWidget.desktopCenterX = newX + (width / 2);
-                        Config.options.appearance.mediaWidget.desktopRightX = newX + width;
+                        Config.options.appearance.mediaWidget.desktopY = newY;
                     }
                 }
 
