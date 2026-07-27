@@ -599,6 +599,13 @@ property JsonObject background: JsonObject {
                 property bool noPbo: false
             }
 
+            // --- Interactions ---
+            property JsonObject interactions: JsonObject {
+                property JsonObject desktop: JsonObject {
+                    property bool blockWhenWindowsOpen: true
+                }
+            }
+
             // --- Game Mode State ---
             property JsonObject gameModeState: JsonObject {
                 property string previousLiveWallpaperPath: ""

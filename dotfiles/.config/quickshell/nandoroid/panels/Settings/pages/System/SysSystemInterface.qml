@@ -14,7 +14,7 @@ ColumnLayout {
 
     SearchHandler { 
         searchString: "System Interface"
-        aliases: ["Privacy Indicators", "Window Snapping", "Region Selector"]
+        aliases: ["Privacy Indicators", "Window Snapping", "Region Selector", "Desktop Gestures", "Desktop Interactions"]
     }
 
     ColumnLayout {
@@ -115,6 +115,49 @@ ColumnLayout {
                     onToggled: {
                         if (Config.ready && Config.options.regionSelector) {
                             Config.options.regionSelector.targetRegions.windows = !Config.options.regionSelector.targetRegions.windows;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Desktop Interactions
+        SegmentedWrapper {
+            Layout.fillWidth: true
+            implicitHeight: desktopRow.implicitHeight + 40 * Appearance.effectiveScale
+            orientation: Qt.Vertical
+            color: Appearance.m3colors.m3surfaceContainerHigh
+            maxRadius: 20 * Appearance.effectiveScale
+            
+            RowLayout {
+                id: desktopRow
+                anchors.fill: parent
+                anchors.margins: 20 * Appearance.effectiveScale
+                spacing: 20 * Appearance.effectiveScale
+
+                ColumnLayout {
+                    spacing: 2 * Appearance.effectiveScale
+                    StyledText {
+                        text: "Block Desktop Interactions When Windows Open"
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnLayer1
+                    }
+                    StyledText {
+                        text: "Block right-click, swipe-up, and widget input when windows are open."
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: Appearance.colors.colSubtext
+                    }
+                }
+                
+                Item { Layout.fillWidth: true }
+                
+                AndroidToggle {
+                    checked: (Config.ready && Config.options.interactions && Config.options.interactions.desktop)
+                        ? Config.options.interactions.desktop.blockWhenWindowsOpen : true
+                    onToggled: {
+                        if (Config.ready && Config.options.interactions && Config.options.interactions.desktop) {
+                            Config.options.interactions.desktop.blockWhenWindowsOpen = !Config.options.interactions.desktop.blockWhenWindowsOpen;
                         }
                     }
                 }

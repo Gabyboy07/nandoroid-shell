@@ -47,9 +47,9 @@ Variants {
         color: "transparent"
         visible: !GlobalStates.screenLocked && !forceHideTimer.running
 
-        // Mouse region masking: Only capture input when desktop is empty
+        // Mouse region masking: Capture input based on interaction setting
         mask: Region {
-            item: widgetRoot.isDesktopEmpty ? gestureArea : null
+            item: widgetRoot.shouldInteract ? gestureArea : null
         }
 
         Timer {
@@ -111,6 +111,15 @@ Variants {
             return realWindows.length === 0;
         }
 
+        readonly property bool shouldInteract: {
+            if (!Config.ready || GlobalStates.screenLocked) return false;
+            let blockWhenWindows = true;
+            if (Config.options.interactions && Config.options.interactions.desktop) {
+                blockWhenWindows = Config.options.interactions.desktop.blockWhenWindowsOpen;
+            }
+            return !blockWhenWindows || isDesktopEmpty;
+        }
+
         // ── Desktop Visualizer State ──
         readonly property bool _showVisualizer: {
             if (!Config.ready || !Config.options.appearance.background.showCava) return false;
@@ -140,7 +149,7 @@ Variants {
             property bool isDragging: false
             
             onPressed: (mouse) => {
-                if (mouse.button === Qt.RightButton && widgetRoot.isDesktopEmpty && !widgetRoot.isWorkspaceChanging) {
+                if (mouse.button === Qt.RightButton && widgetRoot.shouldInteract && !widgetRoot.isWorkspaceChanging) {
                     desktopContextMenu.openAt(mouse.x, mouse.y, null);
                     mouse.accepted = true;
                     return;
@@ -502,7 +511,7 @@ Variants {
         }
 
         function handleMenuRelocation(x, y) {
-            if (!widgetRoot.isDesktopEmpty) {
+            if (!widgetRoot.shouldInteract) {
                 desktopContextMenu.close();
                 return;
             }
