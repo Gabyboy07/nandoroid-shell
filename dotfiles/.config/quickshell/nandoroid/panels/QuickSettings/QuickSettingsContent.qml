@@ -784,24 +784,37 @@ Item {
                 anchors.margins: 10 * Appearance.effectiveScale
                 spacing: 8 * Appearance.effectiveScale
 
-                // Brightness (Full Width)
+                // Brightness (Full Width) with gamma dimming
                 QuickSlider {
                     id: brightnessSlider
                     Layout.fillWidth: true
                     configuration: StyledSlider.Configuration.M
                     visible: true
-                    from: 0.0
-                    to: 1.0
+                    readonly property real gammaBoundary: 0.3
+                    readonly property bool dimming: Hyprsunset.gamma !== 100
+                    materialSymbol: dimming ? "wb_twilight" : "brightness_6"
+                    secondaryMaterialSymbol: "wb_twilight"
+                    stopIndicatorValues: dimming ? [] : [gammaBoundary]
+                    dividerValues: [gammaBoundary]
                     property var mon: {
                         const screen = Hyprland.focusedMonitor;
                         if (!screen) return null;
                         return Brightness.getMonitorByName(screen.name);
                     }
-                    value: mon ? mon.brightness : 0.5
-                    materialSymbol: "brightness_6"
+                    value: dimming
+                        ? (Hyprsunset.gamma - Hyprsunset.gammaLowerLimit) / (100 - Hyprsunset.gammaLowerLimit) * gammaBoundary
+                        : gammaBoundary + (mon ? mon.brightness * (1 - gammaBoundary) : 0)
                     onMoved: {
-                        if (mon) mon.setBrightness(value);
+                        if (value >= gammaBoundary) {
+                            const b = (value - gammaBoundary) / (1 - gammaBoundary);
+                            if (mon) mon.setBrightness(b);
+                            if (dimming) Hyprsunset.resetGamma();
+                        } else {
+                            if (mon && mon.brightness !== 0) mon.setBrightness(0);
+                            Hyprsunset.setGamma(value / gammaBoundary * (100 - Hyprsunset.gammaLowerLimit) + Hyprsunset.gammaLowerLimit);
+                        }
                     }
+
                 }
 
                 // Volume + Mic (Row)
@@ -840,6 +853,7 @@ Item {
     component QuickSlider: StyledSlider { 
         id: quickSlider
         required property string materialSymbol
+        property string secondaryMaterialSymbol
         configuration: StyledSlider.Configuration.L
         stopIndicatorValues: []
         
@@ -854,6 +868,28 @@ Item {
             iconSize: 20 * Appearance.effectiveScale
             color: nearFull ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSecondaryContainer
             text: quickSlider.materialSymbol
+
+            Behavior on color {
+                animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+            }
+            Behavior on anchors.rightMargin {
+                animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+            }
+        }
+
+        MaterialSymbol {
+            id: secondaryIcon
+            visible: secondaryMaterialSymbol.length > 0
+            readonly property real iconLocation: 0.3
+            property bool nearIcon: iconLocation - quickSlider.value <= 0.1 && iconLocation - quickSlider.value > (quickSlider.handleWidth + 8 * Appearance.effectiveScale - 14 * Appearance.effectiveScale) / quickSlider.effectiveDraggingWidth
+            anchors {
+                verticalCenter: parent.verticalCenter
+                right: nearIcon ? quickSlider.handle.right : parent.right
+                rightMargin: nearIcon ? 14 * Appearance.effectiveScale : (1 - iconLocation) * quickSlider.effectiveDraggingWidth + quickSlider.rightPadding + 8 * Appearance.effectiveScale
+            }
+            iconSize: 20 * Appearance.effectiveScale
+            color: quickSlider.value >= iconLocation - 0.1 ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSecondaryContainer
+            text: secondaryMaterialSymbol
 
             Behavior on color {
                 animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
