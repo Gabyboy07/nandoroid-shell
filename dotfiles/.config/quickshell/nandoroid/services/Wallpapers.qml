@@ -183,7 +183,10 @@ Singleton {
             filePath
         ]
         property string filePath
-        property string scheme: Config.options.appearance.background.matugenScheme || "scheme-tonal-spot"
+        property string scheme: {
+            if (Config.ready && !Config.options.appearance.background.matugen) return "scheme-tonal-spot";
+            return Config.options.appearance.background.matugenScheme || "scheme-tonal-spot";
+        }
 
         onRunningChanged: if (running) CavaService.stop(); else CavaService.start();
 
@@ -312,8 +315,13 @@ Singleton {
         }
     }
 
+    property bool _applyingTheme: false
+
     function applyColor(hex, source = "desktop") {
         if (!Config.ready) return;
+        var savedApplyingTheme = root._applyingTheme;
+        root._applyingTheme = false;
+
         Config.options.appearance.background.matugen = false // Disable wallpaper-based matugen
         Config.options.appearance.background.matugenCustomColor = hex
         Config.options.appearance.background.matugenThemeFile = ""
@@ -323,6 +331,19 @@ Singleton {
         matugenColorProc.hexColor = hex;
         // Small delay to ensure process state reset
         Qt.callLater(() => { matugenColorProc.running = true; });
+
+        // Accent for desktop only — regenerate lockscreen colors only if using a different wallpaper
+        if (source !== "lockscreen" && Config.options.lock.useSeparateWallpaper && Config.options.lock.wallpaperPath) {
+            const lockPath = Config.options.lock.wallpaperPath.toString().replace("file://", "");
+            const desktopPath = Config.options.appearance.background.wallpaperPath.toString().replace("file://", "");
+            if (lockPath !== "" && lockPath !== desktopPath) {
+                matugenLockscreenProc.running = false;
+                matugenLockscreenProc.filePath = lockPath;
+                Qt.callLater(() => { matugenLockscreenProc.running = true; });
+            }
+        }
+
+        root._applyingTheme = savedApplyingTheme;
     }
 
     function pickAccent(target = "desktop") {
@@ -387,6 +408,7 @@ Singleton {
 
     function applyTheme(fileName) {
         if (!Config.ready) return;
+        root._applyingTheme = true;
         const themesDir = Qt.resolvedUrl("../assets/themes/").toString();
         const cleanDir = themesDir.startsWith("file://") ? themesDir.substring(7) : themesDir;
         const fullPath = cleanDir + fileName;
@@ -420,6 +442,17 @@ Singleton {
         // 2. Save for persistence (MaterialThemeLoader watches this)
         themeWriteProc.sourcePath = fullPath;
         themeWriteProc.running = true;
+
+        // Basic themes apply to both desktop and lockscreen
+        Qt.callLater(() => {
+            root._applyingTheme = false;
+            if (Config.ready && Config.options.lock.useSeparateWallpaper) {
+                Quickshell.execDetached([
+                    "sh", "-c", 'cp "$1" "$2"',
+                    "sh", Directories.generatedMaterialThemePath, Directories.generatedLockColorsPath
+                ]);
+            }
+        });
     }
     
     function initializeMatugen() {
@@ -485,18 +518,16 @@ Singleton {
         const cleanPath = path.toString().startsWith("file://") ? path.toString().substring(7) : path.toString()
         Config.options.lock.wallpaperPath = "file://" + cleanPath
 
-        if (Config.options.appearance.background.matugen) {
-            if (cleanPath === matugenProc.filePath) {
-                // Same wallpaper as desktop — reuse desktop colors, skip duplicate matugen run
-                Quickshell.execDetached([
-                    "sh", "-c", 'cp "$1" "$2"',
-                    "sh", Directories.generatedMaterialThemePath, Directories.generatedLockColorsPath
-                ]);
-            } else {
-                matugenLockscreenProc.running = false;
-                matugenLockscreenProc.filePath = cleanPath
-                Qt.callLater(() => { matugenLockscreenProc.running = true; });
-            }
+        if (cleanPath === matugenProc.filePath) {
+            // Same wallpaper as desktop — reuse desktop colors, skip duplicate matugen run
+            Quickshell.execDetached([
+                "sh", "-c", 'cp "$1" "$2"',
+                "sh", Directories.generatedMaterialThemePath, Directories.generatedLockColorsPath
+            ]);
+        } else {
+            matugenLockscreenProc.running = false;
+            matugenLockscreenProc.filePath = cleanPath
+            Qt.callLater(() => { matugenLockscreenProc.running = true; });
         }
     }
 
