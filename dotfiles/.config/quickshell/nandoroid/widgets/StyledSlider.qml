@@ -215,7 +215,7 @@ Slider {
         implicitWidth: root.handleWidth
         implicitHeight: root.handleHeight
         x: root.leftPadding + (root.visualPosition * root.effectiveDraggingWidth) - (root.handleWidth / 2)
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenter: root.verticalCenter
         radius: Appearance.rounding.full
         color: root.handleColor
 
