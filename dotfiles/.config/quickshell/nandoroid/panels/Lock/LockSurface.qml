@@ -287,7 +287,7 @@ MouseArea {
             visible: !lockStatusBarContainer.isM3
             anchors.fill: parent
             
-            // Left: User + Network + (Notifications when position=left)
+            // Left: User (photo + name) + Network + (Notifications when position=left)
             RowLayout {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
@@ -325,13 +325,60 @@ MouseArea {
                     }
                 }
 
+                // Avatar photo (circular)
+                Item {
+                    id: baseAvatarContainer
+                    width: 20 * Appearance.effectiveScale
+                    height: 20 * Appearance.effectiveScale
+                    Layout.alignment: Qt.AlignVCenter
+
+                    Image {
+                        id: baseAvatarImage
+                        anchors.fill: parent
+                        source: {
+                            const profPath = Config.options.profile?.avatarPicture;
+                            if (profPath && profPath !== "") return "file://" + profPath;
+                            const cfgPath = Config.options.bar?.avatar_path;
+                            if (cfgPath && cfgPath !== "") return `file://${cfgPath}`;
+                            if (SystemInfo.userAvatarValid) return "file://" + SystemInfo.userAvatarPath;
+                            return "";
+                        }
+                        sourceSize: Qt.size(width, height)
+                        fillMode: Image.PreserveAspectCrop
+                        visible: false
+                    }
+                    Rectangle {
+                        id: baseAvatarMask
+                        anchors.fill: parent
+                        radius: width / 2
+                        visible: false
+                    }
+                    OpacityMask {
+                        anchors.fill: parent
+                        source: baseAvatarImage
+                        maskSource: baseAvatarMask
+                        visible: baseAvatarImage.status === Image.Ready
+                    }
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        visible: baseAvatarImage.status !== Image.Ready
+                        text: "person"
+                        iconSize: 16 * Appearance.effectiveScale
+                        fill: 1
+                        color: lockStatusBarContainer.contentColor
+                    }
+                }
+
                 StyledText {
-                    text: SystemInfo.username + "  •  " + (Network.wifiEnabled ? (Network.networkName || "Offline") : "WiFi Off")
+                    text: {
+                        const displayName = Config.options.profile?.displayName;
+                        const name = (displayName && displayName !== "") ? displayName : (SystemInfo.realName || SystemInfo.username);
+                        return name + "  •  " + (Network.wifiEnabled ? (Network.networkName || "Offline") : "WiFi Off");
+                    }
                     font.pixelSize: Math.round(14 * Appearance.effectiveScale)
                     font.weight: Font.Medium
                     color: lockStatusBarContainer.contentColor
                 }
-
 
             }
 
