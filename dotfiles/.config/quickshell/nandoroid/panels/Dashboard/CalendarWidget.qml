@@ -76,6 +76,10 @@ Item {
         }
     }
 
+    function closePopup() {
+        eventPopup.visible = false
+    }
+
     MouseArea {
         anchors.fill: parent
         onWheel: (event) => {
@@ -85,7 +89,7 @@ Item {
                 monthShift++;
         }
         // Dismiss popup when clicking outside the grid/buttons
-        onClicked: eventPopup.visible = false
+        onClicked: closePopup()
     }
 
     Connections {
@@ -95,8 +99,8 @@ Item {
                 eventPopup.visible = false
             }
         }
-        function onClosePopups() {
-            eventPopup.visible = false
+        function onCloseSubPopups() {
+            closePopup()
         }
     }
 
@@ -115,6 +119,10 @@ Item {
         color: Appearance.m3colors.m3surfaceContainerHigh
         border.color: Appearance.colors.colOutlineVariant
         border.width: Math.max(1, 1 * Appearance.effectiveScale)
+
+        TapHandler {
+            onTapped: (eventPoint) => eventPoint.accepted = true
+        }
 
         // Clip to stay within CalendarWidget bounds
         x: Math.min(Math.max(0, _popX), root.width - width)
@@ -324,7 +332,7 @@ Item {
 
                             onClicked: {
                                 if (cell.today === -1) {
-                                    eventPopup.visible = false
+                                    closePopup()
                                     return  // greyed out
                                 }
                                 const m = root.viewingDate.getMonth() + 1
@@ -334,18 +342,15 @@ Item {
                                 const dateStr = y + "-" + mm + "-" + dd
                                 
                                 if (!root.hasEvent(y, m, cell.day)) {
-                                    eventPopup.visible = false
+                                    closePopup()
                                     return
                                 }
 
-                                // mapToItem(root, x, y): map button's bottom-center
-                                // from button-local coords → CalendarWidget root coords
-                                const pos = mapToItem(root, width / 2, height + 4 * Appearance.effectiveScale)
-                                
-                                // Toggle if same date, update and ensure visible if different date
-                                if (eventPopup.visible && eventPopup.dateStr === dateStr) {
-                                    eventPopup.visible = false
-                                } else {
+                                const wasOpenForThisDate = eventPopup.visible && eventPopup.dateStr === dateStr
+                                closePopup()
+
+                                if (!wasOpenForThisDate) {
+                                    const pos = mapToItem(root, width / 2, height + 4 * Appearance.effectiveScale)
                                     eventPopup._popX = pos.x - eventPopup.width / 2
                                     eventPopup._popY = pos.y
                                     eventPopup.dateStr = dateStr

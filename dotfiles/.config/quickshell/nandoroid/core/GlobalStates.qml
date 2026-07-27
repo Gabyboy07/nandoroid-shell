@@ -15,6 +15,7 @@ Singleton {
 
     signal screenshotTaken(string path)
     signal closePopups()
+    signal closeSubPopups()
 
     property bool statusBarVisible: true
     property bool notificationCenterOpen: false

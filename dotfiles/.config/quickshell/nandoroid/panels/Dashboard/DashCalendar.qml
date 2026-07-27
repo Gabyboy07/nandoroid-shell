@@ -79,6 +79,10 @@ RowLayout {
         return dates
     }
 
+    TapHandler {
+        onTapped: calWidget.closePopup()
+    }
+
     // ── Calendar ──
     Rectangle {
         Layout.fillHeight: true
@@ -88,6 +92,7 @@ RowLayout {
         radius: Appearance.rounding.normal
 
         CalendarWidget {
+            id: calWidget
             anchors.centerIn: parent
             width: Math.min(parent.width - 24 * Appearance.effectiveScale, implicitWidth)
             height: parent.height - 24 * Appearance.effectiveScale

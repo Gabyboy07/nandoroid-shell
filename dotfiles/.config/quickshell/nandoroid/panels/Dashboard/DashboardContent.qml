@@ -33,6 +33,7 @@ Item {
     onCurrentTabChanged: {
         tabHighlight.idx1 = currentTab
         Qt.callLater(() => { tabHighlight.idx2 = currentTab })
+        GlobalStates.closeSubPopups()
     }
     readonly property int tabCount: 5
     readonly property int tabButtonSize: 44 * Appearance.effectiveScale
@@ -229,7 +230,10 @@ Item {
                 border.width: root.showShoulders ? 0 : Math.max(1, 1 * Appearance.effectiveScale)
                 border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
 
-                // Prevent clicks inside the panel from falling through to the background closer
+                // Close internal tooltips/popups when clicking anywhere inside the panel or its padding
+                TapHandler {
+                    onTapped: GlobalStates.closeSubPopups()
+                }
 
                 Row {
                     id: mainLayout
@@ -250,6 +254,7 @@ Item {
                 // Scroll to change tab - restricted to tabStrip area
                 MouseArea {
                     anchors.fill: parent
+                    onClicked: GlobalStates.closeSubPopups()
                     onWheel: (wheel) => {
                         if (wheel.angleDelta.y > 0) {
                             root.currentTab = (root.currentTab - 1 + root.tabCount) % root.tabCount
@@ -369,6 +374,7 @@ Item {
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: {
+                                    GlobalStates.closeSubPopups()
                                     root.currentTab = index
                                 }
                             }
