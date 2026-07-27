@@ -56,8 +56,9 @@ Singleton {
         const matugenDir = matugenFile.substring(0, matugenFile.lastIndexOf('/'));
         Quickshell.execDetached(["mkdir", "-p", matugenDir])
 
-        // Pre-create temp files for FileView watchers
-        Quickshell.execDetached(["touch", "/tmp/nandoroid_states.json"])
+        // Pre-create state files for FileView watchers
+        Quickshell.execDetached(["mkdir", "-p", `${Functions.FileUtils.trimFileProtocol(state)}/quickshell`])
+        Quickshell.execDetached(["touch", `${Functions.FileUtils.trimFileProtocol(state)}/quickshell/nandoroid_states.json`])
         Quickshell.execDetached(["touch", "/tmp/nandoroid_cava.conf"])
     }
 }

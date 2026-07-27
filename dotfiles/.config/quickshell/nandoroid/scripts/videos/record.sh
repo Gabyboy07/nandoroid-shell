@@ -4,7 +4,7 @@
 # Ported from 'ii' with adjustments for nandoroid paths
 
 CONFIG_FILE="$HOME/.config/quickshell/nandoroid/config.json"
-STATE_FILE="/tmp/nandoroid_states.json"
+STATE_FILE="${HOME}/.local/state/quickshell/nandoroid_states.json"
 
 DEBUG_LOG="/tmp/record_debug.log"
 exec 2>>"$DEBUG_LOG"
@@ -15,17 +15,6 @@ echo "Args: $@" >> "$DEBUG_LOG"
 if [ ! -f "$STATE_FILE" ]; then
     echo '{"screenRecord": {"active": false, "seconds": 0}}' > "$STATE_FILE"
 fi
-
-# Clean up any leftover PID file from old record.sh versions
-rm -f "/tmp/nandoroid_record_timer.pid"
-
-# EXIT trap: clean up state only if no new recording has started
-cleanup_exit() {
-    if ! pgrep wf-recorder > /dev/null 2>&1; then
-        jq ".screenRecord.active = false | .screenRecord.seconds = 0 | .screenRecord.geometry = null" "$STATE_FILE" > "${STATE_FILE}.tmp" && cat "${STATE_FILE}.tmp" > "$STATE_FILE"
-    fi
-}
-trap "cleanup_exit" EXIT
 
 getdate() {
     date '+%Y-%m-%d_%H.%M.%S'
@@ -125,4 +114,5 @@ else
             wf-recorder -o "$(getactivemonitor)" --pixel-format yuv420p -f "$filename" --geometry "$geometry"
         fi
     fi
+    updatestate false
 fi

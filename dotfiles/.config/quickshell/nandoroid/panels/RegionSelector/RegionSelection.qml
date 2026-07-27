@@ -240,6 +240,14 @@ PanelWindow {
         )
         
         root.visible = false; // Hide immediately
+        if (root.isRecording) {
+            const rx = Math.round(root.regionX * root.monitorScale);
+            const ry = Math.round(root.regionY * root.monitorScale);
+            const rw = Math.round(root.regionWidth * root.monitorScale);
+            const rh = Math.round(root.regionHeight * root.monitorScale);
+            ScreenRecord.active = true;
+            ScreenRecord.geometry = root.action === actionRecordFullscreenWithSound ? "fullscreen" : `${rx},${ry} ${rw}x${rh}`;
+        }
         cropProcess.command = command;
         cropProcess.running = true;
     }
