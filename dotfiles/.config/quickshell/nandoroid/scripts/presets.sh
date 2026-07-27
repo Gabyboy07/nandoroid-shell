@@ -38,27 +38,41 @@ case "$action" in
             echo "Error: preset not found: $name" >&2
             exit 1
         fi
-        jq -s '.[0] * .[1] | del(._presetMeta)' "$CONFIG_FILE" "$preset_file" \
-            > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
 
-        matugen_enabled=$(jq -r '.appearance.background.matugen // false' "$CONFIG_FILE")
-        if [ "$matugen_enabled" = "true" ]; then
-            wallpaper=$(jq -r '.appearance.background.wallpaperPath // ""' "$CONFIG_FILE")
+        # Read settings from preset_file first to run matugen BEFORE updating config.json
+        # This prevents Quickshell from reloading active.json with outdated/fallback colors first
+        merged_json=$(jq -s '.[0] * .[1] | del(._presetMeta)' "$CONFIG_FILE" "$preset_file")
+
+        matugen_enabled=$(echo "$merged_json" | jq -r '.appearance.background.matugen // false')
+        custom_color=$(echo "$merged_json" | jq -r '.appearance.background.matugenCustomColor // .appearance.palette.accentColor // .palette.accentColor // ""')
+        theme_file=$(echo "$merged_json" | jq -r '.appearance.background.matugenThemeFile // ""')
+
+        scheme=$(echo "$merged_json" | jq -r '.appearance.background.matugenScheme // "scheme-tonal-spot"')
+        darkmode=$(echo "$merged_json" | jq -r '.appearance.background.darkmode // true')
+        [ "$darkmode" = "true" ] && mode="dark" || mode="light"
+
+        if [ "$matugen_enabled" = "false" ] && [ -n "$custom_color" ] && [ "$custom_color" != "null" ] && [ "$custom_color" != '""' ]; then
+            custom_color_clean="${custom_color#\#}"
+            # Ensure both matugenCustomColor and palette.accentColor in merged_json have the '#' prefix
+            merged_json=$(echo "$merged_json" | jq --arg c "#$custom_color_clean" '.appearance.background.matugenCustomColor = $c | .appearance.palette.accentColor = $c')
+            
+            # Generate theme files via Matugen first
+            matugen -c ~/.config/matugen/config.toml -t "scheme-tonal-spot" -m "$mode" color hex "$custom_color_clean"
+            
+            # Write config.json after matugen finishes
+            echo "$merged_json" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
+            touch "$HOME/.config/nandoroid/colors/active.json"
+        elif [ "$matugen_enabled" = "false" ] && [ -n "$theme_file" ] && [ "$theme_file" != "null" ] && [ -f "$HOME/.config/nandoroid/colors/$theme_file" ]; then
+            cp "$HOME/.config/nandoroid/colors/$theme_file" "$HOME/.config/nandoroid/colors/active.json"
+            echo "$merged_json" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
+            touch "$HOME/.config/nandoroid/colors/active.json"
+        else
+            wallpaper=$(echo "$merged_json" | jq -r '.appearance.background.wallpaperPath // ""')
             wallpaper="${wallpaper#file://}"
             if [ -n "$wallpaper" ] && [ -f "$wallpaper" ]; then
-                scheme=$(jq -r '.appearance.background.matugenScheme // "scheme-tonal-spot"' "$CONFIG_FILE")
-                darkmode=$(jq -r '.appearance.background.darkmode // true' "$CONFIG_FILE")
-                [ "$darkmode" = "true" ] && mode="dark" || mode="light"
                 matugen -c ~/.config/matugen/config.toml -t "$scheme" -m "$mode" image "$wallpaper" --source-color-index 0
             fi
-        else
-            custom_color=$(jq -r '.appearance.background.matugenCustomColor // ""' "$CONFIG_FILE")
-            if [ -n "$custom_color" ]; then
-                scheme=$(jq -r '.appearance.background.matugenScheme // "scheme-tonal-spot"' "$CONFIG_FILE")
-                darkmode=$(jq -r '.appearance.background.darkmode // true' "$CONFIG_FILE")
-                [ "$darkmode" = "true" ] && mode="dark" || mode="light"
-                matugen -c ~/.config/matugen/config.toml -t "$scheme" -m "$mode" color hex "$custom_color"
-            fi
+            echo "$merged_json" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
         fi
         ;;
     *)

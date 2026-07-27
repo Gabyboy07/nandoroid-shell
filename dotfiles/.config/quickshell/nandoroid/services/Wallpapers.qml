@@ -754,8 +754,7 @@ Singleton {
     }
 
     Connections {
-        // Matugen doesn't suffer as much because it's usually called by other UI interactions
-        // but we'll leave it as is or handle it similarly if needed
+        // Only trigger onMatugenChanged when explicitly changed via UI toggle, not from preset script external changes
         target: (Config.ready && Config.options.appearance) ? Config.options.appearance.background : null
         ignoreUnknownSignals: true
         function onMatugenChanged() {
@@ -763,15 +762,6 @@ Singleton {
             const bg = Config.options.appearance.background;
             if (bg.matugen) {
                 root.initializeMatugen();
-            } else {
-                const theme = bg.matugenThemeFile;
-                if (theme && theme !== "") {
-                    root.applyTheme(theme);
-                } else if (bg.matugenCustomColor && bg.matugenCustomColor !== "") {
-                    root.applyColor(bg.matugenCustomColor);
-                } else {
-                    root.applyTheme("mocha.json");
-                }
             }
         }
     }
