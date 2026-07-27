@@ -56,10 +56,14 @@ Item {
         const endH = (nextH + 1) % 24;
         const endHStr = String(endH).padStart(2, '0') + ":00";
 
+        let endDate = new Date(date);
+        if (endH <= nextH) endDate.setDate(endDate.getDate() + 1);
+        const endDateStr = Qt.formatDate(endDate, "yyyy-MM-dd");
+
         formTitle = "";
         formDate = dateStr;
         formTime = nextHStr; formEndTime = endHStr; formRecurrence = "once";
-        formEndDate = dateStr;
+        formEndDate = endDateStr;
         formDescription = ""; formFocus = false
     }
 
