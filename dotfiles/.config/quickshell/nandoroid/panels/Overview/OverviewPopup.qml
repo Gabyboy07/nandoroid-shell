@@ -41,6 +41,15 @@ Variants {
             item: (GlobalStates.overviewOpen && isActive) ? fullMask : emptyMask
         }
 
+        Connections {
+            target: GlobalStates
+            function onOverviewOpenChanged() {
+                if (GlobalStates.overviewOpen) {
+                    HyprlandData.updateAll();
+                }
+            }
+        }
+
         Item {
             id: fullMask; anchors.fill: parent
             TapHandler { onTapped: GlobalStates.closeAllPanels() }
