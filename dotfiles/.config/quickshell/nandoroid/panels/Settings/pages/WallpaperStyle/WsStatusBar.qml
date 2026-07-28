@@ -62,7 +62,7 @@ ColumnLayout {
         list.push(moduleId);
         if (moduleId === "clock") Config.options.statusBar.centerModule = "none";
         Config.options.statusBar.leftModules = list;
-        leftMenuOpened = false;
+        if (getAvailableForCluster().length <= 0) leftMenuOpened = false;
     }
 
     function addToRightCluster(moduleId) {
@@ -70,7 +70,7 @@ ColumnLayout {
         list.push(moduleId);
         if (moduleId === "clock") Config.options.statusBar.centerModule = "none";
         Config.options.statusBar.rightModules = list;
-        rightMenuOpened = false;
+        if (getAvailableForCluster().length <= 0) rightMenuOpened = false;
     }
 
     function moveLeftModule(moduleId, direction) {
