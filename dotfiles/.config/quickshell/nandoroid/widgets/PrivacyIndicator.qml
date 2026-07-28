@@ -9,7 +9,7 @@ import "../services"
  */
 Item {
     id: root
-    implicitWidth: active ? mainContainer.width : 0
+    implicitWidth: mainContainer.width
     implicitHeight: 24 * Appearance.effectiveScale
 
     readonly property bool active: (Config.ready && Config.options.privacy && Config.options.privacy.enable) ? Privacy.anyActive : false
@@ -50,16 +50,16 @@ Item {
         id: mainContainer
         anchors.verticalCenter: parent.verticalCenter
         height: (root.expanded || alwaysExpanded) ? 20 * Appearance.effectiveScale : 8 * Appearance.effectiveScale
-        width: (root.expanded || alwaysExpanded) ? contentLayout.implicitWidth + (12 * Appearance.effectiveScale) : 8 * Appearance.effectiveScale
+        width: active ? ((root.expanded || alwaysExpanded) ? contentLayout.implicitWidth + (12 * Appearance.effectiveScale) : 8 * Appearance.effectiveScale) : 0
         radius: height / 2
         color: Appearance.m3colors.m3primary
         clip: true
 
         Behavior on width {
-            NumberAnimation { duration: 400; easing.type: Easing.OutQuint }
+            NumberAnimation { duration: 350; easing.type: Easing.OutQuint }
         }
         Behavior on height {
-            NumberAnimation { duration: 400; easing.type: Easing.OutQuint }
+            NumberAnimation { duration: 350; easing.type: Easing.OutQuint }
         }
 
         RowLayout {
@@ -98,9 +98,9 @@ Item {
         }
     }
 
-    visible: active
+    visible: active || mainContainer.width > 0
     opacity: active ? 1 : 0
     Behavior on opacity {
-        NumberAnimation { duration: 300 }
+        NumberAnimation { duration: 250; easing.type: Easing.OutQuint }
     }
 }
