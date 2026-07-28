@@ -38,6 +38,7 @@ Item {
             return c
         })
         notesFile.setText(JSON.stringify(clean, null, 2))
+        GlobalStates.updateTodoDeadlines(root.items)
     }
 
     function _flushSave() {
@@ -119,7 +120,7 @@ Item {
         const item = _currentItem()
         if (!item || item.type !== "todo") return
         const t = item.tasks.find(t => t.id === taskId)
-        if (t) { t.content = content; _refreshAndSave() }
+        if (t) { t.content = content; save() }
     }
 
     function setTaskDeadline(taskId, date, time) {
@@ -178,6 +179,7 @@ Item {
                         return i
                     })
                     root.items = parsed
+                    GlobalStates.updateTodoDeadlines(parsed)
                 }
             } catch(e) {}
         }
@@ -616,6 +618,7 @@ Item {
                 clip: true
 
                 delegate: Item {
+                    id: taskDelegate
                     required property var modelData
                     required property int index
                     width: taskListView.width
@@ -689,7 +692,7 @@ Item {
                                     onClicked: {
                                         modelData._tmpDate = modelData.deadline || root._defaultDeadlineDate()
                                         modelData._tmpTime = modelData.deadlineTime || root._defaultDeadlineTime()
-                                        _editingDeadline = true
+                                        taskDelegate._editingDeadline = true
                                     }
                                     StyledText {
                                         id: dlText
@@ -714,7 +717,7 @@ Item {
                                     onClicked: {
                                         modelData._tmpDate = root._defaultDeadlineDate()
                                         modelData._tmpTime = root._defaultDeadlineTime()
-                                        _editingDeadline = true
+                                        taskDelegate._editingDeadline = true
                                     }
                                     MaterialSymbol {
                                         anchors.centerIn: parent
@@ -828,7 +831,7 @@ Item {
                                     colBackground: Appearance.colors.colPrimary
                                     onClicked: {
                                         root.setTaskDeadline(modelData.id, modelData._tmpDate || modelData.deadline, modelData._tmpTime || modelData.deadlineTime)
-                                        _editingDeadline = false
+                                        taskDelegate._editingDeadline = false
                                     }
                                     MaterialSymbol {
                                         anchors.centerIn: parent
@@ -847,7 +850,7 @@ Item {
                                     visible: modelData.deadline !== null && modelData.deadline !== ""
                                     onClicked: {
                                         root.setTaskDeadline(modelData.id, "", "")
-                                        _editingDeadline = false
+                                        taskDelegate._editingDeadline = false
                                     }
                                     MaterialSymbol {
                                         anchors.centerIn: parent
@@ -863,7 +866,7 @@ Item {
                                     implicitHeight: 30 * Appearance.effectiveScale
                                     buttonRadius: 15 * Appearance.effectiveScale
                                     colBackground: "transparent"
-                                    onClicked: _editingDeadline = false
+                                    onClicked: taskDelegate._editingDeadline = false
                                     MaterialSymbol {
                                         anchors.centerIn: parent
                                         text: "close"

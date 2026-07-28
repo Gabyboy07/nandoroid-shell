@@ -76,7 +76,26 @@ RowLayout {
                 }
             }
         }
+        // Add todo deadline dates
+        for (let dl of GlobalStates.todoDeadlines) {
+            dates.push(dl.date)
+        }
         return dates
+    }
+
+    // Combined events for popup: schedule + todo deadlines
+    readonly property var allEvents: {
+        let combined = root.scheduledEvents.slice()
+        for (let dl of GlobalStates.todoDeadlines) {
+            combined.push({
+                title: dl.taskContent || "(untitled task)",
+                description: "From: " + dl.itemTitle,
+                time: dl.time,
+                date: dl.date,
+                recurrence: "once"
+            })
+        }
+        return combined
     }
 
     TapHandler {
@@ -97,7 +116,7 @@ RowLayout {
             width: Math.min(parent.width - 24 * Appearance.effectiveScale, implicitWidth)
             height: parent.height - 24 * Appearance.effectiveScale
             eventDates: root.eventDates
-            scheduledEvents: root.scheduledEvents
+            scheduledEvents: root.allEvents
         }
     }
 

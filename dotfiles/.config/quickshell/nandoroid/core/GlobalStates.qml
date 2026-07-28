@@ -62,6 +62,30 @@ Singleton {
     property var activeTrayItem: null
     property var activeScreen: Quickshell.screens[0]
     property string wallpaperSelectorTarget: "desktop" // "desktop" or "lock"
+
+    // ── Todo Deadline Data (populated by DashNotepad) ──
+    property var todoDeadlines: [] // [{date, time, itemId, itemTitle, taskId, taskContent, done}]
+
+    function updateTodoDeadlines(items) {
+        const deadlines = []
+        for (const item of items) {
+            if (item.type !== "todo" || !item.tasks) continue
+            for (const task of item.tasks) {
+                if (task.deadline) {
+                    deadlines.push({
+                        date: task.deadline,
+                        time: task.deadlineTime || "",
+                        itemId: item.id,
+                        itemTitle: item.title || "Untitled",
+                        taskId: task.id,
+                        taskContent: task.content || "",
+                        done: task.done || false
+                    })
+                }
+            }
+        }
+        root.todoDeadlines = deadlines
+    }
     
     // --- Media Notch Timing Logic ---
     property alias mediaNotchTimer: mediaNotchTimer

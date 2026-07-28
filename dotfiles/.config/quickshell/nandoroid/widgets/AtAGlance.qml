@@ -63,6 +63,8 @@ Item {
     onScheduleEventsChanged: updateScheduleInfo()
     on_MinuteTriggerChanged: { updateScheduleInfo(); updateBluetoothInfo(); }
     onBtDevicesChanged: updateBluetoothInfo()
+    property var _deadlineTracker: GlobalStates.todoDeadlines
+    on_DeadlineTrackerChanged: updateScheduleInfo()
 
     Timer { id: scheduleFadeTimer; interval: 200; onTriggered: { _displayedScheduleTitle = _pendingScheduleTitle; _displayedScheduleDesc = _pendingScheduleDesc; _scheduleContentOpacity = 1; } }
     Timer { id: quoteFadeTimer; interval: 200; onTriggered: { _displayedQuote = _pendingQuote; _quoteContentOpacity = 1; } }
@@ -144,6 +146,21 @@ Item {
             }
         }
 
+        // If no upcoming schedule event, check todo deadlines
+        let nextDeadline = null;
+        if (!next) {
+            for (let dl of GlobalStates.todoDeadlines) {
+                if (dl.done) continue
+                const [dh, dm] = (dl.time || "23:59").split(":").map(Number)
+                const dlMs = dh * 60 + dm
+                const isUpcoming = nowMs < dlMs && (dlMs - nowMs) <= UPCOMING_WINDOW
+                if (isUpcoming) {
+                    nextDeadline = dl
+                    break
+                }
+            }
+        }
+
         const wasVisible = nextEvent !== null;
         const newNext = next ? {
             title: next.title,
@@ -152,26 +169,37 @@ Item {
             description: next.description,
             date: next.date,
             endDate: next.endDate
-        } : null;
+        } : (nextDeadline ? {
+            title: nextDeadline.taskContent,
+            time: nextDeadline.time,
+            description: nextDeadline.itemTitle,
+            date: nextDeadline.date,
+            _isDeadline: true
+        } : null);
 
         let label = "";
         let desc = "";
         if (newNext) {
-            let dayInfo = "";
-            if (newNext.endDate && newNext.date) {
-                const start = new Date(newNext.date + "T00:00:00");
-                const end = new Date(newNext.endDate + "T00:00:00");
-                const dayDiff = Math.round((end - start) / 86400000) + 1;
-                if (dayDiff > 1) {
-                    const todayDiff = Math.round((new Date(nowDateStr + "T00:00:00") - start) / 86400000) + 1;
-                    dayInfo = " \u00b7 Day " + todayDiff + "/" + dayDiff;
+            if (newNext._isDeadline) {
+                let timeStr = newNext.time || "23:59"
+                label = "Due: " + newNext.title + " \u00b7 " + timeStr
+                desc = newNext.description || ""
+            } else {
+                let dayInfo = "";
+                if (newNext.endDate && newNext.date) {
+                    const start = new Date(newNext.date + "T00:00:00");
+                    const end = new Date(newNext.endDate + "T00:00:00");
+                    const dayDiff = Math.round((end - start) / 86400000) + 1;
+                    if (dayDiff > 1) {
+                        const todayDiff = Math.round((new Date(nowDateStr + "T00:00:00") - start) / 86400000) + 1;
+                        dayInfo = " \u00b7 Day " + todayDiff + "/" + dayDiff;
+                    }
                 }
+                let timeStr = newNext.time;
+                if (newNext.endTime) timeStr += "\u2013" + newNext.endTime;
+                label = "Up next: " + newNext.title + dayInfo + " \u00b7 " + timeStr;
+                desc = newNext.description || "";
             }
-
-            let timeStr = newNext.time;
-            if (newNext.endTime) timeStr += "\u2013" + newNext.endTime;
-            label = "Up next: " + newNext.title + dayInfo + " \u00b7 " + timeStr;
-            desc = newNext.description || "";
         }
 
         const textChanged = wasVisible && newNext && (label !== _displayedScheduleTitle || desc !== _displayedScheduleDesc);

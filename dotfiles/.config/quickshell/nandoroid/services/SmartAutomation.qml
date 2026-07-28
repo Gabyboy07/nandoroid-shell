@@ -62,10 +62,23 @@ Singleton {
 
     property bool _ready: false
     property bool _cycleGuard: false
+    property var _notifiedDeadlines: ({}) // "taskId" -> true for 1h-before + overdue
 
     Connections {
         target: ScheduleService
         function onEventsChanged() {
+            if (_ready && !_cycleGuard) {
+                _cycleGuard = true;
+                scheduleNext();
+                runAutomationCycle();
+                _cycleGuard = false;
+            }
+        }
+    }
+
+    Connections {
+        target: GlobalStates
+        function onTodoDeadlinesChanged() {
             if (_ready && !_cycleGuard) {
                 _cycleGuard = true;
                 scheduleNext();
@@ -169,6 +182,28 @@ Singleton {
                 }
             }
         });
+
+        // Todo deadline scheduling (1h before notification, overdue detection)
+        for (let dl of GlobalStates.todoDeadlines) {
+            if (dl.done) continue
+            const [y, m, d] = dl.date.split("-").map(Number)
+            const [hh, mm] = (dl.time || "23:59").split(":").map(Number)
+            const deadlineDate = new Date(y, m - 1, d, hh, mm)
+            const diffMs = deadlineDate.getTime() - now.getTime()
+
+            // 1h before
+            const oneHourBefore = new Date(deadlineDate.getTime() - 3600000)
+            if (oneHourBefore > now) {
+                nextMs = Math.min(nextMs, oneHourBefore.getTime() - now.getTime())
+            } else if (diffMs > 0 && !root._notifiedDeadlines["1h_" + dl.taskId]) {
+                nextMs = Math.min(nextMs, 1000)
+            }
+
+            // Overdue window (first hour after)
+            if (diffMs < 0 && diffMs > -3600000 && !root._notifiedDeadlines["overdue_" + dl.taskId]) {
+                nextMs = Math.min(nextMs, 1000)
+            }
+        }
 
         if (nextMs < Infinity) {
             mainTimer.interval = Math.max(1000, nextMs);
@@ -284,6 +319,26 @@ Singleton {
                 }
             }
         });
+
+        // 7. Todo Deadline Notifications
+        for (let dl of GlobalStates.todoDeadlines) {
+            if (dl.done) continue
+            const [y, m, d] = dl.date.split("-").map(Number)
+            const [hh, mm] = (dl.time || "23:59").split(":").map(Number)
+            const deadlineDate = new Date(y, m - 1, d, hh, mm)
+            const diffMs = deadlineDate.getTime() - now.getTime()
+            const diffHours = diffMs / 3600000
+
+            if (diffHours > 0 && diffHours <= 1.0 && !root._notifiedDeadlines["1h_" + dl.taskId]) {
+                root.sendNotification("Deadline Approaching", `${dl.taskContent} for "${dl.itemTitle}" is due in 1 hour`)
+                root._notifiedDeadlines["1h_" + dl.taskId] = true
+            }
+
+            if (diffMs < 0 && diffMs > -3600000 && !root._notifiedDeadlines["overdue_" + dl.taskId]) {
+                root.sendNotification("Deadline Passed", `${dl.taskContent} for "${dl.itemTitle}" is overdue`)
+                root._notifiedDeadlines["overdue_" + dl.taskId] = true
+            }
+        }
 
         // Apply DND State
         if (root.scheduleDndActive !== anyEventActive) {
