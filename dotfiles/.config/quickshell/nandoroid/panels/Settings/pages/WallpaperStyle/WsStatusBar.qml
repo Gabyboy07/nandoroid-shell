@@ -10,8 +10,100 @@ import Quickshell
 import Quickshell.Io
 
 ColumnLayout {
+    id: rootColumn
     Layout.fillWidth: true
     spacing: 0
+
+    // ── Global Module Pool & Layout Manager (on root for guaranteed scope) ────────────
+    property bool leftMenuOpened: false
+    property bool rightMenuOpened: false
+
+    property var allModules: [
+        { id: "distroIcon", name: "Distro Icon", icon: "computer" },
+        { id: "activeWindow", name: "Active Window", icon: "subtitles" },
+        { id: "systemMonitor", name: "System Monitor", icon: "memory" },
+        { id: "clock", name: "Clock", icon: "schedule" },
+        { id: "networkSpeed", name: "Network Speed", icon: "network_check" },
+        { id: "sysTray", name: "System Tray", icon: "inbox" },
+        { id: "statusIconsGroup", name: "Status Icons (WiFi/Volume)", icon: "info" },
+        { id: "battery", name: "Battery", icon: "battery_full" }
+    ]
+
+    function getLeftModules() {
+        return (Config.ready && Config.options.statusBar && Config.options.statusBar.leftModules) ? Array.from(Config.options.statusBar.leftModules) : ["distroIcon", "activeWindow", "systemMonitor"];
+    }
+
+    function getRightModules() {
+        return (Config.ready && Config.options.statusBar && Config.options.statusBar.rightModules) ? Array.from(Config.options.statusBar.rightModules) : ["networkSpeed", "sysTray", "statusIconsGroup", "battery"];
+    }
+
+    function getCenterModule() {
+        return (Config.ready && Config.options.statusBar) ? (Config.options.statusBar.centerModule ?? "clock") : "clock";
+    }
+
+    function isUsed(modId) {
+        let lefts = getLeftModules();
+        let rights = getRightModules();
+        let center = getCenterModule();
+        return lefts.includes(modId) || rights.includes(modId) || (center === modId);
+    }
+
+    function getModuleName(modId) {
+        let item = allModules.find(m => m.id === modId);
+        return item ? item.name : modId;
+    }
+
+    function getAvailableForCluster() {
+        return allModules.filter(m => !isUsed(m.id));
+    }
+
+    function addToLeftCluster(moduleId) {
+        var list = getLeftModules();
+        list.push(moduleId);
+        if (moduleId === "clock") Config.options.statusBar.centerModule = "none";
+        Config.options.statusBar.leftModules = list;
+        leftMenuOpened = false;
+    }
+
+    function addToRightCluster(moduleId) {
+        var list = getRightModules();
+        list.push(moduleId);
+        if (moduleId === "clock") Config.options.statusBar.centerModule = "none";
+        Config.options.statusBar.rightModules = list;
+        rightMenuOpened = false;
+    }
+
+    function moveLeftModule(moduleId, direction) {
+        var list = getLeftModules();
+        var idx = list.indexOf(moduleId);
+        var target = idx + direction;
+        if (target < 0 || target >= list.length) return;
+        var temp = list[idx];
+        list[idx] = list[target];
+        list[target] = temp;
+        Config.options.statusBar.leftModules = list;
+    }
+
+    function removeLeftModule(moduleId) {
+        Config.options.statusBar.leftModules = getLeftModules().filter(function(m) { return m !== moduleId; });
+    }
+
+    function moveRightModule(idx, direction) {
+        var list = getRightModules();
+        var target = idx + direction;
+        if (target < 0 || target >= list.length) return;
+        var temp = list[idx];
+        list[idx] = list[target];
+        list[target] = temp;
+        Config.options.statusBar.rightModules = list;
+    }
+
+    function removeRightModule(moduleId) {
+        Config.options.statusBar.rightModules = getRightModules().filter(function(m) { return m !== moduleId; });
+    }
+
+    function toggleLeftMenu() { leftMenuOpened = !leftMenuOpened; }
+    function toggleRightMenu() { rightMenuOpened = !rightMenuOpened; }
 
     SearchHandler { 
         searchString: "Status Bar"
@@ -20,10 +112,11 @@ ColumnLayout {
 
     // ── Status Bar Section ──
 
-            ColumnLayout {
-                Layout.fillWidth: true
-                Layout.topMargin: 12 * Appearance.effectiveScale
-                spacing: 16 * Appearance.effectiveScale
+    ColumnLayout {
+        id: mainSectionCol
+        Layout.fillWidth: true
+        Layout.topMargin: 12 * Appearance.effectiveScale
+        spacing: 16 * Appearance.effectiveScale
     
                 readonly property bool isM3Style: Config.ready && Config.options.statusBar && (Config.options.statusBar.moduleStyle === "m3")
 
@@ -321,66 +414,404 @@ ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 4 * Appearance.effectiveScale
 
-                    // ── Clock Position (Center / Right) ────────────
+                    // ── Center Module (Clock / None) ────────────
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: clockPositionRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: centerModuleRow.implicitHeight + (36 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
-                            id: clockPositionRow
+                            id: centerModuleRow
                             anchors.fill: parent
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
-                            MaterialSymbol { text: "schedule"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Clock Position"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            MaterialSymbol { text: "view_agenda"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                            StyledText { text: "Center Module"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "center", label: "Center" },
-                                        { id: "right", label: "Right" }
+                                        { id: "clock", label: "Clock" },
+                                        { id: "none",  label: "None" }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
                                         buttonText: modelData.label
                                         isHighlighted: Config.ready && Config.options.statusBar
-                                            ? (Config.options.statusBar.clockPosition ?? "center") === modelData.id
-                                            : modelData.id === "center"
+                                            ? (Config.options.statusBar.centerModule ?? "clock") === modelData.id
+                                            : modelData.id === "clock"
                                         colActive: Appearance.m3colors.m3primary
                                         colActiveText: Appearance.m3colors.m3onPrimary
                                         colInactive: Appearance.m3colors.m3surfaceContainerLow
-                                        onClicked: if (Config.ready && Config.options.statusBar)
-                                            Config.options.statusBar.clockPosition = modelData.id
+                                        onClicked: if (Config.ready && Config.options.statusBar) {
+                                            let currentCenter = Config.options.statusBar.centerModule ?? "clock";
+                                            let newCenter = modelData.id;
+                                            if (currentCenter === newCenter) return;
+                                            
+                                            let lefts = Array.from(Config.options.statusBar.leftModules || []);
+                                            let rights = Array.from(Config.options.statusBar.rightModules || []);
+                                            
+                                            if (newCenter === "clock") {
+                                                // Remove clock from left and right clusters if moving to center
+                                                lefts = lefts.filter(m => m !== "clock");
+                                                rights = rights.filter(m => m !== "clock");
+                                            } else if (newCenter === "none" && currentCenter === "clock") {
+                                                // Default to adding clock to right cluster if removed from center
+                                                if (!rights.includes("clock") && !lefts.includes("clock")) {
+                                                    rights.push("clock");
+                                                }
+                                            }
+                                            
+                                            Config.options.statusBar.leftModules = lefts;
+                                            Config.options.statusBar.rightModules = rights;
+                                            Config.options.statusBar.centerModule = newCenter;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
 
-                    // ── Distro Icon ────────────────────────────────────────────
+
+
+                    // ── Left Cluster Modules (Dynamic Drag/Reorder & Add) ────────────
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: distroIconRow.implicitHeight + (32 * Appearance.effectiveScale)
+                        implicitHeight: leftModsCol.implicitHeight + (32 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
-                        RowLayout {
-                            id: distroIconRow
-                            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-                            spacing: 16 * Appearance.effectiveScale
-                            MaterialSymbol { text: "computer"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Distro Icon"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
-                            AndroidToggle {
-                                checked: Config.ready && Config.options.bar && Config.options.bar.show_distro_icon
-                                onToggled: if (Config.ready && Config.options.bar)
-                                    Config.options.bar.show_distro_icon = !Config.options.bar.show_distro_icon
+
+                        ColumnLayout {
+                            id: leftModsCol
+                            anchors.fill: parent
+                            anchors.margins: 16 * Appearance.effectiveScale
+                            spacing: 12 * Appearance.effectiveScale
+
+                            RowLayout {
+                                spacing: 16 * Appearance.effectiveScale
+                                MaterialSymbol { text: "align_horizontal_left"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                                StyledText { text: "Left Cluster Modules"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
+                                
+                                // Add Module Dropdown Button
+                                Rectangle {
+                                    implicitWidth: 28 * Appearance.effectiveScale
+                                    implicitHeight: 28 * Appearance.effectiveScale
+                                    radius: 14 * Appearance.effectiveScale
+                                    color: Appearance.m3colors.m3primary
+                                    visible: getAvailableForCluster().length > 0
+
+                                    MaterialSymbol {
+                                        anchors.centerIn: parent
+                                        text: leftMenuOpened ? "close" : "add"
+                                        iconSize: 18 * Appearance.effectiveScale
+                                        color: Appearance.m3colors.m3onPrimary
+                                    }
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        onClicked: leftMenuOpened = !leftMenuOpened
+                                    }
+                                }
+                            }
+
+                            // Active List Flow
+                            Flow {
+                                Layout.fillWidth: true
+                                spacing: 6 * Appearance.effectiveScale
+
+                                Repeater {
+                                    model: getLeftModules()
+                                    delegate: Rectangle {
+                                        required property string modelData
+                                        required property int index
+                                        implicitWidth: modRow.implicitWidth + (16 * Appearance.effectiveScale)
+                                        implicitHeight: 32 * Appearance.effectiveScale
+                                        radius: 16 * Appearance.effectiveScale
+                                        color: Appearance.m3colors.m3secondaryContainer
+
+                                        RowLayout {
+                                            id: modRow
+                                            anchors.centerIn: parent
+                                            spacing: 6 * Appearance.effectiveScale
+
+                                            StyledText {
+                                                text: getModuleName(modelData)
+                                                color: Appearance.m3colors.m3onSecondaryContainer
+                                                font.pixelSize: Appearance.font.pixelSize.smaller
+                                                font.weight: Font.Medium
+                                            }
+
+                                            // Move Left
+                                            MaterialSymbol {
+                                                visible: index > 0
+                                                text: "arrow_back"
+                                                iconSize: 14 * Appearance.effectiveScale
+                                                color: Appearance.m3colors.m3onSecondaryContainer
+                                                MouseArea {
+                                                    anchors.fill: parent
+                                                    onClicked: {
+                                                        let list = getLeftModules();
+                                                        let realIdx = list.indexOf(modelData);
+                                                        if (realIdx > 0) {
+                                                            let temp = list[realIdx];
+                                                            list[realIdx] = list[realIdx - 1];
+                                                            list[realIdx - 1] = temp;
+                                                            Config.options.statusBar.leftModules = list;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            // Move Right
+                                            MaterialSymbol {
+                                                visible: index < (getLeftModules().length - 1)
+                                                text: "arrow_forward"
+                                                iconSize: 14 * Appearance.effectiveScale
+                                                color: Appearance.m3colors.m3onSecondaryContainer
+                                                MouseArea {
+                                                    anchors.fill: parent
+                                                    onClicked: {
+                                                        let list = getLeftModules();
+                                                        let realIdx = list.indexOf(modelData);
+                                                        if (realIdx < list.length - 1) {
+                                                            let temp = list[realIdx];
+                                                            list[realIdx] = list[realIdx + 1];
+                                                            list[realIdx + 1] = temp;
+                                                            Config.options.statusBar.leftModules = list;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            // Remove
+                                            MaterialSymbol {
+                                                text: "close"
+                                                iconSize: 14 * Appearance.effectiveScale
+                                                color: Appearance.m3colors.m3onSecondaryContainer
+                                                MouseArea {
+                                                    anchors.fill: parent
+                                                    onClicked: {
+                                                        let list = getLeftModules().filter(m => m !== modelData);
+                                                        Config.options.statusBar.leftModules = list;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Add Dropdown Menu
+                            ColumnLayout {
+                                id: leftAddMenu
+                                visible: leftMenuOpened && getAvailableForCluster().length > 0
+                                Layout.fillWidth: true
+                                spacing: 4 * Appearance.effectiveScale
+
+                                StyledText {
+                                    text: "Available modules to add:"
+                                    font.pixelSize: Appearance.font.pixelSize.smallest
+                                    color: Appearance.colors.colSubtext
+                                }
+
+                                Flow {
+                                    Layout.fillWidth: true
+                                    spacing: 4 * Appearance.effectiveScale
+                                    Repeater {
+                                        model: getAvailableForCluster()
+                                        delegate: Rectangle {
+                                            required property var modelData
+                                            implicitWidth: addRow.implicitWidth + (12 * Appearance.effectiveScale)
+                                            implicitHeight: 28 * Appearance.effectiveScale
+                                            radius: 14 * Appearance.effectiveScale
+                                            color: Appearance.m3colors.m3surfaceContainerLow
+
+                                            RowLayout {
+                                                id: addRow
+                                                anchors.centerIn: parent
+                                                spacing: 4 * Appearance.effectiveScale
+                                                MaterialSymbol { text: modelData.icon; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                                                StyledText { text: modelData.name; font.pixelSize: Appearance.font.pixelSize.smallest; color: Appearance.colors.colOnLayer1 }
+                                            }
+
+                                            MouseArea {
+                                                anchors.fill: parent
+                                                onClicked: addToLeftCluster(modelData.id)
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
 
-                    // ── Notification Position (Left / Right) ────────────
+                    // ── Right Cluster Modules (Dynamic Drag/Reorder & Add) ────────────
+                    SegmentedWrapper {
+                        Layout.fillWidth: true
+                        implicitHeight: rightModsCol.implicitHeight + (32 * Appearance.effectiveScale)
+                        orientation: Qt.Vertical
+                        maxRadius: 20 * Appearance.effectiveScale
+                        color: Appearance.m3colors.m3surfaceContainerHigh
+
+                        ColumnLayout {
+                            id: rightModsCol
+                            anchors.fill: parent
+                            anchors.margins: 16 * Appearance.effectiveScale
+                            spacing: 12 * Appearance.effectiveScale
+
+                            RowLayout {
+                                spacing: 16 * Appearance.effectiveScale
+                                MaterialSymbol { text: "align_horizontal_right"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                                StyledText { text: "Right Cluster Modules"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
+
+                                // Add Module Dropdown Button
+                                Rectangle {
+                                    implicitWidth: 28 * Appearance.effectiveScale
+                                    implicitHeight: 28 * Appearance.effectiveScale
+                                    radius: 14 * Appearance.effectiveScale
+                                    color: Appearance.m3colors.m3primary
+                                    visible: getAvailableForCluster().length > 0
+
+                                    MaterialSymbol {
+                                        anchors.centerIn: parent
+                                        text: rightMenuOpened ? "close" : "add"
+                                        iconSize: 18 * Appearance.effectiveScale
+                                        color: Appearance.m3colors.m3onPrimary
+                                    }
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        onClicked: rightMenuOpened = !rightMenuOpened
+                                    }
+                                }
+                            }
+
+                            // Active List Flow
+                            Flow {
+                                Layout.fillWidth: true
+                                spacing: 6 * Appearance.effectiveScale
+
+                                Repeater {
+                                    model: getRightModules()
+                                    delegate: Rectangle {
+                                        required property string modelData
+                                        required property int index
+                                        implicitWidth: modRowRight.implicitWidth + (16 * Appearance.effectiveScale)
+                                        implicitHeight: 32 * Appearance.effectiveScale
+                                        radius: 16 * Appearance.effectiveScale
+                                        color: Appearance.m3colors.m3tertiaryContainer
+
+                                        RowLayout {
+                                            id: modRowRight
+                                            anchors.centerIn: parent
+                                            spacing: 6 * Appearance.effectiveScale
+
+                                            StyledText {
+                                                text: getModuleName(modelData)
+                                                color: Appearance.m3colors.m3onTertiaryContainer
+                                                font.pixelSize: Appearance.font.pixelSize.smaller
+                                                font.weight: Font.Medium
+                                            }
+
+                                            // Move Left
+                                            MaterialSymbol {
+                                                visible: index > 0
+                                                text: "arrow_back"
+                                                iconSize: 14 * Appearance.effectiveScale
+                                                color: Appearance.m3colors.m3onTertiaryContainer
+                                                MouseArea {
+                                                    anchors.fill: parent
+                                                    onClicked: {
+                                                        let list = getRightModules();
+                                                        let temp = list[index];
+                                                        list[index] = list[index - 1];
+                                                        list[index - 1] = temp;
+                                                        Config.options.statusBar.rightModules = list;
+                                                    }
+                                                }
+                                            }
+
+                                            // Move Right
+                                            MaterialSymbol {
+                                                visible: index < (getRightModules().length - 1)
+                                                text: "arrow_forward"
+                                                iconSize: 14 * Appearance.effectiveScale
+                                                color: Appearance.m3colors.m3onTertiaryContainer
+                                                MouseArea {
+                                                    anchors.fill: parent
+                                                    onClicked: {
+                                                        let list = getRightModules();
+                                                        let temp = list[index];
+                                                        list[index] = list[index + 1];
+                                                        list[index + 1] = temp;
+                                                        Config.options.statusBar.rightModules = list;
+                                                    }
+                                                }
+                                            }
+
+                                            // Remove
+                                            MaterialSymbol {
+                                                text: "close"
+                                                iconSize: 14 * Appearance.effectiveScale
+                                                color: Appearance.m3colors.m3onTertiaryContainer
+                                                MouseArea {
+                                                    anchors.fill: parent
+                                                    onClicked: {
+                                                        let list = getRightModules().filter(m => m !== modelData);
+                                                        Config.options.statusBar.rightModules = list;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Add Dropdown Menu
+                            ColumnLayout {
+                                id: rightAddMenu
+                                visible: rightMenuOpened && getAvailableForCluster().length > 0
+                                Layout.fillWidth: true
+                                spacing: 4 * Appearance.effectiveScale
+
+                                StyledText {
+                                    text: "Available modules to add:"
+                                    font.pixelSize: Appearance.font.pixelSize.smallest
+                                    color: Appearance.colors.colSubtext
+                                }
+
+                                Flow {
+                                    Layout.fillWidth: true
+                                    spacing: 4 * Appearance.effectiveScale
+                                    Repeater {
+                                        model: getAvailableForCluster()
+                                        delegate: Rectangle {
+                                            required property var modelData
+                                            implicitWidth: addRowRight.implicitWidth + (12 * Appearance.effectiveScale)
+                                            implicitHeight: 28 * Appearance.effectiveScale
+                                            radius: 14 * Appearance.effectiveScale
+                                            color: Appearance.m3colors.m3surfaceContainerLow
+
+                                            RowLayout {
+                                                id: addRowRight
+                                                anchors.centerIn: parent
+                                                spacing: 4 * Appearance.effectiveScale
+                                                MaterialSymbol { text: modelData.icon; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                                                StyledText { text: modelData.name; font.pixelSize: Appearance.font.pixelSize.smallest; color: Appearance.colors.colOnLayer1 }
+                                            }
+
+                                            MouseArea {
+                                                anchors.fill: parent
+                                                onClicked: addToRightCluster(modelData.id)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // ── Notification Unread Attachment (Distro Icon vs Status Icons) ────────────
                     SegmentedWrapper {
                         Layout.fillWidth: true
                         implicitHeight: notifPositionRow.implicitHeight + (36 * Appearance.effectiveScale)
@@ -393,25 +824,25 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "notifications"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Notification Position"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: "Notification Unread Badge Host"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "left", label: "Left" },
-                                        { id: "right", label: "Right" }
+                                        { id: "distroIcon", label: "Distro Icon" },
+                                        { id: "statusIconsGroup", label: "Status Icons" }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
                                         buttonText: modelData.label
                                         isHighlighted: Config.ready && Config.options.notifications
-                                            ? (Config.options.notifications.position ?? "right") === modelData.id
-                                            : modelData.id === "right"
+                                            ? (Config.options.notifications.hostModule ?? "distroIcon") === modelData.id
+                                            : modelData.id === "distroIcon"
                                         colActive: Appearance.m3colors.m3primary
                                         colActiveText: Appearance.m3colors.m3onPrimary
                                         colInactive: Appearance.m3colors.m3surfaceContainerLow
                                         onClicked: if (Config.ready && Config.options.notifications)
-                                            Config.options.notifications.position = modelData.id
+                                            Config.options.notifications.hostModule = modelData.id
                                     }
                                 }
                             }
@@ -457,89 +888,28 @@ ColumnLayout {
                         }
                     }
 
-                    // ── Active Window Position ────────────
+                    // ── System Monitor Options ────────────
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: activeWindowPositionRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: sysMonRow.implicitHeight + (36 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
+                        visible: Config.ready && Config.options.statusBar && (
+                            (Config.options.statusBar.leftModules && Config.options.statusBar.leftModules.includes("systemMonitor")) ||
+                            (Config.options.statusBar.rightModules && Config.options.statusBar.rightModules.includes("systemMonitor"))
+                        )
                         RowLayout {
-                            id: activeWindowPositionRow
+                            id: sysMonRow
                             anchors.fill: parent
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
-                            MaterialSymbol { text: "web_asset"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Active Window Name"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            MaterialSymbol { text: "memory"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                            StyledText { text: "System Monitor Options"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            
                             RowLayout {
-                                spacing: 2 * Appearance.effectiveScale
-                                Repeater {
-                                    model: [
-                                        { id: "left", label: "Left" },
-                                        { id: "right", label: "Right" },
-                                        { id: "hidden", label: "Hidden" }
-                                    ]
-                                    delegate: SegmentedButton {
-                                        required property var modelData
-                                        buttonText: modelData.label
-                                        isHighlighted: Config.ready && Config.options.statusBar
-                                            ? (Config.options.statusBar.activeWindowPosition ?? "left") === modelData.id
-                                            : modelData.id === "left"
-                                        colActive: Appearance.m3colors.m3primary
-                                        colActiveText: Appearance.m3colors.m3onPrimary
-                                        colInactive: Appearance.m3colors.m3surfaceContainerLow
-                                        onClicked: if (Config.ready && Config.options.statusBar)
-                                            Config.options.statusBar.activeWindowPosition = modelData.id
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // ── System Monitor ────────────
-                    SegmentedWrapper {
-                        Layout.fillWidth: true
-                        implicitHeight: sysMonCol.implicitHeight + (32 * Appearance.effectiveScale)
-                        orientation: Qt.Vertical
-                        maxRadius: 20 * Appearance.effectiveScale
-                        color: Appearance.m3colors.m3surfaceContainerHigh
-                        ColumnLayout {
-                            id: sysMonCol
-                            anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
-                            spacing: 16 * Appearance.effectiveScale
-                            RowLayout {
-                                spacing: 16 * Appearance.effectiveScale
-                                MaterialSymbol { text: "memory"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                                StyledText { text: "System Monitor"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
-                                RowLayout {
-                                    spacing: 2 * Appearance.effectiveScale
-                                    Repeater {
-                                        model: [
-                                            { id: "left", label: "Left" },
-                                            { id: "right", label: "Right" },
-                                            { id: "hidden", label: "Hidden" }
-                                        ]
-                                        delegate: SegmentedButton {
-                                            required property var modelData
-                                            buttonText: modelData.label
-                                            isHighlighted: Config.ready && Config.options.statusBar
-                                                ? (Config.options.statusBar.systemMonitorPosition ?? "hidden") === modelData.id
-                                                : modelData.id === "hidden"
-                                            colActive: Appearance.m3colors.m3primary
-                                            colActiveText: Appearance.m3colors.m3onPrimary
-                                            colInactive: Appearance.m3colors.m3surfaceContainerLow
-                                            onClicked: if (Config.ready && Config.options.statusBar)
-                                                Config.options.statusBar.systemMonitorPosition = modelData.id
-                                        }
-                                    }
-                                }
-                            }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                visible: Config.ready && Config.options.statusBar && (Config.options.statusBar.systemMonitorPosition ?? "hidden") !== "hidden"
-                                spacing: 12 * Appearance.effectiveScale
-                                Item { Layout.fillWidth: true } // Spacer
+                                spacing: 10 * Appearance.effectiveScale
+                                
                                 RowLayout {
                                     spacing: 4 * Appearance.effectiveScale
                                     AndroidToggle {
@@ -591,7 +961,10 @@ ColumnLayout {
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
-                        visible: Config.ready && Config.options.statusBar && (Config.options.statusBar.systemMonitorPosition ?? "hidden") !== "hidden"
+                        visible: Config.ready && Config.options.statusBar && (
+                            (Config.options.statusBar.leftModules && Config.options.statusBar.leftModules.includes("systemMonitor")) ||
+                            (Config.options.statusBar.rightModules && Config.options.statusBar.rightModules.includes("systemMonitor"))
+                        )
                         RowLayout {
                             id: sysMonStyleRow
                             anchors.fill: parent

@@ -378,9 +378,9 @@ property JsonObject background: JsonObject {
                 property real height: 40
                 property string layoutStyle: "standard" 
                 property int centeredWidth: 1200
-                property string clockPosition: "center" 
-                property string activeWindowPosition: "left"
-                property string systemMonitorPosition: "hidden"
+                property string centerModule: "clock"
+                property list<string> leftModules: ["distroIcon", "activeWindow", "systemMonitor"]
+                property list<string> rightModules: ["networkSpeed", "sysTray", "statusIconsGroup", "battery"]
                 property bool showSystemMonitorCpu: true
                 property bool showSystemMonitorRam: true
                 property bool showSystemMonitorSwap: false
@@ -477,7 +477,7 @@ property JsonObject background: JsonObject {
             property JsonObject notifications: JsonObject {
                 property int timeout_ms: 2000
                 property string counterStyle: "counter" 
-                property string position: "right" 
+                property string hostModule: "distroIcon"
             }
 
             // --- Battery ---
