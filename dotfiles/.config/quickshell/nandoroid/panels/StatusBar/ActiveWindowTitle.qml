@@ -65,7 +65,7 @@ Item {
             Layout.maximumWidth: root.maxWidth
             font.pixelSize: Appearance.font.pixelSize.smallest
             color: root.subtextColor
-            elide: root.textAlignment === Text.AlignRight ? Text.ElideLeft : Text.ElideRight
+            elide: Text.ElideRight
             horizontalAlignment: root.textAlignment
             text: root.appClassText
         }
@@ -76,7 +76,7 @@ Item {
             Layout.maximumWidth: root.maxWidth
             font.pixelSize: Appearance.font.pixelSize.smaller
             color: root.color
-            elide: root.textAlignment === Text.AlignRight ? Text.ElideLeft : Text.ElideRight
+            elide: Text.ElideRight
             horizontalAlignment: root.textAlignment
             text: root.appTitleText
         }

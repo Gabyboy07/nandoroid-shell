@@ -35,7 +35,13 @@ Item {
     // ── Universal M3 Component Library ──
     Component { id: m3ActiveWindowComponent; M3StatusWrapper {
         id: activeWinWrapper
-        readonly property bool hasSysMon: Config.ready && Config.options.statusBar && Config.options.statusBar.leftModules ? Config.options.statusBar.leftModules.includes("systemMonitor") : false
+        readonly property bool isRight: Config.ready && Config.options.statusBar && Config.options.statusBar.rightModules ? Config.options.statusBar.rightModules.includes("activeWindow") : false
+        readonly property bool hasSysMon: {
+            if (!Config.ready || !Config.options.statusBar) return false;
+            let lefts = Config.options.statusBar.leftModules || [];
+            let rights = Config.options.statusBar.rightModules || [];
+            return lefts.includes("systemMonitor") || rights.includes("systemMonitor");
+        }
         m3Color: Appearance.m3colors.m3secondaryContainer
         m3ContentColor: Appearance.m3colors.m3onSecondaryContainer
         Layout.maximumWidth: rootM3.isCentered ? (rootM3.centeredWidth * (hasSysMon ? 0.12 : 0.25)) : Math.min((hasSysMon ? 180 : 350) * Appearance.effectiveScale, rootM3.width * (hasSysMon ? 0.14 : 0.25))
@@ -46,6 +52,7 @@ Item {
             Layout.alignment: Qt.AlignVCenter
             Layout.maximumWidth: activeWinWrapper.Layout.maximumWidth
             maxWidth: activeWinWrapper.Layout.maximumWidth
+            textAlignment: activeWinWrapper.isRight ? Text.AlignRight : Text.AlignLeft
             monitor: rootM3.monitor
             color: activeWinWrapper.m3ContentColor
             subtextColor: activeWinWrapper.subtextColor

@@ -49,7 +49,14 @@ Item {
     // Universal Module Component Library (Root Scoped)
     Component { id: activeWindowComponent; ActiveWindowTitle {
         id: activeWinTitle
-        readonly property bool hasSysMon: Config.ready && Config.options.statusBar && Config.options.statusBar.leftModules ? Config.options.statusBar.leftModules.includes("systemMonitor") : false
+        readonly property bool isRight: Config.ready && Config.options.statusBar && Config.options.statusBar.rightModules ? Config.options.statusBar.rightModules.includes("activeWindow") : false
+        readonly property bool hasSysMon: {
+            if (!Config.ready || !Config.options.statusBar) return false;
+            let lefts = Config.options.statusBar.leftModules || [];
+            let rights = Config.options.statusBar.rightModules || [];
+            return lefts.includes("systemMonitor") || rights.includes("systemMonitor");
+        }
+        textAlignment: isRight ? Text.AlignRight : Text.AlignLeft
         Layout.alignment: Qt.AlignVCenter
         Layout.fillWidth: true
         Layout.maximumWidth: {
