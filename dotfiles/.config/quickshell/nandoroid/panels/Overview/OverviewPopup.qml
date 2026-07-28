@@ -70,14 +70,6 @@ Variants {
             color: Functions.ColorUtils.applyAlpha(Appearance.colors.colLayer0, 0.2)
             opacity: (GlobalStates.overviewOpen && isActive) ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutQuart } }
-            
-            focus: GlobalStates.overviewOpen && isActive
-            Keys.onPressed: (event) => {
-                if (event.key === Qt.Key_Escape) {
-                    GlobalStates.closeAllPanels();
-                    event.accepted = true;
-                }
-            }
 
             // Close when clicking outside (on the backdrop)
             TapHandler {

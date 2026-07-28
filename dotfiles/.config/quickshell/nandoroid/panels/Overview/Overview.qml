@@ -210,13 +210,26 @@ Rectangle {
                         }
                     }
 
+                    Timer {
+                        id: searchFocusTimer
+                        interval: 50
+                        repeat: false
+                        onTriggered: searchInput.forceActiveFocus()
+                    }
+
+                    Component.onCompleted: {
+                        if (GlobalStates.overviewOpen) searchFocusTimer.start();
+                    }
+
                     Connections {
                         target: GlobalStates
                         function onOverviewOpenChanged() {
                             if (GlobalStates.overviewOpen) { 
                                 HyprlandData.updateAll();
                                 searchInput.text = ""; 
-                                searchInput.forceActiveFocus(); 
+                                searchInput.focus = true;
+                                searchFocusTimer.start();
+                                Qt.callLater(() => searchInput.forceActiveFocus());
                             }
                         }
                     }
