@@ -26,8 +26,8 @@ Rectangle {
     readonly property bool hasQuery: LauncherSearch.query !== ""
     
     width: 560 * Appearance.effectiveScale
-    height: 460 * Appearance.effectiveScale
-    implicitHeight: 460 * Appearance.effectiveScale
+    height: 480 * Appearance.effectiveScale
+    implicitHeight: 480 * Appearance.effectiveScale
     
     function executeSelected() {
         if (root.resultsProxy && root.resultsProxy.length > 0 && selectedIndex >= 0 && selectedIndex < root.resultsProxy.length) {
