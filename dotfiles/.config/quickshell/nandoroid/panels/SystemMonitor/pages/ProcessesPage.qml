@@ -42,9 +42,6 @@ Item {
 
     readonly property var filteredProcesses: {
         let procs = SystemData.allProcesses.slice();
-        
-        // Filter out dgop process to prevent 1-second PID thrashing/jitter
-        procs = procs.filter(p => p.command !== "dgop");
 
         // Filter by search query
         if (root.searchQuery.trim() !== "") {
@@ -235,7 +232,7 @@ Item {
                         }
 
                         StyledText {
-                            text: modelData.command
+                            text: (modelData.command === "dgop" || modelData.command === "/usr/bin/dgop" || (modelData.command && modelData.command.includes("dgop"))) ? "nandoroid-monitor" : modelData.command
                             Layout.fillWidth: true
                             elide: Text.ElideRight
                             font.weight: Font.Normal
@@ -285,9 +282,10 @@ Item {
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
                     onClicked: (mouse) => {
                         if (mouse.button === Qt.RightButton) {
+                            const displayName = (modelData.command === "dgop" || modelData.command === "/usr/bin/dgop" || (modelData.command && modelData.command.includes("dgop"))) ? "nandoroid-monitor" : modelData.command;
                             root.activeContextPid = modelData.pid;
                             processMenu.targetPid = modelData.pid;
-                            processMenu.targetName = modelData.command;
+                            processMenu.targetName = displayName;
                             processMenu.popup();
                         }
                     }
