@@ -87,6 +87,8 @@ Scope {
     Connections {
         target: Audio.source && Audio.source.audio ? Audio.source.audio : null
         function onVolumeChanged() {
+            // Ignore background volume auto-adjustments from apps like Zoom/Discord/Meet
+            if (Privacy.microphoneActive) return;
             root.currentIndicator = "microphone";
             root.triggerOsd();
         }
