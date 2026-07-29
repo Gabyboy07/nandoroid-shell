@@ -113,6 +113,7 @@ ColumnLayout {
         font.weight: root.fontW(cfg.labelFontWeight)
         color: root.labelColor
         opacity: 0.8
+        renderType: Text.NativeRendering
         Layout.alignment: root.mapAlign(cfg.alignment)
         horizontalAlignment: root.mapTextAlign(cfg.alignment)
     }
@@ -124,6 +125,7 @@ ColumnLayout {
         font.family: root.dateFontFamily
         font.weight: root.fontW(cfg.labelFontWeight)
         color: root.labelColor
+        renderType: Text.NativeRendering
         Layout.alignment: root.mapAlign(cfg.alignment)
         horizontalAlignment: root.mapTextAlign(cfg.alignment)
         Layout.topMargin: - ((cfg.fontSize || 64 * Appearance.effectiveScale) * 0.2)
@@ -135,6 +137,7 @@ ColumnLayout {
         font.family: root.timeFontFamily
         font.weight: root.fontW(cfg.fontWeight)
         color: root.mainColor
+        renderType: Text.NativeRendering
         Layout.alignment: root.mapAlign(cfg.alignment)
         horizontalAlignment: root.mapTextAlign(cfg.alignment)
         Layout.topMargin: - ((cfg.fontSize || 64 * Appearance.effectiveScale) * 0.2)
@@ -148,6 +151,7 @@ ColumnLayout {
         font.weight: root.fontW(cfg.labelFontWeight)
         color: root.labelColor
         opacity: 0.8
+        renderType: Text.NativeRendering
         Layout.alignment: root.mapAlign(cfg.alignment)
         horizontalAlignment: root.mapTextAlign(cfg.alignment)
         Layout.topMargin: - ((cfg.labelFontSize || 24 * Appearance.effectiveScale) * 0.3)
