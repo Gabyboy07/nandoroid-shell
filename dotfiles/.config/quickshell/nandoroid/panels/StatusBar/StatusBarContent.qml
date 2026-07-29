@@ -151,6 +151,16 @@ Item {
             color: root.contentColor
         }
 
+        // DND Indicator
+        MaterialSymbol {
+            visible: Notifications.silent
+            text: "notifications_paused"
+            iconSize: 16 * Appearance.effectiveScale
+            fill: 1
+            color: root.contentColor
+            Layout.alignment: Qt.AlignVCenter
+        }
+
         MaterialSymbol {
             visible: Config.ready && Config.options.statusBar ? (Config.options.statusBar.showVolumeIndicator ?? true) : true
             text: Audio.muted || Audio.volume === 0 ? "volume_off" : (Audio.volume > 0.3 ? "volume_up" : "volume_down")
@@ -495,16 +505,6 @@ Item {
                     text: DateTime.currentTime
                     Layout.alignment: Qt.AlignRight
                 }
-            }
-
-            // DND Indicator
-            MaterialSymbol {
-                visible: Notifications.silent
-                text: "notifications_paused"
-                iconSize: 16 * Appearance.effectiveScale
-                fill: 1
-                color: root.contentColor
-                Layout.alignment: Qt.AlignVCenter
             }
 
             // Privacy Indicator (Rightmost inside cluster)
