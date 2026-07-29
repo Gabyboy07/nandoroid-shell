@@ -168,7 +168,6 @@ Button {
         // State Layer (Highlight)
         Rectangle {
             anchors.fill: parent
-            radius: bgContainer.radius
             topLeftRadius: bgContainer.topLeftRadius
             topRightRadius: bgContainer.topRightRadius
             bottomLeftRadius: bgContainer.bottomLeftRadius

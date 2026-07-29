@@ -40,7 +40,6 @@ SegmentedWrapper {
         id: button
         anchors.fill: parent
         iconName: ""
-        buttonRadius: root.fullRadius
         
         // Pass radii through from wrapper
         topLeftRadius: root.rTopLeft
