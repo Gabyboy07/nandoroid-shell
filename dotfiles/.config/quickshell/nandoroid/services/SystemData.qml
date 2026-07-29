@@ -134,12 +134,61 @@ Singleton {
     property var lastUpdateTime: 0
     property string lastCursor: ""
     property bool processFetchPending: false
+    property bool isDgopAvailable: false
 
-    // Long-running dgop daemon process (Runs ONLY when Processes tab is active for 100% accurate delta CPU calculation)
+    // Check if dgop binary is installed on the system
+    Process {
+        id: checkDgopProc
+        command: ["which", "dgop"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.isDgopAvailable = this.text.trim() !== "";
+            }
+        }
+    }
+
+    // Long-running dgop daemon process (Runs ONLY when Processes tab is active and dgop is installed)
     Process {
         id: dgopServerProc
-        command: ["/usr/bin/dgop", "server"]
-        running: root.isProcessesTabActive
+        command: ["dgop", "server"]
+        running: root.isProcessesTabActive && root.isDgopAvailable
+    }
+
+    // Native Linux ps fallback process (Runs when dgop is not installed)
+    Process {
+        id: psProc
+        command: ["bash", "-c", "ps -eo pid,%cpu,rss,user,comm --sort=-%cpu | head -n 101"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const text = this.text.trim();
+                if (!text) return;
+
+                const lines = text.split("\n").slice(1);
+                const procs = [];
+                lines.forEach(line => {
+                    const parts = line.trim().split(/\s+/);
+                    if (parts.length >= 5) {
+                        const pid = parseInt(parts[0]) || 0;
+                        const rawCpu = parseFloat(parts[1]) || 0;
+                        const rssKb = parseInt(parts[2]) || 0;
+                        const user = parts[3];
+                        const comm = parts.slice(4).join(" ");
+
+                        procs.push({
+                            pid: pid,
+                            command: comm,
+                            fullCommand: comm,
+                            cpu: rawCpu / Math.max(1, root.cpuThreads),
+                            memoryKB: rssKb,
+                            username: user
+                        });
+                    }
+                });
+                root.allProcesses = procs;
+                if (root.processCount === 0) root.processCount = procs.length;
+            }
+        }
     }
 
     // Native CPU Temperature process
@@ -201,7 +250,7 @@ Singleton {
         stdout: StdioCollector {
             onStreamFinished: {
                 const count = parseInt(this.text.trim());
-                if (!isNaN(count) && count > 0 && !root.isProcessesTabActive) {
+                if (!isNaN(count) && count > 0 && (!root.isProcessesTabActive || !root.isDgopAvailable)) {
                     root.processCount = count;
                 }
             }
@@ -264,47 +313,58 @@ Singleton {
         }
     }
 
-    // Fetch real-time processes from dgop server REST API (1-second delta CPU, accurate process count)
+    // Fetch real-time processes (uses dgop server REST API when installed, or native ps fallback)
     function fetchProcesses() {
-        if (!root.isProcessesTabActive || root.processFetchPending) return;
+        if (!root.isProcessesTabActive) return;
 
-        root.processFetchPending = true;
-        let url = "http://127.0.0.1:63484/gops/meta?modules=processes,system&limit=150";
-        if (root.lastCursor !== "") {
-            url += "&proc_cursor=" + encodeURIComponent(root.lastCursor) + "&cpu_cursor=" + encodeURIComponent(root.lastCursor);
-        }
-
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                root.processFetchPending = false;
-                if (xhr.status === 200) {
-                    try {
-                        const data = JSON.parse(xhr.responseText);
-                        if (data.cursor) root.lastCursor = data.cursor;
-                        
-                        if (data.system) {
-                            root.processCount = data.system.processes || 0;
-                            root.threadCount = data.system.threads || 0;
-                        }
-
-                        if (data.processes && Array.isArray(data.processes)) {
-                            const sorted = data.processes.slice().sort((a, b) => (b.cpu || 0) - (a.cpu || 0));
-                            root.allProcesses = sorted.map(proc => ({
-                                pid: proc.pid || 0,
-                                command: proc.command || "",
-                                fullCommand: proc.fullCommand || "",
-                                cpu: (proc.cpu || 0) / Math.max(1, root.cpuThreads),
-                                memoryKB: proc.memoryKB || proc.pssKB || 0,
-                                username: proc.username || ""
-                            }));
-                        }
-                    } catch (e) {}
-                }
+        if (root.isDgopAvailable) {
+            if (root.processFetchPending) return;
+            root.processFetchPending = true;
+            let url = "http://127.0.0.1:63484/gops/meta?modules=processes,system&limit=150";
+            if (root.lastCursor !== "") {
+                url += "&proc_cursor=" + encodeURIComponent(root.lastCursor) + "&cpu_cursor=" + encodeURIComponent(root.lastCursor);
             }
-        };
-        xhr.send();
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    root.processFetchPending = false;
+                    if (xhr.status === 200) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            if (data.cursor) root.lastCursor = data.cursor;
+                            
+                            if (data.system) {
+                                root.processCount = data.system.processes || 0;
+                                root.threadCount = data.system.threads || 0;
+                            }
+
+                            if (data.processes && Array.isArray(data.processes)) {
+                                const sorted = data.processes.slice().sort((a, b) => (b.cpu || 0) - (a.cpu || 0));
+                                root.allProcesses = sorted.map(proc => ({
+                                    pid: proc.pid || 0,
+                                    command: proc.command || "",
+                                    fullCommand: proc.fullCommand || "",
+                                    cpu: (proc.cpu || 0) / Math.max(1, root.cpuThreads),
+                                    memoryKB: proc.memoryKB || proc.pssKB || 0,
+                                    username: proc.username || ""
+                                }));
+                            }
+                        } catch (e) {}
+                    } else {
+                        // Server request failed, fallback to native ps
+                        if (psProc.running) psProc.running = false;
+                        psProc.running = true;
+                    }
+                }
+            };
+            xhr.send();
+        } else {
+            // Pure Native Linux ps Fallback
+            if (psProc.running) psProc.running = false;
+            psProc.running = true;
+        }
     }
 
     // Main Update Function using Native Linux Files (/proc)
@@ -506,6 +566,8 @@ Singleton {
 
     Component.onDestruction: {
         dgopServerProc.terminate();
+        psProc.terminate();
+        checkDgopProc.terminate();
         tempProc.terminate();
         gpuProc.terminate();
         customDiskProc.terminate();

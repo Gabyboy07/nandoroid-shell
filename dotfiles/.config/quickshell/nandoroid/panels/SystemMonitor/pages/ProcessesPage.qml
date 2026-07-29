@@ -157,6 +157,36 @@ Item {
             }
         }
 
+        // Notice banner if dgop is not installed (Automatic Native Fallback Active)
+        Rectangle {
+            visible: !SystemData.isDgopAvailable
+            Layout.fillWidth: true
+            implicitHeight: 36 * Appearance.effectiveScale
+            color: Functions.ColorUtils.applyAlpha(Appearance.colors.colWarning, 0.1)
+            radius: 10 * Appearance.effectiveScale
+            border.color: Functions.ColorUtils.applyAlpha(Appearance.colors.colWarning, 0.3)
+            border.width: 1
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 12 * Appearance.effectiveScale
+                anchors.rightMargin: 12 * Appearance.effectiveScale
+                spacing: 8 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "info"
+                    iconSize: 18 * Appearance.effectiveScale
+                    color: Appearance.colors.colWarning
+                }
+                StyledText {
+                    text: "Using native Linux 'ps' fallback. Install 'dgop' for enhanced real-time 1-second CPU deltas."
+                    font.pixelSize: Appearance.font.pixelSize.smaller
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
+            }
+        }
+
         // ── Table Header (Clean, pixel-aligned with data rows) ──
         Rectangle {
             Layout.fillWidth: true
