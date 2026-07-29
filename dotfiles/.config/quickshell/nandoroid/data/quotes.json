@@ -2,30 +2,25 @@
   "greetings": {
     "morning": [
       "Good morning",
-      "Morning",
       "Rise and shine",
       "Hello there",
-      "Hey",
       "A fresh start",
       "Here's to today"
     ],
     "afternoon": [
       "Good afternoon",
-      "Afternoon",
       "Keep going",
       "Halfway there",
       "Still going"
     ],
     "evening": [
       "Good evening",
-      "Evening",
       "Wind down",
       "Take it easy",
       "Almost there"
     ],
     "night": [
       "Good night",
-      "Night",
       "Still up?",
       "Late night",
       "Quiet hours",
