@@ -88,7 +88,7 @@ Rectangle {
                 x: 0
                 width: parent.width
                 radius: 16 * Appearance.effectiveScale
-                color: Functions.ColorUtils.transparentize(Appearance.colors.colPrimary, 0.88)
+                color: Appearance.colors.colPrimaryContainer
 
                 property int idx1: root.currentIndex
                 property int idx2: root.currentIndex
@@ -162,7 +162,7 @@ Rectangle {
                                 text: modelData.icon
                                 iconSize: 24 * Appearance.effectiveScale
                                 color: root.currentIndex === index 
-                                    ? Appearance.colors.colPrimary 
+                                    ? Appearance.colors.colOnPrimaryContainer 
                                     : Appearance.colors.colSubtext
                             }
 
@@ -173,7 +173,7 @@ Rectangle {
                                 font.pixelSize: Appearance.font.pixelSize.normal
                                 font.weight: root.currentIndex === index ? Font.Medium : Font.Normal
                                 color: root.currentIndex === index 
-                                    ? Appearance.colors.colPrimary 
+                                    ? Appearance.colors.colOnPrimaryContainer 
                                     : Appearance.colors.colOnLayer0
                             }
                         }
