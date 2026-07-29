@@ -247,7 +247,7 @@ Item {
                         Layout.preferredWidth: 80 * Appearance.effectiveScale
                         horizontalAlignment: Text.AlignRight
                         font.pixelSize: Appearance.font.pixelSize.smaller
-                        font.weight: modelData.cpu > 10 ? Font.Bold : Font.Normal
+                        font.weight: Font.Normal
                         color: modelData.cpu > 20 
                             ? Appearance.colors.colWarning 
                             : (modelData.cpu > 5 ? Appearance.colors.colPrimary : Appearance.m3colors.m3onSurface)

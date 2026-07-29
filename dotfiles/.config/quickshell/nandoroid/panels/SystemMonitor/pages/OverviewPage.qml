@@ -87,81 +87,13 @@ Item {
                     Layout.fillWidth: true
                 }
 
-                // GPU card — always visible; shows a placeholder when no data
-                Rectangle {
+                GraphCard {
+                    title: "GPU Usage"
+                    value: SystemData.availableGpus.length > 0 ? Math.round(SystemData.availableGpus[0].usage) + "%" : "0%"
+                    subValue: SystemData.availableGpus.length > 0 && SystemData.availableGpus[0].temp > 0 ? `${SystemData.availableGpus[0].temp}°C` : ""
+                    history: SystemData.gpuHistory
+                    accentColor: Appearance.m3colors.m3tertiary
                     Layout.fillWidth: true
-                    implicitHeight: 180 * Appearance.effectiveScale
-                    radius: 16 * Appearance.effectiveScale
-                    color: Appearance.colors.colLayer2
-                    border.color: Functions.ColorUtils.applyAlpha(Appearance.colors.colOutlineVariant, 0.15)
-                    border.width: Math.max(1, 1 * Appearance.effectiveScale)
-
-                    // ── Real GPU content ──────────────────────────────────
-                    ColumnLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16 * Appearance.effectiveScale
-                        spacing: 8 * Appearance.effectiveScale
-                        visible: SystemData.hasValidGpuData
-
-                        RowLayout {
-                            Layout.fillWidth: true
-
-                            StyledText {
-                                text: "GPU"
-                                font.pixelSize: Appearance.font.pixelSize.small
-                                font.weight: Font.Medium
-                                color: Appearance.m3colors.m3onSurfaceVariant
-                            }
-                            Item { Layout.fillWidth: true }
-                            StyledText {
-                                text: SystemData.availableGpus.length > 0
-                                    ? (SystemData.availableGpus[0].temp > 0
-                                        ? SystemData.availableGpus[0].temp + "°C"
-                                        : "Ready")
-                                    : "--"
-                                font.pixelSize: Appearance.font.pixelSize.large
-                                font.weight: Font.Black
-                                color: Appearance.m3colors.m3onSurface
-                            }
-                        }
-
-                        PerformanceGraph {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            history: []
-                            lineColor: Appearance.m3colors.m3primary
-                            fillColor: Appearance.m3colors.m3primary
-                            maxValue: 100
-                        }
-                    }
-
-                    // ── Fallback placeholder ──────────────────────────────
-                    ColumnLayout {
-                        anchors.centerIn: parent
-                        spacing: 8 * Appearance.effectiveScale
-                        visible: !SystemData.hasValidGpuData
-
-                        MaterialSymbol {
-
-                            Layout.alignment: Qt.AlignHCenter
-                            text: "videogame_asset_off"
-                            iconSize: 28 * Appearance.effectiveScale
-                            color: Appearance.colors.colSubtext
-                        }
-                        StyledText {
-                            Layout.alignment: Qt.AlignHCenter
-                            text: "GPU"
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            font.weight: Font.Medium
-                            color: Appearance.m3colors.m3onSurfaceVariant
-                        }
-                        StyledText {
-                            Layout.alignment: Qt.AlignHCenter
-                            text: "No GPU data found"
-                            font.pixelSize: Appearance.font.pixelSize.smaller
-                            color: Appearance.colors.colSubtext
-                        }
-                    }
                 }
 
 
