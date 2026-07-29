@@ -51,7 +51,7 @@ Item {
                         StyledText { 
                             text: ((SystemData.diskReadRate + SystemData.diskWriteRate) / (1024 * 1024)).toFixed(2) + " MB/s"
                             font.pixelSize: Appearance.font.pixelSize.huge
-                            font.weight: Font.Black
+                            font.weight: Font.DemiBold
                             color: Appearance.m3colors.m3onSurface
                         }
                     }
@@ -69,11 +69,11 @@ Item {
                     
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
-                        StyledText { text: "READ"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.DemiBold; color: Appearance.colors.colSubtext }
+                        StyledText { text: "READ"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText { 
                             text: (SystemData.diskReadRate / (1024 * 1024)).toFixed(2) + " MB/s"
                             font.pixelSize: Appearance.font.pixelSize.small
-                            font.weight: Font.DemiBold
+                            font.weight: Font.Medium
                             color: Appearance.m3colors.m3onSurface
                         }
                     }
@@ -82,11 +82,11 @@ Item {
                     
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
-                        StyledText { text: "WRITE"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.DemiBold; color: Appearance.colors.colSubtext }
+                        StyledText { text: "WRITE"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText { 
                             text: (SystemData.diskWriteRate / (1024 * 1024)).toFixed(2) + " MB/s"
                             font.pixelSize: Appearance.font.pixelSize.small
-                            font.weight: Font.DemiBold
+                            font.weight: Font.Medium
                             color: Appearance.m3colors.m3onSurface
                         }
                     }
