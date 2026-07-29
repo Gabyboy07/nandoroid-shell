@@ -250,6 +250,7 @@ Scope {
                             // Page Loader
                             Loader {
                                 id: pageLoader
+                                asynchronous: true
                                 anchors.fill: parent
                                 anchors.topMargin: 24 * Appearance.effectiveScale
                                 anchors.bottomMargin: 24 * Appearance.effectiveScale
