@@ -153,7 +153,7 @@ Scope {
                                     x: 0
                                     width: parent.width
                                     radius: 16 * Appearance.effectiveScale
-                                    color: Functions.ColorUtils.transparentize(Appearance.colors.colPrimary, 0.88)
+                                    color: Appearance.colors.colPrimaryContainer
 
                                     property int idx1: GlobalStates.systemMonitorIndex
                                     property int idx2: GlobalStates.systemMonitorIndex
@@ -230,7 +230,7 @@ Scope {
                                                     text: modelData.icon
                                                     iconSize: 24 * Appearance.effectiveScale
                                                     color: GlobalStates.systemMonitorIndex === modelData.stackIndex 
-                                                        ? Appearance.colors.colPrimary 
+                                                        ? Appearance.colors.colOnPrimaryContainer 
                                                         : Appearance.colors.colSubtext
                                                 }
                                                 
@@ -239,7 +239,7 @@ Scope {
                                                     font.pixelSize: Math.round(14 * Appearance.effectiveScale)
                                                     font.weight: GlobalStates.systemMonitorIndex === modelData.stackIndex ? Font.Medium : Font.Normal
                                                     color: GlobalStates.systemMonitorIndex === modelData.stackIndex 
-                                                        ? Appearance.colors.colPrimary 
+                                                        ? Appearance.colors.colOnPrimaryContainer 
                                                         : Appearance.colors.colOnLayer0
                                                     Layout.fillWidth: true
                                                     horizontalAlignment: Text.AlignLeft
