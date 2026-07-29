@@ -183,25 +183,28 @@ Singleton {
             }
         });
 
-        // Todo deadline scheduling (1h before notification, overdue detection)
+        // Todo deadline scheduling (1h before notification, exact deadline, overdue detection)
         for (let dl of GlobalStates.todoDeadlines) {
             if (dl.done) continue
             const [y, m, d] = dl.date.split("-").map(Number)
             const [hh, mm] = (dl.time || "23:59").split(":").map(Number)
             const deadlineDate = new Date(y, m - 1, d, hh, mm)
-            const diffMs = deadlineDate.getTime() - now.getTime()
 
-            // 1h before
+            // 1. Target: 1h before notification
             const oneHourBefore = new Date(deadlineDate.getTime() - 3600000)
             if (oneHourBefore > now) {
                 nextMs = Math.min(nextMs, oneHourBefore.getTime() - now.getTime())
-            } else if (diffMs > 0 && !root._notifiedDeadlines["1h_" + dl.taskId]) {
-                nextMs = Math.min(nextMs, 1000)
             }
 
-            // Overdue window (first hour after)
-            if (diffMs < 0 && diffMs > -3600000 && !root._notifiedDeadlines["overdue_" + dl.taskId]) {
-                nextMs = Math.min(nextMs, 1000)
+            // 2. Target: Exact deadline timestamp (for overdue notification)
+            if (deadlineDate > now) {
+                nextMs = Math.min(nextMs, deadlineDate.getTime() - now.getTime())
+            }
+
+            // 3. Target: End of overdue window (1h after deadline)
+            const overdueEnd = new Date(deadlineDate.getTime() + 3600000)
+            if (overdueEnd > now && deadlineDate <= now) {
+                nextMs = Math.min(nextMs, overdueEnd.getTime() - now.getTime())
             }
         }
 
