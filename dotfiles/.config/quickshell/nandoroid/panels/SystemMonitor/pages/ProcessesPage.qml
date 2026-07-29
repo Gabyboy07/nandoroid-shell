@@ -94,7 +94,9 @@ Item {
                     color: Appearance.colors.colOnLayer1
                 }
                 StyledText {
-                    text: root.filteredProcesses.length + " running processes"
+                    text: root.searchQuery.trim() !== "" 
+                        ? root.filteredProcesses.length + " of " + (SystemData.processCount > 0 ? SystemData.processCount : root.filteredProcesses.length) + " processes"
+                        : (SystemData.processCount > 0 ? SystemData.processCount : root.filteredProcesses.length) + " running processes"
                     font.pixelSize: Appearance.font.pixelSize.normal
                     color: Appearance.colors.colSubtext
                 }
