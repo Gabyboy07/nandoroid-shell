@@ -9,11 +9,11 @@ ColumnLayout {
     id: root
     Layout.fillWidth: true
     Layout.fillHeight: true
-    spacing: 24 * Appearance.effectiveScale
+    spacing: 12 * Appearance.effectiveScale
 
     ColumnLayout {
         Layout.fillWidth: true
-        spacing: 8 * Appearance.effectiveScale
+        spacing: 4 * Appearance.effectiveScale
 
         StyledText {
             text: "Step 3: Desktop & Dock Gestures"
@@ -23,190 +23,188 @@ ColumnLayout {
         }
         
         StyledText {
-            text: "NAnDoroid comes with powerful mouse and swipe gestures built-in. Let's learn how to navigate your desktop like a pro!"
-            font.pixelSize: Appearance.font.pixelSize.normal
+            text: "NAnDoroid comes with powerful mouse and swipe gestures built-in. Learn how to navigate your desktop effortlessly!"
+            font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.colors.colSubtext
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
         }
     }
 
-    // ── Desktop Mockup ──
+    // ── Desktop Mockup Container ──
     Rectangle {
         id: mockupContainer
         Layout.fillWidth: true
         Layout.fillHeight: true
         color: Appearance.colors.colLayer0
-        radius: 16 * Appearance.effectiveScale
+        radius: 12 * Appearance.effectiveScale
         border.width: Math.max(1, 1 * Appearance.effectiveScale)
         border.color: Appearance.colors.colOutlineVariant
-        
-        layer.enabled: true
-        layer.effect: OpacityMask {
-            maskSource: Rectangle {
-                width: mockupContainer.width
-                height: mockupContainer.height
-                radius: 16 * Appearance.effectiveScale
-            }
-        }
+        clip: true
 
         Image {
             anchors.fill: parent
             source: "file://" + Quickshell.env("HOME") + "/.local/src/nandoroid/dotfiles/.config/quickshell/nandoroid/assets/wallpapers/default_wallpaper.png"
             fillMode: Image.PreserveAspectCrop
-            opacity: 0.3
+            opacity: 0.2
         }
 
-        // Gesture overlays
+        // Layout representing Desktop (top) & Dock (bottom)
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 24 * Appearance.effectiveScale
-            spacing: 16 * Appearance.effectiveScale
+            anchors.margins: 14 * Appearance.effectiveScale
+            spacing: 8 * Appearance.effectiveScale
 
-            // Desktop Right Click
+            // --- Desktop Gestures (Top Area) ---
             RowLayout {
-                spacing: 16 * Appearance.effectiveScale
+                spacing: 10 * Appearance.effectiveScale
                 Rectangle {
-                    width: 48 * Appearance.effectiveScale
-                    height: 48 * Appearance.effectiveScale
-                    radius: 24 * Appearance.effectiveScale
+                    width: 32 * Appearance.effectiveScale
+                    height: 32 * Appearance.effectiveScale
+                    radius: 16 * Appearance.effectiveScale
                     color: Appearance.colors.colPrimary
                     MaterialSymbol {
                         anchors.centerIn: parent
                         text: "ads_click"
-                        iconSize: 24 * Appearance.effectiveScale
+                        iconSize: 16 * Appearance.effectiveScale
                         color: Appearance.colors.colOnPrimary
                     }
                 }
                 ColumnLayout {
-                    spacing: 4 * Appearance.effectiveScale
+                    spacing: 1 * Appearance.effectiveScale
                     StyledText {
                         text: "Right Click Desktop"
                         font.weight: Font.DemiBold
+                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Opens the Desktop Context Menu to quickly access Spotlight, Terminal, System Monitor, or change Wallpaper & Styles."
-                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                        text: "Opens Context Menu for Spotlight, Terminal, SysMon, or Wallpaper Settings."
+                        font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
                     }
                 }
             }
 
-            // Desktop Swipe Up
             RowLayout {
-                spacing: 16 * Appearance.effectiveScale
+                spacing: 10 * Appearance.effectiveScale
                 Rectangle {
-                    width: 48 * Appearance.effectiveScale
-                    height: 48 * Appearance.effectiveScale
-                    radius: 24 * Appearance.effectiveScale
+                    width: 32 * Appearance.effectiveScale
+                    height: 32 * Appearance.effectiveScale
+                    radius: 16 * Appearance.effectiveScale
                     color: Appearance.colors.colPrimary
                     MaterialSymbol {
                         anchors.centerIn: parent
                         text: "swipe_up"
-                        iconSize: 24 * Appearance.effectiveScale
+                        iconSize: 16 * Appearance.effectiveScale
                         color: Appearance.colors.colOnPrimary
                     }
                 }
                 ColumnLayout {
-                    spacing: 4 * Appearance.effectiveScale
+                    spacing: 1 * Appearance.effectiveScale
                     StyledText {
                         text: "Swipe Up on Desktop"
                         font.weight: Font.DemiBold
+                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Opens the Launcher (App Drawer)."
-                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                        text: "Opens the App Launcher (App Drawer)."
+                        font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
                     }
                 }
             }
 
-            // Desktop Swipe Down
             RowLayout {
-                spacing: 16 * Appearance.effectiveScale
+                spacing: 10 * Appearance.effectiveScale
                 Rectangle {
-                    width: 48 * Appearance.effectiveScale
-                    height: 48 * Appearance.effectiveScale
-                    radius: 24 * Appearance.effectiveScale
+                    width: 32 * Appearance.effectiveScale
+                    height: 32 * Appearance.effectiveScale
+                    radius: 16 * Appearance.effectiveScale
                     color: Appearance.colors.colPrimary
                     MaterialSymbol {
                         anchors.centerIn: parent
                         text: "swipe_down"
-                        iconSize: 24 * Appearance.effectiveScale
+                        iconSize: 16 * Appearance.effectiveScale
                         color: Appearance.colors.colOnPrimary
                     }
                 }
                 ColumnLayout {
-                    spacing: 4 * Appearance.effectiveScale
+                    spacing: 1 * Appearance.effectiveScale
                     StyledText {
                         text: "Swipe Down on Desktop (3 Regions)"
                         font.weight: Font.DemiBold
+                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
                         text: "Swipe down on Left ⅓ for Notification Center, Middle ⅓ for Dashboard, or Right ⅓ for Quick Settings."
-                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                        font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
                     }
                 }
             }
 
-            Item { Layout.fillHeight: true } // Spacer
-            
-            // Dock Right Click
+            Item { Layout.fillHeight: true } // Flexible spacer to push Dock gestures to bottom
+
+            // --- Dock Gestures (Bottom Area) ---
             RowLayout {
-                spacing: 16 * Appearance.effectiveScale
+                spacing: 10 * Appearance.effectiveScale
                 Rectangle {
-                    width: 48 * Appearance.effectiveScale
-                    height: 48 * Appearance.effectiveScale
-                    radius: 24 * Appearance.effectiveScale
+                    width: 32 * Appearance.effectiveScale
+                    height: 32 * Appearance.effectiveScale
+                    radius: 16 * Appearance.effectiveScale
                     color: Appearance.colors.colPrimary
                     MaterialSymbol {
                         anchors.centerIn: parent
-                        text: "ads_click"
-                        iconSize: 24 * Appearance.effectiveScale
+                        text: "dock"
+                        iconSize: 16 * Appearance.effectiveScale
                         color: Appearance.colors.colOnPrimary
                     }
                 }
                 ColumnLayout {
-                    spacing: 4 * Appearance.effectiveScale
+                    spacing: 1 * Appearance.effectiveScale
                     StyledText {
-                        text: "Right Click on the Dock"
+                        text: "Right Click on Dock"
                         font.weight: Font.DemiBold
+                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Opens the Dock Context Menu to manage apps (Pin, Close, New Window) and perform system power actions."
-                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                        text: "Opens Dock Context Menu to manage apps (Pin, Close, New Window) & power actions."
+                        font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
                     }
                 }
             }
 
-            // Mock Dock at the bottom
+            // Mock Dock Illustration at the very bottom
             Rectangle {
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
-                width: 200 * Appearance.effectiveScale
-                height: 50 * Appearance.effectiveScale
-                radius: 25 * Appearance.effectiveScale
+                implicitWidth: 160 * Appearance.effectiveScale
+                implicitHeight: 36 * Appearance.effectiveScale
+                radius: 18 * Appearance.effectiveScale
                 color: Appearance.colors.colLayer2
                 opacity: 0.9
-                
+
                 Row {
                     anchors.centerIn: parent
-                    spacing: 12 * Appearance.effectiveScale
+                    spacing: 10 * Appearance.effectiveScale
                     Repeater {
                         model: 4
                         Rectangle {
-                            width: 32 * Appearance.effectiveScale
-                            height: 32 * Appearance.effectiveScale
-                            radius: 16 * Appearance.effectiveScale
+                            width: 24 * Appearance.effectiveScale
+                            height: 24 * Appearance.effectiveScale
+                            radius: 12 * Appearance.effectiveScale
                             color: Appearance.colors.colPrimary
                             opacity: 0.8
                         }

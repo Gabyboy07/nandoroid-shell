@@ -11,7 +11,7 @@ import Quickshell.Wayland
 
 /**
  * Main Onboarding Application Window.
- * Guides new users through Nandoroid's features.
+ * Guides new users through Nandoroid's features with a refined, compact modal design.
  */
 Scope {
     id: root
@@ -25,8 +25,8 @@ Scope {
 
         color: "transparent"
 
-        implicitWidth: Math.min(1100 * Appearance.effectiveScale, screen.width * 0.85)
-        implicitHeight: Math.min(800 * Appearance.effectiveScale, screen.height * 0.8)
+        implicitWidth: Math.min(960 * Appearance.effectiveScale, screen.width * 0.85)
+        implicitHeight: Math.min(660 * Appearance.effectiveScale, screen.height * 0.8)
 
         onVisibleChanged: {
             if (!visible) {
@@ -76,7 +76,7 @@ Scope {
             }
 
             color: Appearance.colors.colLayer0
-            border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
+            border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.08)
             border.width: Math.max(1, 1 * Appearance.effectiveScale)
             radius: 20 * Appearance.effectiveScale
 
@@ -84,51 +84,79 @@ Scope {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 24 * Appearance.effectiveScale
-                spacing: 24 * Appearance.effectiveScale
+                anchors.margins: 16 * Appearance.effectiveScale
+                spacing: 12 * Appearance.effectiveScale
 
-                // ── Global Header ──
-                Item {
-                    id: headerWrapper
+                // ── Refined Header with Stepper ──
+                RowLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 52 * Appearance.effectiveScale
+                    Layout.preferredHeight: 40 * Appearance.effectiveScale
+                    spacing: 16 * Appearance.effectiveScale
 
                     RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 20 * Appearance.effectiveScale
-                        anchors.rightMargin: 0
-                        spacing: 20 * Appearance.effectiveScale
+                        spacing: 10 * Appearance.effectiveScale
+                        Layout.alignment: Qt.AlignVCenter
+
+                        CustomIcon {
+                            Layout.alignment: Qt.AlignVCenter
+                            width: 22 * Appearance.effectiveScale
+                            height: 22 * Appearance.effectiveScale
+                            Layout.preferredWidth: 22 * Appearance.effectiveScale
+                            Layout.preferredHeight: 22 * Appearance.effectiveScale
+                            source: "nandoroid-symbolic"
+                            colorize: true
+                            color: Appearance.colors.colPrimary
+                            transform: Translate { y: -2 * Appearance.effectiveScale }
+                        }
 
                         StyledText {
-                            text: "Welcome to NAnDoroid"
-                            font.pixelSize: Math.round(24 * Appearance.effectiveScale)
+                            Layout.alignment: Qt.AlignVCenter
+                            text: "NAnDoroid Setup"
+                            font.pixelSize: Math.round(18 * Appearance.effectiveScale)
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnLayer0
-                            Layout.alignment: Qt.AlignVCenter
                         }
-                        
-                        Item { Layout.fillWidth: true }
-                        
-                        Item {
-                            Layout.preferredWidth: 200 * Appearance.effectiveScale
-                            Layout.fillHeight: true
+                    }
 
-                            RippleButton {
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                implicitWidth: 36 * Appearance.effectiveScale
-                                implicitHeight: 36 * Appearance.effectiveScale
-                                buttonRadius: 18 * Appearance.effectiveScale
-                                colBackground: "transparent"
-                                onClicked: GlobalStates.onboardingOpen = false
-                                
-                                MaterialSymbol {
-                                    anchors.centerIn: parent
-                                    text: "close"
-                                    iconSize: 22 * Appearance.effectiveScale
-                                    color: Appearance.colors.colSubtext
-                                }
+                    // Stepper Dots Indicator
+                    Row {
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.leftMargin: 12 * Appearance.effectiveScale
+                        spacing: 6 * Appearance.effectiveScale
+
+                        Repeater {
+                            model: 7
+                            Rectangle {
+                                required property int index
+                                readonly property bool isActive: GlobalStates.onboardingStep === index
+                                readonly property bool isPassed: GlobalStates.onboardingStep > index
+
+                                implicitWidth: isActive ? (24 * Appearance.effectiveScale) : (8 * Appearance.effectiveScale)
+                                implicitHeight: 8 * Appearance.effectiveScale
+                                radius: 4 * Appearance.effectiveScale
+                                color: isActive ? Appearance.colors.colPrimary : (isPassed ? Appearance.m3colors.m3primaryContainer : Appearance.colors.colLayer2)
+
+                                Behavior on implicitWidth { NumberAnimation { duration: 250; easing.type: Easing.OutQuad } }
+                                Behavior on color { ColorAnimation { duration: 200 } }
                             }
+                        }
+                    }
+                    
+                    Item { Layout.fillWidth: true }
+                    
+                    // Close Button
+                    RippleButton {
+                        implicitWidth: 32 * Appearance.effectiveScale
+                        implicitHeight: 32 * Appearance.effectiveScale
+                        buttonRadius: 16 * Appearance.effectiveScale
+                        colBackground: "transparent"
+                        onClicked: GlobalStates.onboardingOpen = false
+                        
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: "close"
+                            iconSize: 18 * Appearance.effectiveScale
+                            color: Appearance.colors.colSubtext
                         }
                     }
                 }
@@ -138,13 +166,15 @@ Scope {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     color: Appearance.colors.colLayer1
-                    radius: 28 * Appearance.effectiveScale
+                    radius: 14 * Appearance.effectiveScale
+                    border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.05)
+                    border.width: Math.max(1, 1 * Appearance.effectiveScale)
                     clip: true
 
                     Loader {
                         id: stepLoader
                         anchors.fill: parent
-                        anchors.margins: 24 * Appearance.effectiveScale
+                        anchors.margins: 16 * Appearance.effectiveScale
                         
                         source: {
                             switch(GlobalStates.onboardingStep) {
@@ -165,11 +195,12 @@ Scope {
                 RowLayout {
                     Layout.fillWidth: true
                     visible: GlobalStates.onboardingStep > 0
+                    spacing: 12 * Appearance.effectiveScale
                     
                     RippleButton {
-                        implicitWidth: 120 * Appearance.effectiveScale
-                        implicitHeight: 40 * Appearance.effectiveScale
-                        buttonRadius: 20 * Appearance.effectiveScale
+                        implicitWidth: 100 * Appearance.effectiveScale
+                        implicitHeight: 36 * Appearance.effectiveScale
+                        buttonRadius: 18 * Appearance.effectiveScale
                         colBackground: Appearance.colors.colLayer1
                         visible: GlobalStates.onboardingStep > 0
                         onClicked: GlobalStates.onboardingStep--
@@ -177,7 +208,8 @@ Scope {
                         StyledText {
                             anchors.centerIn: parent
                             text: "Back"
-                            font.pixelSize: Math.round(14 * Appearance.effectiveScale)
+                            font.pixelSize: Math.round(13 * Appearance.effectiveScale)
+                            font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }
                     }
@@ -187,26 +219,26 @@ Scope {
                         
                         RowLayout {
                             anchors.centerIn: parent
-                            spacing: 8 * Appearance.effectiveScale
+                            spacing: 6 * Appearance.effectiveScale
                             opacity: 0.6
                             
                             MaterialSymbol {
                                 text: "keyboard"
-                                iconSize: 16 * Appearance.effectiveScale
+                                iconSize: 14 * Appearance.effectiveScale
                                 color: Appearance.colors.colSubtext
                             }
                             StyledText {
                                 text: "Use ← / → to navigate, Enter to continue, Esc to close"
-                                font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                                font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                                 color: Appearance.colors.colSubtext
                             }
                         }
                     }
                     
                     RippleButton {
-                        implicitWidth: 120 * Appearance.effectiveScale
-                        implicitHeight: 40 * Appearance.effectiveScale
-                        buttonRadius: 20 * Appearance.effectiveScale
+                        implicitWidth: 100 * Appearance.effectiveScale
+                        implicitHeight: 36 * Appearance.effectiveScale
+                        buttonRadius: 18 * Appearance.effectiveScale
                         colBackground: Appearance.colors.colPrimary
                         onClicked: {
                             if (GlobalStates.onboardingStep >= 6) {
@@ -220,7 +252,7 @@ Scope {
                         StyledText {
                             anchors.centerIn: parent
                             text: GlobalStates.onboardingStep === 0 ? "Start" : (GlobalStates.onboardingStep >= 6 ? "Finish" : "Next")
-                            font.pixelSize: Math.round(14 * Appearance.effectiveScale)
+                            font.pixelSize: Math.round(13 * Appearance.effectiveScale)
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnPrimary
                         }

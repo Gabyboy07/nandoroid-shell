@@ -9,11 +9,11 @@ ColumnLayout {
     id: root
     Layout.fillWidth: true
     Layout.fillHeight: true
-    spacing: 24 * Appearance.effectiveScale
+    spacing: 14 * Appearance.effectiveScale
 
     ColumnLayout {
         Layout.fillWidth: true
-        spacing: 8 * Appearance.effectiveScale
+        spacing: 4 * Appearance.effectiveScale
 
         StyledText {
             text: "Step 1: Wallpaper & Style"
@@ -24,7 +24,7 @@ ColumnLayout {
         
         StyledText {
             text: "Let's start by personalizing your workspace. Choose a wallpaper and pick your favorite theme colors."
-            font.pixelSize: Appearance.font.pixelSize.normal
+            font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.colors.colSubtext
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
@@ -32,7 +32,6 @@ ColumnLayout {
     }
 
     // Embed the Wallpaper & Style Settings component
-    // With isOnboarding = true, it hides unnecessary sections
     Rectangle {
         Layout.fillWidth: true
         Layout.fillHeight: true
@@ -42,6 +41,7 @@ ColumnLayout {
         WallpaperStyleSettings {
             id: wsSettings
             anchors.fill: parent
+            anchors.leftMargin: 24 * Appearance.effectiveScale
             isOnboarding: true
         }
     }

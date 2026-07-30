@@ -9,13 +9,13 @@ ColumnLayout {
     id: root
     Layout.fillWidth: true
     Layout.fillHeight: true
-    spacing: 24 * Appearance.effectiveScale
+    spacing: 14 * Appearance.effectiveScale
     
     property string simulatedState: "idle"
 
     ColumnLayout {
         Layout.fillWidth: true
-        spacing: 8 * Appearance.effectiveScale
+        spacing: 4 * Appearance.effectiveScale
 
         StyledText {
             text: "Step 2: Status Bar & Dynamic Island"
@@ -25,8 +25,8 @@ ColumnLayout {
         }
         
         StyledText {
-            text: "The Status Bar is your central hub. Click the left side for Notifications, the center for the Dashboard, and the right side for Quick Settings.\n\nYou can also intuitively scroll on the left side to adjust Brightness, or scroll on the right side to adjust Volume.\n\nThe notch in the middle acts as a Dynamic Island for media, Pomodoro timers, and screen recording status. Try simulating different states below!"
-            font.pixelSize: Appearance.font.pixelSize.normal
+            text: "The Status Bar is your central hub for Notifications, Dashboard, and Quick Settings. The middle notch acts as an interactive Dynamic Island. Try simulating different states below!"
+            font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.colors.colSubtext
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
@@ -38,7 +38,7 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
         color: Appearance.colors.colLayer0
-        radius: 16 * Appearance.effectiveScale
+        radius: 12 * Appearance.effectiveScale
         border.width: Math.max(1, 1 * Appearance.effectiveScale)
         border.color: Appearance.colors.colOutlineVariant
         clip: true
@@ -47,32 +47,29 @@ ColumnLayout {
         Item {
             anchors.fill: parent
             
-            // Unscaled container to keep rendering sharp
             Item {
                 anchors.centerIn: parent
                 width: parent.width
-                height: 40 * Appearance.effectiveScale
+                height: 36 * Appearance.effectiveScale
 
                 // Centered Dynamic Island
                 DynamicIsland {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
                     islandStateOverride: root.simulatedState
-                    // Provide the gap width so the island leaves space for the dots!
-                    // Row width is 82, so 100 leaves 9px padding on each side
-                    indicatorWidth: 100 * Appearance.effectiveScale 
+                    indicatorWidth: 90 * Appearance.effectiveScale 
                 }
 
-                // Mock Workspace Indicator (rendered ON TOP)
+                // Mock Workspace Indicator
                 Row {
                     anchors.centerIn: parent
-                    spacing: 8 * Appearance.effectiveScale
+                    spacing: 6 * Appearance.effectiveScale
                     Repeater {
                         model: 5
                         Rectangle {
-                            width: 10 * Appearance.effectiveScale
-                            height: 10 * Appearance.effectiveScale
-                            radius: 5 * Appearance.effectiveScale
+                            width: 8 * Appearance.effectiveScale
+                            height: 8 * Appearance.effectiveScale
+                            radius: 4 * Appearance.effectiveScale
                             color: index === 0 ? Appearance.colors.colPrimary : Appearance.colors.colLayer2
                         }
                     }
@@ -85,8 +82,8 @@ ColumnLayout {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.margins: 24 * Appearance.effectiveScale
-            spacing: 24 * Appearance.effectiveScale
+            anchors.margins: 14 * Appearance.effectiveScale
+            spacing: 12 * Appearance.effectiveScale
             
             // Gestures Hint
             RowLayout {
@@ -95,18 +92,18 @@ ColumnLayout {
                 
                 RowLayout {
                     spacing: 4 * Appearance.effectiveScale
-                    MaterialSymbol { text: "swipe_up"; iconSize: 16 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Scroll: Workspaces"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colSubtext }
+                    MaterialSymbol { text: "swipe_up"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText { text: "Scroll: Workspaces"; font.pixelSize: Math.round(11 * Appearance.effectiveScale); color: Appearance.colors.colSubtext }
                 }
                 RowLayout {
                     spacing: 4 * Appearance.effectiveScale
-                    MaterialSymbol { text: "mouse"; iconSize: 16 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Mid Click: Layout"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colSubtext }
+                    MaterialSymbol { text: "mouse"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText { text: "Mid Click: Layout"; font.pixelSize: Math.round(11 * Appearance.effectiveScale); color: Appearance.colors.colSubtext }
                 }
                 RowLayout {
                     spacing: 4 * Appearance.effectiveScale
-                    MaterialSymbol { text: "ads_click"; iconSize: 16 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Right Click: Overview"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colSubtext }
+                    MaterialSymbol { text: "ads_click"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText { text: "Right Click: Overview"; font.pixelSize: Math.round(11 * Appearance.effectiveScale); color: Appearance.colors.colSubtext }
                 }
             }
 

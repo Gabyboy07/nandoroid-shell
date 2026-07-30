@@ -11,13 +11,13 @@ Item {
 
     ColumnLayout {
         anchors.centerIn: parent
-        spacing: 32 * Appearance.effectiveScale
+        spacing: 20 * Appearance.effectiveScale
 
         Image {
             Layout.alignment: Qt.AlignHCenter
             source: "../../../assets/icons/NAnDoroid.svg"
-            sourceSize.width: 150 * Appearance.effectiveScale
-            sourceSize.height: 150 * Appearance.effectiveScale
+            sourceSize.width: 80 * Appearance.effectiveScale
+            sourceSize.height: 80 * Appearance.effectiveScale
             fillMode: Image.PreserveAspectFit
             smooth: true
             antialiasing: true
@@ -25,40 +25,40 @@ Item {
 
         ColumnLayout {
             Layout.alignment: Qt.AlignHCenter
-            spacing: 12 * Appearance.effectiveScale
+            spacing: 10 * Appearance.effectiveScale
 
             StyledText {
                 Layout.alignment: Qt.AlignHCenter
                 text: "Welcome to NAnDoroid Shell"
-                font.pixelSize: Appearance.font.pixelSize.huge
+                font.pixelSize: Appearance.font.pixelSize.larger
                 font.weight: Font.Bold
                 color: Appearance.colors.colOnLayer1
             }
 
             StyledText {
                 Layout.alignment: Qt.AlignHCenter
-                Layout.maximumWidth: 640 * Appearance.effectiveScale
+                Layout.maximumWidth: 540 * Appearance.effectiveScale
                 text: "A modern, Quickshell-based desktop environment tailored specifically for Hyprland. Adopting elegant Android 16 design elements, NAnDoroid brings robust widgets, deep personalization, and a fluid, highly-customizable workflow directly to your Wayland workspace."
-                font.pixelSize: Appearance.font.pixelSize.large
+                font.pixelSize: Appearance.font.pixelSize.normal
                 color: Appearance.colors.colSubtext
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
-                lineHeight: 1.6
+                lineHeight: 1.4
             }
             
             Item {
-                Layout.preferredHeight: 16 * Appearance.effectiveScale
+                Layout.preferredHeight: 8 * Appearance.effectiveScale
             }
 
             RowLayout {
                 Layout.alignment: Qt.AlignHCenter
-                spacing: 16 * Appearance.effectiveScale
+                spacing: 12 * Appearance.effectiveScale
 
                 RippleButton {
-                    implicitWidth: 120 * Appearance.effectiveScale
-                    implicitHeight: 48 * Appearance.effectiveScale
-                    buttonRadius: 24 * Appearance.effectiveScale
-                    colBackground: Appearance.colors.colLayer1
+                    implicitWidth: 100 * Appearance.effectiveScale
+                    implicitHeight: 36 * Appearance.effectiveScale
+                    buttonRadius: 18 * Appearance.effectiveScale
+                    colBackground: Appearance.colors.colLayer0
                     onClicked: {
                         GlobalStates.onboardingStep = 6;
                     }
@@ -66,16 +66,16 @@ Item {
                     StyledText {
                         anchors.centerIn: parent
                         text: "Skip"
-                        font.pixelSize: Math.round(16 * Appearance.effectiveScale)
+                        font.pixelSize: Math.round(14 * Appearance.effectiveScale)
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                 }
 
                 RippleButton {
-                    implicitWidth: 160 * Appearance.effectiveScale
-                    implicitHeight: 48 * Appearance.effectiveScale
-                    buttonRadius: 24 * Appearance.effectiveScale
+                    implicitWidth: 140 * Appearance.effectiveScale
+                    implicitHeight: 36 * Appearance.effectiveScale
+                    buttonRadius: 18 * Appearance.effectiveScale
                     colBackground: Appearance.colors.colPrimary
                     onClicked: {
                         GlobalStates.onboardingStep++;
@@ -83,17 +83,17 @@ Item {
                     
                     RowLayout {
                         anchors.centerIn: parent
-                        spacing: 8 * Appearance.effectiveScale
+                        spacing: 6 * Appearance.effectiveScale
                         
                         StyledText {
                             text: "Start Tour"
-                            font.pixelSize: Math.round(16 * Appearance.effectiveScale)
+                            font.pixelSize: Math.round(14 * Appearance.effectiveScale)
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnPrimary
                         }
                         MaterialSymbol {
                             text: "arrow_forward"
-                            iconSize: 20 * Appearance.effectiveScale
+                            iconSize: 18 * Appearance.effectiveScale
                             color: Appearance.colors.colOnPrimary
                         }
                     }
@@ -101,23 +101,23 @@ Item {
             }
             
             Item {
-                Layout.preferredHeight: 16 * Appearance.effectiveScale
+                Layout.preferredHeight: 6 * Appearance.effectiveScale
             }
 
             // Keyboard Hint for Intro
             RowLayout {
                 Layout.alignment: Qt.AlignHCenter
-                spacing: 8 * Appearance.effectiveScale
+                spacing: 6 * Appearance.effectiveScale
                 opacity: 0.6
                 
                 MaterialSymbol {
                     text: "keyboard"
-                    iconSize: 16 * Appearance.effectiveScale
+                    iconSize: 14 * Appearance.effectiveScale
                     color: Appearance.colors.colSubtext
                 }
                 StyledText {
                     text: "Use ← / → to navigate, Enter to continue, Esc to close"
-                    font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                    font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                     color: Appearance.colors.colSubtext
                 }
             }
