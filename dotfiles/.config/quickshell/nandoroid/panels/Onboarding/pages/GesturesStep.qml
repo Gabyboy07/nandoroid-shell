@@ -125,6 +125,37 @@ ColumnLayout {
                 }
             }
 
+            // Desktop Swipe Down
+            RowLayout {
+                spacing: 16 * Appearance.effectiveScale
+                Rectangle {
+                    width: 48 * Appearance.effectiveScale
+                    height: 48 * Appearance.effectiveScale
+                    radius: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: "swipe_down"
+                        iconSize: 24 * Appearance.effectiveScale
+                        color: Appearance.colors.colOnPrimary
+                    }
+                }
+                ColumnLayout {
+                    spacing: 4 * Appearance.effectiveScale
+                    StyledText {
+                        text: "Swipe Down on Desktop (3 Regions)"
+                        font.weight: Font.DemiBold
+                        color: Appearance.colors.colOnLayer1
+                    }
+                    StyledText {
+                        text: "Swipe down on Left ⅓ for Notification Center, Middle ⅓ for Dashboard, or Right ⅓ for Quick Settings."
+                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                        color: Appearance.colors.colSubtext
+                        wrapMode: Text.WordWrap
+                    }
+                }
+            }
+
             Item { Layout.fillHeight: true } // Spacer
             
             // Dock Right Click
