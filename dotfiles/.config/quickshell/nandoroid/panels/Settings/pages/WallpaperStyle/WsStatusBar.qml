@@ -7,7 +7,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Qt5Compat.GraphicalEffects
 import Quickshell
-import Quickshell.Io
+import Quickshell.Services.SystemTray
 
 ColumnLayout {
     id: rootColumn
@@ -17,7 +17,55 @@ ColumnLayout {
     // ── Global Module Pool & Layout Manager (on root for guaranteed scope) ────────────
     property bool leftMenuOpened: false
     property bool rightMenuOpened: false
-    readonly property int maxClusterModules: 5
+    readonly property bool isCenteredMode: Config.ready && Config.options.statusBar && (Config.options.statusBar.layoutStyle === "centered") && ((Config.options.statusBar.moduleStyle ?? "base") !== "m3")
+    readonly property int maxClusterPoints: isCenteredMode ? 4 : 5
+    readonly property int poolMaxModules: 5
+
+    function getModuleWeight(modId) {
+        if (!isCenteredMode) return 1;
+        if (modId === "systemMonitor" || modId === "activeWindow" || modId === "clock") return 2;
+        return 1;
+    }
+
+    function getClusterPoints(modulesList) {
+        if (!modulesList) return 0;
+        return modulesList.reduce(function(sum, m) { return sum + getModuleWeight(m); }, 0);
+    }
+
+    function getModuleStatus(clusterModules, index) {
+        if (!isCenteredMode) return { isConflict: false, isOverflow: false, labelSuffix: "", tooltipText: "" };
+        let modId = clusterModules[index];
+        let hasCollision = clusterModules.includes("activeWindow") && clusterModules.includes("systemMonitor");
+        let isConflict = (modId === "activeWindow" && hasCollision);
+
+        let currentPoints = 0;
+        let isOverflow = false;
+
+        for (let i = 0; i <= index; i++) {
+            let m = clusterModules[i];
+            if (m === "activeWindow" && hasCollision) continue;
+            let w = getModuleWeight(m);
+            if (i === index) {
+                if (currentPoints + w > maxClusterPoints) {
+                    isOverflow = true;
+                }
+            } else {
+                currentPoints += w;
+            }
+        }
+
+        let label = "";
+        let tooltip = "";
+        if (isConflict) {
+            label = " (Hidden)";
+            tooltip = "Active Window is automatically hidden in Centered mode when System Monitor is on the same side.";
+        } else if (isOverflow) {
+            label = " (Exceeds Limit)";
+            tooltip = "This module will not display because it exceeds the capacity limit for Centered mode.";
+        }
+
+        return { isConflict: isConflict, isOverflow: isOverflow, labelSuffix: label, tooltipText: tooltip };
+    }
 
     property var allModules: [
         { id: "distroIcon", name: "Distro Icon", icon: "computer" },
@@ -60,20 +108,20 @@ ColumnLayout {
 
     function addToLeftCluster(moduleId) {
         var list = getLeftModules();
-        if (list.length >= maxClusterModules) return;
+        if (list.length >= poolMaxModules) return;
         list.push(moduleId);
         if (moduleId === "clock") Config.options.statusBar.centerModule = "none";
         Config.options.statusBar.leftModules = list;
-        if (list.length >= maxClusterModules || getAvailableForCluster().length <= 0) leftMenuOpened = false;
+        if (list.length >= poolMaxModules || getAvailableForCluster().length <= 0) leftMenuOpened = false;
     }
 
     function addToRightCluster(moduleId) {
         var list = getRightModules();
-        if (list.length >= maxClusterModules) return;
+        if (list.length >= poolMaxModules) return;
         list.push(moduleId);
         if (moduleId === "clock") Config.options.statusBar.centerModule = "none";
         Config.options.statusBar.rightModules = list;
-        if (list.length >= maxClusterModules || getAvailableForCluster().length <= 0) rightMenuOpened = false;
+        if (list.length >= poolMaxModules || getAvailableForCluster().length <= 0) rightMenuOpened = false;
     }
 
     function moveLeftModule(moduleId, direction) {
@@ -402,6 +450,7 @@ ColumnLayout {
                         }
                     }
 
+
                     } // End Layout & Appearance ColumnLayout
 
                     // ── Modules Positioning ──────────────────────────────────
@@ -462,9 +511,9 @@ ColumnLayout {
                                             } else if (newCenter === "none" && currentCenter === "clock") {
                                                 // Default to adding clock to right cluster if removed from center
                                                 if (!rights.includes("clock") && !lefts.includes("clock")) {
-                                                    if (rights.length < maxClusterModules) {
+                                                    if (rights.length < poolMaxModules) {
                                                         rights.push("clock");
-                                                    } else if (lefts.length < maxClusterModules) {
+                                                    } else if (lefts.length < poolMaxModules) {
                                                         lefts.push("clock");
                                                     }
                                                 }
@@ -499,7 +548,7 @@ ColumnLayout {
                             RowLayout {
                                 spacing: 16 * Appearance.effectiveScale
                                 MaterialSymbol { text: "align_horizontal_left"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                                StyledText { text: "Left Cluster Modules (" + getLeftModules().length + "/" + maxClusterModules + ")"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
+                                StyledText { text: "Left Cluster Modules (" + getClusterPoints(getLeftModules()) + "/" + maxClusterPoints + ")"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
                                 
                                 // Add Module Dropdown Button
                                 Rectangle {
@@ -507,7 +556,7 @@ ColumnLayout {
                                     implicitHeight: 28 * Appearance.effectiveScale
                                     radius: 14 * Appearance.effectiveScale
                                     color: Appearance.m3colors.m3primary
-                                    visible: getAvailableForCluster().length > 0 && getLeftModules().length < maxClusterModules
+                                    visible: getAvailableForCluster().length > 0 && getLeftModules().length < poolMaxModules
 
                                     MaterialSymbol {
                                         anchors.centerIn: parent
@@ -532,19 +581,42 @@ ColumnLayout {
                                     delegate: Rectangle {
                                         required property string modelData
                                         required property int index
+
+                                        readonly property var status: rootColumn.getModuleStatus(getLeftModules(), index)
+                                        readonly property bool hasWarning: status.isConflict || status.isOverflow
+
                                         implicitWidth: modRow.implicitWidth + (16 * Appearance.effectiveScale)
                                         implicitHeight: 32 * Appearance.effectiveScale
                                         radius: 16 * Appearance.effectiveScale
-                                        color: Appearance.m3colors.m3secondaryContainer
+                                        color: hasWarning ? Appearance.m3colors.m3errorContainer : Appearance.m3colors.m3secondaryContainer
+
+                                        MouseArea {
+                                            id: pillHoverAreaLeft
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            acceptedButtons: Qt.NoButton
+                                        }
+
+                                        StyledToolTip {
+                                            text: status.tooltipText
+                                            alternativeVisibleCondition: hasWarning && pillHoverAreaLeft.containsMouse
+                                        }
 
                                         RowLayout {
                                             id: modRow
                                             anchors.centerIn: parent
                                             spacing: 6 * Appearance.effectiveScale
 
+                                            MaterialSymbol {
+                                                visible: hasWarning
+                                                text: "warning"
+                                                iconSize: 14 * Appearance.effectiveScale
+                                                color: Appearance.m3colors.m3onErrorContainer
+                                            }
+
                                             StyledText {
-                                                text: getModuleName(modelData)
-                                                color: Appearance.m3colors.m3onSecondaryContainer
+                                                text: getModuleName(modelData) + status.labelSuffix
+                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
                                                 font.pixelSize: Appearance.font.pixelSize.smaller
                                                 font.weight: Font.Medium
                                             }
@@ -554,7 +626,7 @@ ColumnLayout {
                                                 visible: index > 0
                                                 text: "arrow_back"
                                                 iconSize: 14 * Appearance.effectiveScale
-                                                color: Appearance.m3colors.m3onSecondaryContainer
+                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
                                                 MouseArea {
                                                     anchors.fill: parent
                                                     onClicked: {
@@ -575,7 +647,7 @@ ColumnLayout {
                                                 visible: index < (getLeftModules().length - 1)
                                                 text: "arrow_forward"
                                                 iconSize: 14 * Appearance.effectiveScale
-                                                color: Appearance.m3colors.m3onSecondaryContainer
+                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
                                                 MouseArea {
                                                     anchors.fill: parent
                                                     onClicked: {
@@ -595,7 +667,7 @@ ColumnLayout {
                                             MaterialSymbol {
                                                 text: "close"
                                                 iconSize: 14 * Appearance.effectiveScale
-                                                color: Appearance.m3colors.m3onSecondaryContainer
+                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
                                                 MouseArea {
                                                     anchors.fill: parent
                                                     onClicked: {
@@ -670,7 +742,7 @@ ColumnLayout {
                             RowLayout {
                                 spacing: 16 * Appearance.effectiveScale
                                 MaterialSymbol { text: "align_horizontal_right"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                                StyledText { text: "Right Cluster Modules (" + getRightModules().length + "/" + maxClusterModules + ")"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
+                                StyledText { text: "Right Cluster Modules (" + getClusterPoints(getRightModules()) + "/" + maxClusterPoints + ")"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
 
                                 // Add Module Dropdown Button
                                 Rectangle {
@@ -678,7 +750,7 @@ ColumnLayout {
                                     implicitHeight: 28 * Appearance.effectiveScale
                                     radius: 14 * Appearance.effectiveScale
                                     color: Appearance.m3colors.m3primary
-                                    visible: getAvailableForCluster().length > 0 && getRightModules().length < maxClusterModules
+                                    visible: getAvailableForCluster().length > 0 && getRightModules().length < poolMaxModules
 
                                     MaterialSymbol {
                                         anchors.centerIn: parent
@@ -703,19 +775,42 @@ ColumnLayout {
                                     delegate: Rectangle {
                                         required property string modelData
                                         required property int index
+
+                                        readonly property var status: rootColumn.getModuleStatus(getRightModules(), index)
+                                        readonly property bool hasWarning: status.isConflict || status.isOverflow
+
                                         implicitWidth: modRowRight.implicitWidth + (16 * Appearance.effectiveScale)
                                         implicitHeight: 32 * Appearance.effectiveScale
                                         radius: 16 * Appearance.effectiveScale
-                                        color: Appearance.m3colors.m3tertiaryContainer
+                                        color: hasWarning ? Appearance.m3colors.m3errorContainer : Appearance.m3colors.m3tertiaryContainer
+
+                                        MouseArea {
+                                            id: pillHoverAreaRight
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            acceptedButtons: Qt.NoButton
+                                        }
+
+                                        StyledToolTip {
+                                            text: status.tooltipText
+                                            alternativeVisibleCondition: hasWarning && pillHoverAreaRight.containsMouse
+                                        }
 
                                         RowLayout {
                                             id: modRowRight
                                             anchors.centerIn: parent
                                             spacing: 6 * Appearance.effectiveScale
 
+                                            MaterialSymbol {
+                                                visible: hasWarning
+                                                text: "warning"
+                                                iconSize: 14 * Appearance.effectiveScale
+                                                color: Appearance.m3colors.m3onErrorContainer
+                                            }
+
                                             StyledText {
-                                                text: getModuleName(modelData)
-                                                color: Appearance.m3colors.m3onTertiaryContainer
+                                                text: getModuleName(modelData) + status.labelSuffix
+                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onTertiaryContainer
                                                 font.pixelSize: Appearance.font.pixelSize.smaller
                                                 font.weight: Font.Medium
                                             }
@@ -725,7 +820,7 @@ ColumnLayout {
                                                 visible: index > 0
                                                 text: "arrow_back"
                                                 iconSize: 14 * Appearance.effectiveScale
-                                                color: Appearance.m3colors.m3onTertiaryContainer
+                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onTertiaryContainer
                                                 MouseArea {
                                                     anchors.fill: parent
                                                     onClicked: {
@@ -743,7 +838,7 @@ ColumnLayout {
                                                 visible: index < (getRightModules().length - 1)
                                                 text: "arrow_forward"
                                                 iconSize: 14 * Appearance.effectiveScale
-                                                color: Appearance.m3colors.m3onTertiaryContainer
+                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onTertiaryContainer
                                                 MouseArea {
                                                     anchors.fill: parent
                                                     onClicked: {
@@ -760,7 +855,7 @@ ColumnLayout {
                                             MaterialSymbol {
                                                 text: "close"
                                                 iconSize: 14 * Appearance.effectiveScale
-                                                color: Appearance.m3colors.m3onTertiaryContainer
+                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onTertiaryContainer
                                                 MouseArea {
                                                     anchors.fill: parent
                                                     onClicked: {
@@ -817,6 +912,7 @@ ColumnLayout {
                             }
                         }
                     }
+
 
                     // ── Notification Unread Attachment (Distro Icon vs Status Icons) ────────────
                     SegmentedWrapper {

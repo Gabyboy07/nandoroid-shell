@@ -282,6 +282,32 @@ Item {
         }
     }}
 
+    function getVisibleClusterModules(moduleList) {
+        if (!Config.ready || !Config.options.statusBar) return moduleList;
+        let sb = Config.options.statusBar;
+        let isBase = (sb.moduleStyle ?? "base") !== "m3";
+        let isCentered = sb.layoutStyle === "centered";
+        if (!isBase || !isCentered) return moduleList;
+
+        let hasCollision = moduleList.includes("activeWindow") && moduleList.includes("systemMonitor");
+        let currentPoints = 0;
+        let maxPoints = 4;
+        let visibleList = [];
+
+        for (let i = 0; i < moduleList.length; i++) {
+            let mod = moduleList[i];
+            if (mod === "activeWindow" && hasCollision) {
+                continue;
+            }
+            let weight = (mod === "systemMonitor" || mod === "activeWindow" || mod === "clock") ? 2 : 1;
+            if (currentPoints + weight <= maxPoints) {
+                currentPoints += weight;
+                visibleList.push(mod);
+            }
+        }
+        return visibleList;
+    }
+
     function getModuleComponent(name) {
         switch (name) {
             case "distroIcon": return distroIconComponent;
@@ -398,7 +424,10 @@ Item {
                 spacing: 10 * Appearance.effectiveScale
 
                 Repeater {
-                    model: (Config.ready && Config.options.statusBar && Config.options.statusBar.leftModules) ? Array.from(Config.options.statusBar.leftModules) : ["distroIcon", "activeWindow", "systemMonitor"]
+                    model: {
+                        let mods = (Config.ready && Config.options.statusBar && Config.options.statusBar.leftModules) ? Array.from(Config.options.statusBar.leftModules) : ["distroIcon", "activeWindow", "systemMonitor"];
+                        return root.getVisibleClusterModules(mods);
+                    }
                     delegate: Loader {
                         Layout.alignment: Qt.AlignVCenter
                         sourceComponent: root.getModuleComponent(modelData)
@@ -468,7 +497,8 @@ Item {
             Repeater {
                 model: {
                     let mods = (Config.ready && Config.options.statusBar && Config.options.statusBar.rightModules) ? Array.from(Config.options.statusBar.rightModules) : ["networkSpeed", "sysTray", "statusIconsGroup", "battery"];
-                    return mods.filter(m => {
+                    let visible = root.getVisibleClusterModules(mods);
+                    return visible.filter(m => {
                         if (m === "sysTray") return SystemTray.items.values.length > 0;
                         if (m === "vpnWarpKey") return false;
                         return true;
