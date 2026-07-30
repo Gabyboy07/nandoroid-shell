@@ -21,7 +21,7 @@ ColumnLayout {
             // ── Top Branding & Distro Cards (50:50) ──
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 20 * Appearance.effectiveScale
+                spacing: 12 * Appearance.effectiveScale
 
                 BrandingCard {
                     Layout.fillWidth: true
@@ -31,8 +31,8 @@ ColumnLayout {
                     subText: "Version " + version
                     accentColor: Appearance.colors.colPrimary
                     icon: "verified_user"
-                    // Use local SVG but with better scaling
-                    logoSource: "../../../../assets/icons/NAnDoroid.svg"
+                    logoSource: "nandoroid-symbolic"
+                    shapeName: "SoftBurst"
                 }
 
                 BrandingCard {
@@ -43,9 +43,8 @@ ColumnLayout {
                     subText: "Kernel " + SystemInfo.kernel
                     accentColor: Appearance.m3colors.m3tertiary
                     icon: "terminal"
-                    // Use system logo name from os-release
-                    logoSource: SystemInfo.logo
-                    isSystemIcon: true
+                    logoSource: SystemInfo.distroIcon || SystemInfo.logo
+                    shapeName: "Puffy"
                 }
             }
 
