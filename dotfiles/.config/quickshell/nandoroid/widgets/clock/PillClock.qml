@@ -6,8 +6,7 @@ import "../../services"
 
 /**
  * PillClock.qml
- * Android 12 inspired pill clock. 
- * DEFINITIVE FIX: Background properly resizes with text. Dynamic Pill Color.
+ * Android inspired pill clock widget with dynamic 12H/24H format and clean layout.
  */
 Rectangle {
     id: root
@@ -28,6 +27,21 @@ Rectangle {
 
     // Switch between lock and desktop color palettes
     readonly property var m3: isLockscreen ? Appearance.lockM3colors : Appearance.m3colors
+
+    // 12H vs 24H Format handling from Config
+    readonly property bool is24H: Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : true
+    
+    readonly property string displayHours: {
+        const h = DateTime.hours
+        if (is24H) return h.toString().padStart(2, '0')
+        return (h % 12 || 12).toString().padStart(2, '0')
+    }
+    readonly property string displayMinutes: DateTime.minutes.toString().padStart(2, '0')
+    readonly property string amPm: {
+        const h = DateTime.hours
+        const upper = Config.ready && Config.options.time ? Config.options.time.timeStyle === "12H_PM" : true
+        return h >= 12 ? (upper ? "PM" : "pm") : (upper ? "AM" : "am")
+    }
 
     readonly property color timeColor: {
         if (!Config.ready || !cfg) return m3.m3onSurface
@@ -114,23 +128,38 @@ Rectangle {
             Layout.alignment: Qt.AlignHCenter
 
             StyledText {
-                text: DateTime.hours.toString().padStart(2, '0')
+                text: root.displayHours
                 font.pixelSize: Math.round((root.cfg.size * 0.5 || 60) * Appearance.effectiveScale)
                 font.weight: Font.DemiBold
                 font.family: root.timeFontFamily
                 color: root.timeColor
             }
 
-            Rectangle {
-                width: 16 * Appearance.effectiveScale
-                height: 16 * Appearance.effectiveScale
-                radius: 8 * Appearance.effectiveScale
-                color: root.dateColor
+            ColumnLayout {
+                spacing: 4 * Appearance.effectiveScale
                 Layout.alignment: Qt.AlignVCenter
+
+                Rectangle {
+                    width: 14 * Appearance.effectiveScale
+                    height: 14 * Appearance.effectiveScale
+                    radius: 7 * Appearance.effectiveScale
+                    color: root.dateColor
+                    Layout.alignment: Qt.AlignHCenter
+                }
+
+                StyledText {
+                    visible: !root.is24H
+                    text: root.amPm
+                    font.pixelSize: Math.round((root.cfg.size * 0.12 || 14) * Appearance.effectiveScale)
+                    font.weight: Font.DemiBold
+                    font.family: root.dateFontFamily
+                    color: root.dateColor
+                    Layout.alignment: Qt.AlignHCenter
+                }
             }
 
             StyledText {
-                text: DateTime.minutes.toString().padStart(2, '0')
+                text: root.displayMinutes
                 font.pixelSize: Math.round((root.cfg.size * 0.5 || 60) * Appearance.effectiveScale)
                 font.weight: Font.DemiBold
                 font.family: root.timeFontFamily
@@ -182,7 +211,7 @@ Rectangle {
         spacing: 16 * Appearance.effectiveScale
 
         StyledText {
-            text: DateTime.hours.toString().padStart(2, '0')
+            text: root.displayHours
             font.pixelSize: Math.round((root.cfg.size * 0.5 || 60) * Appearance.effectiveScale)
             font.weight: Font.DemiBold
             font.family: root.timeFontFamily
@@ -199,7 +228,7 @@ Rectangle {
         }
 
         StyledText {
-            text: DateTime.minutes.toString().padStart(2, '0')
+            text: root.displayMinutes
             font.pixelSize: Math.round((root.cfg.size * 0.5 || 60) * Appearance.effectiveScale)
             font.weight: Font.DemiBold
             font.family: root.timeFontFamily
@@ -210,14 +239,45 @@ Rectangle {
 
         AdaptivePill {
             Layout.alignment: Qt.AlignHCenter
-            labelText: {
-                if (!DateTime.time12h) return "PM";
-                const parts = DateTime.time12h.split(" ");
-                return parts.length > 1 ? parts[1].toUpperCase() : "PM";
-            }
+            visible: !root.is24H
+            labelText: root.amPm
             isBold: true
             opacity: root.cfg.showBackground ? 0.6 : 1.0
             fontSize: (root.cfg.size * 0.15 || 18) * Appearance.effectiveScale
+        }
+
+        // Vertical Date
+        ColumnLayout {
+            spacing: 0
+            Layout.alignment: Qt.AlignHCenter
+            visible: root.showDate && root.cfg.showBackground
+
+            StyledText {
+                text: Qt.formatDate(new Date(), "dddd")
+                font.pixelSize: Math.round((root.cfg.size * 0.18 || 22) * Appearance.effectiveScale)
+                font.weight: Font.DemiBold
+                font.family: root.dateFontFamily
+                color: root.timeColor
+                Layout.alignment: Qt.AlignHCenter
+            }
+            StyledText {
+                text: Qt.formatDate(new Date(), "d MMMM, yyyy")
+                font.pixelSize: Math.round((root.cfg.size * 0.12 || 14) * Appearance.effectiveScale)
+                font.weight: Font.Light
+                font.family: root.dateFontFamily
+                color: root.dateColor
+                opacity: 0.6
+                Layout.alignment: Qt.AlignHCenter
+            }
+        }
+
+        // Vertical Pill Date (When background is OFF)
+        AdaptivePill {
+            Layout.alignment: Qt.AlignHCenter
+            visible: root.showDate && !root.cfg.showBackground
+            labelText: Qt.formatDate(new Date(), "dddd, d MMMM yyyy")
+            isBold: true
+            fontSize: (root.cfg.size * 0.14 || 16) * Appearance.effectiveScale
         }
     }
 }
