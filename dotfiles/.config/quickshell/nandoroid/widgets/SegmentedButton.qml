@@ -15,6 +15,7 @@ SegmentedWrapper {
     // ── Input Properties ──
     property bool checked: false // Use a dedicated property instead of aliasing to internal button.toggled
     property string iconName: ""
+    property string iconSource: ""
     property int iconSize: 24 * Appearance.effectiveScale
     property string buttonText: ""
     property bool isHighlighted: false
@@ -72,6 +73,16 @@ SegmentedWrapper {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.iconName
                     iconSize: root.iconSize
+                    color: root.active ? root.colActiveText : root.colInactiveText
+                }
+
+                CustomIcon {
+                    visible: root.iconSource !== ""
+                    anchors.verticalCenter: parent.verticalCenter
+                    source: root.iconSource
+                    width: root.iconSize
+                    height: root.iconSize
+                    colorize: true
                     color: root.active ? root.colActiveText : root.colInactiveText
                 }
                 
