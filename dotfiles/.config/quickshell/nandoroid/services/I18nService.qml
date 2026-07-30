@@ -49,12 +49,19 @@ Singleton {
         }
     }
 
-    onLanguageCodeChanged: {
-        print("[I18nService] Language changed to", root.languageCode);
-        translationFileView.languageCode = root.languageCode;
-        generatedTranslationFileView.languageCode = root.languageCode;
+    onLanguageCodeChanged: updateTranslations()
+    onAvailableGeneratedLanguagesChanged: updateTranslations()
+
+    function updateTranslations() {
+        if (!root.languageCode) return;
         translationFileView.reread();
-        generatedTranslationFileView.reread();
+
+        if (root.availableGeneratedLanguages && root.availableGeneratedLanguages.indexOf(root.languageCode) !== -1) {
+            generatedTranslationFileView.reread();
+        } else {
+            root.generatedTranslations = ({});
+            generatedTranslationFileView.path = "";
+        }
     }
 
     TranslationReader {
@@ -70,7 +77,7 @@ Singleton {
     TranslationReader {
         id: generatedTranslationFileView
         translationsDir: root.generatedTranslationsDir
-        languageCode: root.languageCode
+        languageCode: ""
         onContentLoaded: (data) => {
             root.generatedTranslations = data;
             root.isLoading = false;
@@ -125,14 +132,19 @@ Singleton {
 
     component TranslationReader: FileView {
         id: translationReader
-        required property string translationsDir
-        property string languageCode: root.languageCode
+        property string translationsDir: ""
+        property string languageCode: ""
         signal contentLoaded(var data)
 
-        function reread() { // Proper reload in case the file was incorrect before
-            translationReader.path = "";
-            translationReader.path = `${translationReader.translationsDir}/${translationReader.languageCode}.json`;
-            translationReader.reload();
+        function reread() {
+            if (!translationsDir || !languageCode) {
+                path = "";
+                return;
+            }
+            var targetPath = `${translationsDir}/${languageCode}.json`;
+            if (path !== targetPath) {
+                path = targetPath;
+            }
         }
         path: ""
 

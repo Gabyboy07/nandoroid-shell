@@ -30,17 +30,17 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: I18nService.tr("Language")
+                text: I18nService.tr("Language & Localization")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
             }
         }
 
-        // Coming Soon Card
+        // Language Info Card
         SegmentedWrapper {
             Layout.fillWidth: true
-            implicitHeight: wrapperLayout.implicitHeight + (40 * Appearance.effectiveScale)
+            implicitHeight: wrapperLayout.implicitHeight + (32 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
@@ -48,13 +48,12 @@ ColumnLayout {
             ColumnLayout {
                 id: wrapperLayout
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 0
+                anchors.margins: 16 * Appearance.effectiveScale
+                spacing: 12 * Appearance.effectiveScale
 
                 RowLayout {
-                    id: langComingRow
                     Layout.fillWidth: true
-                    spacing: 20 * Appearance.effectiveScale
+                    spacing: 16 * Appearance.effectiveScale
 
                     // Icon indicator
                     MaterialSymbol {
@@ -68,78 +67,27 @@ ColumnLayout {
                         Layout.fillWidth: true
 
                         StyledText {
-                            text: I18nService.tr("Language & Translation")
+                            text: I18nService.tr("Localization Service")
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }
                         StyledText {
-                            text: I18nService.tr("Shell language and translate-shell service settings.")
+                            text: I18nService.tr("I18n backend is available, but full UI string translation is currently unmaintained.")
                             font.pixelSize: Appearance.font.pixelSize.small
                             color: Appearance.colors.colSubtext
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
                         }
                     }
 
-                    Item { Layout.fillWidth: true }
-
-                    // WIP badge
-                    Rectangle {
-                        implicitHeight: 28 * Appearance.effectiveScale
-                        implicitWidth: comingSoonLabel.implicitWidth + (20 * Appearance.effectiveScale)
-                        radius: 14 * Appearance.effectiveScale
-                        color: Functions.ColorUtils.transparentize(Appearance.colors.colPrimary, 0.85)
-
-                        StyledText {
-                            id: comingSoonLabel
-                            anchors.centerIn: parent
-                            text: I18nService.tr("WIP")
-                            font.pixelSize: Appearance.font.pixelSize.smaller
-                            font.weight: Font.Medium
-                            color: Appearance.colors.colPrimary
-                        }
-                    }
-                }
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 1 * Appearance.effectiveScale
-                    color: Functions.ColorUtils.transparentize(Appearance.colors.colOnLayer1, 0.1)
-                    Layout.topMargin: 20 * Appearance.effectiveScale
-                    Layout.bottomMargin: 20 * Appearance.effectiveScale
-                    visible: true
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 20 * Appearance.effectiveScale
-
-                StyledText {
-                    text: I18nService.tr("System Language")
-                    font.pixelSize: Appearance.font.pixelSize.normal
-                    color: Appearance.colors.colOnLayer1
-                    Layout.fillWidth: true
-                }
-
-                StyledComboBox {
-                    id: langCombo
-                    Layout.preferredWidth: 200 * Appearance.effectiveScale
-                    text: Config.ready && Config.options.language ? Config.options.language.ui : "auto"
-                    model: {
-                        var langs = ["auto"];
-                        if (I18nService.availableLanguages) {
-                            langs = langs.concat(I18nService.availableLanguages);
-                        }
-                        // Remove duplicates just in case
-                        return [...new Set(langs)];
-                    }
-                    onAccepted: (val) => {
-                        if (Config.ready && Config.options.language) {
-                            Config.options.language.ui = val;
-                        }
+                    // Native SegmentedButton (Always Active)
+                    SegmentedButton {
+                        isHighlighted: true
+                        buttonText: "English (US)"
                     }
                 }
             }
         }
     }
-}
 }
