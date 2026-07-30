@@ -145,6 +145,7 @@ Variants {
             anchors.fill: parent
             hoverEnabled: true
             acceptedButtons: Qt.LeftButton | Qt.RightButton
+            property int startX: 0
             property int startY: 0
             property bool isDragging: false
             
@@ -155,6 +156,7 @@ Variants {
                     return;
                 }
                 if (mouse.button === Qt.LeftButton) desktopContextMenu.close();
+                startX = mouse.x;
                 startY = mouse.y;
                 isDragging = true;
             }
@@ -162,9 +164,22 @@ Variants {
             onPositionChanged: (mouse) => {
                 if (isDragging) {
                     let deltaY = startY - mouse.y;
+                    // Swipe Up -> App Launcher
                     if (deltaY > 100) {
                         isDragging = false;
                         GlobalStates.launcherOpen = true;
+                    }
+                    // Swipe Down -> Regional Panels
+                    else if (deltaY < -100) {
+                        isDragging = false;
+                        let relativeX = startX / parent.width;
+                        if (relativeX < 0.33) {
+                            GlobalStates.notificationCenterOpen = !GlobalStates.notificationCenterOpen;
+                        } else if (relativeX <= 0.66) {
+                            GlobalStates.dashboardOpen = !GlobalStates.dashboardOpen;
+                        } else {
+                            GlobalStates.quickSettingsOpen = !GlobalStates.quickSettingsOpen;
+                        }
                     }
                 }
             }
