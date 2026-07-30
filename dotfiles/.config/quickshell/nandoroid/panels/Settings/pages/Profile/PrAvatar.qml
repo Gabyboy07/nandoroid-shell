@@ -1,3 +1,4 @@
+import Qt.labs.folderlistmodel
 import "../../../../core"
 import "../../../../core/functions" as Functions
 import "../../../../services"
@@ -12,6 +13,13 @@ import Quickshell.Io
 ColumnLayout {
     Layout.fillWidth: true
     spacing: 0
+
+    FolderListModel {
+        id: iconsFolderModel
+        folder: Qt.resolvedUrl("../../../../assets/icons")
+        showDirs: false
+        nameFilters: ["*.svg", "*.png", "*.jpg", "*.webp"]
+    }
 
     SearchHandler {
         searchString: "Avatar"
@@ -34,6 +42,22 @@ ColumnLayout {
                 const path = bannerPickerOutput.text.trim()
                 if (path !== "") {
                     Config.options.profile.bannerImage = path
+                }
+            }
+        }
+    }
+
+    Process {
+        id: iconPickerProc
+        command: ["zenity", "--file-selection", "--title=Select Custom Distro Icon", "--file-filter=Images & SVGs | *.png *.svg *.jpg *.jpeg *.webp", "--modal"]
+        stdout: StdioCollector {
+            id: iconPickerOutput
+        }
+        onExited: (code) => {
+            if (code === 0) {
+                const path = iconPickerOutput.text.trim()
+                if (path !== "" && Config.ready && Config.options.bar) {
+                    Config.options.bar.distroIcon = path
                 }
             }
         }
@@ -381,6 +405,225 @@ ColumnLayout {
                             hoverEnabled: true
                             onClicked: {
                                 Config.options.profile.bannerImage = ""
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    readonly property var distroIconModel: {
+        const list = [
+            { label: "Auto", iconName: "auto_awesome", iconSource: "", value: "" }
+        ]
+
+        const count = iconsFolderModel.count
+        for (let i = 0; i < count; i++) {
+            const fileName = iconsFolderModel.get(i, "fileName")
+            if (!fileName) continue
+            // Only include symbolic distro icons (must contain "-symbolic")
+            if (!fileName.includes("-symbolic")) continue
+
+            const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "")
+            let niceLabel = nameWithoutExt.replace(/-symbolic$/i, "")
+            niceLabel = niceLabel.charAt(0).toUpperCase() + niceLabel.slice(1)
+            if (niceLabel.length > 8) niceLabel = niceLabel.substring(0, 7) + "…"
+
+            list.push({
+                label: niceLabel,
+                iconName: "",
+                iconSource: nameWithoutExt,
+                value: nameWithoutExt
+            })
+        }
+
+        list.push({ label: "Custom Icon", iconName: "folder_open", iconSource: "", value: "custom" })
+        return list
+    }
+
+    // ── Custom Distro Icon ──
+    ColumnLayout {
+        Layout.fillWidth: true
+        Layout.topMargin: 16 * Appearance.effectiveScale
+        spacing: 4 * Appearance.effectiveScale
+
+        RowLayout {
+            spacing: 12 * Appearance.effectiveScale
+            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            MaterialSymbol {
+                text: "computer"
+                iconSize: 24 * Appearance.effectiveScale
+                color: Appearance.colors.colPrimary
+            }
+            StyledText {
+                text: "Distro Icon"
+                font.pixelSize: Appearance.font.pixelSize.large
+                font.weight: Font.Medium
+                color: Appearance.colors.colOnLayer1
+            }
+        }
+
+        SegmentedWrapper {
+            Layout.fillWidth: true
+            implicitHeight: distroMainCol.implicitHeight + 40 * Appearance.effectiveScale
+            orientation: Qt.Vertical
+            maxRadius: 20 * Appearance.effectiveScale
+            color: Appearance.m3colors.m3surfaceContainerHigh
+
+            ColumnLayout {
+                id: distroMainCol
+                anchors.fill: parent
+                anchors.margins: 20 * Appearance.effectiveScale
+                spacing: 16 * Appearance.effectiveScale
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 20 * Appearance.effectiveScale
+
+                    Item {
+                        Layout.preferredWidth: 48 * Appearance.effectiveScale
+                        Layout.preferredHeight: 48 * Appearance.effectiveScale
+
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 12 * Appearance.effectiveScale
+                            color: Appearance.colors.colLayer1
+
+                            CustomIcon {
+                                anchors.centerIn: parent
+                                width: 28 * Appearance.effectiveScale
+                                height: 28 * Appearance.effectiveScale
+                                source: {
+                                    if (!Config.ready || !Config.options.bar) return SystemInfo.distroIcon || "linux-symbolic";
+                                    let custom = Config.options.bar.distroIcon;
+                                    return (custom && custom !== "") ? custom : (SystemInfo.distroIcon || "linux-symbolic");
+                                }
+                                colorize: true
+                                color: Appearance.colors.colPrimary
+                            }
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+                        spacing: 2 * Appearance.effectiveScale
+
+                        StyledText {
+                            text: "Status Bar Distro Icon"
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            font.weight: Font.Medium
+                            color: Appearance.colors.colOnLayer1
+                        }
+
+                        StyledText {
+                            text: {
+                                if (!Config.ready || !Config.options.bar) return "Auto-detect"
+                                const current = Config.options.bar.distroIcon || ""
+                                if (current === "") return "Auto-detect (" + (SystemInfo.distroIcon || "linux-symbolic") + ")"
+                                return current
+                            }
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            color: Appearance.colors.colSubtext
+                            elide: Text.ElideRight
+                            Layout.fillWidth: true
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 8 * Appearance.effectiveScale
+                        Layout.alignment: Qt.AlignVCenter
+                        visible: {
+                            if (!Config.ready || !Config.options.bar) return false
+                            const cur = Config.options.bar.distroIcon || ""
+                            for (let i = 0; i < distroIconModel.length; i++) {
+                                if (distroIconModel[i].value === cur) return false
+                            }
+                            return cur !== ""
+                        }
+
+                        RippleButton {
+                            implicitWidth: 110 * Appearance.effectiveScale
+                            implicitHeight: 36 * Appearance.effectiveScale
+                            buttonRadius: 18 * Appearance.effectiveScale
+                            colBackground: Appearance.m3colors.m3primaryContainer
+
+                            RowLayout {
+                                anchors.centerIn: parent
+                                spacing: 6 * Appearance.effectiveScale
+                                MaterialSymbol {
+                                    text: "folder_open"
+                                    iconSize: 16 * Appearance.effectiveScale
+                                    color: Appearance.m3colors.m3onPrimaryContainer
+                                }
+                                StyledText {
+                                    text: "Browse"
+                                    font.pixelSize: Appearance.font.pixelSize.small
+                                    color: Appearance.m3colors.m3onPrimaryContainer
+                                }
+                            }
+
+                            onClicked: {
+                                iconPickerProc.running = true
+                            }
+                        }
+                    }
+                }
+
+                Flow {
+                    Layout.fillWidth: true
+                    spacing: 4 * Appearance.effectiveScale
+
+                    Repeater {
+                        model: distroIconModel
+
+                        delegate: SegmentedButton {
+                            id: segBtn
+                            required property var modelData
+                            implicitWidth: 44 * Appearance.effectiveScale
+                            implicitHeight: 44 * Appearance.effectiveScale
+
+                            readonly property bool isCustom: modelData.value === "custom"
+                            readonly property bool isCurrentCustom: {
+                                if (!Config.ready || !Config.options.bar) return false
+                                const cur = Config.options.bar.distroIcon || ""
+                                for (let i = 0; i < distroIconModel.length; i++) {
+                                    if (distroIconModel[i].value === cur) return false
+                                }
+                                return cur !== ""
+                            }
+
+                            isHighlighted: {
+                                if (!Config.ready || !Config.options.bar) return false
+                                if (isCustom) return isCurrentCustom
+                                return Config.options.bar.distroIcon === modelData.value
+                            }
+
+                            iconName: modelData.iconName || ""
+                            iconSource: modelData.iconSource || ""
+                            iconSize: 22 * Appearance.effectiveScale
+                            buttonText: ""
+
+                            leftPadding: 0
+                            rightPadding: 0
+
+                            colInactive: Appearance.m3colors.m3surfaceContainerLow
+                            colActive: Appearance.m3colors.m3primary
+                            colActiveText: Appearance.m3colors.m3onPrimary
+
+                            StyledToolTip {
+                                text: modelData.label
+                                extraVisibleCondition: segBtn.hovered
+                            }
+
+                            onClicked: {
+                                if (!Config.ready || !Config.options.bar) return
+                                if (isCustom) {
+                                    iconPickerProc.running = true
+                                } else {
+                                    Config.options.bar.distroIcon = modelData.value
+                                }
                             }
                         }
                     }
