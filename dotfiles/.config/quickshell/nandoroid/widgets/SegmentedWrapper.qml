@@ -28,12 +28,7 @@ Item {
     // ── Style Properties ──
     property color color: "transparent"
     property var maxRadius: undefined
-    property real fullRadius: {
-        let h = (height > 0 ? height : (implicitHeight > 0 ? implicitHeight : 40 * Appearance.effectiveScale))
-        let r = h / 2
-        if (maxRadius !== undefined) return Math.min(r, maxRadius);
-        return r
-    }
+    property real fullRadius: maxRadius !== undefined ? maxRadius : (implicitHeight > 0 ? implicitHeight / 2 : 20 * Appearance.effectiveScale)
     property real smallRadius: Appearance.rounding.unsharpenmore || (6 * Appearance.effectiveScale)
     
     implicitWidth: 40 * Appearance.effectiveScale
