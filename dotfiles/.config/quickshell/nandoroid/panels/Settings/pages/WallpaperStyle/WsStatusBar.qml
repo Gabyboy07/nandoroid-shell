@@ -17,6 +17,7 @@ ColumnLayout {
     // ── Global Module Pool & Layout Manager (on root for guaranteed scope) ────────────
     property bool leftMenuOpened: false
     property bool rightMenuOpened: false
+    readonly property int maxClusterModules: 5
 
     property var allModules: [
         { id: "distroIcon", name: "Distro Icon", icon: "computer" },
@@ -59,18 +60,20 @@ ColumnLayout {
 
     function addToLeftCluster(moduleId) {
         var list = getLeftModules();
+        if (list.length >= maxClusterModules) return;
         list.push(moduleId);
         if (moduleId === "clock") Config.options.statusBar.centerModule = "none";
         Config.options.statusBar.leftModules = list;
-        if (getAvailableForCluster().length <= 0) leftMenuOpened = false;
+        if (list.length >= maxClusterModules || getAvailableForCluster().length <= 0) leftMenuOpened = false;
     }
 
     function addToRightCluster(moduleId) {
         var list = getRightModules();
+        if (list.length >= maxClusterModules) return;
         list.push(moduleId);
         if (moduleId === "clock") Config.options.statusBar.centerModule = "none";
         Config.options.statusBar.rightModules = list;
-        if (getAvailableForCluster().length <= 0) rightMenuOpened = false;
+        if (list.length >= maxClusterModules || getAvailableForCluster().length <= 0) rightMenuOpened = false;
     }
 
     function moveLeftModule(moduleId, direction) {
@@ -459,7 +462,11 @@ ColumnLayout {
                                             } else if (newCenter === "none" && currentCenter === "clock") {
                                                 // Default to adding clock to right cluster if removed from center
                                                 if (!rights.includes("clock") && !lefts.includes("clock")) {
-                                                    rights.push("clock");
+                                                    if (rights.length < maxClusterModules) {
+                                                        rights.push("clock");
+                                                    } else if (lefts.length < maxClusterModules) {
+                                                        lefts.push("clock");
+                                                    }
                                                 }
                                             }
                                             
@@ -492,7 +499,7 @@ ColumnLayout {
                             RowLayout {
                                 spacing: 16 * Appearance.effectiveScale
                                 MaterialSymbol { text: "align_horizontal_left"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                                StyledText { text: "Left Cluster Modules"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
+                                StyledText { text: "Left Cluster Modules (" + getLeftModules().length + "/" + maxClusterModules + ")"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
                                 
                                 // Add Module Dropdown Button
                                 Rectangle {
@@ -500,7 +507,7 @@ ColumnLayout {
                                     implicitHeight: 28 * Appearance.effectiveScale
                                     radius: 14 * Appearance.effectiveScale
                                     color: Appearance.m3colors.m3primary
-                                    visible: getAvailableForCluster().length > 0
+                                    visible: getAvailableForCluster().length > 0 && getLeftModules().length < maxClusterModules
 
                                     MaterialSymbol {
                                         anchors.centerIn: parent
@@ -663,7 +670,7 @@ ColumnLayout {
                             RowLayout {
                                 spacing: 16 * Appearance.effectiveScale
                                 MaterialSymbol { text: "align_horizontal_right"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                                StyledText { text: "Right Cluster Modules"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
+                                StyledText { text: "Right Cluster Modules (" + getRightModules().length + "/" + maxClusterModules + ")"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
 
                                 // Add Module Dropdown Button
                                 Rectangle {
@@ -671,7 +678,7 @@ ColumnLayout {
                                     implicitHeight: 28 * Appearance.effectiveScale
                                     radius: 14 * Appearance.effectiveScale
                                     color: Appearance.m3colors.m3primary
-                                    visible: getAvailableForCluster().length > 0
+                                    visible: getAvailableForCluster().length > 0 && getRightModules().length < maxClusterModules
 
                                     MaterialSymbol {
                                         anchors.centerIn: parent
