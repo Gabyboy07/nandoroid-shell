@@ -11,6 +11,7 @@ import Quickshell
 import Quickshell.Io
 
 ColumnLayout {
+    id: root
     Layout.fillWidth: true
     spacing: 0
 
@@ -19,6 +20,11 @@ ColumnLayout {
         folder: Qt.resolvedUrl("../../../../assets/icons")
         showDirs: false
         nameFilters: ["*.svg", "*.png", "*.jpg", "*.webp"]
+        onCountChanged: {
+            if (iconsFolderModel.status === FolderListModel.Ready) {
+                iconSettleTimer.restart();
+            }
+        }
     }
 
     SearchHandler {
@@ -413,33 +419,62 @@ ColumnLayout {
         }
     }
 
-    readonly property var distroIconModel: {
+    // ── Distro Icons Model Batch Loader ──
+    property var cachedDistroIcons: []
+    property bool distroIconsReady: false
+
+    function updateDistroIconModel() {
+        const count = iconsFolderModel.count;
+        if (count === 0) return;
+
         const list = [
             { label: "Auto", iconName: "auto_awesome", iconSource: "", value: "" }
-        ]
+        ];
 
-        const count = iconsFolderModel.count
         for (let i = 0; i < count; i++) {
-            const fileName = iconsFolderModel.get(i, "fileName")
-            if (!fileName) continue
-            // Only include symbolic distro icons (must contain "-symbolic")
-            if (!fileName.includes("-symbolic")) continue
+            const fileName = iconsFolderModel.get(i, "fileName");
+            if (!fileName || !fileName.includes("-symbolic")) continue;
 
-            const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "")
-            let niceLabel = nameWithoutExt.replace(/-symbolic$/i, "")
-            niceLabel = niceLabel.charAt(0).toUpperCase() + niceLabel.slice(1)
-            if (niceLabel.length > 8) niceLabel = niceLabel.substring(0, 7) + "…"
+            const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
+            let niceLabel = nameWithoutExt.replace(/-symbolic$/i, "");
+            niceLabel = niceLabel.charAt(0).toUpperCase() + niceLabel.slice(1);
+            if (niceLabel.length > 8) niceLabel = niceLabel.substring(0, 7) + "…";
 
             list.push({
                 label: niceLabel,
                 iconName: "",
                 iconSource: nameWithoutExt,
                 value: nameWithoutExt
-            })
+            });
         }
 
-        list.push({ label: "Custom Icon", iconName: "folder_open", iconSource: "", value: "custom" })
-        return list
+        list.push({ label: "Custom Icon", iconName: "folder_open", iconSource: "", value: "custom" });
+        root.cachedDistroIcons = list;
+        root.distroIconsReady = true;
+    }
+
+    function isRowFirstItem(idx, totalCount, itemsPerRow) {
+        const perRow = itemsPerRow || 16;
+        return (idx % perRow) === 0;
+    }
+
+    function isRowLastItem(idx, totalCount, itemsPerRow) {
+        const perRow = itemsPerRow || 16;
+        const posInRow = idx % perRow;
+        const remainingInList = totalCount - idx;
+        return (posInRow === perRow - 1) || (remainingInList === 1);
+    }
+
+    Timer {
+        id: iconSettleTimer
+        interval: 150
+        running: true
+        repeat: false
+        onTriggered: root.updateDistroIconModel()
+    }
+
+    Component.onCompleted: {
+        iconSettleTimer.start();
     }
 
     // ── Custom Distro Icon ──
@@ -467,6 +502,9 @@ ColumnLayout {
         SegmentedWrapper {
             Layout.fillWidth: true
             implicitHeight: distroMainCol.implicitHeight + 40 * Appearance.effectiveScale
+            Behavior on implicitHeight {
+                NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+            }
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
@@ -535,12 +573,13 @@ ColumnLayout {
                         spacing: 8 * Appearance.effectiveScale
                         Layout.alignment: Qt.AlignVCenter
                         visible: {
-                            if (!Config.ready || !Config.options.bar) return false
+                            if (!root.distroIconsReady || !Config.ready || !Config.options.bar) return false
                             const cur = Config.options.bar.distroIcon || ""
-                            for (let i = 0; i < distroIconModel.length; i++) {
-                                if (distroIconModel[i].value === cur) return false
+                            if (cur === "") return false
+                            for (let i = 0; i < root.cachedDistroIcons.length; i++) {
+                                if (root.cachedDistroIcons[i].value === cur) return false
                             }
-                            return cur !== ""
+                            return true
                         }
 
                         RippleButton {
@@ -574,22 +613,32 @@ ColumnLayout {
                 Flow {
                     Layout.fillWidth: true
                     spacing: 4 * Appearance.effectiveScale
+                    opacity: root.distroIconsReady ? 1 : 0
+                    Behavior on opacity {
+                        NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+                    }
 
                     Repeater {
-                        model: distroIconModel
+                        model: root.cachedDistroIcons
 
                         delegate: SegmentedButton {
                             id: segBtn
                             required property var modelData
-                            implicitWidth: 44 * Appearance.effectiveScale
-                            implicitHeight: 44 * Appearance.effectiveScale
+                            required property int index
+
+                            forceFirst: root.isRowFirstItem(index, root.cachedDistroIcons.length, 16)
+                            forceLast: root.isRowLastItem(index, root.cachedDistroIcons.length, 16)
+
+                            maxRadius: Math.round(21.5 * Appearance.effectiveScale)
+                            implicitWidth: Math.round(43 * Appearance.effectiveScale)
+                            implicitHeight: Math.round(43 * Appearance.effectiveScale)
 
                             readonly property bool isCustom: modelData.value === "custom"
                             readonly property bool isCurrentCustom: {
                                 if (!Config.ready || !Config.options.bar) return false
                                 const cur = Config.options.bar.distroIcon || ""
-                                for (let i = 0; i < distroIconModel.length; i++) {
-                                    if (distroIconModel[i].value === cur) return false
+                                for (let i = 0; i < root.cachedDistroIcons.length; i++) {
+                                    if (root.cachedDistroIcons[i].value === cur) return false
                                 }
                                 return cur !== ""
                             }
@@ -602,7 +651,7 @@ ColumnLayout {
 
                             iconName: modelData.iconName || ""
                             iconSource: modelData.iconSource || ""
-                            iconSize: 22 * Appearance.effectiveScale
+                            iconSize: Math.round(22 * Appearance.effectiveScale)
                             buttonText: ""
 
                             leftPadding: 0
