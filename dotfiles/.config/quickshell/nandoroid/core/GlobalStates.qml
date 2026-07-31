@@ -53,6 +53,19 @@ Singleton {
     property string datePickerCurrentDate: ""
     property var datePickerOnSelected: null
     property var datePickerOnCancelled: null
+    property bool timePickerOpen: false
+    property string timePickerCurrentTime: ""
+    property bool timePickerIs24Hour: false
+    property var timePickerOnSelected: null
+    property var timePickerOnCancelled: null
+
+    function openTimePicker(currentTime, onSelected, onCancelled, is24Hour) {
+        timePickerCurrentTime = currentTime || ""
+        timePickerIs24Hour = !!is24Hour
+        timePickerOnSelected = onSelected || null
+        timePickerOnCancelled = onCancelled || null
+        timePickerOpen = true
+    }
     property bool dockMenuOpen: false
     property bool desktopContextMenuOpen: false
     property bool mediaNotchOpen: false
