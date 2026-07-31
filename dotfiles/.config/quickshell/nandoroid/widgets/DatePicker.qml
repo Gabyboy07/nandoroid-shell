@@ -23,6 +23,7 @@ Item {
     property var calendarLayout: CalendarLayout.getCalendarLayout(viewingDate, monthShift === 0, firstDayOfWeek)
     property string pendingDateStr: ""
     property string inputText: ""
+    property bool inputValid: true
 
     readonly property real cellSize: 40 * Appearance.effectiveScale
     readonly property int yearRangeStart: new Date().getFullYear() - 49
@@ -93,29 +94,85 @@ Item {
         return Qt.formatDate(d, "ddd, MMM d")
     }
 
+    function __daysInMonth(year, month) {
+        return new Date(year, month, 0).getDate()
+    }
+
+    function __isValidInput(text) {
+        if (!text) return false
+        const digits = text.replace(/\D/g, '')
+        if (digits.length < 8) return false
+        const p = root.__parseAnyDate(text)
+        if (!p) return false
+        if (p.day > root.__daysInMonth(p.year, p.month)) return false
+        return true
+    }
+
+    function __errorText() {
+        const fmt = root.dateStyle === "YMD" ? "YYYY/MM/DD" : (root.dateStyle === "MDY" ? "MM/DD/YYYY" : "DD/MM/YYYY")
+        const digits = root.inputText.replace(/\D/g, '')
+        if (digits.length < 8) return "Complete the date: " + fmt
+        return "Invalid date"
+    }
+
     function __formatTypedDateInput(rawText, isDeleting) {
         if (!rawText) return ""
         let digits = rawText.replace(/\D/g, '').substring(0, 8)
         if (digits.length === 0) return ""
 
+        let y = "", m = "", d = ""
         if (root.dateStyle === "YMD") {
-            if (digits.length <= 4) return digits
+            y = digits.substring(0, 4)
+            m = digits.substring(4, 6)
+            d = digits.substring(6, 8)
+        } else if (root.dateStyle === "MDY") {
+            m = digits.substring(0, 2)
+            d = digits.substring(2, 4)
+            y = digits.substring(4, 8)
+        } else {
+            d = digits.substring(0, 2)
+            m = digits.substring(2, 4)
+            y = digits.substring(4, 8)
+        }
+
+        if (m.length === 2) {
+            let mv = parseInt(m, 10)
+            if (mv > 12) m = "12"
+        }
+
+        if (d.length === 2) {
+            let dv = parseInt(d, 10)
+            if (dv > 31) d = "31"
+            if (m.length === 2) {
+                let mv = parseInt(m, 10)
+                let yv = y.length === 4 ? parseInt(y, 10) : new Date().getFullYear()
+                if (mv >= 1 && mv <= 12) {
+                    const max = root.__daysInMonth(yv, mv)
+                    if (dv > max) d = String(max).padStart(2, '0')
+                }
+            }
+        }
+
+        if (root.dateStyle === "YMD") {
+            if (digits.length <= 4) return y
             if (digits.length <= 6) {
-                let res = digits.substring(0, 4) + "/" + digits.substring(4)
+                let res = y + "/" + m
                 if (isDeleting && rawText.endsWith("/")) res = res.substring(0, res.length - 1)
                 return res
             }
-            let res = digits.substring(0, 4) + "/" + digits.substring(4, 6) + "/" + digits.substring(6)
+            let res = y + "/" + m + "/" + d
             if (isDeleting && rawText.endsWith("/")) res = res.substring(0, res.length - 1)
             return res
         } else {
-            if (digits.length <= 2) return digits
+            const first = root.dateStyle === "MDY" ? m : d
+            const second = root.dateStyle === "MDY" ? d : m
+            if (digits.length <= 2) return first
             if (digits.length <= 4) {
-                let res = digits.substring(0, 2) + "/" + digits.substring(2)
+                let res = first + "/" + second
                 if (isDeleting && rawText.endsWith("/")) res = res.substring(0, res.length - 1)
                 return res
             }
-            let res = digits.substring(0, 2) + "/" + digits.substring(2, 4) + "/" + digits.substring(4)
+            let res = first + "/" + second + "/" + y
             if (isDeleting && rawText.endsWith("/")) res = res.substring(0, res.length - 1)
             return res
         }
@@ -429,7 +486,8 @@ Item {
                 radius: 8 * Appearance.effectiveScale
                 color: "transparent"
                 border.width: 2 * Appearance.effectiveScale
-                border.color: dateInput.input.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline
+                border.color: !root.inputValid ? Appearance.colors.colError
+                    : (dateInput.input.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline)
 
                 // Floating "Date" Label
                 Rectangle {
@@ -445,7 +503,8 @@ Item {
                         text: "Date"
                         font.pixelSize: Appearance.font.pixelSize.smaller
                         font.weight: Font.Medium
-                        color: dateInput.input.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline
+                        color: !root.inputValid ? Appearance.colors.colError
+                            : (dateInput.input.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline)
                     }
                 }
 
@@ -481,8 +540,18 @@ Item {
                                 root.__setViewingMonth()
                             }
                         }
+                        root.inputValid = root.__isValidInput(text)
                     }
                 }
+            }
+
+            StyledText {
+                visible: !root.inputValid
+                Layout.fillWidth: true
+                text: root.__errorText()
+                font.pixelSize: Appearance.font.pixelSize.smaller
+                color: Appearance.colors.colError
+                horizontalAlignment: Text.AlignLeft
             }
         }
 
@@ -510,6 +579,8 @@ Item {
                 implicitHeight: 36 * Appearance.effectiveScale
                 buttonRadius: Appearance.rounding.full
                 colBackground: "transparent"; colBackgroundHover: Appearance.colors.colLayer2Hover
+                enabled: root.selectMode !== 1 || root.inputValid
+                opacity: root.selectMode === 1 && !root.inputValid ? 0.4 : 1
                 onClicked: {
                     if (root.pendingDateStr) {
                         let displayStr = root.__formatDisplayByStyle(root.pendingDateStr)
