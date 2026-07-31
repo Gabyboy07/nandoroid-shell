@@ -29,6 +29,21 @@ Item {
         return ds + "/" + ms + "/" + ys
     }
 
+    function _parseDateObj(dStr) {
+        if (!dStr) return null
+        const parts = String(dStr).trim().split(/[-/]/).map(Number)
+        if (parts.length < 3 || parts.some(isNaN)) return null
+        let y, m, d
+        if (parts[0] > 1000) { y = parts[0]; m = parts[1]; d = parts[2] }
+        else if (parts[2] > 1000) {
+            const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+            if (style === "MDY") { m = parts[0]; d = parts[1]; y = parts[2] }
+            else { d = parts[0]; m = parts[1]; y = parts[2] }
+        } else return null
+        const dt = new Date(y, m - 1, d)
+        return isNaN(dt.getTime()) ? null : dt
+    }
+
     function _formatDateByConfig(dStr) {
         if (!dStr) return ""
         let parts = dStr.trim().split(/[-/]/).map(Number)
@@ -94,8 +109,9 @@ Item {
 
     property int _multiDayDiff: {
         if (!formEndDate.trim() || formEndDate === formDate) return 0;
-        const s = new Date(formDate + "T00:00:00");
-        const e = new Date(formEndDate + "T00:00:00");
+        const s = root._parseDateObj(formDate);
+        const e = root._parseDateObj(formEndDate);
+        if (!s || !e) return 0;
         return Math.round((e - s) / 86400000);
     }
 
@@ -106,9 +122,16 @@ Item {
 
     property bool formDatesValid: {
         if (!root.formEndDate.trim()) return true;
-        if (root.formEndDate < root.formDate) return false;
-        if (root.formEndDate > root.formDate) return true;
-        return root.formEndTime > root.formTime;
+        const s = root._parseDateObj(root.formDate);
+        const e = root._parseDateObj(root.formEndDate);
+        if (!s || !e) return false;
+        if (e.getTime() < s.getTime()) return false;
+        if (e.getTime() > s.getTime()) return true;
+        const t = (str) => {
+            const p = String(str || "").split(":").map(Number);
+            return p.length >= 2 && !isNaN(p[0]) && !isNaN(p[1]) ? p[0] * 60 + p[1] : 0;
+        };
+        return t(root.formEndTime) > t(root.formTime);
     }
     property string _datePickerTarget: ""
 
