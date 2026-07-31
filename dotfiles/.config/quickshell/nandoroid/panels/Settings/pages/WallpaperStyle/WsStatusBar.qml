@@ -1106,7 +1106,7 @@ ColumnLayout {
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
-                        visible: Config.ready && Config.options.statusBar && Config.options.statusBar.layoutStyle === "centered"
+                        visible: Config.ready && Config.options.statusBar && Config.options.statusBar.layoutStyle === "centered" && !sbSettingsCol.parent.isM3Style
                         RowLayout {
                             id: centeredWidthRow
                             anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale

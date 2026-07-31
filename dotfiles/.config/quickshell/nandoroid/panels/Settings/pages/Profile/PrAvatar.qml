@@ -159,7 +159,7 @@ ColumnLayout {
 
                     StyledText {
                         text: Config.options.profile.avatarPicture !== ""
-                            ? Config.options.profile.avatarPicture
+                            ? Functions.FileUtils.shortenHomePath(Config.options.profile.avatarPicture)
                             : "No custom avatar set"
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
@@ -335,7 +335,7 @@ ColumnLayout {
 
                     StyledText {
                         text: Config.options.profile.bannerImage !== ""
-                            ? Config.options.profile.bannerImage
+                            ? Functions.FileUtils.shortenHomePath(Config.options.profile.bannerImage)
                             : "Uses current wallpaper"
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
@@ -560,7 +560,7 @@ ColumnLayout {
                                 if (!Config.ready || !Config.options.bar) return "Auto-detect"
                                 const current = Config.options.bar.distroIcon || ""
                                 if (current === "") return "Auto-detect (" + (SystemInfo.distroIcon || "linux-symbolic") + ")"
-                                return current
+                                return Functions.FileUtils.shortenHomePath(current)
                             }
                             font.pixelSize: Appearance.font.pixelSize.small
                             color: Appearance.colors.colSubtext

@@ -121,11 +121,11 @@ ColumnLayout {
                     id: powerPathInput
                     Layout.preferredWidth: 250 * Appearance.effectiveScale
                     Layout.preferredHeight: 48 * Appearance.effectiveScale
-                    text: (Config.ready && Config.options.powerProfile) ? Config.options.powerProfile.customPath : "/tmp/ryzen_mode"
+                    text: (Config.ready && Config.options.powerProfile) ? Functions.FileUtils.shortenHomePath(Config.options.powerProfile.customPath) : "/tmp/ryzen_mode"
                     placeholder: "Enter path (e.g., /tmp/ryzen_mode)"
                     onEditingFinished: { 
                         if (Config.ready && Config.options.powerProfile) {
-                            Config.options.powerProfile.customPath = text;
+                            Config.options.powerProfile.customPath = Functions.FileUtils.expandHomePath(text);
                         }
                     }
                 }

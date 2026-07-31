@@ -193,11 +193,11 @@ ColumnLayout {
                     id: pathInput
                     Layout.fillWidth: true
                     Layout.preferredHeight: 48 * Appearance.effectiveScale
-                    text: (Config.ready && Config.options.screenshot) ? Config.options.screenshot.savePath : ""
+                    text: (Config.ready && Config.options.screenshot) ? Functions.FileUtils.shortenHomePath(Config.options.screenshot.savePath) : ""
                     placeholder: "Enter screenshot directory path"
                     onEditingFinished: {
                         if (Config.ready && Config.options.screenshot) {
-                            Config.options.screenshot.savePath = Functions.FileUtils.trimFileProtocol(text);
+                            Config.options.screenshot.savePath = Functions.FileUtils.expandHomePath(Functions.FileUtils.trimFileProtocol(text));
                         }
                     }
                 }
@@ -231,11 +231,11 @@ ColumnLayout {
                     id: recordPathInput
                     Layout.fillWidth: true
                     Layout.preferredHeight: 48 * Appearance.effectiveScale
-                    text: (Config.ready && Config.options.screenshot) ? Config.options.screenshot.recordPath : ""
+                    text: (Config.ready && Config.options.screenshot) ? Functions.FileUtils.shortenHomePath(Config.options.screenshot.recordPath) : ""
                     placeholder: "Enter recording directory path"
                     onEditingFinished: {
                         if (Config.ready && Config.options.screenshot) {
-                            Config.options.screenshot.recordPath = Functions.FileUtils.trimFileProtocol(text);
+                            Config.options.screenshot.recordPath = Functions.FileUtils.expandHomePath(Functions.FileUtils.trimFileProtocol(text));
                         }
                     }
                 }

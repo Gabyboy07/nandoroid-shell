@@ -666,7 +666,7 @@ Item {
                                                 MaterialSymbol { anchors.centerIn: parent; text: "delete"; iconSize: 18 * Appearance.effectiveScale; color: Appearance.m3colors.m3error }
                                             }
                                         }
-                                        StyledToolTip { text: model.path }
+                                        StyledToolTip { text: Functions.FileUtils.shortenHomePath(model.path) }
                                     }
                                 }
 
