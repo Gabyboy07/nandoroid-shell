@@ -21,6 +21,13 @@ Item {
     property bool isOpened: false
     property bool isFiltering: false // Only filter when user starts typing
     property int maxHeight: 240 * Appearance.effectiveScale
+
+    property string activeFont: {
+        if (root.isOpened && listView.currentIndex >= 0 && listView.currentIndex < root.filteredModel.length) {
+            return root.filteredModel[listView.currentIndex];
+        }
+        return root.text;
+    }
     
     signal accepted(string value)
     
@@ -213,6 +220,10 @@ Item {
                 colRipple: Appearance.colors.colLayer2Active
                 
                 property bool isCurrent: ListView.isCurrentItem
+
+                onRealHoveredChanged: {
+                    if (delegateRoot.realHovered) listView.currentIndex = index;
+                }
 
                 contentItem: StyledText {
                     text: modelData
