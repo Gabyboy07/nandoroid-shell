@@ -12,6 +12,19 @@ Singleton {
     property var all: ["Default"]
     property var mono: ["Default"]
 
+    // Symbol/icon/emoji font families to hide from the font selectors
+    property var excludedFonts: [
+        /symbol/i, /emoji/i, /wingding/i, /webding/i, /dingbat/i,
+        /awesome/i, /octicons/i, /icomoon/i, /material icons/i, /math/i,
+        /^mtx$/i, /^d050000l$/i, /^z003$/i, /^symbola$/i,
+        /^zapf dingbats$/i, /^lastresort$/i, /^marlett$/i,
+        /^monotype sorts$/i, /^mt extra$/i, /^bookshelf symbol$/i
+    ]
+
+    function filterFonts(list) {
+        return list.filter(name => !root.excludedFonts.some(rx => rx.test(name)));
+    }
+
     // --- Paths ---
     function cleanPath(p) {
         let s = p.toString();
@@ -37,10 +50,10 @@ Singleton {
             try {
                 const data = JSON.parse(text());
                 if (data.all && Array.isArray(data.all)) {
-                    root.all = ["Default"].concat(data.all);
+                    root.all = ["Default"].concat(root.filterFonts(data.all));
                 }
                 if (data.mono && Array.isArray(data.mono)) {
-                    root.mono = ["Default"].concat(data.mono);
+                    root.mono = ["Default"].concat(root.filterFonts(data.mono));
                 }
             } catch (e) {
                 console.error("[SystemFonts] Error parsing fonts.json:", e);
