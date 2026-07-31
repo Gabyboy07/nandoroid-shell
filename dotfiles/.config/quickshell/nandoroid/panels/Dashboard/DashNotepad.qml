@@ -303,7 +303,8 @@ Item {
                     }
                 }
             },
-            function() {}
+            function() {},
+            Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : false
         )
     }
 

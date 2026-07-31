@@ -769,7 +769,8 @@ Item {
                 root.formTime = timeStr
                 if (root.selectedId) autoSaveTimer.restart()
             },
-            function() { root._timePickerTarget = "" }
+            function() { root._timePickerTarget = "" },
+            Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : false
         )
     }
 
@@ -782,7 +783,8 @@ Item {
                 root.formEndTime = timeStr
                 if (root.selectedId) autoSaveTimer.restart()
             },
-            function() { root._timePickerTarget = "" }
+            function() { root._timePickerTarget = "" },
+            Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : false
         )
     }
 

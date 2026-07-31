@@ -24,12 +24,30 @@ Item {
     property int selectedMinute: 0
     property string amPm: "AM"
 
+    // Draft text used while typing in input mode (only normalized on focus loss)
+    property string hourDraft: ""
+    property string minuteDraft: ""
+
     readonly property real dialSize: 256 * Appearance.effectiveScale
     readonly property real dialCenter: 128 * Appearance.effectiveScale
     readonly property real knobRadius: 24 * Appearance.effectiveScale
     readonly property real dialRadius: dialCenter - knobRadius
+    readonly property real innerRingRadius: root.dialRadius * 0.62
 
-    // Target Knob Angle (0..360)
+    // 24h hour dial: inner ring (12-23) aligns with outer ring (0-11), so 12 lines up with 0.
+    // The ring (inner vs outer) is chosen by distance from center, the hour by angle.
+    function isInnerHour(h) {
+        return h >= 12
+    }
+
+    // Knob travel radius (inner ring when a 13-24 hour is selected in 24h dial mode)
+    readonly property real knobCenterRadius: root.activeField === 0 && root.is24Hour && root.isInnerHour(root.selectedHour)
+        ? root.innerRingRadius : root.dialRadius
+
+    // Boundary between the inner (13-24) and outer (1-12) rings
+    readonly property real ringThreshold: (root.dialRadius + root.innerRingRadius) / 2
+
+    // Target Knob Angle (0..360); same angle for both rings (h and h+12 share a position)
     readonly property real knobAngleDeg: root.activeField === 0 ?
         ((root.selectedHour % 12) * 30) :
         (root.selectedMinute * 6)
@@ -50,8 +68,8 @@ Item {
 
     // Calculated Knob Center Position
     readonly property real knobAngleRad: (handRotation - 90) * Math.PI / 180
-    readonly property real currentKnobX: dialCenter + dialRadius * Math.cos(knobAngleRad)
-    readonly property real currentKnobY: dialCenter + dialRadius * Math.sin(knobAngleRad)
+    readonly property real currentKnobX: dialCenter + root.knobCenterRadius * Math.cos(knobAngleRad)
+    readonly property real currentKnobY: dialCenter + root.knobCenterRadius * Math.sin(knobAngleRad)
 
     implicitWidth: Math.max(300 * Appearance.effectiveScale, 364 * Appearance.effectiveScale)
     implicitHeight: contentCol.implicitHeight
@@ -105,7 +123,7 @@ Item {
                 }
                 root.amPm = isPm ? "PM" : "AM"
             }
-            root.selectedHour = h
+            root.selectedHour = root.is24Hour ? root.normalizeHour(h) : h
             root.selectedMinute = Math.min(59, Math.max(0, m))
             root.handRotation = root.knobAngleDeg
         }
@@ -122,7 +140,30 @@ Item {
         return hStr + ":" + m
     }
 
+    // Wrap a 2-digit hour input instead of clamping it (24h: 24->00, 12h: 13->01)
+    function normalizeHour(val) {
+        if (root.is24Hour) return ((val % 24) + 24) % 24
+        return ((val - 1) % 12 + 12) % 12 + 1
+    }
+
+    function commitHourInput() {
+        let val = parseInt(root.hourDraft, 10)
+        if (isNaN(val)) val = root.is24Hour ? 0 : 12
+        root.selectedHour = root.normalizeHour(val)
+        root.hourDraft = String(root.selectedHour).padStart(2, '0')
+    }
+
+    function commitMinuteInput() {
+        let val = parseInt(root.minuteDraft, 10)
+        if (isNaN(val)) val = 0
+        val = Math.min(59, Math.max(0, val))
+        root.selectedMinute = val
+        root.minuteDraft = String(val).padStart(2, '0')
+    }
+
     function confirm() {
+        root.commitHourInput()
+        root.commitMinuteInput()
         root.timeSelected(root.getFormattedTime())
     }
 
@@ -178,7 +219,7 @@ Item {
                         id: hourInput
                         anchors.fill: parent
                         horizontalAlignment: Text.AlignHCenter
-                        text: String(root.selectedHour).padStart(2, '0')
+                        text: root.selectMode === 0 ? String(root.selectedHour).padStart(2, '0') : root.hourDraft
                         font.pixelSize: Math.round(48 * Appearance.effectiveScale)
                         font.weight: Font.Normal
                         color: root.activeField === 0 ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
@@ -193,13 +234,10 @@ Item {
 
                         onTextChanged: {
                             if (root.selectMode === 1 && input.activeFocus) {
+                                root.hourDraft = text
                                 let val = parseInt(text, 10)
                                 if (!isNaN(val)) {
-                                    if (root.is24Hour) {
-                                        root.selectedHour = Math.min(23, Math.max(0, val))
-                                    } else {
-                                        root.selectedHour = Math.min(12, Math.max(1, val))
-                                    }
+                                    root.selectedHour = root.normalizeHour(val)
                                 }
                             }
                         }
@@ -207,7 +245,12 @@ Item {
                         Connections {
                             target: hourInput.input
                             function onActiveFocusChanged() {
-                                if (hourInput.input.activeFocus) root.activeField = 0
+                                if (hourInput.input.activeFocus) {
+                                    root.activeField = 0
+                                    hourInput.input.selectAll()
+                                } else {
+                                    root.commitHourInput()
+                                }
                             }
                         }
                     }
@@ -259,7 +302,7 @@ Item {
                         id: minuteInput
                         anchors.fill: parent
                         horizontalAlignment: Text.AlignHCenter
-                        text: String(root.selectedMinute).padStart(2, '0')
+                        text: root.selectMode === 0 ? String(root.selectedMinute).padStart(2, '0') : root.minuteDraft
                         font.pixelSize: Math.round(48 * Appearance.effectiveScale)
                         font.weight: Font.Normal
                         color: root.activeField === 1 ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
@@ -274,6 +317,7 @@ Item {
 
                         onTextChanged: {
                             if (root.selectMode === 1 && input.activeFocus) {
+                                root.minuteDraft = text
                                 let val = parseInt(text, 10)
                                 if (!isNaN(val)) {
                                     root.selectedMinute = Math.min(59, Math.max(0, val))
@@ -284,7 +328,12 @@ Item {
                         Connections {
                             target: minuteInput.input
                             function onActiveFocusChanged() {
-                                if (minuteInput.input.activeFocus) root.activeField = 1
+                                if (minuteInput.input.activeFocus) {
+                                    root.activeField = 1
+                                    minuteInput.input.selectAll()
+                                } else {
+                                    root.commitMinuteInput()
+                                }
                             }
                         }
                     }
@@ -391,9 +440,17 @@ Item {
                         let topDeg = (deg + 90) % 360
 
                         if (root.activeField === 0) {
-                            let h = Math.round(topDeg / 30)
-                            if (h === 0) h = 12
-                            root.selectedHour = h
+                            let h = Math.round(topDeg / 30) % 12
+                            if (root.is24Hour) {
+                                let dist = Math.sqrt(dx * dx + dy * dy)
+                                if (dist < root.ringThreshold) {
+                                    root.selectedHour = h + 12
+                                } else {
+                                    root.selectedHour = h
+                                }
+                            } else {
+                                root.selectedHour = h === 0 ? 12 : h
+                            }
                             if (isRelease) {
                                 root.activeField = 1
                             }
@@ -420,16 +477,21 @@ Item {
 
                 // ── LAYER 1: Base Dial Numbers (Role 14: On surface) ──
                 Repeater {
-                    model: 12
+                    model: (root.activeField === 0 && root.is24Hour) ? 24 : 12
 
                     delegate: Item {
                         required property int index
-                        readonly property int val: root.activeField === 0 ? (index === 0 ? 12 : index) : (index * 5)
+                        readonly property bool isInnerIndex: index >= 12
+                        readonly property int val: {
+                            if (root.activeField === 1) return index * 5
+                            if (root.is24Hour) return index
+                            return index === 0 ? 12 : index
+                        }
                         readonly property string displayStr: root.activeField === 0 ? val.toString() : String(val).padStart(2, '0')
-
-                        readonly property real angleRad: (index * 30 - 90) * Math.PI / 180
-                        readonly property real numX: root.dialCenter + root.dialRadius * Math.cos(angleRad)
-                        readonly property real numY: root.dialCenter + root.dialRadius * Math.sin(angleRad)
+                        readonly property real ringRadius: isInnerIndex ? root.innerRingRadius : root.dialRadius
+                        readonly property real angleRad: ((index % 12) * 30 - 90) * Math.PI / 180
+                        readonly property real numX: root.dialCenter + ringRadius * Math.cos(angleRad)
+                        readonly property real numY: root.dialCenter + ringRadius * Math.sin(angleRad)
 
                         x: numX - width / 2
                         y: numY - height / 2
@@ -476,14 +538,14 @@ Item {
                             capStyle: ShapePath.RoundCap
 
                             PathLine { x: 0; y: 0 }
-                            PathLine { x: 0; y: -root.dialRadius }
+                            PathLine { x: 0; y: -root.knobCenterRadius }
                         }
                     }
 
                     // Role 11: Primary (Knob Disc)
                     Rectangle {
                         x: -root.knobRadius
-                        y: -root.dialRadius - root.knobRadius
+                        y: -root.knobCenterRadius - root.knobRadius
                         width: root.knobRadius * 2
                         height: root.knobRadius * 2
                         radius: root.knobRadius
@@ -507,16 +569,21 @@ Item {
                         visible: false
 
                         Repeater {
-                            model: 12
+                            model: (root.activeField === 0 && root.is24Hour) ? 24 : 12
 
                             delegate: Item {
                                 required property int index
-                                readonly property int val: root.activeField === 0 ? (index === 0 ? 12 : index) : (index * 5)
+                                readonly property bool isInnerIndex: index >= 12
+                                readonly property int val: {
+                                    if (root.activeField === 1) return index * 5
+                                    if (root.is24Hour) return index
+                                    return index === 0 ? 12 : index
+                                }
                                 readonly property string displayStr: root.activeField === 0 ? val.toString() : String(val).padStart(2, '0')
-
-                                readonly property real angleRad: (index * 30 - 90) * Math.PI / 180
-                                readonly property real numX: root.dialCenter + root.dialRadius * Math.cos(angleRad)
-                                readonly property real numY: root.dialCenter + root.dialRadius * Math.sin(angleRad)
+                                readonly property real ringRadius: isInnerIndex ? root.innerRingRadius : root.dialRadius
+                                readonly property real angleRad: ((index % 12) * 30 - 90) * Math.PI / 180
+                                readonly property real numX: root.dialCenter + ringRadius * Math.cos(angleRad)
+                                readonly property real numY: root.dialCenter + ringRadius * Math.sin(angleRad)
 
                                 x: (numX - root.currentKnobX + root.knobRadius) - width / 2
                                 y: (numY - root.currentKnobY + root.knobRadius) - height / 2
@@ -568,8 +635,14 @@ Item {
                 colBackground: "transparent"
                 colBackgroundHover: Appearance.colors.colLayer2Hover
                 onClicked: {
-                    root.selectMode = root.selectMode === 0 ? 1 : 0
                     if (root.selectMode === 1) {
+                        root.commitHourInput()
+                        root.commitMinuteInput()
+                        root.selectMode = 0
+                    } else {
+                        root.hourDraft = String(root.selectedHour).padStart(2, '0')
+                        root.minuteDraft = String(root.selectedMinute).padStart(2, '0')
+                        root.selectMode = 1
                         hourInput.forceActiveFocus()
                     }
                 }
