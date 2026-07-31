@@ -60,6 +60,8 @@ Item {
         font.family: Appearance.font.family.main
         font.pixelSize: Appearance.font.pixelSize.normal
         color: Appearance.colors.colOnLayer1
+        selectionColor: Appearance.colors.colPrimaryContainer
+        selectedTextColor: Appearance.colors.colOnPrimaryContainer
         clip: true
 
         onEditingFinished: root.editingFinished()
@@ -92,6 +94,25 @@ Item {
         closePolicy: Popup.CloseOnPressOutside
 
         background: Item {}
+
+        MouseArea {
+            anchors.fill: parent
+            property int dragStart: -1
+            onPressed: (event) => {
+                const pos = input.mapFromItem(focusGuard.contentItem, event.x, event.y)
+                input.cursorPosition = input.positionAt(pos.x, pos.y)
+                dragStart = input.cursorPosition
+                input.select(dragStart, dragStart)
+                input.forceActiveFocus()
+            }
+            onPositionChanged: (event) => {
+                if (!pressed || dragStart < 0) return
+                const pos = input.mapFromItem(focusGuard.contentItem, event.x, event.y)
+                input.cursorPosition = input.positionAt(pos.x, pos.y)
+                input.select(dragStart, input.cursorPosition)
+            }
+            onReleased: dragStart = -1
+        }
 
         onClosed: input.focus = false
     }
