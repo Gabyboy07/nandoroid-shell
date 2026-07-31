@@ -155,6 +155,36 @@ Item {
         return d.getTime() < new Date().getTime()
     }
 
+    function _displayTime(timeStr) {
+        if (!timeStr) return timeStr
+        const parts = String(timeStr).split(":")
+        if (parts.length < 2) return timeStr
+        const h = parseInt(parts[0], 10)
+        if (isNaN(h)) return timeStr
+        const m = parts[1]
+        const rest = parts.length > 2 ? ":" + parts.slice(2).join(":") : ""
+        const style = Config.ready && Config.options.time ? Config.options.time.timeStyle : "24H"
+        if (style === "24H") return String(h).padStart(2, "0") + ":" + m + rest
+        const upper = style === "12H_PM"
+        const ap = h >= 12 ? (upper ? "PM" : "pm") : (upper ? "AM" : "am")
+        const h12 = h % 12 || 12
+        return String(h12).padStart(2, "0") + ":" + m + rest + " " + ap
+    }
+
+    function _displayDate(dStr) {
+        if (!dStr) return dStr
+        const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+        const parts = String(dStr).trim().split(/[-/]/).map(Number)
+        if (parts.length < 3 || parts.some(isNaN)) return dStr
+        let y, m, d
+        if (parts[0] > 1000) { y = parts[0]; m = parts[1]; d = parts[2] }
+        else if (style === "MDY") { m = parts[0]; d = parts[1]; y = parts[2] }
+        else { d = parts[0]; m = parts[1]; y = parts[2] }
+        if (!y || !m || !d) return dStr
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        return days[new Date(y, m - 1, d).getDay()] + ", " + dStr
+    }
+
     function _formatDeadline(deadline, deadlineTime) {
         if (!deadline) return ""
         const parts = deadline.split(/[-/]/)
@@ -169,7 +199,7 @@ Item {
         } else {
             display = deadline
         }
-        if (deadlineTime) display += " " + deadlineTime
+        if (deadlineTime) display += " " + root._displayTime(deadlineTime)
         return display
     }
 
@@ -806,107 +836,42 @@ Item {
                                 visible: _editingDeadline
 
                                 // Date field
-                                Rectangle {
+                                RippleButton {
                                     Layout.fillWidth: true
                                     implicitHeight: 34 * Appearance.effectiveScale
-                                    radius: Appearance.rounding.small
-                                    color: Appearance.m3colors.m3surfaceContainer
-                                    border.color: _dlDateField.input.activeFocus ? Appearance.colors.colPrimary : "transparent"
-                                    border.width: 2 * Appearance.effectiveScale
-                                    RowLayout {
-                                        anchors.fill: parent; anchors.margins: 6 * Appearance.effectiveScale; spacing: 4 * Appearance.effectiveScale
-                                        MaterialSymbol { text: "calendar_today"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
-                                        StyledTextInput {
-                                            id: _dlDateField
-                                            Layout.fillWidth: true
-                                            Layout.fillHeight: true
-                                            text: modelData._tmpDate || modelData.deadline || root._defaultDeadlineDate()
-                                            placeholder: Config.ready && Config.options.time && Config.options.time.dateStyle === "YMD" ? "YYYY/MM/DD" : (Config.ready && Config.options.time && Config.options.time.dateStyle === "MDY" ? "MM/DD/YYYY" : "DD/MM/YYYY")
-                                            backgroundColor: "transparent"
-                                            inputRadius: 0
-                                            borderInactiveWidth: 0
-                                            showActiveBorder: false
-                                            leftMargin: 0
-                                            rightMargin: 0
-                                            font.pixelSize: Appearance.font.pixelSize.small
-                                            property int _lastLen: 0
-                                            onTextChanged: {
-                                                if (_dlDateField.input.activeFocus) {
-                                                    let isDeleting = text.length < _lastLen
-                                                    _lastLen = text.length
-                                                    let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
-                                                    let digits = text.replace(/\D/g, '').substring(0, 8)
-                                                    let formatted = text
-                                                    if (style === "YMD") {
-                                                        if (digits.length > 4 && digits.length <= 6) formatted = digits.substring(0, 4) + "/" + digits.substring(4)
-                                                        else if (digits.length > 6) formatted = digits.substring(0, 4) + "/" + digits.substring(4, 6) + "/" + digits.substring(6)
-                                                        else formatted = digits
-                                                    } else {
-                                                        if (digits.length > 2 && digits.length <= 4) formatted = digits.substring(0, 2) + "/" + digits.substring(2)
-                                                        else if (digits.length > 4) formatted = digits.substring(0, 2) + "/" + digits.substring(2, 4) + "/" + digits.substring(4)
-                                                        else formatted = digits
-                                                    }
-                                                    if (isDeleting && text.endsWith("/")) formatted = formatted.substring(0, formatted.length - 1)
-                                                    if (formatted !== text) text = formatted
-                                                }
-                                                if (modelData) modelData._tmpDate = text
-                                            }
-                                        }
-                                        RippleButton {
-                                            implicitWidth: 24 * Appearance.effectiveScale
-                                            implicitHeight: 24 * Appearance.effectiveScale
-                                            buttonRadius: 12 * Appearance.effectiveScale
-                                            colBackground: "transparent"
-                                            onClicked: root.openTaskDatePicker(modelData.id, modelData._tmpDate || modelData.deadline)
-                                            MaterialSymbol {
-                                                anchors.centerIn: parent
-                                                text: "date_range"
-                                                iconSize: 13 * Appearance.effectiveScale
-                                                color: Appearance.colors.colSubtext
-                                            }
-                                        }
+                                    buttonRadius: Appearance.rounding.small
+                                    colBackground: "transparent"
+                                    colBackgroundHover: "transparent"
+                                    colText: "transparent"
+                                    onClicked: root.openTaskDatePicker(modelData.id, modelData._tmpDate || modelData.deadline)
+                                    StyledText {
+                                        anchors.left: parent.left
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.leftMargin: 6 * Appearance.effectiveScale
+                                        text: root._displayDate(modelData._tmpDate || modelData.deadline || root._defaultDeadlineDate())
+                                        font.pixelSize: Appearance.font.pixelSize.small
+                                        color: Appearance.colors.colOnLayer1
+                                        horizontalAlignment: Text.AlignLeft
                                     }
                                 }
 
                                 // Time field
-                                Rectangle {
+                                RippleButton {
                                     Layout.fillWidth: true
                                     implicitHeight: 34 * Appearance.effectiveScale
-                                    radius: Appearance.rounding.small
-                                    color: Appearance.m3colors.m3surfaceContainer
-                                    border.color: _dlTimeField.input.activeFocus ? Appearance.colors.colPrimary : "transparent"
-                                    border.width: 2 * Appearance.effectiveScale
-                                    RowLayout {
-                                        anchors.fill: parent; anchors.margins: 6 * Appearance.effectiveScale; spacing: 4 * Appearance.effectiveScale
-                                        MaterialSymbol { text: "schedule"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
-                                        StyledTextInput {
-                                            id: _dlTimeField
-                                            Layout.fillWidth: true
-                                            Layout.fillHeight: true
-                                            text: modelData._tmpTime || modelData.deadlineTime || root._defaultDeadlineTime()
-                                            inputMask: "99:99"
-                                            backgroundColor: "transparent"
-                                            inputRadius: 0
-                                            borderInactiveWidth: 0
-                                            showActiveBorder: false
-                                            leftMargin: 0
-                                            rightMargin: 0
-                                            font.pixelSize: Appearance.font.pixelSize.small
-                                            onTextChanged: { if (modelData) modelData._tmpTime = text }
-                                        }
-                                        RippleButton {
-                                            implicitWidth: 24 * Appearance.effectiveScale
-                                            implicitHeight: 24 * Appearance.effectiveScale
-                                            buttonRadius: 12 * Appearance.effectiveScale
-                                            colBackground: "transparent"
-                                            onClicked: root.openTaskTimePicker(modelData.id, modelData._tmpTime || modelData.deadlineTime)
-                                            MaterialSymbol {
-                                                anchors.centerIn: parent
-                                                text: "access_time"
-                                                iconSize: 13 * Appearance.effectiveScale
-                                                color: Appearance.colors.colSubtext
-                                            }
-                                        }
+                                    buttonRadius: Appearance.rounding.small
+                                    colBackground: "transparent"
+                                    colBackgroundHover: "transparent"
+                                    colText: "transparent"
+                                    onClicked: root.openTaskTimePicker(modelData.id, modelData._tmpTime || modelData.deadlineTime)
+                                    StyledText {
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.rightMargin: 6 * Appearance.effectiveScale
+                                        text: root._displayTime(modelData._tmpTime || modelData.deadlineTime || root._defaultDeadlineTime())
+                                        font.pixelSize: Appearance.font.pixelSize.small
+                                        color: Appearance.colors.colOnLayer1
+                                        horizontalAlignment: Text.AlignRight
                                     }
                                 }
 
@@ -957,9 +922,9 @@ Item {
                                     onClicked: taskDelegate._editingDeadline = false
                                     MaterialSymbol {
                                         anchors.centerIn: parent
-                                        text: "close"
+                                        text: "undo"
                                         iconSize: 16 * Appearance.effectiveScale
-                                        color: Appearance.colors.colError
+                                        color: Appearance.colors.colSubtext
                                     }
                                 }
                             }

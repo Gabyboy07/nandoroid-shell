@@ -50,6 +50,36 @@ Item {
         return ds + "/" + ms + "/" + ys
     }
 
+    function _displayTime(timeStr) {
+        if (!timeStr) return timeStr
+        const parts = String(timeStr).split(":")
+        if (parts.length < 2) return timeStr
+        const h = parseInt(parts[0], 10)
+        if (isNaN(h)) return timeStr
+        const m = parts[1]
+        const rest = parts.length > 2 ? ":" + parts.slice(2).join(":") : ""
+        const style = Config.ready && Config.options.time ? Config.options.time.timeStyle : "24H"
+        if (style === "24H") return String(h).padStart(2, "0") + ":" + m + rest
+        const upper = style === "12H_PM"
+        const ap = h >= 12 ? (upper ? "PM" : "pm") : (upper ? "AM" : "am")
+        const h12 = h % 12 || 12
+        return String(h12).padStart(2, "0") + ":" + m + rest + " " + ap
+    }
+
+    function _displayDate(dStr) {
+        if (!dStr) return dStr
+        const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+        const parts = String(dStr).trim().split(/[-/]/).map(Number)
+        if (parts.length < 3 || parts.some(isNaN)) return dStr
+        let y, m, d
+        if (parts[0] > 1000) { y = parts[0]; m = parts[1]; d = parts[2] }
+        else if (style === "MDY") { m = parts[0]; d = parts[1]; y = parts[2] }
+        else { d = parts[0]; m = parts[1]; y = parts[2] }
+        if (!y || !m || !d) return dStr
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        return days[new Date(y, m - 1, d).getDay()] + ", " + dStr
+    }
+
     function _defaultDateStr() {
         return _formatDateObj(new Date())
     }
@@ -273,8 +303,8 @@ Item {
                                                 const suffix = day % 10 === 1 && day !== 11 ? "st" : day % 10 === 2 && day !== 12 ? "nd" : day % 10 === 3 && day !== 13 ? "rd" : "th"
                                                 return "Every " + day + suffix + ed
                                             }
-                                            let t = modelData.date + " " + modelData.time
-                                            if (modelData.endTime) t += " - " + modelData.endTime
+                                            let t = modelData.date + " " + root._displayTime(modelData.time)
+                                            if (modelData.endTime) t += " - " + root._displayTime(modelData.endTime)
                                             return t + ed
                                         }
                                         elide: Text.ElideRight
@@ -390,111 +420,48 @@ Item {
                 spacing: 8 * Appearance.effectiveScale
 
                 StyledText {
-                    text: "Start"
-                    font.pixelSize: Appearance.font.pixelSize.small
+                    text: "Start:"
+                    font.pixelSize: Appearance.font.pixelSize.normal
                     color: Appearance.colors.colSubtext
-                    Layout.alignment: Qt.AlignVCenter
-                    Layout.preferredWidth: 36 * Appearance.effectiveScale
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                    Layout.preferredWidth: 44 * Appearance.effectiveScale
                 }
 
-                Rectangle {
-                    id: dateFieldRect
-                    Layout.fillWidth: true; implicitHeight: 44 * Appearance.effectiveScale
-                    radius: Appearance.rounding.small
-                    color: Appearance.m3colors.m3surfaceContainer
-                    border.color: dateField.input.activeFocus || root._datePickerTarget === "start" ? Appearance.colors.colPrimary : "transparent"
-                    border.width: 2 * Appearance.effectiveScale
-                    RowLayout {
-                        anchors.fill: parent; anchors.margins: 10 * Appearance.effectiveScale; spacing: 6 * Appearance.effectiveScale
-                        MaterialSymbol { text: "calendar_today"; iconSize: 16 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
-                        StyledTextInput {
-                            id: dateField
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            text: root.formDate
-                            placeholder: Config.ready && Config.options.time && Config.options.time.dateStyle === "YMD" ? "YYYY/MM/DD" : (Config.ready && Config.options.time && Config.options.time.dateStyle === "MDY" ? "MM/DD/YYYY" : "DD/MM/YYYY")
-                            backgroundColor: "transparent"
-                            inputRadius: 0
-                            borderInactiveWidth: 0
-                            showActiveBorder: false
-                            leftMargin: 0
-                            rightMargin: 0
-                            property int _lastLen: 0
-                            onTextChanged: {
-                                if (dateField.input.activeFocus) {
-                                    let isDeleting = text.length < _lastLen
-                                    _lastLen = text.length
-                                    let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
-                                    let digits = text.replace(/\D/g, '').substring(0, 8)
-                                    let formatted = text
-                                    if (style === "YMD") {
-                                        if (digits.length > 4 && digits.length <= 6) formatted = digits.substring(0, 4) + "/" + digits.substring(4)
-                                        else if (digits.length > 6) formatted = digits.substring(0, 4) + "/" + digits.substring(4, 6) + "/" + digits.substring(6)
-                                        else formatted = digits
-                                    } else {
-                                        if (digits.length > 2 && digits.length <= 4) formatted = digits.substring(0, 2) + "/" + digits.substring(2)
-                                        else if (digits.length > 4) formatted = digits.substring(0, 2) + "/" + digits.substring(2, 4) + "/" + digits.substring(4)
-                                        else formatted = digits
-                                    }
-                                    if (isDeleting && text.endsWith("/")) formatted = formatted.substring(0, formatted.length - 1)
-                                    if (formatted !== text) text = formatted
-                                }
-                                root.formDate = text
-                                if (root.selectedId && dateField.input.activeFocus) autoSaveTimer.restart()
-                            }
-                        }
-                        RippleButton {
-                            implicitWidth: 28 * Appearance.effectiveScale
-                            implicitHeight: 28 * Appearance.effectiveScale
-                            buttonRadius: 14 * Appearance.effectiveScale
-                            colBackground: "transparent"
-                            onClicked: root.openDatePicker()
-                            MaterialSymbol {
-                                anchors.centerIn: parent
-                                text: "date_range"
-                                iconSize: 16 * Appearance.effectiveScale
-                                color: Appearance.colors.colSubtext
-                            }
-                        }
+                RippleButton {
+                    Layout.fillWidth: true
+                    implicitHeight: 44 * Appearance.effectiveScale
+                    buttonRadius: Appearance.rounding.small
+                    colBackground: "transparent"
+                    colBackgroundHover: "transparent"
+                    colText: "transparent"
+                    onClicked: root.openDatePicker()
+                    StyledText {
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.leftMargin: 10 * Appearance.effectiveScale
+                        text: root._displayDate(root.formDate)
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        color: Appearance.colors.colOnLayer1
+                        horizontalAlignment: Text.AlignLeft
                     }
                 }
 
-                Rectangle {
-                    Layout.fillWidth: true; implicitHeight: 44 * Appearance.effectiveScale
-                    radius: Appearance.rounding.small
-                    color: Appearance.m3colors.m3surfaceContainer
-                    border.color: timeField.input.activeFocus || root._timePickerTarget === "start" ? Appearance.colors.colPrimary : "transparent"
-                    border.width: 2 * Appearance.effectiveScale
-                    RowLayout {
-                        anchors.fill: parent; anchors.margins: 10 * Appearance.effectiveScale; spacing: 6 * Appearance.effectiveScale
-                        MaterialSymbol { text: "schedule"; iconSize: 16 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
-                        StyledTextInput {
-                            id: timeField
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            text: root.formTime
-                            inputMask: "99:99"
-                            backgroundColor: "transparent"
-                            inputRadius: 0
-                            borderInactiveWidth: 0
-                            showActiveBorder: false
-                            leftMargin: 0
-                            rightMargin: 0
-                            onTextChanged: { root.formTime = text; if(root.selectedId && timeField.input.activeFocus) autoSaveTimer.restart() }
-                        }
-                        RippleButton {
-                            implicitWidth: 28 * Appearance.effectiveScale
-                            implicitHeight: 28 * Appearance.effectiveScale
-                            buttonRadius: 14 * Appearance.effectiveScale
-                            colBackground: "transparent"
-                            onClicked: root.openStartTimePicker()
-                            MaterialSymbol {
-                                anchors.centerIn: parent
-                                text: "access_time"
-                                iconSize: 16 * Appearance.effectiveScale
-                                color: Appearance.colors.colSubtext
-                            }
-                        }
+                RippleButton {
+                    Layout.fillWidth: true
+                    implicitHeight: 44 * Appearance.effectiveScale
+                    buttonRadius: Appearance.rounding.small
+                    colBackground: "transparent"
+                    colBackgroundHover: "transparent"
+                    colText: "transparent"
+                    onClicked: root.openStartTimePicker()
+                    StyledText {
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.rightMargin: 10 * Appearance.effectiveScale
+                        text: root._displayTime(root.formTime)
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        color: Appearance.colors.colOnLayer1
+                        horizontalAlignment: Text.AlignRight
                     }
                 }
             }
@@ -505,111 +472,48 @@ Item {
                 spacing: 8 * Appearance.effectiveScale
 
                 StyledText {
-                    text: "End"
-                    font.pixelSize: Appearance.font.pixelSize.small
+                    text: "End:"
+                    font.pixelSize: Appearance.font.pixelSize.normal
                     color: Appearance.colors.colSubtext
-                    Layout.alignment: Qt.AlignVCenter
-                    Layout.preferredWidth: 36 * Appearance.effectiveScale
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                    Layout.preferredWidth: 44 * Appearance.effectiveScale
                 }
 
-                Rectangle {
-                    id: endDateFieldRect
-                    Layout.fillWidth: true; implicitHeight: 44 * Appearance.effectiveScale
-                    radius: Appearance.rounding.small
-                    color: Appearance.m3colors.m3surfaceContainer
-                    border.color: endDateField.input.activeFocus || root._datePickerTarget === "end" ? Appearance.colors.colPrimary : "transparent"
-                    border.width: 2 * Appearance.effectiveScale
-                    RowLayout {
-                        anchors.fill: parent; anchors.margins: 10 * Appearance.effectiveScale; spacing: 6 * Appearance.effectiveScale
-                        MaterialSymbol { text: "calendar_month"; iconSize: 16 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
-                        StyledTextInput {
-                            id: endDateField
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            text: root.formEndDate
-                            placeholder: Config.ready && Config.options.time && Config.options.time.dateStyle === "YMD" ? "YYYY/MM/DD" : (Config.ready && Config.options.time && Config.options.time.dateStyle === "MDY" ? "MM/DD/YYYY" : "DD/MM/YYYY")
-                            backgroundColor: "transparent"
-                            inputRadius: 0
-                            borderInactiveWidth: 0
-                            showActiveBorder: false
-                            leftMargin: 0
-                            rightMargin: 0
-                            property int _lastLen: 0
-                            onTextChanged: {
-                                if (endDateField.input.activeFocus) {
-                                    let isDeleting = text.length < _lastLen
-                                    _lastLen = text.length
-                                    let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
-                                    let digits = text.replace(/\D/g, '').substring(0, 8)
-                                    let formatted = text
-                                    if (style === "YMD") {
-                                        if (digits.length > 4 && digits.length <= 6) formatted = digits.substring(0, 4) + "/" + digits.substring(4)
-                                        else if (digits.length > 6) formatted = digits.substring(0, 4) + "/" + digits.substring(4, 6) + "/" + digits.substring(6)
-                                        else formatted = digits
-                                    } else {
-                                        if (digits.length > 2 && digits.length <= 4) formatted = digits.substring(0, 2) + "/" + digits.substring(2)
-                                        else if (digits.length > 4) formatted = digits.substring(0, 2) + "/" + digits.substring(2, 4) + "/" + digits.substring(4)
-                                        else formatted = digits
-                                    }
-                                    if (isDeleting && text.endsWith("/")) formatted = formatted.substring(0, formatted.length - 1)
-                                    if (formatted !== text) text = formatted
-                                }
-                                root.formEndDate = text
-                                if (root.selectedId && endDateField.input.activeFocus) autoSaveTimer.restart()
-                            }
-                        }
-                        RippleButton {
-                            implicitWidth: 28 * Appearance.effectiveScale
-                            implicitHeight: 28 * Appearance.effectiveScale
-                            buttonRadius: 14 * Appearance.effectiveScale
-                            colBackground: "transparent"
-                            onClicked: root.openEndDatePicker()
-                            MaterialSymbol {
-                                anchors.centerIn: parent
-                                text: "date_range"
-                                iconSize: 16 * Appearance.effectiveScale
-                                color: Appearance.colors.colSubtext
-                            }
-                        }
+                RippleButton {
+                    Layout.fillWidth: true
+                    implicitHeight: 44 * Appearance.effectiveScale
+                    buttonRadius: Appearance.rounding.small
+                    colBackground: "transparent"
+                    colBackgroundHover: "transparent"
+                    colText: "transparent"
+                    onClicked: root.openEndDatePicker()
+                    StyledText {
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.leftMargin: 10 * Appearance.effectiveScale
+                        text: root._displayDate(root.formEndDate)
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        color: Appearance.colors.colOnLayer1
+                        horizontalAlignment: Text.AlignLeft
                     }
                 }
 
-                Rectangle {
-                    Layout.fillWidth: true; implicitHeight: 44 * Appearance.effectiveScale
-                    radius: Appearance.rounding.small
-                    color: Appearance.m3colors.m3surfaceContainer
-                    border.color: endTimeField.input.activeFocus || root._timePickerTarget === "end" ? Appearance.colors.colPrimary : "transparent"
-                    border.width: 2 * Appearance.effectiveScale
-                    RowLayout {
-                        anchors.fill: parent; anchors.margins: 10 * Appearance.effectiveScale; spacing: 6 * Appearance.effectiveScale
-                        MaterialSymbol { text: "event_busy"; iconSize: 16 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
-                        StyledTextInput {
-                            id: endTimeField
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            text: root.formEndTime
-                            inputMask: "99:99"
-                            backgroundColor: "transparent"
-                            inputRadius: 0
-                            borderInactiveWidth: 0
-                            showActiveBorder: false
-                            leftMargin: 0
-                            rightMargin: 0
-                            onTextChanged: { root.formEndTime = text; if(root.selectedId && endTimeField.input.activeFocus) autoSaveTimer.restart() }
-                        }
-                        RippleButton {
-                            implicitWidth: 28 * Appearance.effectiveScale
-                            implicitHeight: 28 * Appearance.effectiveScale
-                            buttonRadius: 14 * Appearance.effectiveScale
-                            colBackground: "transparent"
-                            onClicked: root.openEndTimePicker()
-                            MaterialSymbol {
-                                anchors.centerIn: parent
-                                text: "access_time"
-                                iconSize: 16 * Appearance.effectiveScale
-                                color: Appearance.colors.colSubtext
-                            }
-                        }
+                RippleButton {
+                    Layout.fillWidth: true
+                    implicitHeight: 44 * Appearance.effectiveScale
+                    buttonRadius: Appearance.rounding.small
+                    colBackground: "transparent"
+                    colBackgroundHover: "transparent"
+                    colText: "transparent"
+                    onClicked: root.openEndTimePicker()
+                    StyledText {
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.rightMargin: 10 * Appearance.effectiveScale
+                        text: root._displayTime(root.formEndTime)
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        color: Appearance.colors.colOnLayer1
+                        horizontalAlignment: Text.AlignRight
                     }
                 }
             }
