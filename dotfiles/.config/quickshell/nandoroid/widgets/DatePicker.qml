@@ -10,16 +10,19 @@ Item {
 
     property int firstDayOfWeek: Config.ready ? (Config.options.time.firstDayOfWeek ?? 1) : 1
     property string currentDateStr: ""
+    readonly property string dateStyle: Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
 
     signal dateSelected(string dateStr)
     signal cancelled()
 
+    property int selectMode: 0
     property bool yearMode: false
     property int monthShift: 0
 
     property date viewingDate: CalendarLayout.getDateInXMonthsTime(monthShift)
     property var calendarLayout: CalendarLayout.getCalendarLayout(viewingDate, monthShift === 0, firstDayOfWeek)
-    property string pendingDateStr: root.currentDateStr
+    property string pendingDateStr: ""
+    property string inputText: ""
 
     readonly property real cellSize: 40 * Appearance.effectiveScale
     readonly property int yearRangeStart: new Date().getFullYear() - 49
@@ -28,23 +31,100 @@ Item {
         7 * root.cellSize + 6 * Appearance.sizes.calendarSpacing + 48 * Appearance.effectiveScale)
     implicitHeight: contentCol.implicitHeight
 
-    Component.onCompleted: root.__setViewingMonth()
+    Component.onCompleted: {
+        root.pendingDateStr = root.__toCanonicalDateStr(root.currentDateStr)
+        root.inputText = root.__formatDisplayByStyle(root.pendingDateStr)
+        root.__setViewingMonth()
+    }
+
+    onCurrentDateStrChanged: {
+        root.pendingDateStr = root.__toCanonicalDateStr(root.currentDateStr)
+        root.inputText = root.__formatDisplayByStyle(root.pendingDateStr)
+        root.__setViewingMonth()
+    }
 
     function __formatDate(year, month, day) {
         return year + "-" + String(month).padStart(2, '0') + "-" + String(day).padStart(2, '0')
     }
 
-    function __formatDisplay(dateStr) {
-        if (!dateStr || dateStr.length < 10) return ""
-        const parts = dateStr.split('-').map(Number)
-        const d = new Date(parts[0], parts[1] - 1, parts[2])
-        return Qt.formatDate(d, "MMM dd, yyyy")
+    function __parseAnyDate(str) {
+        if (!str) return null
+        let parts = str.trim().split(/[-/]/).map(Number)
+        if (parts.length < 3 || parts.some(isNaN)) return null
+
+        let y, m, d
+        if (parts[0] > 1000) {
+            y = parts[0]; m = parts[1]; d = parts[2]
+        } else if (parts[2] > 1000) {
+            if (root.dateStyle === "MDY") {
+                m = parts[0]; d = parts[1]; y = parts[2]
+            } else {
+                d = parts[0]; m = parts[1]; y = parts[2]
+            }
+        } else {
+            return null
+        }
+        if (y < 1000 || y > 9999 || m < 1 || m > 12 || d < 1 || d > 31) return null
+        return { year: y, month: m, day: d }
+    }
+
+    function __toCanonicalDateStr(str) {
+        let p = root.__parseAnyDate(str)
+        if (!p) return ""
+        return p.year + "-" + String(p.month).padStart(2, '0') + "-" + String(p.day).padStart(2, '0')
+    }
+
+    function __formatDisplayByStyle(dateStr) {
+        let p = root.__parseAnyDate(dateStr)
+        if (!p) return ""
+        const ys = String(p.year).padStart(4, '0')
+        const ms = String(p.month).padStart(2, '0')
+        const ds = String(p.day).padStart(2, '0')
+
+        if (root.dateStyle === "YMD") return ys + "/" + ms + "/" + ds
+        if (root.dateStyle === "MDY") return ms + "/" + ds + "/" + ys
+        return ds + "/" + ms + "/" + ys
+    }
+
+    function __formatHeaderDate(dateStr) {
+        let p = root.__parseAnyDate(dateStr)
+        if (!p) return "Select date"
+        const d = new Date(p.year, p.month - 1, p.day)
+        return Qt.formatDate(d, "ddd, MMM d")
+    }
+
+    function __formatTypedDateInput(rawText, isDeleting) {
+        if (!rawText) return ""
+        let digits = rawText.replace(/\D/g, '').substring(0, 8)
+        if (digits.length === 0) return ""
+
+        if (root.dateStyle === "YMD") {
+            if (digits.length <= 4) return digits
+            if (digits.length <= 6) {
+                let res = digits.substring(0, 4) + "/" + digits.substring(4)
+                if (isDeleting && rawText.endsWith("/")) res = res.substring(0, res.length - 1)
+                return res
+            }
+            let res = digits.substring(0, 4) + "/" + digits.substring(4, 6) + "/" + digits.substring(6)
+            if (isDeleting && rawText.endsWith("/")) res = res.substring(0, res.length - 1)
+            return res
+        } else {
+            if (digits.length <= 2) return digits
+            if (digits.length <= 4) {
+                let res = digits.substring(0, 2) + "/" + digits.substring(2)
+                if (isDeleting && rawText.endsWith("/")) res = res.substring(0, res.length - 1)
+                return res
+            }
+            let res = digits.substring(0, 2) + "/" + digits.substring(2, 4) + "/" + digits.substring(4)
+            if (isDeleting && rawText.endsWith("/")) res = res.substring(0, res.length - 1)
+            return res
+        }
     }
 
     function __setViewingMonth() {
-        if (root.pendingDateStr) {
-            const parts = root.pendingDateStr.split('-').map(Number)
-            const target = new Date(parts[0], parts[1] - 1, 1)
+        let p = root.__parseAnyDate(root.pendingDateStr)
+        if (p) {
+            const target = new Date(p.year, p.month - 1, 1)
             const today = new Date()
             root.monthShift = (target.getFullYear() - today.getFullYear()) * 12
                 + (target.getMonth() - today.getMonth())
@@ -77,13 +157,41 @@ Item {
             color: Appearance.colors.colSubtext
         }
 
-        StyledText {
-            text: root.__formatDisplay(root.pendingDateStr)
+        RowLayout {
+            Layout.fillWidth: true
             Layout.leftMargin: 32 * Appearance.effectiveScale
+            Layout.rightMargin: 24 * Appearance.effectiveScale
             Layout.topMargin: 16 * Appearance.effectiveScale
-            font.pixelSize: Math.round(32 * Appearance.effectiveScale)
-            font.weight: Font.DemiBold
-            color: Appearance.colors.colOnLayer1
+            spacing: 0
+
+            StyledText {
+                Layout.fillWidth: true
+                text: root.selectMode === 0 ? root.__formatHeaderDate(root.pendingDateStr) : "Enter dates"
+                font.pixelSize: Math.round(32 * Appearance.effectiveScale)
+                font.weight: Font.Normal
+                color: Appearance.colors.colOnLayer1
+            }
+
+            RippleButton {
+                implicitWidth: 36 * Appearance.effectiveScale
+                implicitHeight: 36 * Appearance.effectiveScale
+                buttonRadius: Appearance.rounding.full
+                colBackground: "transparent"
+                colBackgroundHover: Appearance.colors.colLayer2Hover
+                onClicked: {
+                    root.selectMode = root.selectMode === 0 ? 1 : 0
+                    if (root.selectMode === 1) {
+                        root.inputText = root.__formatDisplayByStyle(root.pendingDateStr)
+                        dateInput.forceActiveFocus()
+                    }
+                }
+                contentItem: MaterialSymbol {
+                    text: root.selectMode === 0 ? "edit" : "calendar_today"
+                    iconSize: 20 * Appearance.effectiveScale
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Appearance.m3colors.m3onSurfaceVariant
+                }
+            }
         }
 
         Rectangle {
@@ -92,204 +200,285 @@ Item {
             color: Appearance.colors.colOutlineVariant
         }
 
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.leftMargin: 24 * Appearance.effectiveScale
-            Layout.rightMargin: 24 * Appearance.effectiveScale
-            spacing: 4 * Appearance.effectiveScale
-
-            RippleButton {
-                implicitHeight: 32 * Appearance.effectiveScale
-                buttonRadius: Appearance.rounding.full
-                colBackground: "transparent"
-                colBackgroundHover: Appearance.colors.colLayer2Hover
-                onClicked: root.yearMode = !root.yearMode
-                contentItem: RowLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: root.viewingDate.toLocaleDateString(Qt.locale(), "MMMM yyyy")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        font.weight: Font.DemiBold
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    MaterialSymbol {
-                        text: "arrow_drop_down"
-                        iconSize: 18 * Appearance.effectiveScale
-                        color: Appearance.colors.colOnLayer1
-                    }
-                }
-            }
-
-            Item { Layout.fillWidth: true }
-
-            RippleButton {
-                implicitWidth: 32 * Appearance.effectiveScale; implicitHeight: 32 * Appearance.effectiveScale
-                buttonRadius: Appearance.rounding.full
-                colBackground: "transparent"; colBackgroundHover: Appearance.colors.colLayer2Hover
-                enabled: !root.yearMode
-                onClicked: root.monthShift--
-                contentItem: MaterialSymbol {
-                    text: "chevron_left"; iconSize: Appearance.font.pixelSize.normal
-                    horizontalAlignment: Text.AlignHCenter; color: Appearance.colors.colOnLayer1
-                }
-            }
-            RippleButton {
-                implicitWidth: 32 * Appearance.effectiveScale; implicitHeight: 32 * Appearance.effectiveScale
-                buttonRadius: Appearance.rounding.full
-                colBackground: "transparent"; colBackgroundHover: Appearance.colors.colLayer2Hover
-                enabled: !root.yearMode
-                onClicked: root.monthShift++
-                contentItem: MaterialSymbol {
-                    text: "chevron_right"; iconSize: Appearance.font.pixelSize.normal
-                    horizontalAlignment: Text.AlignHCenter; color: Appearance.colors.colOnLayer1
-                }
-            }
-        }
-
+        // ── MODE 0: CALENDAR VIEW ──
         ColumnLayout {
+            visible: root.selectMode === 0
             Layout.fillWidth: true
-            Layout.leftMargin: 24 * Appearance.effectiveScale
-            Layout.rightMargin: 24 * Appearance.effectiveScale
-            spacing: Appearance.sizes.calendarSpacing
+            spacing: 8 * Appearance.effectiveScale
 
             RowLayout {
-                visible: !root.yearMode
-                spacing: Appearance.sizes.calendarSpacing
-                Repeater {
-                    model: {
-                        const baseDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
-                        const offset = (root.firstDayOfWeek + 6) % 7
-                        let r = []
-                        for (let i = 0; i < 7; i++) r.push(baseDays[(i + offset) % 7])
-                        return r
-                    }
-                    delegate: Item {
-                        required property string modelData
-                        implicitWidth: root.cellSize; implicitHeight: root.cellSize * 0.7
+                Layout.fillWidth: true
+                Layout.leftMargin: 24 * Appearance.effectiveScale
+                Layout.rightMargin: 24 * Appearance.effectiveScale
+                spacing: 4 * Appearance.effectiveScale
+
+                RippleButton {
+                    implicitHeight: 32 * Appearance.effectiveScale
+                    buttonRadius: Appearance.rounding.full
+                    colBackground: "transparent"
+                    colBackgroundHover: Appearance.colors.colLayer2Hover
+                    onClicked: root.yearMode = !root.yearMode
+                    contentItem: RowLayout {
+                        spacing: 2 * Appearance.effectiveScale
                         StyledText {
-                            anchors.centerIn: parent
-                            text: modelData
-                            font.pixelSize: Appearance.font.pixelSize.smaller
-                            color: Appearance.colors.colSubtext
-                            font.weight: Font.Medium
+                            text: root.viewingDate.toLocaleDateString(Qt.locale(), "MMMM yyyy")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.DemiBold
+                            color: Appearance.colors.colOnLayer1
                         }
+                        MaterialSymbol {
+                            text: "arrow_drop_down"
+                            iconSize: 18 * Appearance.effectiveScale
+                            color: Appearance.colors.colOnLayer1
+                        }
+                    }
+                }
+
+                Item { Layout.fillWidth: true }
+
+                RippleButton {
+                    implicitWidth: 32 * Appearance.effectiveScale; implicitHeight: 32 * Appearance.effectiveScale
+                    buttonRadius: Appearance.rounding.full
+                    colBackground: "transparent"; colBackgroundHover: Appearance.colors.colLayer2Hover
+                    enabled: !root.yearMode
+                    onClicked: root.monthShift--
+                    contentItem: MaterialSymbol {
+                        text: "chevron_left"; iconSize: Appearance.font.pixelSize.normal
+                        horizontalAlignment: Text.AlignHCenter; color: Appearance.colors.colOnLayer1
+                    }
+                }
+                RippleButton {
+                    implicitWidth: 32 * Appearance.effectiveScale; implicitHeight: 32 * Appearance.effectiveScale
+                    buttonRadius: Appearance.rounding.full
+                    colBackground: "transparent"; colBackgroundHover: Appearance.colors.colLayer2Hover
+                    enabled: !root.yearMode
+                    onClicked: root.monthShift++
+                    contentItem: MaterialSymbol {
+                        text: "chevron_right"; iconSize: Appearance.font.pixelSize.normal
+                        horizontalAlignment: Text.AlignHCenter; color: Appearance.colors.colOnLayer1
                     }
                 }
             }
 
             ColumnLayout {
-                visible: !root.yearMode
                 Layout.fillWidth: true
+                Layout.leftMargin: 24 * Appearance.effectiveScale
+                Layout.rightMargin: 24 * Appearance.effectiveScale
                 spacing: Appearance.sizes.calendarSpacing
 
-                Repeater {
-                    model: 6
-                    delegate: RowLayout {
-                        required property int index
-                        Layout.fillWidth: true
-                        spacing: Appearance.sizes.calendarSpacing
+                RowLayout {
+                    visible: !root.yearMode
+                    spacing: Appearance.sizes.calendarSpacing
+                    Repeater {
+                        model: {
+                            const baseDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+                            const offset = (root.firstDayOfWeek + 6) % 7
+                            let r = []
+                            for (let i = 0; i < 7; i++) r.push(baseDays[(i + offset) % 7])
+                            return r
+                        }
+                        delegate: Item {
+                            required property string modelData
+                            implicitWidth: root.cellSize; implicitHeight: root.cellSize * 0.7
+                            StyledText {
+                                anchors.centerIn: parent
+                                text: modelData
+                                font.pixelSize: Appearance.font.pixelSize.smaller
+                                color: Appearance.colors.colSubtext
+                                font.weight: Font.Medium
+                            }
+                        }
+                    }
+                }
 
-                        Repeater {
-                            model: 7
-                            delegate: RippleButton {
-                                required property int index
-                                padding: 0
-                                implicitWidth: root.cellSize; implicitHeight: root.cellSize
-                                buttonRadius: implicitHeight / 2
+                ColumnLayout {
+                    visible: !root.yearMode
+                    Layout.fillWidth: true
+                    spacing: Appearance.sizes.calendarSpacing
 
-                                readonly property int row: parent.index
-                                readonly property var cell: root.calendarLayout[row][index]
-                                readonly property string dateStr: cell.today === -1 ? "" :
-                                    root.__formatDate(root.viewingDate.getFullYear(), root.viewingDate.getMonth() + 1, cell.day)
-                                readonly property bool isCurrent: cell.today === 1
-                                readonly property bool isPending: dateStr.length > 0 && dateStr === root.pendingDateStr
-                                readonly property bool isSelected: dateStr.length > 0 && dateStr === root.currentDateStr
+                    Repeater {
+                        model: 6
+                        delegate: RowLayout {
+                            required property int index
+                            Layout.fillWidth: true
+                            spacing: Appearance.sizes.calendarSpacing
 
-                                colBackground: isPending ? Appearance.colors.colPrimary : "transparent"
-                                colBackgroundHover: isPending ? Appearance.colors.colPrimary : Appearance.colors.colLayer2Hover
+                            Repeater {
+                                model: 7
+                                delegate: RippleButton {
+                                    required property int index
+                                    padding: 0
+                                    implicitWidth: root.cellSize; implicitHeight: root.cellSize
+                                    buttonRadius: implicitHeight / 2
 
-                                onClicked: {
-                                    if (cell.today === -1) return
-                                    root.pendingDateStr = dateStr
+                                    readonly property int row: parent.index
+                                    readonly property var cell: root.calendarLayout[row][index]
+                                    readonly property string dateStr: cell.today === -1 ? "" :
+                                        root.__formatDate(root.viewingDate.getFullYear(), root.viewingDate.getMonth() + 1, cell.day)
+                                    readonly property bool isCurrent: cell.today === 1
+                                    readonly property bool isPending: dateStr.length > 0 && dateStr === root.pendingDateStr
+                                    readonly property bool isSelected: dateStr.length > 0 && dateStr === root.__toCanonicalDateStr(root.currentDateStr)
+
+                                    colBackground: isPending ? Appearance.colors.colPrimary : "transparent"
+                                    colBackgroundHover: isPending ? Appearance.colors.colPrimary : Appearance.colors.colLayer2Hover
+
+                                    onClicked: {
+                                        if (cell.today === -1) return
+                                        root.pendingDateStr = dateStr
+                                        root.inputText = root.__formatDisplayByStyle(dateStr)
+                                    }
+
+                                    Rectangle {
+                                        anchors.fill: parent
+                                        radius: height / 2
+                                        border.width: 2 * Appearance.effectiveScale
+                                        border.color: Appearance.colors.colPrimary
+                                        color: "transparent"
+                                        visible: isSelected && !isPending
+                                    }
+
+                                    contentItem: StyledText {
+                                        horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
+                                        text: cell.day.toString()
+                                        font.pixelSize: Appearance.font.pixelSize.small
+                                        font.weight: Font.Normal
+                                        color: isPending ? Appearance.m3colors.m3onPrimary
+                                            : cell.today === -1 ? Appearance.colors.colOutlineVariant
+                                            : Appearance.colors.colOnLayer1
+                                    }
                                 }
+                            }
+                        }
+                    }
+                }
 
-                                Rectangle {
-                                    anchors.fill: parent
-                                    radius: height / 2
-                                    border.width: 2 * Appearance.effectiveScale
-                                    border.color: Appearance.colors.colPrimary
-                                    color: "transparent"
-                                    visible: isSelected && !isPending
-                                }
+                Item {
+                    visible: root.yearMode
+                    Layout.fillWidth: true
+                    implicitHeight: root.__monthGridTotal + 48 * Appearance.effectiveScale
 
-                                contentItem: StyledText {
-                                    horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
-                                    text: cell.day.toString()
-                                    font.pixelSize: Appearance.font.pixelSize.small
-                                    font.weight: isCurrent ? Font.DemiBold : Font.Normal
-                                    color: isPending ? Appearance.m3colors.m3onPrimary
-                                        : cell.today === -1 ? Appearance.colors.colOutlineVariant
-                                        : Appearance.colors.colOnLayer1
+                    Flickable {
+                        id: yearFlickable
+                        anchors.fill: parent
+                        contentHeight: yearFlow.implicitHeight
+                        clip: true
+                        boundsBehavior: Flickable.StopAtBounds
+                        onVisibleChanged: if (visible) {
+                            const cy = new Date().getFullYear()
+                            const row = Math.floor((cy - root.yearRangeStart) / 4)
+                            const rowY = row * (root.cellSize + yearFlow.spacing)
+                            contentY = Math.max(0, rowY - (height - root.cellSize) / 2)
+                        }
+
+                        Flow {
+                            id: yearFlow
+                            width: parent.width
+                            spacing: 4 * Appearance.effectiveScale
+
+                            Repeater {
+                                model: 100
+
+                                delegate: RippleButton {
+                                    required property int index
+                                    implicitWidth: (yearFlow.width - 3 * yearFlow.spacing) / 4
+                                    implicitHeight: root.cellSize
+                                    buttonRadius: implicitHeight / 2
+
+                                    readonly property int year: root.yearRangeStart + index
+                                    readonly property bool isCurrent: year === new Date().getFullYear()
+
+                                    colBackground: isCurrent ? Appearance.colors.colPrimary : "transparent"
+                                    colBackgroundHover: isCurrent ? Appearance.colors.colPrimary : Appearance.colors.colLayer2Hover
+
+                                    onClicked: {
+                                        const target = new Date(year, root.viewingDate.getMonth(), 1)
+                                        const today = new Date()
+                                        root.monthShift = (target.getFullYear() - today.getFullYear()) * 12
+                                            + (target.getMonth() - today.getMonth())
+                                        root.yearMode = false
+                                    }
+
+                                    contentItem: StyledText {
+                                        horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
+                                        text: year.toString()
+                                        font.pixelSize: Appearance.font.pixelSize.small
+                                        font.weight: Font.Normal
+                                        color: isCurrent ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer1
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+        }
 
-            Item {
-                visible: root.yearMode
+        // ── MODE 1: TEXT INPUT VIEW (Polkit StyledTextInput) ──
+        ColumnLayout {
+            visible: root.selectMode === 1
+            Layout.fillWidth: true
+            Layout.leftMargin: 24 * Appearance.effectiveScale
+            Layout.rightMargin: 24 * Appearance.effectiveScale
+            Layout.topMargin: 16 * Appearance.effectiveScale
+            Layout.bottomMargin: 20 * Appearance.effectiveScale
+            spacing: 8 * Appearance.effectiveScale
+
+            Rectangle {
                 Layout.fillWidth: true
-                implicitHeight: root.__monthGridTotal + 48 * Appearance.effectiveScale
+                implicitHeight: 56 * Appearance.effectiveScale
+                radius: 8 * Appearance.effectiveScale
+                color: "transparent"
+                border.width: 2 * Appearance.effectiveScale
+                border.color: dateInput.input.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline
 
-                Flickable {
-                    id: yearFlickable
-                    anchors.fill: parent
-                    contentHeight: yearFlow.implicitHeight
-                    clip: true
-                    boundsBehavior: Flickable.StopAtBounds
-                    onVisibleChanged: if (visible) {
-                        const cy = new Date().getFullYear()
-                        const row = Math.floor((cy - root.yearRangeStart) / 4)
-                        const rowY = row * (root.cellSize + yearFlow.spacing)
-                        contentY = Math.max(0, rowY - (height - root.cellSize) / 2)
+                // Floating "Date" Label
+                Rectangle {
+                    x: 12 * Appearance.effectiveScale
+                    y: -8 * Appearance.effectiveScale
+                    implicitWidth: dateLabel.implicitWidth + 8 * Appearance.effectiveScale
+                    implicitHeight: dateLabel.implicitHeight
+                    color: Appearance.m3colors.m3surfaceContainerHigh
+
+                    StyledText {
+                        id: dateLabel
+                        anchors.centerIn: parent
+                        text: "Date"
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        font.weight: Font.Medium
+                        color: dateInput.input.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline
                     }
+                }
 
-                    Flow {
-                        id: yearFlow
-                        width: parent.width
-                        spacing: 4 * Appearance.effectiveScale
+                StyledTextInput {
+                    id: dateInput
+                    anchors.fill: parent
+                    anchors.leftMargin: 16 * Appearance.effectiveScale
+                    anchors.rightMargin: 16 * Appearance.effectiveScale
+                    inputRadius: 0
+                    backgroundColor: "transparent"
+                    borderInactiveWidth: 0
+                    showActiveBorder: false
+                    leftMargin: 0
+                    rightMargin: 0
+                    placeholder: root.dateStyle === "YMD" ? "YYYY/MM/DD" : (root.dateStyle === "MDY" ? "MM/DD/YYYY" : "DD/MM/YYYY")
+                    font.pixelSize: Appearance.font.pixelSize.normal
+                    text: root.inputText
+                    color: Appearance.m3colors.m3onSurface
 
-                        Repeater {
-                            model: 100
+                    property int _lastLen: 0
 
-                            delegate: RippleButton {
-                                required property int index
-                                implicitWidth: (yearFlow.width - 3 * yearFlow.spacing) / 4
-                                implicitHeight: root.cellSize
-                                buttonRadius: implicitHeight / 2
-
-                                readonly property int year: root.yearRangeStart + index
-                                readonly property bool isCurrent: year === new Date().getFullYear()
-
-                                colBackground: isCurrent ? Appearance.colors.colPrimary : "transparent"
-                                colBackgroundHover: isCurrent ? Appearance.colors.colPrimary : Appearance.colors.colLayer2Hover
-
-                                onClicked: {
-                                    const target = new Date(year, root.viewingDate.getMonth(), 1)
-                                    const today = new Date()
-                                    root.monthShift = (target.getFullYear() - today.getFullYear()) * 12
-                                        + (target.getMonth() - today.getMonth())
-                                    root.yearMode = false
-                                }
-
-                                contentItem: StyledText {
-                                    horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
-                                    text: year.toString()
-                                    font.pixelSize: Appearance.font.pixelSize.small
-                                    font.weight: isCurrent ? Font.DemiBold : Font.Normal
-                                    color: isCurrent ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer1
-                                }
+                    onTextChanged: {
+                        if (root.selectMode === 1 && input.activeFocus) {
+                            let isDeleting = text.length < _lastLen
+                            _lastLen = text.length
+                            let formatted = root.__formatTypedDateInput(text, isDeleting)
+                            if (formatted !== text) {
+                                text = formatted
+                            }
+                            let p = root.__parseAnyDate(text)
+                            if (p) {
+                                root.pendingDateStr = root.__formatDate(p.year, p.month, p.day)
+                                root.__setViewingMonth()
                             }
                         }
                     }
@@ -323,8 +512,9 @@ Item {
                 colBackground: "transparent"; colBackgroundHover: Appearance.colors.colLayer2Hover
                 onClicked: {
                     if (root.pendingDateStr) {
-                        root.currentDateStr = root.pendingDateStr
-                        root.dateSelected(root.pendingDateStr)
+                        let displayStr = root.__formatDisplayByStyle(root.pendingDateStr)
+                        root.currentDateStr = displayStr
+                        root.dateSelected(displayStr)
                     }
                 }
                 contentItem: StyledText {

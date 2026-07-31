@@ -157,9 +157,18 @@ Item {
 
     function _formatDeadline(deadline, deadlineTime) {
         if (!deadline) return ""
-        const parts = deadline.split("-")
+        const parts = deadline.split(/[-/]/)
         if (parts.length !== 3) return deadline
-        let display = parseInt(parts[2]) + "/" + parseInt(parts[1])
+        const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+        let display = ""
+        if (parts[0].length === 4) {
+            // YYYY-MM-DD input
+            if (style === "YMD") display = parts[0] + "/" + parts[1] + "/" + parts[2]
+            else if (style === "MDY") display = parts[1] + "/" + parts[2]
+            else display = parts[2] + "/" + parts[1]
+        } else {
+            display = deadline
+        }
         if (deadlineTime) display += " " + deadlineTime
         return display
     }
@@ -236,7 +245,15 @@ Item {
     }
 
     function _defaultDeadlineDate() {
-        return Qt.formatDate(new Date(), "yyyy-MM-dd")
+        let now = new Date()
+        let y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate()
+        const ys = String(y).padStart(4, '0')
+        const ms = String(m).padStart(2, '0')
+        const ds = String(d).padStart(2, '0')
+        let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+        if (style === "YMD") return ys + "/" + ms + "/" + ds
+        if (style === "MDY") return ms + "/" + ds + "/" + ys
+        return ds + "/" + ms + "/" + ys
     }
 
     function _defaultDeadlineTime() {
@@ -803,7 +820,7 @@ Item {
                                             Layout.fillWidth: true
                                             Layout.fillHeight: true
                                             text: modelData._tmpDate || modelData.deadline || root._defaultDeadlineDate()
-                                            inputMask: "9999-99-99"
+                                            placeholder: Config.ready && Config.options.time && Config.options.time.dateStyle === "YMD" ? "YYYY/MM/DD" : (Config.ready && Config.options.time && Config.options.time.dateStyle === "MDY" ? "MM/DD/YYYY" : "DD/MM/YYYY")
                                             backgroundColor: "transparent"
                                             inputRadius: 0
                                             borderInactiveWidth: 0
@@ -811,7 +828,28 @@ Item {
                                             leftMargin: 0
                                             rightMargin: 0
                                             font.pixelSize: Appearance.font.pixelSize.small
-                                            onTextChanged: { if (modelData) modelData._tmpDate = text }
+                                            property int _lastLen: 0
+                                            onTextChanged: {
+                                                if (_dlDateField.input.activeFocus) {
+                                                    let isDeleting = text.length < _lastLen
+                                                    _lastLen = text.length
+                                                    let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+                                                    let digits = text.replace(/\D/g, '').substring(0, 8)
+                                                    let formatted = text
+                                                    if (style === "YMD") {
+                                                        if (digits.length > 4 && digits.length <= 6) formatted = digits.substring(0, 4) + "/" + digits.substring(4)
+                                                        else if (digits.length > 6) formatted = digits.substring(0, 4) + "/" + digits.substring(4, 6) + "/" + digits.substring(6)
+                                                        else formatted = digits
+                                                    } else {
+                                                        if (digits.length > 2 && digits.length <= 4) formatted = digits.substring(0, 2) + "/" + digits.substring(2)
+                                                        else if (digits.length > 4) formatted = digits.substring(0, 2) + "/" + digits.substring(2, 4) + "/" + digits.substring(4)
+                                                        else formatted = digits
+                                                    }
+                                                    if (isDeleting && text.endsWith("/")) formatted = formatted.substring(0, formatted.length - 1)
+                                                    if (formatted !== text) text = formatted
+                                                }
+                                                if (modelData) modelData._tmpDate = text
+                                            }
                                         }
                                         RippleButton {
                                             implicitWidth: 24 * Appearance.effectiveScale

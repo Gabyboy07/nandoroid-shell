@@ -130,6 +130,7 @@ Item {
         anchors.fill: parent
     }
 
+    // Role 7: Surface container high (Dialog Card Background)
     Rectangle {
         anchors.fill: parent
         radius: Appearance.rounding.card
@@ -141,7 +142,7 @@ Item {
         anchors.fill: parent
         spacing: 0
 
-        // Header Title
+        // Role 1: On surface variant (Title text "Select time" / "Enter time")
         StyledText {
             text: root.selectMode === 0 ? "Select time" : "Enter time"
             Layout.leftMargin: 24 * Appearance.effectiveScale
@@ -149,7 +150,7 @@ Item {
             Layout.bottomMargin: 24 * Appearance.effectiveScale
             font.pixelSize: Appearance.font.pixelSize.small
             font.weight: Font.Medium
-            color: Appearance.colors.colSubtext
+            color: Appearance.m3colors.m3onSurfaceVariant
         }
 
         // Time Display Area (Hours : Minutes + AM/PM)
@@ -162,14 +163,17 @@ Item {
             ColumnLayout {
                 Layout.alignment: Qt.AlignTop
                 spacing: 6 * Appearance.effectiveScale
+
+                // Role 17: Primary container (Active) / Role 3: Surface container highest (Inactive)
                 Rectangle {
                     implicitWidth: 96 * Appearance.effectiveScale
                     implicitHeight: 80 * Appearance.effectiveScale
                     radius: 12 * Appearance.effectiveScale
-                    color: root.activeField === 0 ? Appearance.m3colors.m3primaryContainer : Appearance.colors.colLayer2
+                    color: root.activeField === 0 ? Appearance.m3colors.m3primaryContainer : Appearance.m3colors.m3surfaceContainerHighest
                     border.width: (root.selectMode === 1 && root.activeField === 0) ? 2 * Appearance.effectiveScale : 0
-                    border.color: Appearance.colors.colPrimary
+                    border.color: Appearance.m3colors.m3primary
 
+                    // Role 16: On primary container (Active text) / Role 4: On surface (Inactive text)
                     StyledTextInput {
                         id: hourInput
                         anchors.fill: parent
@@ -177,7 +181,7 @@ Item {
                         text: String(root.selectedHour).padStart(2, '0')
                         font.pixelSize: Math.round(48 * Appearance.effectiveScale)
                         font.weight: Font.Normal
-                        color: root.activeField === 0 ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer1
+                        color: root.activeField === 0 ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
                         readOnly: root.selectMode === 0
                         inputMask: "99"
                         backgroundColor: "transparent"
@@ -214,22 +218,24 @@ Item {
                         onClicked: root.activeField = 0
                     }
                 }
+
+                // Role 1: On surface variant ("Hour" label)
                 StyledText {
                     visible: root.selectMode === 1
                     text: "Hour"
                     Layout.alignment: Qt.AlignLeft
                     Layout.leftMargin: 4 * Appearance.effectiveScale
                     font.pixelSize: Appearance.font.pixelSize.smaller
-                    color: Appearance.colors.colSubtext
+                    color: Appearance.m3colors.m3onSurfaceVariant
                 }
             }
 
-            // Colon Separator
+            // Role 2: On surface (Separator ":")
             StyledText {
                 text: ":"
                 font.pixelSize: Math.round(48 * Appearance.effectiveScale)
                 font.weight: Font.Normal
-                color: Appearance.colors.colOnLayer1
+                color: Appearance.m3colors.m3onSurface
                 Layout.alignment: Qt.AlignTop
                 Layout.topMargin: 12 * Appearance.effectiveScale
             }
@@ -238,14 +244,17 @@ Item {
             ColumnLayout {
                 Layout.alignment: Qt.AlignTop
                 spacing: 6 * Appearance.effectiveScale
+
+                // Role 17: Primary container (Active) / Role 3: Surface container highest (Inactive)
                 Rectangle {
                     implicitWidth: 96 * Appearance.effectiveScale
                     implicitHeight: 80 * Appearance.effectiveScale
                     radius: 12 * Appearance.effectiveScale
-                    color: root.activeField === 1 ? Appearance.m3colors.m3primaryContainer : Appearance.colors.colLayer2
+                    color: root.activeField === 1 ? Appearance.m3colors.m3primaryContainer : Appearance.m3colors.m3surfaceContainerHighest
                     border.width: (root.selectMode === 1 && root.activeField === 1) ? 2 * Appearance.effectiveScale : 0
-                    border.color: Appearance.colors.colPrimary
+                    border.color: Appearance.m3colors.m3primary
 
+                    // Role 16: On primary container (Active text) / Role 4: On surface (Inactive text)
                     StyledTextInput {
                         id: minuteInput
                         anchors.fill: parent
@@ -253,7 +262,7 @@ Item {
                         text: String(root.selectedMinute).padStart(2, '0')
                         font.pixelSize: Math.round(48 * Appearance.effectiveScale)
                         font.weight: Font.Normal
-                        color: root.activeField === 1 ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer1
+                        color: root.activeField === 1 ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
                         readOnly: root.selectMode === 0
                         inputMask: "99"
                         backgroundColor: "transparent"
@@ -286,103 +295,66 @@ Item {
                         onClicked: root.activeField = 1
                     }
                 }
+
+                // Role 1: On surface variant ("Minute" label)
                 StyledText {
                     visible: root.selectMode === 1
                     text: "Minute"
                     Layout.alignment: Qt.AlignLeft
                     Layout.leftMargin: 4 * Appearance.effectiveScale
                     font.pixelSize: Appearance.font.pixelSize.smaller
-                    color: Appearance.colors.colSubtext
+                    color: Appearance.m3colors.m3onSurfaceVariant
                 }
             }
 
-            // AM/PM Vertical Segmented Toggle Button
-            Rectangle {
+            // AM/PM Vertical Toggle Buttons (Narrow 52px width, 4px gap, smooth 38px rounded pill)
+            ColumnLayout {
                 visible: !root.is24Hour
                 Layout.alignment: Qt.AlignTop
                 implicitWidth: 52 * Appearance.effectiveScale
+                Layout.preferredWidth: 52 * Appearance.effectiveScale
                 implicitHeight: 80 * Appearance.effectiveScale
-                radius: 12 * Appearance.effectiveScale
-                color: Appearance.colors.colLayer2
-                border.width: 1 * Appearance.effectiveScale
-                border.color: Appearance.colors.colOutlineVariant
+                Layout.preferredHeight: 80 * Appearance.effectiveScale
+                spacing: 4 * Appearance.effectiveScale
 
-                ColumnLayout {
-                    anchors.fill: parent
-                    spacing: 0
+                SegmentedButton {
+                    implicitWidth: 52 * Appearance.effectiveScale
+                    Layout.preferredWidth: 52 * Appearance.effectiveScale
+                    implicitHeight: 38 * Appearance.effectiveScale
+                    Layout.preferredHeight: 38 * Appearance.effectiveScale
+                    Layout.fillWidth: false
+                    orientation: Qt.Vertical
+                    pillOnActive: true
+                    fullRadius: 19 * Appearance.effectiveScale
+                    leftPadding: 0
+                    rightPadding: 0
+                    buttonText: "AM"
+                    checked: root.amPm === "AM"
+                    colActive: Appearance.m3colors.m3tertiaryContainer
+                    colInactive: Appearance.m3colors.m3surfaceContainerHighest
+                    colActiveText: Appearance.m3colors.m3onTertiaryContainer
+                    colInactiveText: Appearance.m3colors.m3onSurfaceVariant
+                    onClicked: root.amPm = "AM"
+                }
 
-                    // AM Button
-                    Rectangle {
-                        id: amRect
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        topLeftRadius: 11 * Appearance.effectiveScale
-                        topRightRadius: 11 * Appearance.effectiveScale
-                        bottomLeftRadius: 0
-                        bottomRightRadius: 0
-
-                        readonly property bool isSelected: root.amPm === "AM"
-                        readonly property bool isHovered: amMouseArea.containsMouse
-
-                        color: isSelected ? Appearance.m3colors.m3tertiaryContainer :
-                            (isHovered ? Appearance.colors.colLayer2Hover : "transparent")
-
-                        MouseArea {
-                            id: amMouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: root.amPm = "AM"
-                        }
-
-                        StyledText {
-                            anchors.centerIn: parent
-                            text: "AM"
-                            font.pixelSize: Appearance.font.pixelSize.smaller
-                            font.weight: Font.DemiBold
-                            color: parent.isSelected ? Appearance.m3colors.m3onTertiaryContainer : Appearance.colors.colSubtext
-                        }
-                    }
-
-                    // Divider
-                    Rectangle {
-                        Layout.fillWidth: true
-                        implicitHeight: 1 * Appearance.effectiveScale
-                        color: Appearance.colors.colOutlineVariant
-                    }
-
-                    // PM Button
-                    Rectangle {
-                        id: pmRect
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        topLeftRadius: 0
-                        topRightRadius: 0
-                        bottomLeftRadius: 11 * Appearance.effectiveScale
-                        bottomRightRadius: 11 * Appearance.effectiveScale
-
-                        readonly property bool isSelected: root.amPm === "PM"
-                        readonly property bool isHovered: pmMouseArea.containsMouse
-
-                        color: isSelected ? Appearance.m3colors.m3tertiaryContainer :
-                            (isHovered ? Appearance.colors.colLayer2Hover : "transparent")
-
-                        MouseArea {
-                            id: pmMouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: root.amPm = "PM"
-                        }
-
-                        StyledText {
-                            anchors.centerIn: parent
-                            text: "PM"
-                            font.pixelSize: Appearance.font.pixelSize.smaller
-                            font.weight: Font.DemiBold
-                            color: parent.isSelected ? Appearance.m3colors.m3onTertiaryContainer : Appearance.colors.colSubtext
-                        }
-                    }
+                SegmentedButton {
+                    implicitWidth: 52 * Appearance.effectiveScale
+                    Layout.preferredWidth: 52 * Appearance.effectiveScale
+                    implicitHeight: 38 * Appearance.effectiveScale
+                    Layout.preferredHeight: 38 * Appearance.effectiveScale
+                    Layout.fillWidth: false
+                    orientation: Qt.Vertical
+                    pillOnActive: true
+                    fullRadius: 19 * Appearance.effectiveScale
+                    leftPadding: 0
+                    rightPadding: 0
+                    buttonText: "PM"
+                    checked: root.amPm === "PM"
+                    colActive: Appearance.m3colors.m3tertiaryContainer
+                    colInactive: Appearance.m3colors.m3surfaceContainerHighest
+                    colActiveText: Appearance.m3colors.m3onTertiaryContainer
+                    colInactiveText: Appearance.m3colors.m3onSurfaceVariant
+                    onClicked: root.amPm = "PM"
                 }
             }
         }
@@ -395,12 +367,12 @@ Item {
             implicitWidth: root.dialSize
             implicitHeight: root.dialSize
 
-            // Dial Circle Background
+            // Role 15: Surface container highest (Dial Face Background Circle)
             Rectangle {
                 id: dialBackground
                 anchors.fill: parent
                 radius: width / 2
-                color: Appearance.colors.colLayer2
+                color: Appearance.m3colors.m3surfaceContainerHighest
 
                 MouseArea {
                     id: dialMouseArea
@@ -436,17 +408,17 @@ Item {
                     onReleased: mouse => handleMouse(mouse.x, mouse.y, true)
                 }
 
-                // Center Pin
+                // Role 10: Primary (Center Pin)
                 Rectangle {
                     width: 6 * Appearance.effectiveScale
                     height: 6 * Appearance.effectiveScale
                     radius: width / 2
-                    color: Appearance.colors.colPrimary
+                    color: Appearance.m3colors.m3primary
                     anchors.centerIn: parent
                     z: 5
                 }
 
-                // ── LAYER 1: Base Dial Numbers (Gray Text) ──
+                // ── LAYER 1: Base Dial Numbers (Role 14: On surface) ──
                 Repeater {
                     model: 12
 
@@ -470,7 +442,7 @@ Item {
                             text: parent.displayStr
                             font.pixelSize: Math.round(16 * Appearance.effectiveScale)
                             font.weight: Font.Normal
-                            color: Appearance.colors.colOnLayer1
+                            color: Appearance.m3colors.m3onSurface
                         }
                     }
                 }
@@ -490,7 +462,7 @@ Item {
                         NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
                     }
 
-                    // Anti-aliased Smooth Vector Line for Hand Indicator
+                    // Role 10: Primary (Hand Line)
                     Shape {
                         anchors.centerIn: parent
                         width: 0
@@ -498,7 +470,7 @@ Item {
                         antialiasing: true
 
                         ShapePath {
-                            strokeColor: Appearance.colors.colPrimary
+                            strokeColor: Appearance.m3colors.m3primary
                             strokeWidth: 2 * Appearance.effectiveScale
                             fillColor: "transparent"
                             capStyle: ShapePath.RoundCap
@@ -508,19 +480,19 @@ Item {
                         }
                     }
 
-                    // Highlight Knob Disc (48px primary circle)
+                    // Role 11: Primary (Knob Disc)
                     Rectangle {
                         x: -root.knobRadius
                         y: -root.dialRadius - root.knobRadius
                         width: root.knobRadius * 2
                         height: root.knobRadius * 2
                         radius: root.knobRadius
-                        color: Appearance.colors.colPrimary
+                        color: Appearance.m3colors.m3primary
                         antialiasing: true
                     }
                 }
 
-                // ── LAYER 3: Circular Clipped Contrast Overlay (Half-and-Half Split Effect) ──
+                // ── LAYER 3: Circular Clipped Contrast Overlay (On primary text inside knob) ──
                 Item {
                     id: knobClippedContainer
                     x: root.currentKnobX - root.knobRadius
@@ -588,7 +560,7 @@ Item {
             Layout.topMargin: 12 * Appearance.effectiveScale
             spacing: 8 * Appearance.effectiveScale
 
-            // Switch Mode Button (Keyboard <-> Clock Dial)
+            // Role 13: On surface variant (Switch Mode Button)
             RippleButton {
                 implicitWidth: 40 * Appearance.effectiveScale
                 implicitHeight: 40 * Appearance.effectiveScale
@@ -605,13 +577,13 @@ Item {
                     text: root.selectMode === 0 ? "keyboard" : "schedule"
                     iconSize: 22 * Appearance.effectiveScale
                     horizontalAlignment: Text.AlignHCenter
-                    color: Appearance.colors.colOnLayer1
+                    color: Appearance.m3colors.m3onSurfaceVariant
                 }
             }
 
             Item { Layout.fillWidth: true }
 
-            // Cancel Button
+            // Role 12: Primary (Cancel Button)
             RippleButton {
                 implicitHeight: 40 * Appearance.effectiveScale
                 buttonRadius: Appearance.rounding.full
@@ -622,11 +594,11 @@ Item {
                     text: "Cancel"
                     font.pixelSize: Appearance.font.pixelSize.small
                     font.weight: Font.Medium
-                    color: Appearance.colors.colPrimary
+                    color: Appearance.m3colors.m3primary
                 }
             }
 
-            // OK Button
+            // Role 12: Primary (OK Button)
             RippleButton {
                 implicitHeight: 40 * Appearance.effectiveScale
                 buttonRadius: Appearance.rounding.full
@@ -637,7 +609,7 @@ Item {
                     text: "OK"
                     font.pixelSize: Appearance.font.pixelSize.small
                     font.weight: Font.Medium
-                    color: Appearance.colors.colPrimary
+                    color: Appearance.m3colors.m3primary
                 }
             }
         }

@@ -17,7 +17,44 @@ Item {
     // ── State ──
     property string selectedId: ""
     property string formTitle: ""
-    property string formDate: Qt.formatDate(new Date(), "yyyy-MM-dd")
+    function _formatDateObj(d) {
+        if (!d) return ""
+        let y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate()
+        const ys = String(y).padStart(4, '0')
+        const ms = String(m).padStart(2, '0')
+        const ds = String(day).padStart(2, '0')
+        let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+        if (style === "YMD") return ys + "/" + ms + "/" + ds
+        if (style === "MDY") return ms + "/" + ds + "/" + ys
+        return ds + "/" + ms + "/" + ys
+    }
+
+    function _formatDateByConfig(dStr) {
+        if (!dStr) return ""
+        let parts = dStr.trim().split(/[-/]/).map(Number)
+        if (parts.length < 3 || parts.some(isNaN)) return dStr
+        let y, m, d
+        if (parts[0] > 1000) { y = parts[0]; m = parts[1]; d = parts[2] }
+        else if (parts[2] > 1000) {
+            let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+            if (style === "MDY") { m = parts[0]; d = parts[1]; y = parts[2] }
+            else { d = parts[0]; m = parts[1]; y = parts[2] }
+        } else return dStr
+
+        const ys = String(y).padStart(4, '0')
+        const ms = String(m).padStart(2, '0')
+        const ds = String(d).padStart(2, '0')
+        let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+        if (style === "YMD") return ys + "/" + ms + "/" + ds
+        if (style === "MDY") return ms + "/" + ds + "/" + ys
+        return ds + "/" + ms + "/" + ys
+    }
+
+    function _defaultDateStr() {
+        return _formatDateObj(new Date())
+    }
+
+    property string formDate: _defaultDateStr()
     property string formTime: "00:00"
     property string formEndTime: "01:00"
     property string formRecurrence: "once" // once | daily | weekly | monthly
@@ -50,7 +87,6 @@ Item {
         let nextH = (now.getHours() + 1) % 24;
         let date = new Date(now);
         if (nextH <= now.getHours()) date.setDate(date.getDate() + 1);
-        const dateStr = Qt.formatDate(date, "yyyy-MM-dd");
 
         const nextHStr = String(nextH).padStart(2, '0') + ":00";
         const endH = (nextH + 1) % 24;
@@ -58,12 +94,12 @@ Item {
 
         let endDate = new Date(date);
         if (endH <= nextH) endDate.setDate(endDate.getDate() + 1);
-        const endDateStr = Qt.formatDate(endDate, "yyyy-MM-dd");
 
         formTitle = "";
-        formDate = dateStr;
-        formTime = nextHStr; formEndTime = endHStr; formRecurrence = "once";
-        formEndDate = endDateStr;
+        formDate = _formatDateObj(date);
+        formTime = nextHStr;
+        formEndTime = endHStr;
+        formEndDate = _formatDateObj(endDate);
         formDescription = ""; formFocus = false
     }
 
@@ -278,10 +314,10 @@ Item {
 
                                 root.selectedId = ""
                                 root.formTitle = modelData.title
-                                root.formDate = modelData.date
+                                root.formDate = root._formatDateByConfig(modelData.date)
                                 root.formTime = modelData.time
                                 root.formEndTime = modelData.endTime || ""
-                                root.formEndDate = modelData.endDate || ""
+                                root.formEndDate = root._formatDateByConfig(modelData.endDate || "")
                                 root.formRecurrence = modelData.recurrence
                                 root.formDescription = modelData.description || ""
                                 root.formFocus = modelData.focus || false
@@ -376,14 +412,36 @@ Item {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             text: root.formDate
-                            inputMask: "9999-99-99"
+                            placeholder: Config.ready && Config.options.time && Config.options.time.dateStyle === "YMD" ? "YYYY/MM/DD" : (Config.ready && Config.options.time && Config.options.time.dateStyle === "MDY" ? "MM/DD/YYYY" : "DD/MM/YYYY")
                             backgroundColor: "transparent"
                             inputRadius: 0
                             borderInactiveWidth: 0
                             showActiveBorder: false
                             leftMargin: 0
                             rightMargin: 0
-                            onTextChanged: { root.formDate = text; if(root.selectedId && dateField.input.activeFocus) autoSaveTimer.restart() }
+                            property int _lastLen: 0
+                            onTextChanged: {
+                                if (dateField.input.activeFocus) {
+                                    let isDeleting = text.length < _lastLen
+                                    _lastLen = text.length
+                                    let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+                                    let digits = text.replace(/\D/g, '').substring(0, 8)
+                                    let formatted = text
+                                    if (style === "YMD") {
+                                        if (digits.length > 4 && digits.length <= 6) formatted = digits.substring(0, 4) + "/" + digits.substring(4)
+                                        else if (digits.length > 6) formatted = digits.substring(0, 4) + "/" + digits.substring(4, 6) + "/" + digits.substring(6)
+                                        else formatted = digits
+                                    } else {
+                                        if (digits.length > 2 && digits.length <= 4) formatted = digits.substring(0, 2) + "/" + digits.substring(2)
+                                        else if (digits.length > 4) formatted = digits.substring(0, 2) + "/" + digits.substring(2, 4) + "/" + digits.substring(4)
+                                        else formatted = digits
+                                    }
+                                    if (isDeleting && text.endsWith("/")) formatted = formatted.substring(0, formatted.length - 1)
+                                    if (formatted !== text) text = formatted
+                                }
+                                root.formDate = text
+                                if (root.selectedId && dateField.input.activeFocus) autoSaveTimer.restart()
+                            }
                         }
                         RippleButton {
                             implicitWidth: 28 * Appearance.effectiveScale
@@ -469,14 +527,36 @@ Item {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             text: root.formEndDate
-                            placeholder: "yyyy-mm-dd"
+                            placeholder: Config.ready && Config.options.time && Config.options.time.dateStyle === "YMD" ? "YYYY/MM/DD" : (Config.ready && Config.options.time && Config.options.time.dateStyle === "MDY" ? "MM/DD/YYYY" : "DD/MM/YYYY")
                             backgroundColor: "transparent"
                             inputRadius: 0
                             borderInactiveWidth: 0
                             showActiveBorder: false
                             leftMargin: 0
                             rightMargin: 0
-                            onTextChanged: { root.formEndDate = text; if(root.selectedId && endDateField.input.activeFocus) autoSaveTimer.restart() }
+                            property int _lastLen: 0
+                            onTextChanged: {
+                                if (endDateField.input.activeFocus) {
+                                    let isDeleting = text.length < _lastLen
+                                    _lastLen = text.length
+                                    let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+                                    let digits = text.replace(/\D/g, '').substring(0, 8)
+                                    let formatted = text
+                                    if (style === "YMD") {
+                                        if (digits.length > 4 && digits.length <= 6) formatted = digits.substring(0, 4) + "/" + digits.substring(4)
+                                        else if (digits.length > 6) formatted = digits.substring(0, 4) + "/" + digits.substring(4, 6) + "/" + digits.substring(6)
+                                        else formatted = digits
+                                    } else {
+                                        if (digits.length > 2 && digits.length <= 4) formatted = digits.substring(0, 2) + "/" + digits.substring(2)
+                                        else if (digits.length > 4) formatted = digits.substring(0, 2) + "/" + digits.substring(2, 4) + "/" + digits.substring(4)
+                                        else formatted = digits
+                                    }
+                                    if (isDeleting && text.endsWith("/")) formatted = formatted.substring(0, formatted.length - 1)
+                                    if (formatted !== text) text = formatted
+                                }
+                                root.formEndDate = text
+                                if (root.selectedId && endDateField.input.activeFocus) autoSaveTimer.restart()
+                            }
                         }
                         RippleButton {
                             implicitWidth: 28 * Appearance.effectiveScale
