@@ -167,9 +167,9 @@ Item {
     // Dropdown Popup
     Popup {
         id: dropdownPopup
-        y: bg.height + 4 * Appearance.effectiveScale
+        y: root.computePopupY()
         width: root.width
-        padding: 0
+        padding: 4 * Appearance.effectiveScale
         margins: 0
         z: 2000
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent | Popup.CloseOnPressOutside
@@ -192,11 +192,10 @@ Item {
 
         contentItem: ListView {
             id: listView
-            implicitHeight: Math.min(root.maxHeight, contentHeight + 8 * Appearance.effectiveScale)
+            implicitHeight: Math.min(root.maxHeight - 8 * Appearance.effectiveScale, contentHeight)
             model: root.filteredModel
             boundsBehavior: Flickable.StopAtBounds
             clip: true
-            anchors.margins: 4 * Appearance.effectiveScale
             highlightFollowsCurrentItem: true
             highlight: Rectangle {
                 color: Appearance.colors.colLayer2Hover
@@ -245,6 +244,41 @@ Item {
         }
     }
     
+    function findViewport() {
+        var p = root.parent;
+        while (p !== null && p !== undefined) {
+            if (p instanceof Flickable) return p;
+            p = p.parent;
+        }
+        return null;
+    }
+
+    function popupHeight() {
+        return Math.min(root.maxHeight, listView.contentHeight + 8 * Appearance.effectiveScale);
+    }
+
+    function computePopupY() {
+        const gap = 4 * Appearance.effectiveScale;
+        const h = root.popupHeight();
+        const vp = root.findViewport();
+        if (vp) {
+            const contentY = vp.contentY;
+            const topInContent = root.mapToItem(vp.contentItem, 0, 0).y;
+            const bottomInContent = root.mapToItem(vp.contentItem, 0, bg.height).y;
+            const spaceAbove = topInContent - contentY;
+            const spaceBelow = vp.height - (bottomInContent - contentY);
+            if (spaceBelow >= h) return bg.height + gap;
+            if (spaceAbove >= h) return -(h + gap);
+            return (spaceBelow >= spaceAbove) ? (bg.height + gap) : -(h + gap);
+        }
+        const win = root.Window;
+        if (win) {
+            const spaceBelow = win.height - root.mapToItem(null, 0, bg.height).y;
+            if (spaceBelow >= h) return bg.height + gap;
+        }
+        return -(h + gap);
+    }
+
     function syncPopup() {
         if (root.isOpened) {
             dropdownPopup.open();
