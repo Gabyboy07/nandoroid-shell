@@ -45,7 +45,7 @@ ColumnLayout {
             text: "Notification Center"
             font.pixelSize: Appearance.font.pixelSize.small
             font.weight: Font.Medium
-            color: Appearance.colors.colPrimary
+            color: Appearance.colors.colOnLayer1
         }
 
         ColumnLayout {
@@ -131,7 +131,7 @@ ColumnLayout {
             text: "Quick Settings"
             font.pixelSize: Appearance.font.pixelSize.small
             font.weight: Font.Medium
-            color: Appearance.colors.colPrimary
+            color: Appearance.colors.colOnLayer1
             Layout.topMargin: 12 * Appearance.effectiveScale
         }
 

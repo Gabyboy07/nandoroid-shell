@@ -234,7 +234,7 @@ ColumnLayout {
                         text: "Layout & Appearance"
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: Font.Medium
-                        color: Appearance.colors.colPrimary
+                        color: Appearance.colors.colOnLayer1
                         Layout.topMargin: 12 * Appearance.effectiveScale
                     }
 
@@ -458,7 +458,7 @@ ColumnLayout {
                         text: "Modules Positioning"
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: Font.Medium
-                        color: Appearance.colors.colPrimary
+                        color: Appearance.colors.colOnLayer1
                         Layout.topMargin: 12 * Appearance.effectiveScale
                     }
 
@@ -1146,8 +1146,8 @@ ColumnLayout {
                     StyledText {
                         text: "Modules Styling"
                         font.pixelSize: Appearance.font.pixelSize.small
-                        font.weight: Font.DemiBold
-                        color: Appearance.colors.colPrimary
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnLayer1
                         Layout.topMargin: 12 * Appearance.effectiveScale
                     }
 

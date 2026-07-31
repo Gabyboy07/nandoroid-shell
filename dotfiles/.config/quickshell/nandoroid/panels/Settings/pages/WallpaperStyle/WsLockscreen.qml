@@ -161,5 +161,6 @@ ColumnLayout {
                 Layout.fillWidth: true
                 isDedicatedContext: true
                 dedicatedIsLock: true 
+                isSubSection: true
             }
 }

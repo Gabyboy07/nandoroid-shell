@@ -16,6 +16,7 @@ ColumnLayout {
     
     property bool isDedicatedContext: false
     property bool dedicatedIsLock: false
+    property bool isSubSection: false
 
     // Search handled per-context
     // ── Clock Section ──
@@ -43,15 +44,15 @@ ColumnLayout {
         // Section Header
         RowLayout {
             spacing: 12 * Appearance.effectiveScale
-            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            Layout.bottomMargin: (rootClock.isSubSection ? 0 : 4) * Appearance.effectiveScale
             MaterialSymbol {
                 text: "watch"
-                iconSize: 24 * Appearance.effectiveScale
+                iconSize: (rootClock.isSubSection ? 20 : 24) * Appearance.effectiveScale
                 color: Appearance.colors.colPrimary
             }
             StyledText {
                 text: "Clock"
-                font.pixelSize: Appearance.font.pixelSize.large
+                font.pixelSize: rootClock.isSubSection ? Appearance.font.pixelSize.small : Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
                 Layout.fillWidth: true
