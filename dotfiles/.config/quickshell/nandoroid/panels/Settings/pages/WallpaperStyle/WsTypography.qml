@@ -51,6 +51,21 @@ ColumnLayout {
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
+                        Layout.fillWidth: true
+                    }
+
+                    StyledText {
+                        text: "Refresh Font"
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: maRefreshFont.containsMouse ? Appearance.colors.colPrimaryHover : Appearance.colors.colPrimary
+
+                        MouseArea {
+                            id: maRefreshFont
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: SystemFonts.fetchAndCache()
+                        }
                     }
                 }
                 

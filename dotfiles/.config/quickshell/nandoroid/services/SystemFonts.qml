@@ -46,6 +46,7 @@ Singleton {
     FileView {
         id: fontsFile
         path: root.cachePath
+        watchChanges: true
         onLoaded: {
             try {
                 const data = JSON.parse(text());
@@ -59,6 +60,7 @@ Singleton {
                 console.error("[SystemFonts] Error parsing fonts.json:", e);
             }
         }
+        onFileChanged: reload()
         onLoadFailed: error => {
             if (error == FileViewError.FileNotFound) {
                 root.fetchAndCache();
