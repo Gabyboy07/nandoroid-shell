@@ -405,7 +405,7 @@ Item {
                     Layout.fillWidth: true; implicitHeight: 44 * Appearance.effectiveScale
                     radius: Appearance.rounding.small
                     color: Appearance.m3colors.m3surfaceContainer
-                    border.color: timeField.input.activeFocus ? Appearance.colors.colPrimary : "transparent"
+                    border.color: timeField.input.activeFocus || root._timePickerTarget === "start" ? Appearance.colors.colPrimary : "transparent"
                     border.width: 2 * Appearance.effectiveScale
                     RowLayout {
                         anchors.fill: parent; anchors.margins: 10 * Appearance.effectiveScale; spacing: 6 * Appearance.effectiveScale
@@ -423,6 +423,19 @@ Item {
                             leftMargin: 0
                             rightMargin: 0
                             onTextChanged: { root.formTime = text; if(root.selectedId && timeField.input.activeFocus) autoSaveTimer.restart() }
+                        }
+                        RippleButton {
+                            implicitWidth: 28 * Appearance.effectiveScale
+                            implicitHeight: 28 * Appearance.effectiveScale
+                            buttonRadius: 14 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            onClicked: root.openStartTimePicker()
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "access_time"
+                                iconSize: 16 * Appearance.effectiveScale
+                                color: Appearance.colors.colSubtext
+                            }
                         }
                     }
                 }
@@ -485,7 +498,7 @@ Item {
                     Layout.fillWidth: true; implicitHeight: 44 * Appearance.effectiveScale
                     radius: Appearance.rounding.small
                     color: Appearance.m3colors.m3surfaceContainer
-                    border.color: endTimeField.input.activeFocus ? Appearance.colors.colPrimary : "transparent"
+                    border.color: endTimeField.input.activeFocus || root._timePickerTarget === "end" ? Appearance.colors.colPrimary : "transparent"
                     border.width: 2 * Appearance.effectiveScale
                     RowLayout {
                         anchors.fill: parent; anchors.margins: 10 * Appearance.effectiveScale; spacing: 6 * Appearance.effectiveScale
@@ -503,6 +516,19 @@ Item {
                             leftMargin: 0
                             rightMargin: 0
                             onTextChanged: { root.formEndTime = text; if(root.selectedId && endTimeField.input.activeFocus) autoSaveTimer.restart() }
+                        }
+                        RippleButton {
+                            implicitWidth: 28 * Appearance.effectiveScale
+                            implicitHeight: 28 * Appearance.effectiveScale
+                            buttonRadius: 14 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            onClicked: root.openEndTimePicker()
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "access_time"
+                                iconSize: 16 * Appearance.effectiveScale
+                                color: Appearance.colors.colSubtext
+                            }
                         }
                     }
                 }
@@ -649,6 +675,35 @@ Item {
         }
         GlobalStates.datePickerOnCancelled = function() { root._datePickerTarget = "" }
         GlobalStates.datePickerOpen = true
+    }
+
+    // ── Time picker ──
+    property string _timePickerTarget: ""
+
+    function openStartTimePicker() {
+        root._timePickerTarget = "start"
+        GlobalStates.openTimePicker(
+            root.formTime || "00:00",
+            function(timeStr) {
+                root._timePickerTarget = ""
+                root.formTime = timeStr
+                if (root.selectedId) autoSaveTimer.restart()
+            },
+            function() { root._timePickerTarget = "" }
+        )
+    }
+
+    function openEndTimePicker() {
+        root._timePickerTarget = "end"
+        GlobalStates.openTimePicker(
+            root.formEndTime || "01:00",
+            function(timeStr) {
+                root._timePickerTarget = ""
+                root.formEndTime = timeStr
+                if (root.selectedId) autoSaveTimer.restart()
+            },
+            function() { root._timePickerTarget = "" }
+        )
     }
 
     Component.onCompleted: clearForm()

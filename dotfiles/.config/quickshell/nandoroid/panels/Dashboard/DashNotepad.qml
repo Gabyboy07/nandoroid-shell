@@ -253,12 +253,41 @@ Item {
                 const t = item.tasks.find(t => t.id === taskId)
                 if (t) {
                     t._tmpDate = dateStr
+                    t._editingDeadline = true
                     root.items = root.items.slice()
                 }
             }
         }
         GlobalStates.datePickerOnCancelled = function() {}
         GlobalStates.datePickerOpen = true
+    }
+
+    function openTaskTimePicker(taskId, currentTime) {
+        const item = root._currentItem()
+        let activeTime = currentTime
+        if (item && item.type === "todo") {
+            const t = item.tasks.find(t => t.id === taskId)
+            if (t) {
+                activeTime = t._tmpTime || t.deadlineTime || currentTime
+            }
+        }
+
+        GlobalStates.openTimePicker(
+            activeTime || root._defaultDeadlineTime(),
+            function(timeStr) {
+                const curItem = root._currentItem()
+                if (curItem && curItem.type === "todo") {
+                    const t = curItem.tasks.find(t => t.id === taskId)
+                    if (t) {
+                        t._tmpTime = timeStr
+                        t.deadlineTime = timeStr
+                        t._editingDeadline = true
+                        root.items = root.items.slice()
+                    }
+                }
+            },
+            function() {}
+        )
     }
 
     // ══════════════════════════════════════════════════
@@ -626,7 +655,11 @@ Item {
                         ? _mainRow.height + _dlEditor.height + 24 * Appearance.effectiveScale
                         : _mainRow.height + 8 * Appearance.effectiveScale
 
-                    property bool _editingDeadline: false
+                    property bool _editingDeadline: Boolean(modelData && modelData._editingDeadline)
+
+                    on_EditingDeadlineChanged: {
+                        if (modelData) modelData._editingDeadline = _editingDeadline
+                    }
 
                     Rectangle {
                         anchors.fill: parent
@@ -692,6 +725,7 @@ Item {
                                     onClicked: {
                                         modelData._tmpDate = modelData.deadline || root._defaultDeadlineDate()
                                         modelData._tmpTime = modelData.deadlineTime || root._defaultDeadlineTime()
+                                        modelData._editingDeadline = true
                                         taskDelegate._editingDeadline = true
                                     }
                                     StyledText {
@@ -717,6 +751,7 @@ Item {
                                     onClicked: {
                                         modelData._tmpDate = root._defaultDeadlineDate()
                                         modelData._tmpTime = root._defaultDeadlineTime()
+                                        modelData._editingDeadline = true
                                         taskDelegate._editingDeadline = true
                                     }
                                     MaterialSymbol {
@@ -820,6 +855,19 @@ Item {
                                             font.pixelSize: Appearance.font.pixelSize.small
                                             onTextChanged: { if (modelData) modelData._tmpTime = text }
                                         }
+                                        RippleButton {
+                                            implicitWidth: 24 * Appearance.effectiveScale
+                                            implicitHeight: 24 * Appearance.effectiveScale
+                                            buttonRadius: 12 * Appearance.effectiveScale
+                                            colBackground: "transparent"
+                                            onClicked: root.openTaskTimePicker(modelData.id, modelData._tmpTime || modelData.deadlineTime)
+                                            MaterialSymbol {
+                                                anchors.centerIn: parent
+                                                text: "access_time"
+                                                iconSize: 13 * Appearance.effectiveScale
+                                                color: Appearance.colors.colSubtext
+                                            }
+                                        }
                                     }
                                 }
 
@@ -831,6 +879,7 @@ Item {
                                     colBackground: Appearance.colors.colPrimary
                                     onClicked: {
                                         root.setTaskDeadline(modelData.id, modelData._tmpDate || modelData.deadline, modelData._tmpTime || modelData.deadlineTime)
+                                        modelData._editingDeadline = false
                                         taskDelegate._editingDeadline = false
                                     }
                                     MaterialSymbol {
