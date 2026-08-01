@@ -162,8 +162,10 @@ Item {
     }
 
     function confirm() {
-        root.commitHourInput()
-        root.commitMinuteInput()
+        if (root.selectMode === 1) {
+            root.commitHourInput()
+            root.commitMinuteInput()
+        }
         root.timeSelected(root.getFormattedTime())
     }
 

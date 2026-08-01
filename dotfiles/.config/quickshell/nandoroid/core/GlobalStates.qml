@@ -79,14 +79,36 @@ Singleton {
     // ── Todo Deadline Data (populated by DashNotepad) ──
     property var todoDeadlines: [] // [{date, time, itemId, itemTitle, taskId, taskContent, done}]
 
+    // Normalize any date string (YYYY-MM-DD, DD/MM/YYYY, MM/DD/YYYY, YYYY/MM/DD) to canonical YYYY-MM-DD.
+    // Storage and consumers (calendar marks, automation, "at a glance") all expect canonical dates.
+    function toCanonicalDateStr(str) {
+        if (!str) return ""
+        const parts = String(str).trim().split(/[-/]/).map(Number)
+        if (parts.length < 3 || parts.some(isNaN)) return ""
+        let y, m, d
+        if (parts[0] > 1000) {
+            y = parts[0]; m = parts[1]; d = parts[2]
+        } else if (parts[2] > 1000) {
+            const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+            if (style === "MDY") { m = parts[0]; d = parts[1]; y = parts[2] }
+            else { d = parts[0]; m = parts[1]; y = parts[2] }
+        } else {
+            return ""
+        }
+        if (y < 1000 || y > 9999 || m < 1 || m > 12 || d < 1 || d > 31) return ""
+        return String(y).padStart(4, '0') + "-" + String(m).padStart(2, '0') + "-" + String(d).padStart(2, '0')
+    }
+
     function updateTodoDeadlines(items) {
         const deadlines = []
         for (const item of items) {
             if (item.type !== "todo" || !item.tasks) continue
             for (const task of item.tasks) {
                 if (task.deadline) {
+                    const canon = root.toCanonicalDateStr(task.deadline)
+                    if (!canon) continue
                     deadlines.push({
-                        date: task.deadline,
+                        date: canon,
                         time: task.deadlineTime || "",
                         itemId: item.id,
                         itemTitle: item.title || "Untitled",

@@ -127,7 +127,7 @@ Item {
         const item = _currentItem()
         if (!item || item.type !== "todo") return
         const t = item.tasks.find(t => t.id === taskId)
-        if (t) { t.deadline = date || null; t.deadlineTime = time || null; _refreshAndSave() }
+        if (t) { t.deadline = GlobalStates.toCanonicalDateStr(date) || null; t.deadlineTime = time || null; _refreshAndSave() }
     }
 
     function _refreshAndSave() {

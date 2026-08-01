@@ -26,7 +26,14 @@ RowLayout {
         onLoaded: {
             try {
                 let parsed = JSON.parse(scheduleFile.text())
-                if (Array.isArray(parsed)) root.scheduledEvents = parsed
+                if (Array.isArray(parsed)) {
+                    parsed = parsed.map(ev => ({
+                        ...ev,
+                        date: GlobalStates.toCanonicalDateStr(ev.date) || ev.date,
+                        endDate: ev.endDate ? (GlobalStates.toCanonicalDateStr(ev.endDate) || ev.endDate) : ev.endDate
+                    }))
+                    root.scheduledEvents = parsed
+                }
             } catch(e) {}
         }
     }

@@ -169,10 +169,12 @@ Item {
         onTriggered: {
             if (!root.selectedId || !root.formTitle.trim()) return
             const descVal = root.formDescription.trim() ? root.formDescription.trim() : undefined
-            const endDateVal = root.formEndDate.trim() && root.formEndDate !== root.formDate ? root.formEndDate.trim() : undefined
+            const dateVal = GlobalStates.toCanonicalDateStr(root.formDate) || root.formDate
+            const endDateVal = root.formEndDate.trim() && root.formEndDate !== root.formDate
+                ? (GlobalStates.toCanonicalDateStr(root.formEndDate) || root.formEndDate) : undefined
             ScheduleService.updateEvent(root.selectedId, {
                 title: root.formTitle, 
-                date: root.formDate, 
+                date: dateVal, 
                 time: root.formTime, 
                 endTime: root.formEndTime,
                 endDate: endDateVal,
@@ -186,11 +188,13 @@ Item {
     function saveEvent() {
         if (!formTitle.trim()) return
         const descVal = formDescription.trim() ? formDescription.trim() : undefined
-        const endDateVal = formEndDate.trim() && formEndDate !== formDate ? formEndDate.trim() : undefined
+        const dateVal = GlobalStates.toCanonicalDateStr(formDate) || formDate
+        const endDateVal = formEndDate.trim() && formEndDate !== formDate
+            ? (GlobalStates.toCanonicalDateStr(formEndDate) || formEndDate) : undefined
         if (selectedId) {
             ScheduleService.updateEvent(selectedId, { 
                 title: formTitle, 
-                date: formDate, 
+                date: dateVal, 
                 time: formTime, 
                 endTime: formEndTime,
                 endDate: endDateVal,
@@ -202,7 +206,7 @@ Item {
             const newEv = { 
                 id: Date.now().toString(36), 
                 title: formTitle, 
-                date: formDate, 
+                date: dateVal, 
                 time: formTime, 
                 endTime: formEndTime,
                 endDate: endDateVal,
