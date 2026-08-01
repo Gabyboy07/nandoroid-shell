@@ -17,7 +17,7 @@ Singleton {
     // Only touches keys that exist, so partial updates (e.g. lastNotified* fields) don't wipe dates
     function _normalizeEvent(ev) {
         if (!ev) return ev
-        const out = { ...ev }
+        const out = Object.assign({}, ev)
         if (ev.date !== undefined && ev.date !== null) out.date = GlobalStates.toCanonicalDateStr(ev.date) || ev.date
         if (ev.endDate !== undefined && ev.endDate !== null) out.endDate = GlobalStates.toCanonicalDateStr(ev.endDate) || ev.endDate
         return out

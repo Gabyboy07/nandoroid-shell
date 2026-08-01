@@ -56,6 +56,41 @@ Item {
         })
     }
     
+    // ── Localized date/time display (follows SysDateTime settings) ──
+    function _parseDate(str) {
+        if (!str) return null
+        const parts = String(str).trim().split(/[-/]/).map(Number)
+        if (parts.length < 3 || parts.some(isNaN)) return null
+        let y, m, d
+        if (parts[0] > 1000) {
+            y = parts[0]; m = parts[1]; d = parts[2]
+        } else if (parts[2] > 1000) {
+            const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
+            if (style === "MDY") { m = parts[0]; d = parts[1]; y = parts[2] }
+            else { d = parts[0]; m = parts[1]; y = parts[2] }
+        } else {
+            return null
+        }
+        if (y < 1000 || y > 9999 || m < 1 || m > 12 || d < 1 || d > 31) return null
+        return { y, m, d }
+    }
+
+    function _displayDate(dateStr) {
+        const p = root._parseDate(dateStr)
+        if (!p) return dateStr || ""
+        return Qt.formatDate(new Date(p.y, p.m - 1, p.d), Config.ready ? Config.dateFormat : "ddd, dd/MM")
+    }
+
+    function _displayTime(timeStr) {
+        if (!timeStr) return ""
+        const parts = String(timeStr).split(":")
+        if (parts.length < 2) return timeStr
+        const h = parseInt(parts[0], 10)
+        const min = parseInt(parts[1], 10)
+        if (isNaN(h) || isNaN(min)) return timeStr
+        return Qt.formatTime(new Date(2000, 0, 1, h, min), Config.ready ? Config.timeFormat : "HH:mm")
+    }
+
     readonly property string currentDayShort: {
         const today = new Date();
         const todayJsDay = today.getDay();
@@ -142,7 +177,7 @@ Item {
 
             StyledText {
                 Layout.fillWidth: true
-                text: eventPopup.dateStr
+                text: root._displayDate(eventPopup.dateStr)
                 font.pixelSize: Appearance.font.pixelSize.smaller
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colSubtext
@@ -188,9 +223,9 @@ Item {
                     StyledText {
                         Layout.leftMargin: 12 * Appearance.effectiveScale
                         text: {
-                            let t = modelData.time
-                            if (modelData.endTime) t += " - " + modelData.endTime
-                            if (modelData.endDate && modelData.endDate !== modelData.date) t += " · End " + modelData.endDate
+                            let t = root._displayTime(modelData.time)
+                            if (modelData.endTime) t += " - " + root._displayTime(modelData.endTime)
+                            if (modelData.endDate && modelData.endDate !== modelData.date) t += " · End " + root._displayDate(modelData.endDate)
                             if (modelData.recurrence !== "once") t += " · " + modelData.recurrence
                             return t
                         }
