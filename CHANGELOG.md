@@ -1,3 +1,84 @@
+# Nandoroid Shell v1.5.0 Release Notes
+
+## Overview
+Nandoroid Shell v1.5.0 introduces an interactive Desktop Widget and Choice A Grid Canvas system, a native Linux system monitoring engine with minimal background overhead, and flexible statusbar module reordering. This major update also features a unified Notepad and Todo deadline system, dedicated Microphone OSD, decoupled lockscreen color palettes, and extensive performance and stability enhancements across the shell.
+
+## Changelog
+
+**Desktop Widgets & Grid Canvas**
+- Introduce Desktop Widgets with 12px snap-to-grid canvas positioning
+- Add Desktop Media Widget featuring Material You styling, 5-line lyrics view, 2x2 layout variant, and drag-resize support
+- Add Desktop System Monitor Widget with real-time resource visualization
+- Redesign Desktop Weather Widget with 3 drag-resizable layout variants
+- Add setting to disable desktop widget interactions when application windows are focused
+- Add 250ms right-click delay after workspace switching to prevent accidental context menu closure
+
+**Native System Monitoring (SysMon)**
+- Refactor System Monitor engine to pure native Linux APIs (`/proc`, `/sys`) with on-demand process tracking, significantly reducing idle CPU/GPU consumption
+- Add automatic native `ps` fallback when dgop is not installed
+- Add animated sidebar navigation pill and asynchronous page loading for responsive tab switching
+- Redesign CPU, GPU, Memory, Disk, and Battery monitoring pages with hardware specification cards
+
+**Status Bar & Customization**
+- Implement flexible dynamic module ordering and placement in Status Bar settings
+- Redesign workspace indicator with smooth sliding tab animations and dynamic special workspace overlay
+- Support dynamic text alignment for active window titles based on cluster placement, with automatic width truncation when System Monitor is active
+- Relocate notification counter to the left side of status bar with smooth crossfade transitions
+- Consolidate Do-Not-Disturb (DND) indicator into the status icons cluster
+- Limit maximum modules per cluster to 5 in Status Bar settings
+- Prevent statusbar module overlap in centered mode
+
+**Notepad & Todo Management**
+- Rewrite Notepad with a unified Notepad/Todo model supporting deadlines, priorities, and state persistence
+- Integrate `DashNotepad` widget into the main Dashboard panel
+
+**OSD & Input Controls**
+- Add gamma dimming support below zero brightness for lower night-time luminance
+- Introduce dedicated Microphone Mute OSD visualizer
+- Redesign system sliders with segmented visual dividers and tactile handles
+- Add customizable banner image picker with toggle switch in QuickSettings header
+- Add user avatar and display name configuration to base statusbar and profile settings
+
+**Performance & Efficiency**
+- Implement lazy-loading for visualizers and weather animations to completely eliminate off-screen GPU rendering
+- Optimize CAVA framerate to 30fps while expanding spectrum resolution to 128 bars
+- Reduce MPRIS position polling interval to 3000ms to minimize background timer overhead
+
+**Theme & Preset Management**
+- Decouple Lockscreen Matugen color palette from desktop wallpaper to allow independent lockscreen color themes
+- Ensure Matugen colors regenerate immediately after applying accent presets and prevent fallback color overrides
+- Standardize system toggles across all panels with Material 3 styling
+
+**Desktop Gestures**
+- Add 3-region swipe down gestures to open Notification Center, Dashboard, and QuickSettings
+
+**Time & Date Pickers**
+- Add a TimePicker component with clock dial and input modes, including a 24-hour dial option
+- Align DatePicker and TimePicker with the system date/time format settings
+- Use the new picker in the Dashboard schedule editor and improve date validation
+
+**Fonts & Typography**
+- Add a live font preview panel and a refresh button that reloads the fonts cache
+- Filter out symbol, icon, and emoji fonts from font selectors
+
+**Onboarding**
+- Redesign the IPC setup step and refine the setup modal layout
+
+**Settings**
+- Refine the dependency scanner card and shell update page layout
+
+**Stability & Core Fixes**
+- Automatically re-apply saved Bluetooth toggle state after system sleep/wake cycles
+- Preserve notification action buttons across popup toasts, sidebar panel, and shell restarts
+- Fix screen recording process detection via `pidof` and enforce exact selection geometry
+- Fix Calendar event tooltip dismissal on outside click and auto-advance schedule end date when end time wraps past midnight
+- Smooth width and opacity enter/exit animations on Privacy Indicator
+- Fix duplicate terminal keybinding in Hyprland Lua extra configuration (thanks to @starsprinter92)
+
+For a complete list of changes, please refer to the git commit history.
+
+---
+
 # Nandoroid Shell v1.4.0 Release Notes
 
 ## Overview

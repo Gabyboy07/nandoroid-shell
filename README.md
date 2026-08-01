@@ -15,7 +15,7 @@ A Quickshell-based desktop shell for Hyprland adopting Android 16 design element
 
 > **Note**: This shell and its dependencies are designed strictly for **Arch Linux based distributions** (Arch, CachyOS, EndeavourOS, etc.).
 
-**Version:** v1.4.0
+**Version:** v1.5.0
 **License:** AGPL-3.0
 
 ## Key Features
@@ -28,28 +28,17 @@ A Quickshell-based desktop shell for Hyprland adopting Android 16 design element
 
 ## Screenshots
 
-|                                  Stacked Clock & Centered Bar                                 |                                  Dynamic Island & Spotlight                                   |
+|                                  **Desktop Widget**                                 |                                  **Overlay Panels**                                   |
 | :-------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------: |
-| <img src="https://github.com/user-attachments/assets/2f2aab8c-5420-43e1-b5da-dfe3a7f014d1" /> | <img src="https://github.com/user-attachments/assets/58850360-0ca7-4b0b-9fb1-19008abb51b8" /> |
-|                                 **Settings & System Monitor**                                 |                                    **Minimal Lockscreen**                                     |
-| <img src="https://github.com/user-attachments/assets/952f0c90-28a2-46a1-9bd2-f12a995893bd" /> | <img src="https://github.com/user-attachments/assets/3685b0fc-92d3-4182-9134-3e10d1469d7b" /> |
-<details>
-<summary><b>View More Panel Previews</b></summary>
-<br>
+| <img src="https://raw.githubusercontent.com/na-ive/nandoroid-docs/refs/heads/main/public/showcase1.png" /> | <img src="https://raw.githubusercontent.com/na-ive/nandoroid-docs/refs/heads/main/public/showcase2.png" /> |
+|                                 **Configurable**                                 |                                    **Online Wallpapers**                                     |
+| <img src="https://raw.githubusercontent.com/na-ive/nandoroid-docs/refs/heads/main/public/showcase3.png" /> | <img src="https://raw.githubusercontent.com/na-ive/nandoroid-docs/refs/heads/main/public/showcase4.png" /> |
 
-|                                   **Notification Center**                                     |                                      **Quick Settings**                                       |
-| :-------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------: |
-| <img src="https://github.com/user-attachments/assets/bf4dd19e-848c-4fde-b214-9900058c8c69" /> | <img src="https://github.com/user-attachments/assets/09d8322d-d27f-44ab-ac5c-e75353f20d22" /> |
-|                                  **Spotlight Launcher**                                       |                                    **App Grid Launcher**                                      |
-| <img src="https://github.com/user-attachments/assets/12ef3312-c6a8-475c-8c5f-5326c4573e87" /> | <img src="https://github.com/user-attachments/assets/f84d3ef5-5bfe-4291-bf60-41bf01cfb7d9" /> |
-|                                       **Dashboard**                                           |                                      **Workspace Overview**                                   |
-| <img src="https://github.com/user-attachments/assets/7ef022bd-4f7a-446f-be19-35e740e45058" /> | <img src="https://github.com/user-attachments/assets/b79e0d26-5fb2-4da4-ab62-675de7c05835" /> |
-|                                   **Nandoroid Settings**                                      |                                       **System Monitor**                                      |
-| <img src="https://github.com/user-attachments/assets/60462d4c-f6fe-4e4e-bee3-8cdea03473d4" /> | <img src="https://github.com/user-attachments/assets/12368d1e-b831-480d-8c6c-bbd16bd27750" /> |
-|                                       **Smart Dock**                                          |                                     **Quick Actions HUD**                                     |
-| <img src="https://github.com/user-attachments/assets/37ceff8d-597d-4459-8af6-cee1c4f30286" /> | <img src="https://github.com/user-attachments/assets/b3eb7522-b7a4-4135-8f8f-bd95b710b399" /> |
+<div align="center">
 
-</details>
+**[View more screenshots!](https://nandoroid.naive.my.id/general/showcase/)**
+
+</div>
 
 ## Installation
 
