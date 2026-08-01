@@ -30,19 +30,7 @@ Item {
 
     property real maxWidth: 400 * Appearance.effectiveScale
 
-    TextMetrics {
-        id: classMetrics
-        font.pixelSize: Appearance.font.pixelSize.smallest
-        text: root.appClassText
-    }
-
-    TextMetrics {
-        id: titleMetrics
-        font.pixelSize: Appearance.font.pixelSize.smaller
-        text: root.appTitleText
-    }
-
-    implicitWidth: Math.min(Math.max(classMetrics.boundingRect.width, titleMetrics.boundingRect.width), root.maxWidth)
+    implicitWidth: Math.min(Math.max(classText.implicitWidth, titleText.implicitWidth), root.maxWidth)
     implicitHeight: titleColumn.implicitHeight
     clip: true
 
