@@ -251,6 +251,15 @@ Singleton {
             spotlightOpen = false
             dashboardOpen = false
             sessionOpen = false
+        } else {
+            systemMonitorIndex = 0
+        }
+    }
+
+    onOnboardingOpenChanged: {
+        if (!onboardingOpen) {
+            Config.options.system.onboardingCompleted = true;
+            onboardingStep = 0;
         }
     }
 

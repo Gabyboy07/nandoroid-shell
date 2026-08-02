@@ -34,18 +34,6 @@ Scope {
             }
         }
 
-        // Reset to first page when opened
-        Connections {
-            target: GlobalStates
-            function onOnboardingOpenChanged() {
-                if (!GlobalStates.onboardingOpen) {
-                    Config.options.system.onboardingCompleted = true;
-                    // reset step when closed
-                    GlobalStates.onboardingStep = 0;
-                }
-            }
-        }
-
         Component.onCompleted: {
             MaterialThemeLoader.reapplyTheme()
         }

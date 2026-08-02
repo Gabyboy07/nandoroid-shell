@@ -38,7 +38,6 @@ Scope {
         // Main Panel Background
         Rectangle {
             id: root
-            property int currentIndex: 0
             anchors.fill: parent
             color: Appearance.colors.colLayer0
             border.color: Appearance.colors.colLayer1
@@ -54,17 +53,6 @@ Scope {
                 onClicked: (mouse) => mouse.accepted = true
             }
 
-
-            // Reset tab to Performance (0) when closed
-            Connections {
-                target: GlobalStates
-                function onSystemMonitorOpenChanged() {
-                    if (!GlobalStates.systemMonitorOpen) {
-                        root.currentIndex = 0;
-                        GlobalStates.systemMonitorIndex = 0;
-                    }
-                }
-            }
 
             // Auto-fallback if battery is removed/unavailable
             Connections {

@@ -130,8 +130,14 @@ ShellRoot {
 
 
     // ── Phase 12: System Monitor & Onboarding ──
-    SystemMonitorPanel {}
-    OnboardingPanel {}
+    Loader {
+        active: GlobalStates.systemMonitorOpen
+        sourceComponent: SystemMonitorPanel {}
+    }
+    Loader {
+        active: GlobalStates.onboardingOpen
+        sourceComponent: OnboardingPanel {}
+    }
 
     // ── Phase 13: Polkit Agent & Date / Time Pickers ──
     PolkitPanel {}
