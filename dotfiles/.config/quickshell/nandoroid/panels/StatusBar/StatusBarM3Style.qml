@@ -438,6 +438,14 @@ Item {
         }
     }
 
+    function isM3ModuleVisible(name) {
+        if (name === "sysTray") return SystemTray.items.values.length > 0;
+        if (name === "vpnWarpKey") return false;
+        if (name === "battery") return Battery.available;
+        if (name === "networkSpeed") return Config.ready && Config.options.bar && Config.options.bar.show_network_speed;
+        return true;
+    }
+
     // ── Click Areas ──
     FocusedScrollMouseArea {
         anchors.left: parent.left
@@ -525,7 +533,10 @@ Item {
             spacing: 4 * Appearance.effectiveScale
 
             Repeater {
-                model: (Config.ready && Config.options.statusBar && Config.options.statusBar.leftModules) ? Array.from(Config.options.statusBar.leftModules) : ["distroIcon", "activeWindow", "systemMonitor"]
+                model: {
+                    let mods = (Config.ready && Config.options.statusBar && Config.options.statusBar.leftModules) ? Array.from(Config.options.statusBar.leftModules) : ["distroIcon", "activeWindow", "systemMonitor"];
+                    return mods.filter(m => rootM3.isM3ModuleVisible(m));
+                }
                 delegate: Loader {
                     id: leftModLoader
                     Layout.alignment: Qt.AlignVCenter
@@ -638,11 +649,7 @@ Item {
             Repeater {
                 model: {
                     let mods = (Config.ready && Config.options.statusBar && Config.options.statusBar.rightModules) ? Array.from(Config.options.statusBar.rightModules) : ["networkSpeed", "sysTray", "statusIconsGroup", "battery"];
-                    return mods.filter(m => {
-                        if (m === "sysTray") return SystemTray.items.values.length > 0;
-                        if (m === "vpnWarpKey") return false;
-                        return true;
-                    });
+                    return mods.filter(m => rootM3.isM3ModuleVisible(m));
                 }
                 delegate: Loader {
                     id: modLoader

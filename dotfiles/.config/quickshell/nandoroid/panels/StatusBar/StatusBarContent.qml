@@ -81,7 +81,6 @@ Item {
     }}
 
     Component { id: netSpeedComponent; NetworkSpeedMeter {
-        visible: true
         Layout.alignment: Qt.AlignVCenter
         color: root.contentColor
         subtextColor: root.subtextColor
@@ -323,6 +322,14 @@ Item {
         }
     }
 
+    function isModuleVisible(name) {
+        if (name === "sysTray") return SystemTray.items.values.length > 0;
+        if (name === "vpnWarpKey") return false;
+        if (name === "battery") return Battery.available;
+        if (name === "networkSpeed") return Config.ready && Config.options.bar && Config.options.bar.show_network_speed;
+        return true;
+    }
+
     // ── Click-to-close backdrop (invisible, catches unfocused clicks) ──
     MouseArea {
         anchors.fill: parent
@@ -426,7 +433,7 @@ Item {
                 Repeater {
                     model: {
                         let mods = (Config.ready && Config.options.statusBar && Config.options.statusBar.leftModules) ? Array.from(Config.options.statusBar.leftModules) : ["distroIcon", "activeWindow", "systemMonitor"];
-                        return root.getVisibleClusterModules(mods);
+                        return root.getVisibleClusterModules(mods).filter(m => root.isModuleVisible(m));
                     }
                     delegate: Loader {
                         Layout.alignment: Qt.AlignVCenter
@@ -497,12 +504,7 @@ Item {
             Repeater {
                 model: {
                     let mods = (Config.ready && Config.options.statusBar && Config.options.statusBar.rightModules) ? Array.from(Config.options.statusBar.rightModules) : ["networkSpeed", "sysTray", "statusIconsGroup", "battery"];
-                    let visible = root.getVisibleClusterModules(mods);
-                    return visible.filter(m => {
-                        if (m === "sysTray") return SystemTray.items.values.length > 0;
-                        if (m === "vpnWarpKey") return false;
-                        return true;
-                    });
+                    return root.getVisibleClusterModules(mods).filter(m => root.isModuleVisible(m));
                 }
                 delegate: Loader {
                     Layout.alignment: Qt.AlignVCenter
