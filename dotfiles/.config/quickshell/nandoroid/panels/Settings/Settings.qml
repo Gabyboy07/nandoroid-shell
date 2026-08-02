@@ -247,89 +247,69 @@ Scope {
                             anchors.fill: parent
                             clip: true
 
-                            // Page Loader
-                            Loader {
-                                id: pageLoader
-                                asynchronous: true
-                                anchors.fill: parent
-                                anchors.topMargin: 24 * Appearance.effectiveScale
-                                anchors.bottomMargin: 24 * Appearance.effectiveScale
-                                anchors.leftMargin: 24 * Appearance.effectiveScale
-                                anchors.rightMargin: 0
-                                Component.onCompleted: source = pages[root.currentIndex].component
-                                
-                                onStatusChanged: {
-                                    if (status === Loader.Ready && root.pendingSearchQuery !== "") {
-                                        applyPendingSearch();
-                                    }
-                                }
-                                
-                                function applyPendingSearch() {
-                                    if (root.pendingSearchQuery !== "") {
-                                        SearchRegistry.currentSearch = "";
-                                        SearchRegistry.currentSearch = root.pendingSearchQuery;
-                                        root.pendingSearchQuery = "";
-                                    }
-                                }
+                            // Keep-alive page loaders (end4-pC style):
+                            // Each page is loaded on first visit and stays alive afterwards,
+                            // so switching pages never re-parses QML.
+                            Repeater {
+                                id: pagesRepeater
+                                model: root.pages
+                                delegate: Loader {
+                                    id: pageLoader
+                                    required property var modelData
+                                    required property int index
+                                    asynchronous: true
+                                    active: GlobalStates.settingsPageIndex === index || item !== null
+                                    anchors.fill: parent
+                                    anchors.bottomMargin: 24 * Appearance.effectiveScale
+                                    anchors.leftMargin: 24 * Appearance.effectiveScale
+                                    anchors.rightMargin: 0
+                                    source: modelData.component
 
-                                onLoaded: applyPendingSearch()
-                                TextEdit {
-                                    visible: pageLoader.status === Loader.Error
-                                    anchors.centerIn: parent
-                                    width: Math.min(800 * Appearance.effectiveScale, parent.width - (40 * Appearance.effectiveScale))
-                                    wrapMode: TextEdit.Wrap
-                                    readOnly: true
-                                    selectByMouse: true
-                                    text: "Error loading page: " + pageLoader.source + "\n\n" + (pageLoader.sourceComponent ? pageLoader.sourceComponent.errorString() : "Unknown component error")
-                                    color: "#FF5555"
-                                    font.pixelSize: Math.round(14 * Appearance.effectiveScale)
-                                    font.family: "monospace"
-                                }
-                                
-                                // Transition animations
-                                property real opacityVal: 1.0
-                                property real yOffset: 0
-                                
-                                opacity: opacityVal
-                                transform: Translate { y: pageLoader.yOffset }
-                                
-                                Connections {
-                                    target: SearchRegistry
-                                    function onCurrentSearchChanged() {
-                                        // This empty connection block might help trigger re-evaluations
-                                    }
-                                }
+                                    readonly property bool isActive: GlobalStates.settingsPageIndex === index
 
-                                SequentialAnimation {
-                                    id: transitionAnim
-                                    NumberAnimation { 
-                                        target: pageLoader
-                                        property: "opacityVal"
-                                        to: 0
-                                        duration: 150
-                                        easing.type: Easing.OutQuad
+                                    anchors.topMargin: (isActive ? 24 : 44) * Appearance.effectiveScale
+                                    opacity: isActive ? 1 : 0
+                                    enabled: isActive
+                                    visible: opacity > 0
+
+                                    Behavior on anchors.topMargin {
+                                        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
                                     }
-                                    PropertyAction { target: pageLoader; property: "yOffset"; value: 20 * Appearance.effectiveScale }
-                                    PropertyAction { 
-                                        target: pageLoader
-                                        property: "source"
-                                        value: pages[GlobalStates.settingsPageIndex].component 
+                                    Behavior on opacity {
+                                        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
                                     }
-                                    ParallelAnimation {
-                                        NumberAnimation { 
-                                            target: pageLoader
-                                            property: "opacityVal"
-                                            to: 1
-                                            duration: 250
-                                            easing.type: Easing.OutBack
+
+                                    onLoaded: {
+                                        if (isActive && root.pendingSearchQuery !== "") {
+                                            applyPendingSearch()
                                         }
-                                        NumberAnimation { 
-                                            target: pageLoader
-                                            property: "yOffset"
-                                            to: 0
-                                            duration: 250
-                                            easing.type: Easing.OutBack
+                                    }
+
+                                    onIsActiveChanged: {
+                                        if (isActive && item && root.pendingSearchQuery !== "") {
+                                            applyPendingSearch()
                                         }
+                                    }
+
+                                    function applyPendingSearch() {
+                                        if (root.pendingSearchQuery !== "") {
+                                            SearchRegistry.currentSearch = "";
+                                            SearchRegistry.currentSearch = root.pendingSearchQuery;
+                                            root.pendingSearchQuery = "";
+                                        }
+                                    }
+
+                                    TextEdit {
+                                        visible: pageLoader.status === Loader.Error
+                                        anchors.centerIn: parent
+                                        width: Math.min(800 * Appearance.effectiveScale, parent.width - (40 * Appearance.effectiveScale))
+                                        wrapMode: TextEdit.Wrap
+                                        readOnly: true
+                                        selectByMouse: true
+                                        text: "Error loading page: " + pageLoader.source + "\n\n" + (pageLoader.sourceComponent ? pageLoader.sourceComponent.errorString() : "Unknown component error")
+                                        color: "#FF5555"
+                                        font.pixelSize: Math.round(14 * Appearance.effectiveScale)
+                                        font.family: "monospace"
                                     }
                                 }
                             }
@@ -340,15 +320,6 @@ Scope {
         }
     }
 
-    property int currentIndex: GlobalStates.settingsPageIndex
-
-    onCurrentIndexChanged: {
-        if (settingsWindow.visible && pageLoader.status !== Loader.Null) {
-            transitionAnim.restart()
-        } else {
-            pageLoader.source = pages[currentIndex].component
-        }
-    }
     readonly property var pages: [
         { name: "Network", component: "pages/Network/NetworkSettings.qml" },
         { name: "Bluetooth", component: "pages/Bluetooth/BluetoothSettings.qml" },
