@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import "../../.."
 import "../../../core"
 import "../../../core/functions" as Functions
 import "../../../services"

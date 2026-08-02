@@ -28,6 +28,7 @@ import "panels/Onboarding"
 import "panels/FloatingLyrics"
 import "panels/DatePicker"
 import "panels/TimePicker"
+import "panels/Settings"
 
 import QtQuick
 import Quickshell

@@ -1,6 +1,6 @@
-import "core"
-import "core/functions" as Functions
-import "widgets"
+import "../../core"
+import "../../core/functions" as Functions
+import "../../widgets"
 import QtQuick
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects

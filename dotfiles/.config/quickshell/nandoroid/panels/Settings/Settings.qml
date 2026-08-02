@@ -1,7 +1,7 @@
-import "core"
-import "core/functions" as Functions
-import "services"
-import "widgets"
+import "../../core"
+import "../../core/functions" as Functions
+import "../../services"
+import "../../widgets"
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -350,15 +350,15 @@ Scope {
         }
     }
     readonly property var pages: [
-        { name: "Network", component: "panels/Settings/pages/Network/NetworkSettings.qml" },
-        { name: "Bluetooth", component: "panels/Settings/pages/Bluetooth/BluetoothSettings.qml" },
-        { name: "Audio", component: "panels/Settings/pages/Audio/AudioSettings.qml" },
-        { name: "Display", component: "panels/Settings/pages/Display/DisplaySettings.qml" },
-        { name: "Wallpaper & Style", component: "panels/Settings/pages/WallpaperStyle/WallpaperStyleSettings.qml" },
-        { name: "Widgets", component: "panels/Settings/pages/Widgets/WidgetsSettings.qml" },
-        { name: "System", component: "panels/Settings/pages/System/SystemSettings.qml" },
-        { name: "Services", component: "panels/Settings/pages/Services/ServicesSettings.qml" },
-        { name: "Profile", component: "panels/Settings/pages/Profile/ProfileSettings.qml" },
-        { name: "About", component: "panels/Settings/pages/About/AboutSettings.qml" }
+        { name: "Network", component: "pages/Network/NetworkSettings.qml" },
+        { name: "Bluetooth", component: "pages/Bluetooth/BluetoothSettings.qml" },
+        { name: "Audio", component: "pages/Audio/AudioSettings.qml" },
+        { name: "Display", component: "pages/Display/DisplaySettings.qml" },
+        { name: "Wallpaper & Style", component: "pages/WallpaperStyle/WallpaperStyleSettings.qml" },
+        { name: "Widgets", component: "pages/Widgets/WidgetsSettings.qml" },
+        { name: "System", component: "pages/System/SystemSettings.qml" },
+        { name: "Services", component: "pages/Services/ServicesSettings.qml" },
+        { name: "Profile", component: "pages/Profile/ProfileSettings.qml" },
+        { name: "About", component: "pages/About/AboutSettings.qml" }
     ]
 }
