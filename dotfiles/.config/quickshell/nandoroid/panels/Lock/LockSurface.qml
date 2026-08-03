@@ -110,7 +110,7 @@ MouseArea {
         anchors.top: parent.top
         readonly property bool isM3: Config.ready && Config.options.statusBar?.moduleStyle === "m3"
         readonly property bool notifIsLeft: (Config.ready && Config.options.notifications) ? Config.options.notifications.position === "left" : false
-        height: isM3 ? Math.round(48 * Appearance.effectiveScale) : Appearance.sizes.statusBarHeight
+        height: Appearance.sizes.statusBarHeightCurrent
         z: 10
 
         readonly property bool isCentered: (!isM3 && Config.ready && Config.options.statusBar) ? Config.options.statusBar.layoutStyle === "centered" : false

@@ -140,12 +140,16 @@ Scope {
             id: osdRoot
             color: "transparent"
 
+            // While locked, show at the top (below the lock statusbar) so it
+            // doesn't overlap the lock screen's bottom island.
             anchors {
-                bottom: true
+                bottom: !GlobalStates.screenLocked
+                top: GlobalStates.screenLocked
             }
             
             margins {
-                bottom: 80 * Appearance.effectiveScale // Android 16 style bottom margin (elevated)
+                bottom: GlobalStates.screenLocked ? 0 : 80 * Appearance.effectiveScale // Android 16 style bottom margin (elevated)
+                top: GlobalStates.screenLocked ? Appearance.sizes.statusBarHeightCurrent + 12 * Appearance.effectiveScale : 0
             }
 
             // Sync screen with Hyprland focus

@@ -484,7 +484,11 @@ Singleton {
         readonly property var screen: Quickshell.screens[0]
         readonly property real scale: root.effectiveScale
 
-        property real statusBarHeight: 40 * scale
+        property real statusBarHeight: (Config.ready ? (Config.options.statusBar?.height ?? 40) : 40) * scale
+        readonly property real statusBarHeightM3: Math.round(48 * scale)
+        readonly property real statusBarHeightCurrent: (Config.ready && Config.options.statusBar?.moduleStyle === "m3")
+            ? statusBarHeightM3
+            : statusBarHeight
         property real touchTarget: 48 * scale
         property real elevationMargin: 12 * scale
         

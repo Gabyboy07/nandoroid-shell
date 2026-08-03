@@ -55,7 +55,7 @@ Scope {
                 }
             }
 
-            readonly property real actualStatusBarHeight: isM3 ? 48 * Appearance.effectiveScale : Appearance.sizes.statusBarHeight
+            readonly property real actualStatusBarHeight: Appearance.sizes.statusBarHeightCurrent
 
             // Track special workspace to raise layer above it
             readonly property bool specialWorkspaceActive: {
@@ -259,7 +259,7 @@ Scope {
                     Component {
                         id: baseContent
                         StatusBarContent {
-                            height: Appearance.sizes.statusBarHeight
+                            height: Appearance.sizes.statusBarHeightCurrent
                             monitorIndex: barWindow.monitorIndex
                         }
                     }
@@ -267,7 +267,7 @@ Scope {
                     Component {
                         id: m3Content
                         StatusBarM3Style {
-                            height: 48 * Appearance.effectiveScale
+                            height: Appearance.sizes.statusBarHeightCurrent
                             monitorIndex: barWindow.monitorIndex
                         }
                     }
