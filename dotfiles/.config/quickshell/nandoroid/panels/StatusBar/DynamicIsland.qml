@@ -205,8 +205,12 @@ Item {
                 opacity: parent.parent.width > (24 * Appearance.effectiveScale) ? 1 : 0; Behavior on opacity { NumberAnimation { duration: 200 } }
                 property string activeEntryStr: {
                     if (!MprisController.activePlayer) return "";
-                    let entry = MprisController.activePlayer.desktopEntry.toString();
-                    let identity = MprisController.activePlayer.identity ? MprisController.activePlayer.identity.toString() : "";
+                    let player = MprisController.activePlayer;
+                    // plasma-browser-integration always reports a generic "firefox" desktop entry
+                    // even in Firefox-based browsers (e.g. Zen), so its app icon is untrustworthy
+                    if (player.dbusName && player.dbusName.includes("plasma-browser-integration")) return "";
+                    let entry = player.desktopEntry.toString();
+                    let identity = player.identity ? player.identity.toString() : "";
                     return AppSearch.guessIcon(entry, "", identity);
                 }
                 
