@@ -54,6 +54,15 @@ Singleton {
         const lowInitial = (initialClass || "").toLowerCase();
         const lowTitle = (title || "").toLowerCase();
 
+        // 1b. NAnDoroid's own windows (Settings, System Monitor) all share the global
+        // quickshell appId; show the shell's own logo for them instead.
+        // An absolute path is returned because Quickshell.iconPath()/Image.source
+        // both resolve it to the file directly (QIcon::fromTheme handles absolute paths).
+        if (lowClass === "org.quickshell" || lowInitial === "org.quickshell" ||
+            lowClass === "quickshell" || lowInitial === "quickshell") {
+            return Quickshell.shellPath("assets/icons/NAnDoroid.svg");
+        }
+
         // 2. Precise Desktop Entry Lookup (Using normalized ID)
         // Some systems store desktop IDs in mixed case, so we try raw first then lower
         const entry = DesktopEntries.byId(clientClass) || 
