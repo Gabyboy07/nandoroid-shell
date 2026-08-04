@@ -100,12 +100,14 @@ PopupWindow {
             delegate: Rectangle {
                 width: ListView.view.width
                 height: 36 * Appearance.effectiveScale
-                color: "transparent"
-                radius: Appearance.rounding.verysmall
+                color: (itemMouseArea.containsMouse || closeBtn.hovered) ? Qt.alpha(Appearance.m3colors.m3primary, 0.12) : "transparent"
+                radius: Appearance.rounding.small
+                Behavior on color { animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this) }
 
                 MouseArea {
                     id: itemMouseArea
                     anchors.fill: parent
+                    hoverEnabled: true
                     onClicked: {
                         modelData.activate();
                         root.close();
@@ -125,6 +127,7 @@ PopupWindow {
                     }
 
                     RippleButton {
+                        id: closeBtn
                         Layout.preferredWidth: 28 * Appearance.effectiveScale; Layout.preferredHeight: 28 * Appearance.effectiveScale
                         Layout.alignment: Qt.AlignVCenter
                         padding: 0
