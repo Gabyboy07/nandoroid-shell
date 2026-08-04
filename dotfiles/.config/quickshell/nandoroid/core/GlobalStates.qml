@@ -302,8 +302,8 @@ Singleton {
             spotlightOpen = false
             dashboardOpen = false
             sessionOpen = false
-            systemMonitorOpen = false
-            settingsOpen = false
+            // Note: settingsOpen and systemMonitorOpen are intentionally kept,
+            // the overview must never close NAnDoroid's own windows.
         }
     }
 
@@ -313,15 +313,14 @@ Singleton {
         quickActionsOpen = false
         launcherOpen = false
         spotlightOpen = false
-        settingsOpen = false
         dashboardOpen = false
-        systemMonitorOpen = false
         sessionOpen = false
         overviewOpen = false
         mediaNotchOpen = false
         trayOverflowOpen = false
         accentPickerOpen = false
-        // Note: wallpaperSelectorOpen and regionSelectorOpen are excluded
+        // Note: settingsOpen, systemMonitorOpen, wallpaperSelectorOpen and
+        // regionSelectorOpen are excluded so NAnDoroid's own windows survive.
     }
 
     function activateSettings() {
