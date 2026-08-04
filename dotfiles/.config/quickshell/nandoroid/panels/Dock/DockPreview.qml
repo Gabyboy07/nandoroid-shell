@@ -4,6 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
 import "../../core"
+import "../../services"
 import "../../widgets"
 
 /**
@@ -35,9 +36,12 @@ PopupWindow {
 
     readonly property var liveToplevels: {
         if (!appId) return [];
-        const lowerId = appId.toLowerCase();
-        return Array.from(ToplevelManager.toplevels.values).filter(t => 
-            (t.appId && t.appId.toLowerCase() === lowerId)
+        const canonical = appId.toLowerCase();
+        // Normalize each window's appId to its canonical desktop entry id so the
+        // preview matches windows whose appId differs from the dock entry
+        // (e.g. spotify window appId "spotify" under pinned "spotify-adblock").
+        return Array.from(ToplevelManager.toplevels.values).filter(t =>
+            (t.appId && TaskbarApps.normalizeAppId(t.appId) === canonical)
         );
     }
 

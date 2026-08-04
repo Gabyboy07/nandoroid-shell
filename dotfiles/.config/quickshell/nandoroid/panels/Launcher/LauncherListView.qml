@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Widgets
 import "../../widgets"
 import "../../core"
+import "../../services"
 
 RippleButton {
     id: root
@@ -12,11 +13,19 @@ RippleButton {
     property var result: modelData
     property bool selected: false
     
+    // Whether this app is in the dock favorites (shares the same pinnedApps list).
+    readonly property bool isFav: !!(result && !result.isPlugin) && TaskbarApps.pinVersion >= 0 && TaskbarApps.isPinned(result.id)
+    
     width: parent ? parent.width : 0
     height: 48 * Appearance.effectiveScale
     
     colBackground: root.selected ? Qt.alpha(Appearance.m3colors.m3primary, 0.1) : "transparent"
     buttonRadius: Appearance.rounding.small
+
+    // Right-click toggles favorite (pins/unpins in the shared dock list).
+    altAction: (event) => {
+        if (result && !result.isPlugin) TaskbarApps.togglePin(result.id)
+    }
     
     onClicked: {
         if (result) {
@@ -107,6 +116,15 @@ RippleButton {
             font.pixelSize: Math.round(11 * Appearance.effectiveScale)
             color: root.selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurfaceVariant
             opacity: 0.5
+        }
+
+        MaterialSymbol {
+            Layout.alignment: Qt.AlignVCenter
+            text: "star"
+            fill: 1
+            iconSize: 14 * Appearance.effectiveScale
+            color: Appearance.colors.colPrimary
+            visible: root.isFav
         }
     }
 }

@@ -14,6 +14,9 @@ RippleButton {
     property bool selected: false
     readonly property string subtitle: (app && app.subtitle) ? app.subtitle : ""
     
+    // Whether this app is in the dock favorites (shares the same pinnedApps list).
+    readonly property bool isFav: !!(app && !app.isPlugin) && TaskbarApps.pinVersion >= 0 && TaskbarApps.isPinned(app.id)
+    
     // Icon Source logic
     readonly property bool isPlugin: Boolean(app && app.isPlugin)
     readonly property string iconSource: isPlugin ? "" : Quickshell.iconPath(app ? app.icon : "application-x-executable", "image-missing")
@@ -23,6 +26,11 @@ RippleButton {
     
     colBackground: root.selected ? Qt.alpha(Appearance.m3colors.m3primary, 0.1) : "transparent"
     buttonRadius: 12 * Appearance.effectiveScale
+
+    // Right-click toggles favorite (pins/unpins in the shared dock list).
+    altAction: (event) => {
+        if (app && !app.isPlugin) TaskbarApps.togglePin(app.id)
+    }
     
     onClicked: {
         if (app) {
@@ -73,6 +81,16 @@ RippleButton {
                     font.pixelSize: Math.round(32 * Appearance.effectiveScale)
                     anchors.centerIn: parent
                 }
+            }
+
+            MaterialSymbol {
+                anchors { top: parent.top; right: parent.right; topMargin: -2 * Appearance.effectiveScale; rightMargin: -2 * Appearance.effectiveScale }
+                text: "star"
+                fill: 1
+                iconSize: 16 * Appearance.effectiveScale
+                color: Appearance.colors.colPrimary
+                visible: root.isFav
+                z: 10
             }
         }
         
