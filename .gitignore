@@ -12,5 +12,6 @@ Thumbs.db
 
 # Personal data
 app_usage.json
+emoji_recent.json
 agent_log/
 todo.md

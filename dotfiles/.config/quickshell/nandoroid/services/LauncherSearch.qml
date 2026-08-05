@@ -237,6 +237,7 @@ Singleton {
         triggerUpdate()
         cliphistProc.running = true
         usageFile.reload()
+        recentEmojiFile.reload()
     }
 
     Connections {
@@ -359,20 +360,117 @@ Singleton {
 
     property var emojiList: []
     property bool emojisLoaded: false
+    property string selectedEmojiCategory: ""
+    property var recentEmojis: []
+
+    readonly property var emojiCategories: {
+        const byCat = {};
+        const order = [];
+        for (const item of root.emojiList) {
+            if (!byCat[item.category]) {
+                byCat[item.category] = [];
+                order.push(item.category);
+            }
+            byCat[item.category].push(item);
+        }
+        const arr = [];
+        for (const name of order) arr.push({ name, emojis: byCat[name] });
+        return arr;
+    }
+
+    readonly property var emojiTabs: {
+        const tabs = [];
+        if (root.recentEmojis.length > 0) tabs.push("Recent");
+        for (const cat of root.emojiCategories) tabs.push(cat.name);
+        return tabs;
+    }
 
     FileView {
         id: emojiFile
         path: Quickshell.shellPath("data/emojis.txt")
+        watchChanges: true
         onLoaded: {
             const lines = text().split("\n");
             const list = [];
             for (const line of lines) {
-                const match = line.match(/^(\S+)\s+(.+)$/);
-                if (match) list.push({ emoji: match[1], name: match[2] });
+                const parts = line.split("\t");
+                if (parts.length >= 3) list.push({ emoji: parts[0], category: parts[1], name: parts[2] });
             }
             emojiList = list;
             emojisLoaded = true;
+            if (!root.selectedEmojiCategory && root.emojiTabs.length > 0) {
+                root.selectedEmojiCategory = root.recentEmojis.length > 0 ? "Recent" : root.emojiTabs[0];
+            }
         }
+    }
+
+    FileView {
+        id: recentEmojiFile
+        path: Quickshell.shellPath("data/emoji_recent.json")
+        watchChanges: true
+        onLoaded: {
+            try {
+                const parsed = JSON.parse(text());
+                if (Array.isArray(parsed)) root.recentEmojis = parsed.slice(0, 40);
+            } catch(e) {
+                root.recentEmojis = [];
+            }
+            if (!root.selectedEmojiCategory && root.emojiTabs.length > 0) {
+                root.selectedEmojiCategory = root.recentEmojis.length > 0 ? "Recent" : root.emojiTabs[0];
+            }
+        }
+    }
+
+    readonly property bool isEmojiMode: {
+        if (!Config.ready || !Config.options.search) return false;
+        return root.query.trim().startsWith(Config.options.search.emojiPrefix);
+    }
+
+    readonly property string emojiQuery: root.isEmojiMode ? root.query.trim().slice(Config.options.search.emojiPrefix.length).trim().toLowerCase() : ""
+
+    readonly property var emojiSections: {
+        if (!root.isEmojiMode || root.emojiList.length === 0) return [];
+        const sections = [];
+        if (root.recentEmojis.length > 0) sections.push({ label: "Recent Emoji", emojis: root.recentEmojis });
+        for (const cat of root.emojiCategories) sections.push({ label: cat.name, emojis: cat.emojis });
+        return sections;
+    }
+
+    readonly property var emojiSearchResults: {
+        if (!root.isEmojiMode || root.emojiList.length === 0 || root.emojiQuery === "") return [];
+        const q = root.emojiQuery;
+        const found = [];
+        for (const item of root.emojiList) {
+            if (item.name.toLowerCase().includes(q) || item.category.toLowerCase().includes(q)) found.push(item);
+        }
+        found.sort((a, b) => {
+            const aStarts = a.name.toLowerCase().startsWith(q);
+            const bStarts = b.name.toLowerCase().startsWith(q);
+            if (aStarts && !bStarts) return -1;
+            if (!aStarts && bStarts) return 1;
+            return a.name.localeCompare(b.name);
+        });
+        return found.slice(0, 150);
+    }
+
+    function recordEmojiUse(item) {
+        if (!item || !item.emoji) return;
+        const recents = root.recentEmojis.filter(r => r.emoji !== item.emoji);
+        recents.unshift({ emoji: item.emoji, category: item.category || "", name: item.name || "" });
+        root.recentEmojis = recents.slice(0, 40);
+        if (!root.selectedEmojiCategory && root.emojiTabs.length > 0) {
+            root.selectedEmojiCategory = "Recent";
+        }
+        const dataStr = JSON.stringify(root.recentEmojis);
+        const path = Quickshell.shellPath("data/emoji_recent.json");
+        Quickshell.execDetached(["sh", "-c", 'printf "%s" "$1" > "$2"', "sh", dataStr, path]);
+    }
+
+    function useEmoji(item) {
+        if (!item) return;
+        Quickshell.clipboardText = item.emoji;
+        root.recordEmojiUse(item);
+        root.closeAll();
     }
 
     readonly property bool isPluginSearch: {
@@ -430,8 +528,8 @@ Singleton {
             for (const item of emojiList) {
                 if (item.name.includes(emojiQuery) || emojiQuery === "") {
                     emojiResults.push({
-                        name: item.name, subtitle: "Emoji", emoji: item.emoji, category: "Emoji", id: "emoji-" + item.name, icon: "face", isPlugin: true,
-                        execute: () => { Quickshell.clipboardText = item.emoji; root.closeAll(); }
+                        name: item.name, subtitle: item.category || "Emoji", emoji: item.emoji, category: "Emoji", id: "emoji-" + item.name, icon: "face", isPlugin: true,
+                        execute: () => { root.useEmoji(item); }
                     });
                 }
             }
