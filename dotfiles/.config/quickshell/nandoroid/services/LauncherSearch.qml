@@ -483,7 +483,8 @@ Singleton {
             Config.options.search.clipboardPrefix,
             Config.options.search.filePrefix,
             Config.options.search.commandPrefix,
-            Config.options.search.toolsPrefix
+            Config.options.search.toolsPrefix,
+            Config.options.search.settingsPrefix
         ].some(p => stripped.startsWith(p));
     }
 
@@ -611,6 +612,36 @@ Singleton {
                 return a.name.localeCompare(b.name);
             });
             results.push(...toolResults);
+        } else if (strippedQuery.startsWith(Config.options.search.settingsPrefix)) {
+            const settingsQuery = strippedQuery.slice(Config.options.search.settingsPrefix.length).trim();
+            if (settingsQuery.length === 0) {
+                results.push({
+                    name: "Search Settings", subtitle: 'Type after the "' + Config.options.search.settingsPrefix + '" prefix to find settings', id: "settings-hint", icon: "settings", isPlugin: true, category: "Settings", emoji: "", execute: () => {}
+                });
+            } else {
+                const settingsResults = SearchRegistry.getResultsRanked(settingsQuery);
+                for (const res of settingsResults) {
+                    results.push({
+                        name: res.title,
+                        subtitle: res.matchedString,
+                        id: "settings-" + res.pageIndex + "-" + res.matchedString,
+                        icon: "settings",
+                        isPlugin: true,
+                        category: "Settings",
+                        emoji: "",
+                        execute: () => {
+                            SearchRegistry.pendingJump = { pageIndex: res.pageIndex, query: res.matchedString };
+                            GlobalStates.settingsOpen = true;
+                            root.closeAll();
+                        }
+                    });
+                }
+                if (settingsResults.length === 0) {
+                    results.push({
+                        name: "No settings found", subtitle: "Try a different search term", id: "settings-none", icon: "search_off", isPlugin: true, category: "Settings", emoji: "", execute: () => {}
+                    });
+                }
+            }
         } else if (strippedQuery.startsWith(Config.options.search.filePrefix)) {
             const fileQuery = strippedQuery.slice(Config.options.search.filePrefix.length).toLowerCase().trim();
             const fileResults = fileSearchProc.results.slice();

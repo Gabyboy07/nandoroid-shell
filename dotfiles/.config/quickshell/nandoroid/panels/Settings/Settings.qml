@@ -43,6 +43,24 @@ Scope {
         }
     }
 
+    // Jumps requested from the launcher (< prefix): same navigation path as
+    // the in-window search, so the target page highlights and scrolls into view.
+    Connections {
+        target: SearchRegistry
+        function onPendingJumpChanged() {
+            const jump = SearchRegistry.pendingJump;
+            SearchRegistry.pendingJump = null;
+            if (!jump || jump.pageIndex === undefined) return;
+            if (GlobalStates.settingsPageIndex === jump.pageIndex) {
+                SearchRegistry.currentSearch = "";
+                SearchRegistry.currentSearch = jump.query;
+            } else {
+                root.pendingSearchQuery = jump.query;
+                GlobalStates.settingsPageIndex = jump.pageIndex;
+            }
+        }
+    }
+
     FloatingWindow {
         id: settingsWindow
         visible: GlobalStates.settingsOpen

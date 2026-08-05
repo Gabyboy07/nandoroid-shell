@@ -23,6 +23,9 @@ Item {
     property string currentSearch: ""
     property var sections: []
     property bool isIndexing: pageFile.currentIndex < pageFile.files.length && pageFile.files.length > 0
+    // Requested jump from the launcher: { pageIndex, query }.
+    // Settings.qml consumes it to switch pages and trigger the SearchHandler highlight.
+    property var pendingJump: null
 
     function startIndexing() {
         sections = []

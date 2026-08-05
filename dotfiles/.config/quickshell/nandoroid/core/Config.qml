@@ -501,6 +501,7 @@ property JsonObject background: JsonObject {
                 property string filePrefix: "?"
                 property string commandPrefix: ">"
                 property string toolsPrefix: "."
+                property string settingsPrefix: "<"
                 property string iconShape: "Square"
                 property bool enableGrouping: false
                 property bool enableUsageTracking: true

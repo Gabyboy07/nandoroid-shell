@@ -401,12 +401,14 @@ Rectangle {
                 opacity: 0.6
                 text: {
                     const q = LauncherSearch.query;
+                    const search = Config.ready && Config.options.search;
                     if (LauncherSearch.isEmojiMode) return "Emoji Picker";
-                    if (q.startsWith("!")) return "Web Search";
-                    if (q.startsWith("=")) return "Calculator";
-                    if (q.startsWith(";")) return "Clipboard History";
-                    if (q.startsWith("?")) return "File Search";
-                    if (q.startsWith(">")) return "Quick Commands";
+                    if (search.webPrefix && q.startsWith(search.webPrefix)) return "Web Search";
+                    if (search.mathPrefix && q.startsWith(search.mathPrefix)) return "Calculator";
+                    if (search.clipboardPrefix && q.startsWith(search.clipboardPrefix)) return "Clipboard History";
+                    if (search.filePrefix && q.startsWith(search.filePrefix)) return "File Search";
+                    if (search.commandPrefix && q.startsWith(search.commandPrefix)) return "Quick Commands";
+                    if (search.settingsPrefix && q.startsWith(search.settingsPrefix)) return "Settings Search";
                     return q ? "Spotlight Search" : "Applications";
                 }
             }

@@ -280,7 +280,48 @@ ColumnLayout {
             }
         }
 
-        // 7. App Usage Tracking Toggle
+        // 7. Settings Search Prefix Card
+        SegmentedWrapper {
+            Layout.fillWidth: true
+            implicitHeight: settingsRow.implicitHeight + 40 * Appearance.effectiveScale
+            orientation: Qt.Vertical
+            maxRadius: 20 * Appearance.effectiveScale
+            color: Appearance.m3colors.m3surfaceContainerHigh
+
+            RowLayout {
+                id: settingsRow
+                anchors.fill: parent
+                anchors.margins: 20 * Appearance.effectiveScale
+                spacing: 20 * Appearance.effectiveScale
+
+                ColumnLayout {
+                    spacing: 2 * Appearance.effectiveScale
+                    StyledText {
+                        text: "Settings Search Prefix"
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnLayer1
+                    }
+                    StyledText {
+                        text: "Prefix to search and jump to a setting."
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: Appearance.colors.colSubtext
+                    }
+                }
+                Item { Layout.fillWidth: true }
+                
+                StyledTextInput {
+                    id: settingsInput
+                    width: 120 * Appearance.effectiveScale
+                    height: 48 * Appearance.effectiveScale
+                    horizontalAlignment: TextInput.AlignHCenter
+                    text: (Config.ready && Config.options.search) ? Config.options.search.settingsPrefix : "<"
+                    onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.settingsPrefix = text; }
+                }
+            }
+        }
+
+        // 8. App Usage Tracking Toggle
         SegmentedWrapper {
             Layout.fillWidth: true
             implicitHeight: usageRow.implicitHeight + 40 * Appearance.effectiveScale
