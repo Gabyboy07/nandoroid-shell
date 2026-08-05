@@ -23,6 +23,8 @@ Rectangle {
     property int selectedIndex: 0
     property int gridColumns: 1
     property bool isKeyboardNavigation: false
+    property bool jumpPending: false
+    property string jumpSectionLabel: ""
     readonly property bool hasQuery: LauncherSearch.query !== ""
     
     width: 560 * Appearance.effectiveScale
@@ -126,11 +128,13 @@ Rectangle {
         const model = root.emojiView.model;
         for (let i = 0; i < model.length; i++) {
             if (model[i].type === "header" && model[i].label === target) {
+                root.jumpSectionLabel = target;
+                root.jumpPending = true;
                 if (i + 1 < model.length && model[i + 1].type === "emoji") {
                     root.selectedIndex = model[i + 1].startIndex;
                 }
                 emojiListView.positionViewAtIndex(i, ListView.Beginning);
-                return;
+                break;
             }
         }
     }
@@ -152,7 +156,12 @@ Rectangle {
         }
         if (activeRow < 0) activeRow = model.length - 1;
         if (model[activeRow] && model[activeRow].type === "header") activeRow++;
-        if (model[activeRow] && model[activeRow].type === "emoji" && !root.isKeyboardNavigation) {
+        // While a section jump is in flight, contentY may still be in the old
+        // section; don't move the selection or the tab until it settles there.
+        const reachedJump = !root.jumpPending || label === root.jumpSectionLabel;
+        if (!reachedJump) return;
+        root.jumpPending = false;
+        if (model[activeRow] && model[activeRow].type === "emoji") {
             root.selectedIndex = model[activeRow].startIndex;
         }
         const tabLabel = label === "Recent Emoji" ? "Recent" : label;
@@ -161,6 +170,20 @@ Rectangle {
         }
     }
     
+    function syncEmojiTab(index) {
+        if (LauncherSearch.emojiQuery !== "") return;
+        const sections = root.emojiView.sections;
+        for (let i = 0; i < sections.length; i++) {
+            if (index >= sections[i].start && index < sections[i].end) {
+                const tabLabel = sections[i].label === "Recent Emoji" ? "Recent" : sections[i].label;
+                if (tabLabel && LauncherSearch.selectedEmojiCategory !== tabLabel) {
+                    LauncherSearch.selectedEmojiCategory = tabLabel;
+                }
+                break;
+            }
+        }
+    }
+
     function executeSelected() {
         if (LauncherSearch.isEmojiMode) {
             const flat = root.emojiView.flat;
@@ -187,18 +210,7 @@ Rectangle {
                     emojiListView.positionViewAtIndex(rowIdx, ListView.Contain);
                 }
             }
-            if (LauncherSearch.emojiQuery === "") {
-                const sections = root.emojiView.sections;
-                for (let i = 0; i < sections.length; i++) {
-                    if (selectedIndex >= sections[i].start && selectedIndex < sections[i].end) {
-                        const tabLabel = sections[i].label === "Recent Emoji" ? "Recent" : sections[i].label;
-                        if (tabLabel && LauncherSearch.selectedEmojiCategory !== tabLabel) {
-                            LauncherSearch.selectedEmojiCategory = tabLabel;
-                        }
-                        break;
-                    }
-                }
-            }
+            root.syncEmojiTab(selectedIndex);
         }
     }
 
@@ -308,8 +320,10 @@ Rectangle {
                 MouseArea {
                     anchors.fill: parent
                     acceptedButtons: Qt.NoButton
+                    hoverEnabled: false
                     onWheel: (event) => {
                         root.isKeyboardNavigation = false;
+                        root.jumpPending = false;
                         event.accepted = false;
                     }
                 }
@@ -352,7 +366,9 @@ Rectangle {
                                 onHoveredChanged: {
                                     if (hovered && GlobalStates.spotlightOpen) {
                                         root.isKeyboardNavigation = false;
+                                        root.jumpPending = false;
                                         root.selectedIndex = rowData.startIndex + index;
+                                        root.syncEmojiTab(rowData.startIndex + index);
                                     }
                                 }
                             }
