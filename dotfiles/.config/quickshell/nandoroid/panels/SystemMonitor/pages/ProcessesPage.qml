@@ -84,15 +84,15 @@ Item {
             ColumnLayout {
                 spacing: 4 * Appearance.effectiveScale
                 StyledText {
-                    text: "Processes"
+                    text: I18nService.tr("Processes")
                     font.pixelSize: Appearance.font.pixelSize.huge
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
                 }
                 StyledText {
                     text: root.searchQuery.trim() !== "" 
-                        ? root.filteredProcesses.length + " of " + (SystemData.processCount > 0 ? SystemData.processCount : root.filteredProcesses.length) + " processes"
-                        : (SystemData.processCount > 0 ? SystemData.processCount : root.filteredProcesses.length) + " running processes"
+                        ? root.filteredProcesses.length + " " + I18nService.tr("of") + " " + (SystemData.processCount > 0 ? SystemData.processCount : root.filteredProcesses.length) + " " + I18nService.tr("processes")
+                        : (SystemData.processCount > 0 ? SystemData.processCount : root.filteredProcesses.length) + " " + I18nService.tr("running processes")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     color: Appearance.colors.colSubtext
                 }
@@ -129,7 +129,7 @@ Item {
                         borderInactiveWidth: 0
                         showActiveBorder: false
                         font.pixelSize: Appearance.font.pixelSize.normal
-                        placeholder: "Search process..."
+                        placeholder: I18nService.tr("Search process...")
                         placeholderColor: Appearance.colors.colSubtext
                         leftMargin: 0
                         rightMargin: 0
@@ -178,7 +178,7 @@ Item {
                     color: Appearance.colors.colWarning
                 }
                 StyledText {
-                    text: "Using native Linux 'ps' fallback. Install 'dgop' for enhanced real-time 1-second CPU deltas."
+                    text: I18nService.tr("Using native Linux 'ps' fallback. Install 'dgop' for enhanced real-time 1-second CPU deltas.")
                     font.pixelSize: Appearance.font.pixelSize.smaller
                     color: Appearance.colors.colOnLayer1
                     Layout.fillWidth: true
@@ -198,11 +198,11 @@ Item {
                 anchors.rightMargin: 16 * Appearance.effectiveScale
                 spacing: 12 * Appearance.effectiveScale
 
-                HeaderItem { text: "PID"; field: "pid"; Layout.preferredWidth: 65 * Appearance.effectiveScale; alignment: Text.AlignLeft }
-                HeaderItem { text: "Name"; field: "command"; Layout.fillWidth: true; alignment: Text.AlignLeft }
-                HeaderItem { text: "CPU"; field: "cpu"; Layout.preferredWidth: 80 * Appearance.effectiveScale; alignment: Text.AlignRight }
-                HeaderItem { text: "Memory"; field: "memoryKB"; Layout.preferredWidth: 95 * Appearance.effectiveScale; alignment: Text.AlignRight }
-                HeaderItem { text: "User"; field: "username"; Layout.preferredWidth: 95 * Appearance.effectiveScale; alignment: Text.AlignRight }
+                HeaderItem { text: I18nService.tr("PID"); field: "pid"; Layout.preferredWidth: 65 * Appearance.effectiveScale; alignment: Text.AlignLeft }
+                HeaderItem { text: I18nService.tr("Name"); field: "command"; Layout.fillWidth: true; alignment: Text.AlignLeft }
+                HeaderItem { text: I18nService.tr("CPU"); field: "cpu"; Layout.preferredWidth: 80 * Appearance.effectiveScale; alignment: Text.AlignRight }
+                HeaderItem { text: I18nService.tr("Memory"); field: "memoryKB"; Layout.preferredWidth: 95 * Appearance.effectiveScale; alignment: Text.AlignRight }
+                HeaderItem { text: I18nService.tr("User"); field: "username"; Layout.preferredWidth: 95 * Appearance.effectiveScale; alignment: Text.AlignRight }
             }
         }
 
@@ -409,6 +409,8 @@ Item {
             id: menuItem
             
             implicitHeight: 32 * Appearance.effectiveScale
+            property string itemIcon: "info"
+            property bool isDanger: false
 
             readonly property bool isHovered: itemHover.hovered
 
@@ -423,16 +425,9 @@ Item {
                 spacing: 8 * Appearance.effectiveScale
 
                 MaterialSymbol {
-                    text: {
-                        if (menuItem.text.includes("Kill")) return "delete_forever";
-                        if (menuItem.text.includes("Stop")) return "pause";
-                        if (menuItem.text.includes("Continue")) return "play_arrow";
-                        if (menuItem.text.includes("Close")) return "close";
-                        if (menuItem.text.includes("Copy")) return "content_copy";
-                        return "info";
-                    }
+                    text: menuItem.itemIcon
                     iconSize: 18 * Appearance.effectiveScale
-                    color: menuItem.text.includes("Kill (Force)")
+                    color: menuItem.isDanger
                         ? Appearance.colors.colError 
                         : Appearance.colors.colOnLayer0
                 }
@@ -440,7 +435,7 @@ Item {
                     text: menuItem.text
                     font.pixelSize: Appearance.font.pixelSize.small
                     font.weight: Font.Normal
-                    color: menuItem.text.includes("Kill (Force)")
+                    color: menuItem.isDanger
                         ? Appearance.colors.colError 
                         : Appearance.colors.colOnLayer0
                     Layout.fillWidth: true
@@ -450,7 +445,7 @@ Item {
             background: Rectangle {
                 anchors.fill: parent
                 color: menuItem.isHovered 
-                    ? (menuItem.text.includes("Kill (Force)")
+                    ? (menuItem.isDanger
                         ? Functions.ColorUtils.applyAlpha(Appearance.colors.colError, 0.15)
                         : Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.15))
                     : "transparent"
@@ -459,11 +454,13 @@ Item {
         }
         
         StyledMenuItem {
-            text: "Stop (Pause)"
+            text: I18nService.tr("Stop (Pause)")
+            itemIcon: "pause"
             onTriggered: { actionProc.command = ["kill", "-STOP", processMenu.targetPid.toString()]; actionProc.running = true; }
         }
         StyledMenuItem {
-            text: "Continue"
+            text: I18nService.tr("Continue")
+            itemIcon: "play_arrow"
             onTriggered: { actionProc.command = ["kill", "-CONT", processMenu.targetPid.toString()]; actionProc.running = true; }
         }
         
@@ -477,11 +474,14 @@ Item {
         }
 
         StyledMenuItem {
-            text: "Close (Graceful)"
+            text: I18nService.tr("Close (Graceful)")
+            itemIcon: "close"
             onTriggered: { actionProc.command = ["kill", processMenu.targetPid.toString()]; actionProc.running = true; }
         }
         StyledMenuItem {
-            text: "Kill (Force)"
+            text: I18nService.tr("Kill (Force)")
+            itemIcon: "delete_forever"
+            isDanger: true
             onTriggered: { actionProc.command = ["kill", "-9", processMenu.targetPid.toString()]; actionProc.running = true; }
         }
 
@@ -495,7 +495,8 @@ Item {
         }
 
         StyledMenuItem {
-            text: "Copy PID"
+            text: I18nService.tr("Copy PID")
+            itemIcon: "content_copy"
             onTriggered: Quickshell.clipboardText = processMenu.targetPid.toString()
         }
     }

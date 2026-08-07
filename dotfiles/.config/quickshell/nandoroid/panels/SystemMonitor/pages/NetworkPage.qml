@@ -17,7 +17,7 @@ Item {
         spacing: 20 * Appearance.effectiveScale
 
         StyledText {
-            text: "Network Activity"
+            text: I18nService.tr("Network Activity")
             font.pixelSize: Appearance.font.pixelSize.huge
             font.weight: Font.DemiBold
         }
@@ -39,20 +39,20 @@ Item {
                     Layout.bottomMargin: 20 * Appearance.effectiveScale
                     ColumnLayout {
                         spacing: 0
-                        StyledText { text: "Network Bandwidth"; font.pixelSize: Appearance.font.pixelSize.large; font.weight: Font.Medium; color: Appearance.m3colors.m3onSurface }
-                        StyledText { text: "Total Activity: " + ((SystemData.networkTotalRate) / (1024 * 1024)).toFixed(2) + " MB/s"; color: Appearance.colors.colSubtext; font.pixelSize: Appearance.font.pixelSize.smaller }
+                        StyledText { text: I18nService.tr("Network Bandwidth"); font.pixelSize: Appearance.font.pixelSize.large; font.weight: Font.Medium; color: Appearance.m3colors.m3onSurface }
+                        StyledText { text: I18nService.tr("Total Activity: %1 MB/s").replace("%1", ((SystemData.networkTotalRate) / (1024 * 1024)).toFixed(2)); color: Appearance.colors.colSubtext; font.pixelSize: Appearance.font.pixelSize.smaller }
                     }
                     Item { Layout.fillWidth: true }
                     RowLayout {
                         spacing: 24 * Appearance.effectiveScale
                         ColumnLayout {
                             spacing: 0
-                            StyledText { text: "DOWNLOAD"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: "#81C995" }
+                            StyledText { text: I18nService.tr("DOWNLOAD"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: "#81C995" }
                             StyledText { text: (SystemData.networkRxRate / (1024 * 1024)).toFixed(2) + " MB/s"; font.pixelSize: Appearance.font.pixelSize.normal; font.weight: Font.DemiBold; color: Appearance.m3colors.m3onSurface }
                         }
                         ColumnLayout {
                             spacing: 0
-                            StyledText { text: "UPLOAD"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: "#FF8A65" }
+                            StyledText { text: I18nService.tr("UPLOAD"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: "#FF8A65" }
                             StyledText { text: (SystemData.networkTxRate / (1024 * 1024)).toFixed(2) + " MB/s"; font.pixelSize: Appearance.font.pixelSize.normal; font.weight: Font.DemiBold; color: Appearance.m3colors.m3onSurface; horizontalAlignment: Text.AlignRight }
                         }
                     }

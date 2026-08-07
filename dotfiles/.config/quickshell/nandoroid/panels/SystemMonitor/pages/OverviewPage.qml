@@ -37,7 +37,7 @@ Item {
                 spacing: 16 * Appearance.effectiveScale
 
                 StyledText {
-                    text: "System Overview"
+                    text: I18nService.tr("System Overview")
                     font.pixelSize: Appearance.font.pixelSize.huge
                     font.weight: Font.DemiBold
                     color: Appearance.m3colors.m3onSurface
@@ -52,20 +52,20 @@ Item {
 
                     ColumnLayout {
                         spacing: 1 * Appearance.effectiveScale
-                        StyledText { text: "UPTIME"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
+                        StyledText { text: I18nService.tr("UPTIME"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText { text: SystemData.uptime || "--"; font.pixelSize: Appearance.font.pixelSize.small; font.weight: Font.Medium; color: Appearance.m3colors.m3onSurface }
                     }
 
                     ColumnLayout {
                         spacing: 1 * Appearance.effectiveScale
-                        StyledText { text: "LOAD AVG"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
+                        StyledText { text: I18nService.tr("LOAD AVG"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText { text: SystemData.loadAverage || "--"; font.pixelSize: Appearance.font.pixelSize.small; font.weight: Font.Medium; color: Appearance.m3colors.m3onSurface }
                     }
 
                     ColumnLayout {
                         spacing: 1 * Appearance.effectiveScale
-                        StyledText { text: "PROCESSES"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
-                        StyledText { text: `${SystemData.processCount} (${SystemData.threadCount} threads)`; font.pixelSize: Appearance.font.pixelSize.small; font.weight: Font.Medium; color: Appearance.m3colors.m3onSurface }
+                        StyledText { text: I18nService.tr("PROCESSES"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
+                        StyledText { text: `${SystemData.processCount} (${SystemData.threadCount} ` + I18nService.tr("threads") + `)`; font.pixelSize: Appearance.font.pixelSize.small; font.weight: Font.Medium; color: Appearance.m3colors.m3onSurface }
                     }
                 }
             }
@@ -78,7 +78,7 @@ Item {
                 rowSpacing: 16 * Appearance.effectiveScale
 
                 GraphCard {
-                    title: "CPU Usage"
+                    title: I18nService.tr("CPU Usage")
                     value: Math.round(SystemData.cpuUsage * 100) + "%"
                     subValue: `${SystemData.cpuTemperature}°C`
                     history: SystemData.cpuHistory
@@ -87,7 +87,7 @@ Item {
                 }
 
                 GraphCard {
-                    title: "GPU Usage"
+                    title: I18nService.tr("GPU Usage")
                     value: SystemData.availableGpus.length > 0 ? Math.round(SystemData.availableGpus[0].usage) + "%" : "0%"
                     subValue: SystemData.availableGpus.length > 0 && SystemData.availableGpus[0].temp > 0 ? `${SystemData.availableGpus[0].temp}°C` : ""
                     history: SystemData.gpuHistory
@@ -97,7 +97,7 @@ Item {
 
 
                 GraphCard {
-                    title: "Memory"
+                    title: I18nService.tr("Memory")
                     value: Math.round(SystemData.memUsage * 100) + "%"
                     subValue: `${SystemData.usedMemoryMB}MB / ${SystemData.totalMemoryMB}MB`
                     history: SystemData.memHistory
@@ -106,7 +106,7 @@ Item {
                 }
 
                 GraphCard {
-                    title: "Network"
+                    title: I18nService.tr("Network")
                     value: (SystemData.networkRxRate / (1024 * 1024)).toFixed(2) + " MB/s"
                     subValue: `↓${(SystemData.networkRxRate / 1024).toFixed(0)}KB/s ↑${(SystemData.networkTxRate / 1024).toFixed(0)}KB/s`
                     accentColor: "#81C995"
@@ -154,7 +154,7 @@ Item {
                 }
 
                 GraphCard {
-                    title: "Disk I/O"
+                    title: I18nService.tr("Disk I/O")
                     value: (SystemData.diskTotalRate / (1024 * 1024)).toFixed(2) + " MB/s"
                     subValue: `R:${(SystemData.diskReadRate / (1024 * 1024)).toFixed(1)}MB/s W:${(SystemData.diskWriteRate / (1024 * 1024)).toFixed(1)}MB/s`
                     history: SystemData.diskReadHistory
@@ -196,7 +196,7 @@ Item {
                 ColumnLayout {
                     spacing: -2 * Appearance.effectiveScale
                     StyledText {
-                        text: card.title
+                        text: I18nService.tr(card.title)
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: Font.Medium
                         color: Appearance.m3colors.m3onSurfaceVariant

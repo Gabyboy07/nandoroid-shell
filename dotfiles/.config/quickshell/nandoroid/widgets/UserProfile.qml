@@ -92,7 +92,7 @@ Rectangle {
             StyledText {
                 text: {
                     const descMode = Config.options.profile?.descriptionText || "::distro::";
-                    if (descMode === "::uptime::") return "Up " + DateTime.uptime;
+                    if (descMode === "::uptime::") return I18nService.tr("Up ") + DateTime.uptime;
                     return SystemInfo.distroName || "Linux System";
                 }
                 font.pixelSize: Math.round(11 * Appearance.effectiveScale)

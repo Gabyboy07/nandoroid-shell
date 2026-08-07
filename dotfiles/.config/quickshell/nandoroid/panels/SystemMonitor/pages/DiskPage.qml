@@ -26,7 +26,7 @@ Item {
             spacing: 20 * Appearance.effectiveScale
 
         StyledText {
-            text: "Disk Performance"
+            text: I18nService.tr("Disk Performance")
             font.pixelSize: Appearance.font.pixelSize.huge
             font.weight: Font.DemiBold
         }
@@ -47,7 +47,7 @@ Item {
                 RowLayout {
                     Layout.fillWidth: true
                     ColumnLayout {
-                        StyledText { text: "Total Throughput"; font.pixelSize: Appearance.font.pixelSize.small; color: Appearance.m3colors.m3onSurfaceVariant }
+                        StyledText { text: I18nService.tr("Total Throughput"); font.pixelSize: Appearance.font.pixelSize.small; color: Appearance.m3colors.m3onSurfaceVariant }
                         StyledText { 
                             text: ((SystemData.diskReadRate + SystemData.diskWriteRate) / (1024 * 1024)).toFixed(2) + " MB/s"
                             font.pixelSize: Appearance.font.pixelSize.huge
@@ -69,7 +69,7 @@ Item {
                     
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
-                        StyledText { text: "READ"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
+                        StyledText { text: I18nService.tr("READ"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText { 
                             text: (SystemData.diskReadRate / (1024 * 1024)).toFixed(2) + " MB/s"
                             font.pixelSize: Appearance.font.pixelSize.small
@@ -82,7 +82,7 @@ Item {
                     
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
-                        StyledText { text: "WRITE"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
+                        StyledText { text: I18nService.tr("WRITE"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText { 
                             text: (SystemData.diskWriteRate / (1024 * 1024)).toFixed(2) + " MB/s"
                             font.pixelSize: Appearance.font.pixelSize.small
@@ -97,7 +97,7 @@ Item {
         }
 
         StyledText {
-            text: "Disk Operations"
+            text: I18nService.tr("Disk Operations")
             Layout.topMargin: 12 * Appearance.effectiveScale
             font.pixelSize: Appearance.font.pixelSize.large
             font.weight: Font.DemiBold
@@ -130,7 +130,7 @@ Item {
                             color: Appearance.m3colors.m3primary
                         }
                         StyledText {
-                            text: hasAlias ? `${label.toUpperCase()} DISK USAGE` : `"${label.toUpperCase()}" DISK USAGE`
+                            text: hasAlias ? I18nService.tr("%1 DISK USAGE").replace("%1", label.toUpperCase()) : I18nService.tr("\"%1\" DISK USAGE").replace("%1", label.toUpperCase())
                             font.pixelSize: Appearance.font.pixelSize.smaller
                             font.weight: Font.DemiBold
                             color: Appearance.m3colors.m3outline

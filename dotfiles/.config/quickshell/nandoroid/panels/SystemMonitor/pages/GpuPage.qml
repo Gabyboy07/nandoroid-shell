@@ -20,7 +20,7 @@ Item {
         spacing: 20 * Appearance.effectiveScale
 
         StyledText {
-            text: "GPU Performance"
+            text: I18nService.tr("GPU Performance")
             font.pixelSize: Appearance.font.pixelSize.huge
             font.weight: Font.DemiBold
         }
@@ -49,7 +49,7 @@ Item {
                             color: Appearance.m3colors.m3onSurface
                         }
                         StyledText { 
-                            text: root.currentGpu ? `${root.currentGpu.vendor} Graphics Engine` : "Graphics Card"
+                            text: root.currentGpu ? `${root.currentGpu.vendor} ` + I18nService.tr("Graphics Engine") : I18nService.tr("Graphics Card")
                             color: Appearance.colors.colSubtext
                             font.pixelSize: Appearance.font.pixelSize.smaller
                         }
@@ -78,7 +78,7 @@ Item {
                     
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
-                        StyledText { text: "TEMPERATURE"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
+                        StyledText { text: I18nService.tr("TEMPERATURE"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText {
                             text: (root.currentGpu && root.currentGpu.temp > 0) ? Math.round(root.currentGpu.temp) + "°C" : "--°C"
                             font.weight: Font.Medium
@@ -88,7 +88,7 @@ Item {
 
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
-                        StyledText { text: "VENDOR"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
+                        StyledText { text: I18nService.tr("VENDOR"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText {
                             text: root.currentGpu ? root.currentGpu.vendor : "--"
                             font.weight: Font.Medium
@@ -100,7 +100,7 @@ Item {
 
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
-                        StyledText { text: "UPTIME"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
+                        StyledText { text: I18nService.tr("UPTIME"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText { text: SystemData.uptime; font.weight: Font.Medium; font.pixelSize: Appearance.font.pixelSize.small; horizontalAlignment: Text.AlignRight }
                     }
                 }
@@ -127,14 +127,14 @@ Item {
                     Layout.alignment: Qt.AlignCenter
                 }
                 StyledText {
-                    text: "GPU performance data not available"
+                    text: I18nService.tr("GPU performance data not available")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     font.weight: Font.Medium
                     color: Appearance.m3colors.m3onSurface
                     Layout.alignment: Qt.AlignCenter
                 }
                 StyledText {
-                    text: "Your GPU does not report usage or temperature data to system sensors."
+                    text: I18nService.tr("Your GPU does not report usage or temperature data to system sensors.")
                     font.pixelSize: Appearance.font.pixelSize.smaller
                     color: Appearance.m3colors.m3onSurfaceVariant
                     Layout.alignment: Qt.AlignCenter

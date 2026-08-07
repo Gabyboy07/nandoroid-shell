@@ -17,7 +17,7 @@ Item {
         spacing: 20 * Appearance.effectiveScale
 
         StyledText {
-            text: "CPU Performance"
+            text: I18nService.tr("CPU Performance")
             font.pixelSize: Appearance.font.pixelSize.huge
             font.weight: Font.DemiBold
         }
@@ -39,7 +39,7 @@ Item {
                         spacing: 0
                         StyledText { text: SystemData.cpuModel; font.pixelSize: Appearance.font.pixelSize.normal; font.weight: Font.Medium; color: Appearance.m3colors.m3onSurface }
                         StyledText { 
-                            text: `${SystemData.physicalCores} Cores / ${SystemData.cpuThreads} Threads`; 
+                            text: I18nService.tr("%1 Cores / %2 Threads").replace("%1", SystemData.physicalCores).replace("%2", SystemData.cpuThreads); 
                             color: Appearance.colors.colSubtext; 
                             font.pixelSize: Appearance.font.pixelSize.smaller
                         }
@@ -68,13 +68,13 @@ Item {
                     
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
-                        StyledText { text: "TEMPERATURE"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
+                        StyledText { text: I18nService.tr("TEMPERATURE"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText { text: Math.round(SystemData.cpuTemperature) + "°C"; font.weight: Font.Medium; font.pixelSize: Appearance.font.pixelSize.small }
                     }
 
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
-                        StyledText { text: "LOAD AVERAGE"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
+                        StyledText { text: I18nService.tr("LOAD AVERAGE"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText { text: SystemData.loadAverage; font.weight: Font.Medium; font.pixelSize: Appearance.font.pixelSize.small }
                     }
 
@@ -82,7 +82,7 @@ Item {
 
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
-                        StyledText { text: "UPTIME"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
+                        StyledText { text: I18nService.tr("UPTIME"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText { text: SystemData.uptime; font.weight: Font.Medium; font.pixelSize: Appearance.font.pixelSize.small; horizontalAlignment: Text.AlignRight }
                     }
                 }

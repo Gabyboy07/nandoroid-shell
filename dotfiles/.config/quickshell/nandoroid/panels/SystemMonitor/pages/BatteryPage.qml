@@ -31,7 +31,7 @@ Flickable {
 
         // Header Title
         StyledText {
-            text: "Battery & Power"
+            text: I18nService.tr("Battery & Power")
             font.pixelSize: Appearance.font.pixelSize.huge
             font.weight: Font.DemiBold
             color: Appearance.m3colors.m3onSurface
@@ -72,7 +72,7 @@ Flickable {
                         }
 
                         StyledText {
-                            text: "•  " + (Battery.isCharging ? "Charging" : (Battery.chargeState === 4 ? "Fully Charged" : "Discharging"))
+                            text: "•  " + (Battery.isCharging ? I18nService.tr("Charging") : (Battery.chargeState === 4 ? I18nService.tr("Fully Charged") : I18nService.tr("Discharging")))
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.Medium
                             color: Battery.isCharging ? Appearance.colors.colSuccess : Appearance.colors.colSubtext
@@ -84,9 +84,9 @@ Flickable {
 
                     StyledText {
                         text: {
-                            if (Battery.isCharging && Battery.timeToFull > 0) return `${Math.round(Battery.timeToFull / 60)} mins until full`;
-                            if (!Battery.isCharging && Battery.timeToEmpty > 0) return `${Math.round(Battery.timeToEmpty / 60)} mins remaining`;
-                            return Battery.isPluggedIn ? "Power Source: AC Adapter" : "Power Source: Battery";
+                            if (Battery.isCharging && Battery.timeToFull > 0) return I18nService.tr("%1 mins until full").replace("%1", Math.round(Battery.timeToFull / 60));
+                            if (!Battery.isCharging && Battery.timeToEmpty > 0) return I18nService.tr("%1 mins remaining").replace("%1", Math.round(Battery.timeToEmpty / 60));
+                            return Battery.isPluggedIn ? I18nService.tr("Power Source: AC Adapter") : I18nService.tr("Power Source: Battery");
                         }
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: Font.Medium
@@ -166,7 +166,7 @@ Flickable {
 
             StatCard {
                 Layout.fillWidth: true
-                label: "Health"
+                label: I18nService.tr("Health")
                 value: Battery.health > 0 ? (Math.round(Battery.health) + "%") : "N/A"
                 icon: "favorite"
                 materialShape: MaterialShape.Shape.Cookie12Sided
@@ -174,7 +174,7 @@ Flickable {
 
             StatCard {
                 Layout.fillWidth: true
-                label: "Usage Rate"
+                label: I18nService.tr("Usage Rate")
                 value: Battery.energyRate > 0 ? (Battery.energyRate.toFixed(1) + " W") : "0.0 W"
                 icon: "bolt"
                 materialShape: MaterialShape.Shape.SoftBurst
@@ -182,7 +182,7 @@ Flickable {
 
             StatCard {
                 Layout.fillWidth: true
-                label: "Voltage"
+                label: I18nService.tr("Voltage")
                 value: Battery.voltage > 0 ? (Battery.voltage.toFixed(2) + " V") : "N/A"
                 icon: "electric_bolt"
                 materialShape: MaterialShape.Shape.Clover4Leaf
@@ -190,7 +190,7 @@ Flickable {
 
             StatCard {
                 Layout.fillWidth: true
-                label: "Cycles"
+                label: I18nService.tr("Cycles")
                 value: Battery.cycles > 0 ? Battery.cycles.toString() : "0"
                 icon: "autorenew"
                 materialShape: MaterialShape.Shape.Cookie7Sided
@@ -220,7 +220,7 @@ Flickable {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Hardware Information"
+                        text: I18nService.tr("Hardware Information")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.DemiBold
                         color: Appearance.m3colors.m3onSurface
@@ -233,12 +233,12 @@ Flickable {
                     rowSpacing: 16 * Appearance.effectiveScale
                     columnSpacing: 32 * Appearance.effectiveScale
 
-                    TechInfo { label: "Vendor"; value: Battery.vendor || "Unknown" }
-                    TechInfo { label: "Model"; value: Battery.model || "Generic Battery" }
-                    TechInfo { label: "Technology"; value: Battery.technology || "Lithium-Ion" }
-                    TechInfo { label: "Serial Number"; value: Battery.serial || "Not Available" }
-                    TechInfo { label: "Design Capacity"; value: (Battery.energyFullDesign || 0).toFixed(2) + " Wh" }
-                    TechInfo { label: "Full Capacity"; value: (Battery.energyFull || 0).toFixed(2) + " Wh" }
+                    TechInfo { label: I18nService.tr("Vendor"); value: Battery.vendor || I18nService.tr("Unknown") }
+                    TechInfo { label: I18nService.tr("Model"); value: Battery.model || I18nService.tr("Generic Battery") }
+                    TechInfo { label: I18nService.tr("Technology"); value: Battery.technology || I18nService.tr("Lithium-Ion") }
+                    TechInfo { label: I18nService.tr("Serial Number"); value: Battery.serial || I18nService.tr("Not Available") }
+                    TechInfo { label: I18nService.tr("Design Capacity"); value: (Battery.energyFullDesign || 0).toFixed(2) + " Wh" }
+                    TechInfo { label: I18nService.tr("Full Capacity"); value: (Battery.energyFull || 0).toFixed(2) + " Wh" }
                 }
             }
         }

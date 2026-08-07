@@ -39,12 +39,12 @@ Item {
 
             Repeater {
                 model: [
-                    { name: "Overview", icon: "dashboard" },
-                    { name: "CPU", icon: "monitoring" },
-                    { name: "GPU", icon: "videogame_asset" },
-                    { name: "Memory", icon: "memory" },
-                    { name: "Network", icon: "public" },
-                    { name: "Disk", icon: "storage" }
+                    { name: I18nService.tr("Overview"), icon: "dashboard" },
+                    { name: I18nService.tr("CPU"), icon: "monitoring" },
+                    { name: I18nService.tr("GPU"), icon: "videogame_asset" },
+                    { name: I18nService.tr("Memory"), icon: "memory" },
+                    { name: I18nService.tr("Network"), icon: "public" },
+                    { name: I18nService.tr("Disk"), icon: "storage" }
                 ]
 
                 delegate: RippleButton {

@@ -17,7 +17,7 @@ Item {
         spacing: 20 * Appearance.effectiveScale
 
         StyledText {
-            text: "Memory Performance"
+            text: I18nService.tr("Memory Performance")
             font.pixelSize: Appearance.font.pixelSize.huge
             font.weight: Font.DemiBold
         }
@@ -37,8 +37,8 @@ Item {
                     Layout.fillWidth: true
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
-                        StyledText { text: "Total RAM: " + (SystemData.totalMemoryMB / 1024).toFixed(1) + " GB"; font.pixelSize: Appearance.font.pixelSize.normal; font.weight: Font.Medium; color: Appearance.m3colors.m3onSurface }
-                        StyledText { text: "Used: " + (SystemData.usedMemoryMB / 1024).toFixed(1) + " GB"; color: Appearance.colors.colSubtext; font.pixelSize: Appearance.font.pixelSize.smaller }
+                        StyledText { text: I18nService.tr("Total RAM: %1 GB").replace("%1", (SystemData.totalMemoryMB / 1024).toFixed(1)); font.pixelSize: Appearance.font.pixelSize.normal; font.weight: Font.Medium; color: Appearance.m3colors.m3onSurface }
+                        StyledText { text: I18nService.tr("Used: %1 GB").replace("%1", (SystemData.usedMemoryMB / 1024).toFixed(1)); color: Appearance.colors.colSubtext; font.pixelSize: Appearance.font.pixelSize.smaller }
                     }
                     Item { Layout.fillWidth: true }
                     StyledText { 
@@ -60,7 +60,7 @@ Item {
                 
                 RowLayout {
                     Layout.fillWidth: true
-                    StyledText { text: "Swap Usage: " + Math.round(SystemData.swapUsage * 100) + "%"; font.weight: Font.Medium; font.pixelSize: Appearance.font.pixelSize.small; color: Appearance.colors.colSubtext }
+                    StyledText { text: I18nService.tr("Swap Usage: %1%").replace("%1", Math.round(SystemData.swapUsage * 100)); font.weight: Font.Medium; font.pixelSize: Appearance.font.pixelSize.small; color: Appearance.colors.colSubtext }
                     Item { Layout.fillWidth: true }
                 }
             }

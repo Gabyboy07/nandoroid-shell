@@ -82,7 +82,7 @@ Scope {
                         spacing: 20 * Appearance.effectiveScale
 
                         StyledText {
-                            text: "System Monitor"
+                            text: I18nService.tr("System Monitor")
                             font.pixelSize: Math.round(24 * Appearance.effectiveScale)
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnLayer0
@@ -191,9 +191,9 @@ Scope {
                                     
                                     Repeater {
                                         model: [
-                                            { name: "Performance", icon: "monitoring", stackIndex: 0 },
-                                            { name: "Battery", icon: "battery_charging_full", stackIndex: 1, visible: Battery.available },
-                                            { name: "Processes", icon: "list", stackIndex: 2 }
+                                            { name: I18nService.tr("Performance"), icon: "monitoring", stackIndex: 0 },
+                                            { name: I18nService.tr("Battery"), icon: "battery_charging_full", stackIndex: 1, visible: Battery.available },
+                                            { name: I18nService.tr("Processes"), icon: "list", stackIndex: 2 }
                                         ]
                                         
                                         delegate: RippleButton {
