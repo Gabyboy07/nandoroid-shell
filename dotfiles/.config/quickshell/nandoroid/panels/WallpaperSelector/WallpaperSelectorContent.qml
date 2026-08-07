@@ -235,7 +235,7 @@ Item {
                     spacing: 20 * Appearance.effectiveScale
 
                     StyledText {
-                        text: (GlobalStates.wallpaperSelectorTarget === "desktop" ? "Desktop Wallpaper" : "Lock Screen Wallpaper")
+                        text: (GlobalStates.wallpaperSelectorTarget === "desktop" ? I18nService.tr("Desktop Wallpaper") : I18nService.tr("Lock Screen Wallpaper"))
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.DemiBold
                         color: Appearance.colors.colOnLayer0
@@ -268,7 +268,7 @@ Item {
                                 backgroundColor: "transparent"
                                 borderInactiveWidth: 0
                                 showActiveBorder: false
-                                placeholder: mainSelector.wallhavenMode ? "Search Wallhaven..." : (mainSelector.naiveMode ? "Search NA-ive Walls..." : "Search wallpapers...")
+                                placeholder: mainSelector.wallhavenMode ? I18nService.tr("Search Wallhaven...") : (mainSelector.naiveMode ? I18nService.tr("Search NA-ive Walls...") : I18nService.tr("Search wallpapers..."))
                                 leftMargin: 0
                                 rightMargin: 0
                                 font.pixelSize: Appearance.font.pixelSize.normal
@@ -330,7 +330,7 @@ Item {
                                 iconSize: 20 * Appearance.effectiveScale
                                 rotation: sortPopup.visible ? 45 : 0
                             }
-                            StyledToolTip { text: "Sort Options" }
+                            StyledToolTip { text: I18nService.tr("Sort Options") }
                         }
                     }
 
@@ -383,7 +383,7 @@ Item {
                                 text: "shuffle"
                                 iconSize: 20 * Appearance.effectiveScale
                             }
-                            StyledToolTip { text: "Random Wallpaper" }
+                            StyledToolTip { text: I18nService.tr("Random Wallpaper") }
                         }
                     }
 
@@ -413,7 +413,7 @@ Item {
                                 iconSize: 20 * Appearance.effectiveScale
                                 rotation: weSettingsPopup.visible ? 45 : 0
                             }
-                            StyledToolTip { text: "Global Engine Settings" }
+                            StyledToolTip { text: I18nService.tr("Global Engine Settings") }
                         }
                     }
 
@@ -478,7 +478,7 @@ Item {
                                             color: liveSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colPrimary
                                         }
                                         StyledText { 
-                                            text: "Live Wallpaper"; Layout.fillWidth: true; 
+                                            text: I18nService.tr("Live Wallpaper"); Layout.fillWidth: true; 
                                             font.weight: liveSideBtn.toggled ? Font.DemiBold : Font.Normal
                                             color: liveSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer0
                                         }
@@ -486,10 +486,10 @@ Item {
                                     
                                     StyledToolTip {
                                         text: {
-                                            if (GameMode.active) return "Live wallpapers cannot be changed while Game Mode is active";
-                                            if (!WallpaperEngineService.isInstalled) return "linux-wallpaperengine not found";
-                                            if (GlobalStates.wallpaperSelectorTarget !== "desktop") return "Live wallpapers only supported on desktop";
-                                            return "Browse Wallpaper Engine collection";
+                                            if (GameMode.active) return I18nService.tr("Live wallpapers cannot be changed while Game Mode is active");
+                                            if (!WallpaperEngineService.isInstalled) return I18nService.tr("linux-wallpaperengine not found");
+                                            if (GlobalStates.wallpaperSelectorTarget !== "desktop") return I18nService.tr("Live wallpapers only supported on desktop");
+                                            return I18nService.tr("Browse Wallpaper Engine collection");
                                         }
                                     }
                                 }
@@ -513,12 +513,12 @@ Item {
                                             color: wallhavenSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colPrimary
                                         }
                                         StyledText { 
-                                            text: "Wallhaven"; Layout.fillWidth: true; 
+                                            text: I18nService.tr("Wallhaven"); Layout.fillWidth: true; 
                                             font.weight: wallhavenSideBtn.toggled ? Font.DemiBold : Font.Normal
                                             color: wallhavenSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer0
                                         }
                                     }
-                                    StyledToolTip { text: "Search and download from Wallhaven.cc" }
+                                    StyledToolTip { text: I18nService.tr("Search and download from Wallhaven.cc") }
                                 }
 
                                 // --- NA-ive Walls Collection Button ---
@@ -540,12 +540,12 @@ Item {
                                             color: naiveSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colPrimary
                                         }
                                         StyledText { 
-                                            text: "NA-ive Walls"; Layout.fillWidth: true; 
+                                            text: I18nService.tr("NA-ive Walls"); Layout.fillWidth: true; 
                                             font.weight: naiveSideBtn.toggled ? Font.DemiBold : Font.Normal
                                             color: naiveSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer0
                                         }
                                     }
-                                    StyledToolTip { text: "Browse the curated NA-ive wallpaper collection" }
+                                    StyledToolTip { text: I18nService.tr("Browse the curated NA-ive wallpaper collection") }
                                 }
 
                                 Item { width: parent.width; height: 12 * Appearance.effectiveScale } // Gap separator
@@ -569,12 +569,12 @@ Item {
                                             color: favSideBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
                                         }
                                         StyledText { 
-                                            text: "Favourites"; Layout.fillWidth: true; 
+                                            text: I18nService.tr("Favourites"); Layout.fillWidth: true; 
                                             font.weight: favSideBtn.toggled ? Font.DemiBold : Font.Normal
                                             color: favSideBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
                                         }
                                     }
-                                    StyledToolTip { text: "View your favorite wallpapers" }
+                                    StyledToolTip { text: I18nService.tr("View your favorite wallpapers") }
                                 }
 
                                 // --- Local Group (Standard Folders) ---
@@ -614,7 +614,7 @@ Item {
                                                 color: folderBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
                                             }
                                         }
-                                        StyledToolTip { text: "Browse wallpapers in " + modelData.name }
+                                        StyledToolTip { text: I18nService.tr("Browse wallpapers in %1").replace("%1", modelData.name) }
                                     }
                                 }
 
@@ -681,7 +681,7 @@ Item {
                                     RowLayout {
                                         anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
                                         MaterialSymbol { text: "add"; iconSize: 22 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                                        StyledText { text: "Add Folder"; color: Appearance.colors.colOnLayer0 }
+                                        StyledText { text: I18nService.tr("Add Folder"); color: Appearance.colors.colOnLayer0 }
                                     }
                                 }
                             }
@@ -765,7 +765,7 @@ Item {
                                     text: "progress_activity"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary
                                     RotationAnimation on rotation { from: 0; to: 360; duration: 1000; loops: Animation.Infinite; running: parent.visible }
                                 }
-                                StyledText { text: "Loading more..."; color: Appearance.colors.colSubtext }
+                                StyledText { text: I18nService.tr("Loading more..."); color: Appearance.colors.colSubtext }
                             }
                         }
 
@@ -956,7 +956,7 @@ Item {
                                                     s.searchFilter = "wallhaven-" + delegateRoot.wallhavenId;
                                                     WallhavenService.search(delegateRoot.wallhavenId, true);
                                                 }
-                                                StyledToolTip { text: "Search similar on Wallhaven" }
+                                                StyledToolTip { text: I18nService.tr("Search similar on Wallhaven") }
                                             }
 
                                             RippleButton {
@@ -971,7 +971,7 @@ Item {
                                                     Behavior on color { ColorAnimation { duration: 200 } }
                                                 }
                                                 onClicked: Wallpapers.toggleFavorite(currentFilePath)
-                                                StyledToolTip { text: favBtn.isFav ? "Remove from favorites" : "Add to favorites" }
+                                                StyledToolTip { text: favBtn.isFav ? I18nService.tr("Remove from favorites") : I18nService.tr("Add to favorites") }
                                             }
 
                                             RippleButton {
@@ -989,7 +989,7 @@ Item {
                                                         NaIveWallpaperService.download(model.full, model.filename, false);
                                                     }
                                                 }
-                                                StyledToolTip { text: "Download to folder" }
+                                                StyledToolTip { text: I18nService.tr("Download to folder") }
                                             }
 
                                             RippleButton {
@@ -1007,7 +1007,7 @@ Item {
                                                         NaIveWallpaperService.download(model.full, model.filename, true);
                                                     }
                                                 }
-                                                StyledToolTip { text: "Download and Apply" }
+                                                StyledToolTip { text: I18nService.tr("Download and Apply") }
                                             }
                                         }
 
@@ -1043,21 +1043,21 @@ Item {
                                 text: {
                                     if (mainSelector.wallhavenMode) {
                                         if (WallhavenService.errorMessage !== "") return WallhavenService.errorMessage;
-                                        if (WallhavenService.loading) return "Searching Wallhaven...";
-                                        return "No online wallpapers found";
+                                        if (WallhavenService.loading) return I18nService.tr("Searching Wallhaven...");
+                                        return I18nService.tr("No online wallpapers found");
                                     }
                                     if (mainSelector.naiveMode) {
                                         if (NaIveWallpaperService.errorMessage !== "") return NaIveWallpaperService.errorMessage;
-                                        if (NaIveWallpaperService.loading) return "Fetching Na-ive collection...";
-                                        return "No wallpapers in collection";
+                                        if (NaIveWallpaperService.loading) return I18nService.tr("Fetching Na-ive collection...");
+                                        return I18nService.tr("No wallpapers in collection");
                                     }
                                     if (mainSelector.liveMode) {
-                                        if (!WallpaperEngineService.isInstalled) return "linux-wallpaperengine-git is required for this feature";
+                                        if (!WallpaperEngineService.isInstalled) return I18nService.tr("linux-wallpaperengine-git is required for this feature");
                                         if (WallpaperEngineService.errorMessage !== "") return WallpaperEngineService.errorMessage;
-                                        if (WallpaperEngineService.loading) return "Scanning Steam Workshop...";
-                                        return "No Wallpaper Engine wallpapers found";
+                                        if (WallpaperEngineService.loading) return I18nService.tr("Scanning Steam Workshop...");
+                                        return I18nService.tr("No Wallpaper Engine wallpapers found");
                                     }
-                                    return mainSelector.favMode ? "No favorite wallpapers" : "No wallpapers found";
+                                    return mainSelector.favMode ? I18nService.tr("No favorite wallpapers") : I18nService.tr("No wallpapers found");
                                 }
                                 color: (WallhavenService.errorMessage !== "" || NaIveWallpaperService.errorMessage !== "" || WallpaperEngineService.errorMessage !== "") ? Appearance.m3colors.m3error : Appearance.colors.colSubtext
                                 Layout.alignment: Qt.AlignHCenter
@@ -1088,7 +1088,7 @@ Item {
                         visible: mainSelector.selectedWallpaper !== null
 
                         StyledText {
-                            text: mainSelector.selectedWallpaper ? mainSelector.selectedWallpaper.title : "Wallpaper Details"
+                            text: mainSelector.selectedWallpaper ? mainSelector.selectedWallpaper.title : I18nService.tr("Wallpaper Details")
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnLayer1
@@ -1145,7 +1145,7 @@ Item {
                                 spacing: 12 * Appearance.effectiveScale
 
                                 StyledText {
-                                    text: "Properties"
+                                    text: I18nService.tr("Properties")
                                     font.pixelSize: Appearance.font.pixelSize.small
                                     font.weight: Font.Medium
                                     color: Appearance.colors.colSubtext
@@ -1227,7 +1227,7 @@ Item {
 
                                 // Placeholder if no properties
                                 StyledText {
-                                    text: "No properties available for this wallpaper."
+                                    text: I18nService.tr("No properties available for this wallpaper.")
                                     font.pixelSize: Appearance.font.pixelSize.smaller
                                     color: Appearance.colors.colSubtext
                                     Layout.fillWidth: true
@@ -1245,7 +1245,7 @@ Item {
                                 Layout.fillWidth: true
                                 Layout.preferredWidth: 1
                                 implicitHeight: 44 * Appearance.effectiveScale
-                                buttonText: "Apply"
+                                buttonText: I18nService.tr("Apply")
                                 enabled: !GameMode.active
                                 opacity: enabled ? 1 : 0.5
                                 colBackground: Appearance.colors.colPrimary
@@ -1262,7 +1262,7 @@ Item {
                                 Layout.fillWidth: true
                                 Layout.preferredWidth: 1
                                 implicitHeight: 44 * Appearance.effectiveScale
-                                buttonText: "Reset"
+                                buttonText: I18nService.tr("Reset")
                                 colBackground: Appearance.colors.colLayer2
                                 colText: Appearance.colors.colOnLayer2
                                 visible: WallpaperEngineService.currentProperties.count > 0
@@ -1271,7 +1271,7 @@ Item {
                                         WallpaperEngineService.resetProperties(mainSelector.selectedWallpaper.folder);
                                     }
                                 }
-                                StyledToolTip { text: "Reset properties to default" }
+                                StyledToolTip { text: I18nService.tr("Reset properties to default") }
                             }
                         }
                     }
@@ -1290,7 +1290,7 @@ Item {
                         }
                         
                         StyledText {
-                            text: "Select a wallpaper to see details"
+                            text: I18nService.tr("Select a wallpaper to see details")
                             color: Appearance.colors.colSubtext
                             font.pixelSize: Appearance.font.pixelSize.small
                             Layout.alignment: Qt.AlignHCenter
@@ -1339,8 +1339,8 @@ Item {
                 
                 Repeater {
                     model: [
-                        { id: "name_asc",  name: "Name (A-Z)", icon: "sort_by_alpha" },
-                        { id: "name_desc", name: "Name (Z-A)", icon: "sort_by_alpha" }
+                        { id: "name_asc",  name: I18nService.tr("Name (A-Z)"), icon: "sort_by_alpha" },
+                        { id: "name_desc", name: I18nService.tr("Name (Z-A)"), icon: "sort_by_alpha" }
                     ]
                     delegate: RippleButton {
                         Layout.fillWidth: true
@@ -1410,7 +1410,7 @@ Item {
                 spacing: 12 * Appearance.effectiveScale
                 
                 StyledText {
-                    text: "Global Engine Settings"
+                    text: I18nService.tr("Global Engine Settings")
                     font.pixelSize: Math.round(14 * Appearance.effectiveScale)
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
@@ -1421,7 +1421,7 @@ Item {
                     Layout.fillWidth: true; spacing: 4 * Appearance.effectiveScale
                     RowLayout {
                         Layout.fillWidth: true
-                        StyledText { text: "Target FPS"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
+                        StyledText { text: I18nService.tr("Target FPS"); font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
                         StyledText { text: Math.round(fpsSlider.value); font.pixelSize: 12 * Appearance.effectiveScale; color: Appearance.colors.colPrimary; font.weight: Font.Bold }
                     }
                     StyledSlider {
@@ -1438,7 +1438,7 @@ Item {
                     Layout.fillWidth: true; spacing: 4 * Appearance.effectiveScale
                     RowLayout {
                         Layout.fillWidth: true
-                        StyledText { text: "Global Volume"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
+                        StyledText { text: I18nService.tr("Global Volume"); font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
                         StyledText { text: Math.round(volSlider.value) + "%"; font.pixelSize: 12 * Appearance.effectiveScale; color: Appearance.colors.colPrimary; font.weight: Font.Bold }
                     }
                     StyledSlider {
@@ -1453,7 +1453,7 @@ Item {
                 // Scaling Mode
                 ColumnLayout {
                     Layout.fillWidth: true; spacing: 4 * Appearance.effectiveScale
-                    StyledText { text: "Scaling Mode"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Scaling Mode"); font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1 }
                     StyledComboBox {
                         id: scalingCombo
                         Layout.fillWidth: true
@@ -1472,7 +1472,7 @@ Item {
                     
                     RowLayout {
                         Layout.fillWidth: true
-                        StyledText { text: "Mute Audio"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
+                        StyledText { text: I18nService.tr("Mute Audio"); font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
                         AndroidToggle {
                             checked: Config.ready ? Config.options.wallpaperEngine.silent : false
                             onToggled: if (Config.ready) Config.options.wallpaperEngine.silent = !checked
@@ -1481,7 +1481,7 @@ Item {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        StyledText { text: "Disable Audio Processing"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
+                        StyledText { text: I18nService.tr("Disable Audio Processing"); font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
                         AndroidToggle {
                             checked: Config.ready ? Config.options.wallpaperEngine.disableAudioProcessing : false
                             onToggled: if (Config.ready) Config.options.wallpaperEngine.disableAudioProcessing = !checked
@@ -1490,7 +1490,7 @@ Item {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        StyledText { text: "Auto-Pause (Windows)"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
+                        StyledText { text: I18nService.tr("Auto-Pause (Windows)"); font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
                         AndroidToggle {
                             checked: Config.ready ? Config.options.wallpaperEngine.autoPause : true
                             onToggled: if (Config.ready) Config.options.wallpaperEngine.autoPause = !checked
@@ -1499,7 +1499,7 @@ Item {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        StyledText { text: "Disable Particles"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
+                        StyledText { text: I18nService.tr("Disable Particles"); font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
                         AndroidToggle {
                             checked: Config.ready ? Config.options.wallpaperEngine.disableParticles : true
                             onToggled: if (Config.ready) Config.options.wallpaperEngine.disableParticles = !checked
@@ -1508,7 +1508,7 @@ Item {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        StyledText { text: "Disable Parallax"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
+                        StyledText { text: I18nService.tr("Disable Parallax"); font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
                         AndroidToggle {
                             checked: Config.ready ? Config.options.wallpaperEngine.disableParallax : false
                             onToggled: if (Config.ready) Config.options.wallpaperEngine.disableParallax = !checked
@@ -1517,7 +1517,7 @@ Item {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        StyledText { text: "Disable Mouse Interaction"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
+                        StyledText { text: I18nService.tr("Disable Mouse Interaction"); font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
                         AndroidToggle {
                             checked: Config.ready ? Config.options.wallpaperEngine.disableMouse : false
                             onToggled: if (Config.ready) Config.options.wallpaperEngine.disableMouse = !checked
@@ -1526,7 +1526,7 @@ Item {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        StyledText { text: "Disable PBO (Texture Fix)"; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
+                        StyledText { text: I18nService.tr("Disable PBO (Texture Fix)"); font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1; Layout.fillWidth: true }
                         AndroidToggle {
                             checked: Config.ready ? Config.options.wallpaperEngine.noPbo : true
                             onToggled: if (Config.ready) Config.options.wallpaperEngine.noPbo = !checked
@@ -1537,7 +1537,7 @@ Item {
                 Item { Layout.preferredHeight: 4 * Appearance.effectiveScale }
                 
                 StyledText {
-                    text: "* Requires Apply to take full effect"
+                    text: I18nService.tr("* Requires Apply to take full effect")
                     font.pixelSize: Math.round(10 * Appearance.effectiveScale)
                     color: Appearance.colors.colSubtext
                     horizontalAlignment: Text.AlignRight; Layout.fillWidth: true
