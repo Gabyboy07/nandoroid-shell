@@ -242,7 +242,7 @@ Item {
         // Pomodoro - centered
         StyledText {
             id: pomoModeLabel; anchors.centerIn: parent
-            text: PomodoroService.modeName
+            text: I18nService.tr(PomodoroService.modeName)
             opacity: parent.width > (20 * Appearance.effectiveScale) ? 1 : 0; Behavior on opacity { NumberAnimation { duration: 200 } }
             font.pixelSize: Math.round(12 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colNotchText
             visible: islandState === "pomodoro"
