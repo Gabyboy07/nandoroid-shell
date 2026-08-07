@@ -752,5 +752,15 @@
     "Patchy light rain with thunder": "Hujan Ringan dengan Petir",
     "Moderate or heavy rain with thunder": "Hujan Sedang/Lebat dengan Petir",
     "Patchy light snow with thunder": "Salju Ringan dengan Petir",
-    "Moderate or heavy snow with thunder": "Salju Sedang/Lebat dengan Petir"
+    "Moderate or heavy snow with thunder": "Salju Sedang/Lebat dengan Petir",
+    "Full Screenshot": "Tangkapan Layar Penuh",
+    "Region Screenshot": "Tangkapan Layar Area",
+    "Open Screenshots": "Buka Tangkapan Layar",
+    "Record Region": "Rekam Area",
+    "Record Region w/ Sound": "Rekam Area dengan Suara",
+    "Record Fullscreen w/ Sound": "Rekam Layar Penuh dengan Suara",
+    "Open Recordings": "Buka Rekaman",
+    "OCR (Text Recognition)": "OCR (Pengenalan Teks)",
+    "QR Code Scanner": "Pemindai Kode QR",
+    "Lens Search": "Pencarian Lensa"
 }

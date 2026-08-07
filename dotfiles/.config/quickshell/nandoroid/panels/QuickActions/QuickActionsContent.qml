@@ -262,9 +262,9 @@ FocusScope {
             
             onXChanged: tabHighlight.updatePositions(false)
             
-            ToolButton { idx: 0; iconName: "fullscreen"; tooltip: "Full Screenshot"; onClicked: executeItem(0) }
-            ToolButton { idx: 1; iconName: "screenshot_region"; tooltip: "Region Screenshot"; onClicked: executeItem(1) }
-            ToolButton { idx: 2; iconName: "folder_open"; tooltip: "Open Screenshots"; onClicked: executeItem(2) }
+            ToolButton { idx: 0; iconName: "fullscreen"; tooltip: I18nService.tr("Full Screenshot"); onClicked: executeItem(0) }
+            ToolButton { idx: 1; iconName: "screenshot_region"; tooltip: I18nService.tr("Region Screenshot"); onClicked: executeItem(1) }
+            ToolButton { idx: 2; iconName: "folder_open"; tooltip: I18nService.tr("Open Screenshots"); onClicked: executeItem(2) }
             
             Rectangle {
                 id: sep1
@@ -275,10 +275,10 @@ FocusScope {
                 Layout.rightMargin: 6 * Appearance.effectiveScale
             }
             
-            ToolButton { idx: 3; iconName: "videocam"; tooltip: "Record Region"; isHighlighted: ScreenRecord.active && ScreenRecord.recordingMode === 0; onClicked: executeItem(3) }
-            ToolButton { idx: 4; iconName: "mic"; tooltip: "Record Region w/ Sound"; isHighlighted: ScreenRecord.active && ScreenRecord.recordingMode === 1; onClicked: executeItem(4) }
-            ToolButton { idx: 5; iconName: "screen_record"; tooltip: "Record Fullscreen w/ Sound"; isHighlighted: ScreenRecord.active && ScreenRecord.recordingMode === 2; onClicked: executeItem(5) }
-            ToolButton { idx: 6; iconName: "folder_managed"; tooltip: "Open Recordings"; onClicked: executeItem(6) }
+            ToolButton { idx: 3; iconName: "videocam"; tooltip: I18nService.tr("Record Region"); isHighlighted: ScreenRecord.active && ScreenRecord.recordingMode === 0; onClicked: executeItem(3) }
+            ToolButton { idx: 4; iconName: "mic"; tooltip: I18nService.tr("Record Region w/ Sound"); isHighlighted: ScreenRecord.active && ScreenRecord.recordingMode === 1; onClicked: executeItem(4) }
+            ToolButton { idx: 5; iconName: "screen_record"; tooltip: I18nService.tr("Record Fullscreen w/ Sound"); isHighlighted: ScreenRecord.active && ScreenRecord.recordingMode === 2; onClicked: executeItem(5) }
+            ToolButton { idx: 6; iconName: "folder_managed"; tooltip: I18nService.tr("Open Recordings"); onClicked: executeItem(6) }
 
             Rectangle {
                 id: sep2
@@ -289,10 +289,10 @@ FocusScope {
                 Layout.rightMargin: 6 * Appearance.effectiveScale
             }
 
-            ToolButton { idx: 7; iconName: "text_snippet"; tooltip: "OCR (Text Recognition)"; onClicked: executeItem(7) }
-            ToolButton { idx: 8; iconName: "qr_code_scanner"; tooltip: "QR Code Scanner"; onClicked: executeItem(8) }
-            ToolButton { idx: 9; iconName: "image_search"; tooltip: "Lens Search"; onClicked: executeItem(9) }
-            ToolButton { idx: 10; iconName: "colorize"; tooltip: "Color Picker"; onClicked: executeItem(10) }
+            ToolButton { idx: 7; iconName: "text_snippet"; tooltip: I18nService.tr("OCR (Text Recognition)"); onClicked: executeItem(7) }
+            ToolButton { idx: 8; iconName: "qr_code_scanner"; tooltip: I18nService.tr("QR Code Scanner"); onClicked: executeItem(8) }
+            ToolButton { idx: 9; iconName: "image_search"; tooltip: I18nService.tr("Lens Search"); onClicked: executeItem(9) }
+            ToolButton { idx: 10; iconName: "colorize"; tooltip: I18nService.tr("Color Picker"); onClicked: executeItem(10) }
         }
     }
 
