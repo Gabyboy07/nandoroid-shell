@@ -5,6 +5,7 @@ import QtQuick.Shapes
 import Qt5Compat.GraphicalEffects
 import "../core"
 import "../widgets"
+import "../services"
 
 Item {
     id: root
@@ -187,7 +188,7 @@ Item {
 
         // Role 1: On surface variant (Title text "Select time" / "Enter time")
         StyledText {
-            text: root.selectMode === 0 ? "Select time" : "Enter time"
+            text: root.selectMode === 0 ? I18nService.tr("Select time") : I18nService.tr("Enter time")
             Layout.leftMargin: 24 * Appearance.effectiveScale
             Layout.topMargin: 24 * Appearance.effectiveScale
             Layout.bottomMargin: 24 * Appearance.effectiveScale
@@ -267,7 +268,7 @@ Item {
                 // Role 1: On surface variant ("Hour" label)
                 StyledText {
                     visible: root.selectMode === 1
-                    text: "Hour"
+                    text: I18nService.tr("Hour")
                     Layout.alignment: Qt.AlignLeft
                     Layout.leftMargin: 4 * Appearance.effectiveScale
                     font.pixelSize: Appearance.font.pixelSize.smaller
@@ -350,7 +351,7 @@ Item {
                 // Role 1: On surface variant ("Minute" label)
                 StyledText {
                     visible: root.selectMode === 1
-                    text: "Minute"
+                    text: I18nService.tr("Minute")
                     Layout.alignment: Qt.AlignLeft
                     Layout.leftMargin: 4 * Appearance.effectiveScale
                     font.pixelSize: Appearance.font.pixelSize.smaller
@@ -666,7 +667,7 @@ Item {
                 colBackgroundHover: Appearance.colors.colLayer2Hover
                 onClicked: root.cancelled()
                 contentItem: StyledText {
-                    text: "Cancel"
+                    text: I18nService.tr("Cancel")
                     font.pixelSize: Appearance.font.pixelSize.small
                     font.weight: Font.Medium
                     color: Appearance.m3colors.m3primary
@@ -681,7 +682,7 @@ Item {
                 colBackgroundHover: Appearance.colors.colLayer2Hover
                 onClicked: root.confirm()
                 contentItem: StyledText {
-                    text: "OK"
+                    text: I18nService.tr("OK")
                     font.pixelSize: Appearance.font.pixelSize.small
                     font.weight: Font.Medium
                     color: Appearance.m3colors.m3primary

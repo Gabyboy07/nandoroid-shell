@@ -811,5 +811,11 @@
     "Offline": "Luar Jaringan",
     "WiFi Off": "WiFi Mati",
     "Incorrect password": "Kata sandi salah",
-    "Enter password": "Masukkan kata sandi"
+    "Enter password": "Masukkan kata sandi",
+    "Authentication Required": "Autentikasi Diperlukan",
+    "Authentication failed, please try again": "Autentikasi gagal, silakan coba lagi",
+    "Select time": "Pilih waktu",
+    "Enter time": "Masukkan waktu",
+    "Hour": "Jam",
+    "Minute": "Menit"
 }

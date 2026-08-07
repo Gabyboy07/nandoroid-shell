@@ -811,5 +811,11 @@
     "Offline": "Offline",
     "WiFi Off": "WiFi Off",
     "Incorrect password": "Incorrect password",
-    "Enter password": "Enter password"
+    "Enter password": "Enter password",
+    "Authentication Required": "Authentication Required",
+    "Authentication failed, please try again": "Authentication failed, please try again",
+    "Select time": "Select time",
+    "Enter time": "Enter time",
+    "Hour": "Hour",
+    "Minute": "Minute"
 }

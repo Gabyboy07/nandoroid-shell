@@ -76,7 +76,7 @@ Scope {
                         StyledText {
                             Layout.fillWidth: true
                             horizontalAlignment: Text.AlignHCenter
-                            text: qsTr("Authentication Required")
+                            text: I18nService.tr("Authentication Required")
                             font.pixelSize: Appearance.font.pixelSize.large
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnLayer1
@@ -117,7 +117,7 @@ Scope {
                                     StyledText {
                                         id: labelText
                                         anchors.centerIn: parent
-                                        text: qsTr("Password")
+                                        text: I18nService.tr("Password")
                                         font.pixelSize: Appearance.font.pixelSize.smaller
                                         font.weight: Font.Medium
                                         color: PolkitService.failed ? Appearance.m3colors.m3error : (passwordInput.input.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline)
@@ -150,7 +150,7 @@ Scope {
                             StyledText {
                                 Layout.fillWidth: true
                                 visible: PolkitService.failed
-                                text: qsTr("Authentication failed, please try again")
+                                text: I18nService.tr("Authentication failed, please try again")
                                 color: Appearance.m3colors.m3error
                                 font.pixelSize: Appearance.font.pixelSize.smaller
                                 horizontalAlignment: Text.AlignLeft
@@ -170,7 +170,7 @@ Scope {
                                 Layout.preferredWidth: 100 * Appearance.effectiveScale
                                 Layout.preferredHeight: 40 * Appearance.effectiveScale
                                 buttonRadius: Appearance.rounding.button
-                                buttonText: qsTr("Cancel")
+                                buttonText: I18nService.tr("Cancel")
                                 colBackground: "transparent"
                                 colBackgroundHover: Appearance.colors.colLayer2Hover
                                 onClicked: PolkitService.cancel()
@@ -180,7 +180,7 @@ Scope {
                                 Layout.preferredWidth: 100 * Appearance.effectiveScale
                                 Layout.preferredHeight: 40 * Appearance.effectiveScale
                                 buttonRadius: Appearance.rounding.button
-                                buttonText: qsTr("OK")
+                                buttonText: I18nService.tr("OK")
                                 colBackground: Appearance.colors.colPrimary
                                 colText: Appearance.colors.colOnPrimary
                                 enabled: PolkitService.interactionAvailable
