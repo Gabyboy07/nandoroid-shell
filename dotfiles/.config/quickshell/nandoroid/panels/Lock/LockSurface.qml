@@ -273,7 +273,7 @@ MouseArea {
                     fill: 1
                 }
                 StyledText {
-                    text: "Locked"
+                    text: I18nService.tr("Locked")
                     font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colNotchText
@@ -373,7 +373,7 @@ MouseArea {
                     text: {
                         const displayName = Config.options.profile?.displayName;
                         const name = (displayName && displayName !== "") ? displayName : (SystemInfo.realName || SystemInfo.username);
-                        return name + "  •  " + (Network.wifiEnabled ? (Network.networkName || "Offline") : "WiFi Off");
+                        return name + "  •  " + (Network.wifiEnabled ? (Network.networkName || I18nService.tr("Offline")) : I18nService.tr("WiFi Off"));
                     }
                     font.pixelSize: Math.round(14 * Appearance.effectiveScale)
                     font.weight: Font.Medium
@@ -611,7 +611,7 @@ MouseArea {
                         m3ContentColor: Appearance.lockM3colors.m3onSecondaryContainer
 
                         StyledText {
-                            text: Network.wifiEnabled ? (Network.networkName || "Offline") : "WiFi Off"
+                            text: Network.wifiEnabled ? (Network.networkName || I18nService.tr("Offline")) : I18nService.tr("WiFi Off")
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.Medium
                             color: lockM3NetworkWrapper.contentColor
@@ -647,7 +647,7 @@ MouseArea {
                         color: lockM3LockWrapper.contentColor
                     }
                     StyledText {
-                        text: "Locked"
+                        text: I18nService.tr("Locked")
                         font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                         font.weight: Font.DemiBold
                         color: lockM3LockWrapper.contentColor
@@ -1006,7 +1006,7 @@ MouseArea {
                 Text {
                     anchors.centerIn: parent
                     visible: passwordInput.text.length === 0
-                    text: GlobalStates.screenUnlockFailed ? "Incorrect password" : "Enter password"
+                    text: GlobalStates.screenUnlockFailed ? I18nService.tr("Incorrect password") : I18nService.tr("Enter password")
                     font.pixelSize: Appearance.font.pixelSize.small
                     font.family: Appearance.font.family.main
                     color: GlobalStates.screenUnlockFailed ? Appearance.lockM3colors.m3error : Appearance.lockM3colors.m3onSurfaceVariant

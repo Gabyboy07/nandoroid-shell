@@ -806,5 +806,10 @@
     "Utilities": "Utilitas",
     "Games": "Permainan",
     "Other": "Lainnya",
-    "Recent": "Terbaru"
+    "Recent": "Terbaru",
+    "Locked": "Terkunci",
+    "Offline": "Luar Jaringan",
+    "WiFi Off": "WiFi Mati",
+    "Incorrect password": "Kata sandi salah",
+    "Enter password": "Masukkan kata sandi"
 }

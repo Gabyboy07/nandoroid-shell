@@ -806,5 +806,10 @@
     "Utilities": "Utilities",
     "Games": "Games",
     "Other": "Other",
-    "Recent": "Recent"
+    "Recent": "Recent",
+    "Locked": "Locked",
+    "Offline": "Offline",
+    "WiFi Off": "WiFi Off",
+    "Incorrect password": "Incorrect password",
+    "Enter password": "Enter password"
 }
