@@ -51,7 +51,7 @@ Rectangle {
 
             StyledText {
                 Layout.fillWidth: true
-                text: "Connect to Wi-Fi"
+                text: I18nService.tr("Connect to Wi-Fi")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 font.weight: Font.DemiBold
                 color: Appearance.m3colors.m3onSurface
@@ -208,7 +208,7 @@ Rectangle {
                                         Layout.fillWidth: true
                                     }
                                     StyledText {
-                                        text: delegateRoot.modelData.active ? "Connected" : (delegateRoot.modelData.isSaved ? "Saved" : (delegateRoot.modelData.isSecure ? "Secured" : "Open"))
+                                        text: delegateRoot.modelData.active ? I18nService.tr("Connected") : (delegateRoot.modelData.isSaved ? I18nService.tr("Saved") : (delegateRoot.modelData.isSecure ? I18nService.tr("Secured") : I18nService.tr("Open")))
                                         font.pixelSize: Appearance.font.pixelSize.smaller
                                         color: Appearance.colors.colSubtext
                                         Layout.fillWidth: true
@@ -292,7 +292,7 @@ Rectangle {
                                             font.pixelSize: Appearance.font.pixelSize.small
                                             echoMode: showPasswordBtn.revealed ? TextInput.Normal : TextInput.Password
                                             selectByMouse: true
-                                            placeholder: "Enter password..."
+                                            placeholder: I18nService.tr("Enter password...")
                                             
                                             onAccepted: {
                                                 Network.connectWithPassword(delegateRoot.modelData.ssid, text);
@@ -335,7 +335,7 @@ Rectangle {
                                     }
                                     StyledText {
                                         anchors.centerIn: parent
-                                        text: "Connect"
+                                        text: I18nService.tr("Connect")
                                         font.pixelSize: Appearance.font.pixelSize.small
                                         font.weight: Font.Medium
                                         color: Appearance.colors.colOnPrimary
@@ -374,7 +374,7 @@ Rectangle {
                 StyledText {
                     id: detailsText
                     anchors.centerIn: parent
-                    text: "Details"
+                    text: I18nService.tr("Details")
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.m3colors.m3onSurface
                 }
@@ -392,7 +392,7 @@ Rectangle {
                 StyledText {
                     id: doneText
                     anchors.centerIn: parent
-                    text: "Done"
+                    text: I18nService.tr("Done")
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colOnPrimary
                 }

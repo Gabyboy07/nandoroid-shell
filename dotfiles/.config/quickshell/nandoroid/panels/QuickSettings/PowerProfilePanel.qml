@@ -31,21 +31,21 @@ Rectangle {
     readonly property var profiles: [
         {
             id: "daily",
-            name: "Power Saving",
+            name: I18nService.tr("Power Saving"),
             icon: "eco",
-            description: "Light usage. Saves battery, stays cool."
+            description: I18nService.tr("Light usage. Saves battery, stays cool.")
         },
         {
             id: "balanced",
-            name: "Balanced",
+            name: I18nService.tr("Balanced"),
             icon: "balance",
-            description: "Balanced for productivity tasks."
+            description: I18nService.tr("Balanced for productivity tasks.")
         },
         {
             id: "performance",
-            name: "Performance",
+            name: I18nService.tr("Performance"),
             icon: "local_fire_department",
-            description: "Full power for gaming or heavy loads."
+            description: I18nService.tr("Full power for gaming or heavy loads.")
         }
     ]
 
@@ -76,7 +76,7 @@ Rectangle {
 
             StyledText {
                 Layout.fillWidth: true
-                text: "Power Profile"
+                text: I18nService.tr("Power Profile")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 font.weight: Font.DemiBold
                 color: Appearance.m3colors.m3onSurface
@@ -201,7 +201,7 @@ Rectangle {
                 StyledText {
                     id: ppDoneText
                     anchors.centerIn: parent
-                    text: "Done"
+                    text: I18nService.tr("Done")
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colOnPrimary
                 }

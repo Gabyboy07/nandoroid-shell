@@ -56,7 +56,7 @@ Rectangle {
 
             StyledText {
                 Layout.fillWidth: true
-                text: root.panelTitle
+                text: I18nService.tr(root.panelTitle)
                 font.pixelSize: Appearance.font.pixelSize.normal
                 font.weight: Font.DemiBold
                 color: Appearance.m3colors.m3onSurface
@@ -96,7 +96,7 @@ Rectangle {
                     spacing: 8 * Appearance.effectiveScale
                     
                     StyledText {
-                        text: "Devices"
+                        text: I18nService.tr("Devices")
                         font.pixelSize: Appearance.font.pixelSize.smaller
                         font.weight: Font.Medium
                         color: Appearance.m3colors.m3outline
@@ -174,7 +174,7 @@ Rectangle {
                     visible: (root.isSink ? Audio.streamNodes.length : Audio.micStreamNodes.length) > 0
                     
                     StyledText {
-                        text: "Applications"
+                        text: I18nService.tr("Applications")
                         font.pixelSize: Appearance.font.pixelSize.smaller
                         font.weight: Font.Medium
                         color: Appearance.m3colors.m3outline
@@ -278,7 +278,7 @@ Rectangle {
                 StyledText {
                     id: audioDoneText
                     anchors.centerIn: parent
-                    text: "Done"
+                    text: I18nService.tr("Done")
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colOnPrimary
                 }

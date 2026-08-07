@@ -30,7 +30,7 @@ Rectangle {
 
             StatItem {
                 statIcon: "monitoring"
-                label: "CPU"
+                label: I18nService.tr("CPU")
                 value: SystemData.cpuUsage
                 Layout.fillWidth: true
                 onClicked: {
@@ -42,7 +42,7 @@ Rectangle {
 
             StatItem {
                 statIcon: "thermostat"
-                label: "TEMP"
+                label: I18nService.tr("TEMP")
                 value: SystemData.cpuTemperature
                 isTemperature: true
                 Layout.fillWidth: true
@@ -55,7 +55,7 @@ Rectangle {
 
             StatItem {
                 statIcon: "memory"
-                label: "RAM"
+                label: I18nService.tr("RAM")
                 value: SystemData.memUsage
                 Layout.fillWidth: true
                 onClicked: {
@@ -67,7 +67,7 @@ Rectangle {
 
             StatItem {
                 statIcon: "swap_horiz"
-                label: "SWAP"
+                label: I18nService.tr("SWAP")
                 value: SystemData.swapUsage
                 Layout.fillWidth: true
                 onClicked: {
@@ -118,7 +118,10 @@ Rectangle {
                                 color: Appearance.m3colors.m3primary
                             }
                             StyledText {
-                                text: hasAlias ? `${label} DISK USAGE` : `"${label}" DISK USAGE`
+                                text: {
+                                    const nameStr = hasAlias ? label : `"${label}"`
+                                    return I18nService.tr("%1 DISK USAGE").replace("%1", nameStr)
+                                }
                                 font.pixelSize: Math.round(10 * Appearance.effectiveScale)
                                 font.weight: Font.DemiBold
                                 color: Appearance.m3colors.m3outline

@@ -51,7 +51,7 @@ Rectangle {
 
             StyledText {
                 Layout.fillWidth: true
-                text: "Bluetooth Devices"
+                text: I18nService.tr("Bluetooth Devices")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 font.weight: Font.DemiBold
                 color: Appearance.m3colors.m3onSurface
@@ -159,11 +159,11 @@ Rectangle {
                                     StyledText {
                                         readonly property var _d: deviceItem.modelData
                                         text: {
-                                            if (_d.connected) return "Connected" + (_d.batteryAvailable ? " · " + Math.round(_d.battery * 100) + "%" : "")
-                                            if (_d.state === BluetoothDeviceState.Connecting || BluetoothStatus.pairingAddress === _d.address) return "Connecting..."
-                                            if (_d.pairing) return "Pairing..."
-                                            if (_d.paired || _d.trusted) return "Paired"
-                                            return "Available"
+                                            if (_d.connected) return I18nService.tr("Connected") + (_d.batteryAvailable ? " · " + Math.round(_d.battery * 100) + "%" : "")
+                                            if (_d.state === BluetoothDeviceState.Connecting || BluetoothStatus.pairingAddress === _d.address) return I18nService.tr("Connecting...")
+                                            if (_d.pairing) return I18nService.tr("Pairing...")
+                                            if (_d.paired || _d.trusted) return I18nService.tr("Paired")
+                                            return I18nService.tr("Available")
                                         }
                                         font.pixelSize: Appearance.font.pixelSize.smaller
                                         color: _d.state === BluetoothDeviceState.Connecting || _d.pairing ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
@@ -242,7 +242,7 @@ Rectangle {
 
                                     RippleButton {
                                         visible: (deviceItem.modelData.paired || deviceItem.modelData.trusted) && !deviceItem.modelData.connected
-                                        buttonText: "Forget"
+                                        buttonText: I18nService.tr("Forget")
                                         implicitWidth: 90 * Appearance.effectiveScale
                                         implicitHeight: 36 * Appearance.effectiveScale
                                         buttonRadius: 18 * Appearance.effectiveScale
@@ -258,7 +258,7 @@ Rectangle {
 
                                     RippleButton {
                                         visible: deviceItem.modelData.paired
-                                        buttonText: deviceItem.modelData.connected ? "Disconnect" : "Connect"
+                                        buttonText: deviceItem.modelData.connected ? I18nService.tr("Disconnect") : I18nService.tr("Connect")
                                         implicitWidth: 110 * Appearance.effectiveScale
                                         implicitHeight: 36 * Appearance.effectiveScale
                                         buttonRadius: 18 * Appearance.effectiveScale
@@ -273,7 +273,7 @@ Rectangle {
 
                                     RippleButton {
                                         visible: !deviceItem.modelData.paired
-                                        buttonText: "Pair & Connect"
+                                        buttonText: I18nService.tr("Pair & Connect")
                                         implicitWidth: 110 * Appearance.effectiveScale
                                         implicitHeight: 36 * Appearance.effectiveScale
                                         buttonRadius: 18 * Appearance.effectiveScale
@@ -317,7 +317,7 @@ Rectangle {
                 StyledText {
                     id: btPairText
                     anchors.centerIn: parent
-                    text: "Pair new device"
+                    text: I18nService.tr("Pair new device")
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colOnLayer1
                 }
@@ -335,7 +335,7 @@ Rectangle {
                 StyledText {
                     id: btDoneText
                     anchors.centerIn: parent
-                    text: "Done"
+                    text: I18nService.tr("Done")
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colOnPrimary
                 }

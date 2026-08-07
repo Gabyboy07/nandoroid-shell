@@ -88,11 +88,11 @@ Item {
     // ── Toggle data registry ──
     readonly property var allToggles: ({
         "wifi": {
-            name: "Wi-Fi",
+            name: I18nService.tr("Wi-Fi"),
             icon: "wifi",
             iconOff: "wifi_off",
             toggled: Network.wifiEnabled,
-            statusText: Network.wifiEnabled ? Network.networkName || "On" : "Off",
+            statusText: Network.wifiEnabled ? Network.networkName || I18nService.tr("On") : I18nService.tr("Off"),
             action: () => Network.toggleWifi(),
             hasDetails: true,
             detailsAction: () => {
@@ -100,11 +100,11 @@ Item {
             }
         },
         "bluetooth": {
-            name: "Bluetooth",
+            name: I18nService.tr("Bluetooth"),
             icon: "bluetooth",
             iconOff: "bluetooth_disabled",
             toggled: BluetoothStatus.enabled,
-            statusText: BluetoothStatus.connected ? `${BluetoothStatus.activeDeviceCount} connected` : (BluetoothStatus.enabled ? "On" : "Off"),
+            statusText: BluetoothStatus.connected ? `${BluetoothStatus.activeDeviceCount} ${I18nService.tr("connected")}` : (BluetoothStatus.enabled ? I18nService.tr("On") : I18nService.tr("Off")),
             action: () => BluetoothStatus.toggle(),
             hasDetails: true,
             detailsAction: () => {
@@ -112,56 +112,56 @@ Item {
             }
         },
         "dnd": {
-            name: "Do Not Disturb",
+            name: I18nService.tr("Do Not Disturb"),
             icon: "do_not_disturb_on",
             iconOff: "do_not_disturb_off",
             toggled: Notifications.silent,
-            statusText: Notifications.silent ? "On" : "Off",
+            statusText: Notifications.silent ? I18nService.tr("On") : I18nService.tr("Off"),
             action: () => { Notifications.silent = !Notifications.silent }
         },
         "darkMode": {
-            name: "Dark Mode",
+            name: I18nService.tr("Dark Mode"),
             icon: "contrast",
             iconOff: "contrast",
             toggled: Config.options.appearance.background.darkmode,
-            statusText: Config.options.appearance.background.darkmode ? "Dark" : "Light",
+            statusText: Config.options.appearance.background.darkmode ? I18nService.tr("Dark") : I18nService.tr("Light"),
             action: () => Wallpapers.toggleDarkMode()
         },
         "caffeine": {
-            name: "Keep Awake",
+            name: I18nService.tr("Keep Awake"),
             icon: "kettle",
             iconOff: "coffee",
             toggled: Config.options.quickSettings.caffeineActive,
-            statusText: Config.options.quickSettings.caffeineActive ? "Active" : "Inactive",
+            statusText: Config.options.quickSettings.caffeineActive ? I18nService.tr("Active") : I18nService.tr("Inactive"),
             action: () => {
                 Config.options.quickSettings.caffeineActive = !Config.options.quickSettings.caffeineActive
             }
         },
         "nightLight": {
-            name: "Night Mode",
+            name: I18nService.tr("Night Mode"),
             icon: "bedtime",
             iconOff: "bedtime",
             toggled: Hyprsunset.active,
-            statusText: Hyprsunset.active ? "On" : "Off",
+            statusText: Hyprsunset.active ? I18nService.tr("On") : I18nService.tr("Off"),
             action: () => Hyprsunset.toggle(),
             hasDetails: true,
             detailsAction: () => { root.showNightModePanel = true }
         },
         "warp": {
-            name: "WARP VPN",
+            name: I18nService.tr("WARP VPN"),
             icon: "cloud",
             iconOff: "cloud_off",
             toggled: Network.warpConnected,
-            statusText: Network.warpConnected ? "Connected" : "Disconnected",
+            statusText: Network.warpConnected ? I18nService.tr("Connected") : I18nService.tr("Disconnected"),
             available: Network.warpCLIInstalled,
             action: () => Network.toggleWarp()
         },
         "audioOutput": {
-            name: "Audio Output",
+            name: I18nService.tr("Audio Output"),
             icon: "volume_up",
             iconOff: "volume_off",
             toggled: !audioMuted,
-            statusText: audioMuted ? "Muted" : "Unmuted",
+            statusText: audioMuted ? I18nService.tr("Muted") : I18nService.tr("Unmuted"),
             action: () => Audio.toggleMute(),
             hasDetails: true,
             detailsAction: () => {
@@ -169,11 +169,11 @@ Item {
             }
         },
         "audioInput": {
-            name: "Audio Input",
+            name: I18nService.tr("Audio Input"),
             icon: "mic",
             iconOff: "mic_off",
             toggled: !micMuted,
-            statusText: micMuted ? "Muted" : "Enabled",
+            statusText: micMuted ? I18nService.tr("Muted") : I18nService.tr("Enabled"),
             action: () => Audio.toggleMicMute(),
             hasDetails: true,
             detailsAction: () => {
@@ -181,52 +181,52 @@ Item {
             }
         },
         "powerProfile": {
-            name: "Power Profile",
+            name: I18nService.tr("Power Profile"),
             icon: powerProfileIcon,
             iconOff: powerProfileIcon,
             toggled: PowerProfileService.currentProfile !== "daily",
-            statusText: PowerProfileService.currentProfile === "performance" ? "Performance" : PowerProfileService.currentProfile === "balanced" ? "Balanced" : "Power Saving",
+            statusText: PowerProfileService.currentProfile === "performance" ? I18nService.tr("Performance") : PowerProfileService.currentProfile === "balanced" ? I18nService.tr("Balanced") : I18nService.tr("Power Saving"),
             action: () => PowerProfileService.cycle(),
             hasDetails: true,
             detailsAction: () => { root.showPowerProfilePanel = true }
         },
         "gameMode": {
-            name: "Game Mode",
+            name: I18nService.tr("Game Mode"),
             icon: "gamepad",
             iconOff: "gamepad",
             toggled: GameMode.active,
-            statusText: GameMode.active ? "On" : "Off",
+            statusText: GameMode.active ? I18nService.tr("On") : I18nService.tr("Off"),
             action: () => GameMode.toggle()
         },
         "colorPicker": {
-            name: "Color Picker",
+            name: I18nService.tr("Color Picker"),
             icon: "colorize",
             iconOff: "colorize",
             toggled: false,
-            statusText: "Pick",
+            statusText: I18nService.tr("Pick"),
             action: () => {
                 root.close();
                 Functions.General.delayedAction(300, () => Quickshell.execDetached(["hyprpicker", "-a"]));
             }
         },
         "screenSnip": {
-            name: "Screen Snip",
+            name: I18nService.tr("Screen Snip"),
             icon: "screenshot_region",
             iconOff: "screenshot_region",
             toggled: false,
-            statusText: "Capture",
+            statusText: I18nService.tr("Capture"),
             action: () => {
                 root.close();
                 Functions.General.delayedAction(300, () => RegionService.screenshot());
             }
         },
         "screenRecord": {
-            name: ScreenRecord.active ? "Recording" : "Record Screen",
+            name: ScreenRecord.active ? I18nService.tr("Recording") : I18nService.tr("Record Screen"),
             icon: "screen_record",
             iconOff: "screen_record",
             toggled: ScreenRecord.active,
-            statusText: ScreenRecord.active ? "Tap to save" : ScreenRecord.modeLabel,
-            tooltipText: ScreenRecord.active ? "Tap to save" : ("Mode: " + ScreenRecord.modeLabel),
+            statusText: ScreenRecord.active ? I18nService.tr("Tap to save") : ScreenRecord.modeLabel,
+            tooltipText: ScreenRecord.active ? I18nService.tr("Tap to save") : (I18nService.tr("Mode: ") + ScreenRecord.modeLabel),
             action: () => {
                 if (ScreenRecord.active) ScreenRecord.stop();
                 else {
@@ -245,34 +245,34 @@ Item {
             }
         },
         "musicRecognition": {
-            name: "Identify Music",
+            name: I18nService.tr("Identify Music"),
             icon: SongRec.running ? "music_cast" : (SongRec.monitorSource === SongRec.MonitorSource.Monitor ? "music_note" : "frame_person_mic"),
             iconOff: "music_note",
             toggled: SongRec.running,
-            statusText: SongRec.running ? "Listening..." : (SongRec.monitorSource === SongRec.MonitorSource.Monitor ? "System" : "Mic"),
+            statusText: SongRec.running ? I18nService.tr("Listening...") : (SongRec.monitorSource === SongRec.MonitorSource.Monitor ? I18nService.tr("System") : I18nService.tr("Mic")),
             action: () => SongRec.toggleRunning(),
             altAction: () => SongRec.toggleMonitorSource(),
-            tooltipText: "Mode: " + (SongRec.running ? "Listening" : "Idle") + " (" + SongRec.monitorSourceString + ")"
+            tooltipText: I18nService.tr("Mode: ") + (SongRec.running ? I18nService.tr("Listening") : I18nService.tr("Idle")) + " (" + SongRec.monitorSourceString + ")"
         },
         "easyEffects": {
-            name: "EasyEffects",
+            name: I18nService.tr("EasyEffects"),
             icon: "graphic_eq",
             iconOff: "graphic_eq",
             toggled: EasyEffects.active,
             available: EasyEffects.available,
-            statusText: EasyEffects.active ? "On" : "Off",
+            statusText: EasyEffects.active ? I18nService.tr("On") : I18nService.tr("Off"),
             action: () => EasyEffects.toggle(),
             altAction: () => Quickshell.execDetached(["bash", "-c", "flatpak run com.github.wwmm.easyeffects || easyeffects"])
         },
         "conservationMode": {
-            name: "Conservation",
+            name: I18nService.tr("Conservation"),
             icon: "battery_charging_80",
             iconOff: "battery_charging_full",
             toggled: ConservationMode.active,
             available: ConservationMode.available,
-            statusText: ConservationMode.active ? "On" : "Off",
+            statusText: ConservationMode.active ? I18nService.tr("On") : I18nService.tr("Off"),
             action: () => ConservationMode.toggle(),
-            tooltipText: "Lenovo Battery Conservation Mode"
+            tooltipText: I18nService.tr("Lenovo Battery Conservation Mode")
         }
     })
 
@@ -441,7 +441,7 @@ Item {
                         StyledText {
                             text: {
                                 const descMode = Config.options.profile?.descriptionText || "::distro::";
-                                if (descMode === "::uptime::") return "Up " + DateTime.uptime;
+                                if (descMode === "::uptime::") return I18nService.tr("Up ") + DateTime.uptime;
                                 return SystemInfo.distroName || "Linux System";
                             }
                             font.pixelSize: Appearance.font.pixelSize.smaller
@@ -471,7 +471,7 @@ Item {
                                 iconSize: 18 * Appearance.effectiveScale
                                 color: Appearance.m3colors.m3onSurface
                             }
-                            StyledToolTip { text: "Change Wallpaper" }
+                            StyledToolTip { text: I18nService.tr("Change Wallpaper") }
                         }
 
                         RippleButton {
@@ -488,7 +488,7 @@ Item {
                                 iconSize: 18 * Appearance.effectiveScale
                                 color: root.editMode ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
                             }
-                            StyledToolTip { text: root.editMode ? "Done Editing" : "Edit Toggles" }
+                            StyledToolTip { text: root.editMode ? I18nService.tr("Done Editing") : I18nService.tr("Edit Toggles") }
                         }
 
                         RippleButton {
@@ -508,7 +508,7 @@ Item {
                                 iconSize: 18 * Appearance.effectiveScale
                                 color: Appearance.m3colors.m3onSurface
                             }
-                            StyledToolTip { text: "System Settings" }
+                            StyledToolTip { text: I18nService.tr("System Settings") }
                         }
 
                         RippleButton {
@@ -528,7 +528,7 @@ Item {
                                 iconSize: 18 * Appearance.effectiveScale
                                 color: Appearance.m3colors.m3onSurface
                             }
-                            StyledToolTip { text: "Power Menu" }
+                            StyledToolTip { text: I18nService.tr("Power Menu") }
                         }
                     }
                 }
@@ -664,7 +664,7 @@ Item {
                             StyledText {
                                 text: {
                                     const descMode = Config.options.profile?.descriptionText || "::distro::";
-                                    if (descMode === "::uptime::") return "Up " + DateTime.uptime;
+                                    if (descMode === "::uptime::") return I18nService.tr("Up ") + DateTime.uptime;
                                     return SystemInfo.distroName || "Linux System";
                                 }
                                 font.pixelSize: Appearance.font.pixelSize.smaller
@@ -700,7 +700,7 @@ Item {
                                 iconSize: 18 * Appearance.effectiveScale
                                 color: Appearance.m3colors.m3onSurface
                             }
-                            StyledToolTip { text: "Change Wallpaper" }
+                            StyledToolTip { text: I18nService.tr("Change Wallpaper") }
                         }
 
                         RippleButton {
@@ -717,7 +717,7 @@ Item {
                                 iconSize: 18 * Appearance.effectiveScale
                                 color: root.editMode ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
                             }
-                            StyledToolTip { text: root.editMode ? "Done Editing" : "Edit Toggles" }
+                            StyledToolTip { text: root.editMode ? I18nService.tr("Done Editing") : I18nService.tr("Edit Toggles") }
                         }
 
                         RippleButton {
@@ -737,7 +737,7 @@ Item {
                                 iconSize: 18 * Appearance.effectiveScale
                                 color: Appearance.m3colors.m3onSurface
                             }
-                            StyledToolTip { text: "System Settings" }
+                            StyledToolTip { text: I18nService.tr("System Settings") }
                         }
 
                         RippleButton {
@@ -757,7 +757,7 @@ Item {
                                 iconSize: 18 * Appearance.effectiveScale
                                 color: Appearance.m3colors.m3onSurface
                             }
-                            StyledToolTip { text: "Power Menu" }
+                            StyledToolTip { text: I18nService.tr("Power Menu") }
                         }
                     }
                 }
@@ -984,7 +984,7 @@ Item {
                         spacing: 8 * Appearance.effectiveScale
 
                         StyledText {
-                            text: "Available toggles"
+                            text: I18nService.tr("Available toggles")
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.Medium
                             color: Appearance.m3colors.m3outline
@@ -1060,7 +1060,7 @@ Item {
                     }
 
                     StyledText {
-                        text: `Microphone is being used by <b>${Privacy.microphoneApp}</b>`
+                        text: I18nService.tr("Microphone is being used by ") + `<b>${Privacy.microphoneApp}</b>`
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.m3colors.m3onSurface
                         Layout.fillWidth: true
@@ -1080,7 +1080,7 @@ Item {
                     }
 
                     StyledText {
-                        text: `Screen is being shared by <b>${Privacy.screensharingApp}</b>`
+                        text: I18nService.tr("Screen is being shared by ") + `<b>${Privacy.screensharingApp}</b>`
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.m3colors.m3onSurface
                         Layout.fillWidth: true
@@ -1110,7 +1110,7 @@ Item {
                     // Add/Remove
                     RowLayout {
                         spacing: 8 * Appearance.effectiveScale
-                        StyledText { text: "Add/Remove"; font.pixelSize: Math.round(10 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1 }
+                        StyledText { text: I18nService.tr("Add/Remove"); font.pixelSize: Math.round(10 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1 }
                         Rectangle {
                             width: 44 * Appearance.effectiveScale; height: 18 * Appearance.effectiveScale; radius: 4 * Appearance.effectiveScale
                             color: Appearance.m3colors.m3surfaceVariant
@@ -1121,7 +1121,7 @@ Item {
                     // Resize
                     RowLayout {
                         spacing: 8 * Appearance.effectiveScale
-                        StyledText { text: "Resize"; font.pixelSize: Math.round(10 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1 }
+                        StyledText { text: I18nService.tr("Resize"); font.pixelSize: Math.round(10 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1 }
                         Rectangle {
                             width: 44 * Appearance.effectiveScale; height: 18 * Appearance.effectiveScale; radius: 4 * Appearance.effectiveScale
                             color: Appearance.m3colors.m3surfaceVariant
@@ -1133,7 +1133,7 @@ Item {
                     // Move
                     RowLayout {
                         spacing: 8 * Appearance.effectiveScale
-                        StyledText { text: "Move"; font.pixelSize: Math.round(10 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1 }
+                        StyledText { text: I18nService.tr("Move"); font.pixelSize: Math.round(10 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1 }
                         Rectangle {
                             width: 38 * Appearance.effectiveScale; height: 18 * Appearance.effectiveScale; radius: 4 * Appearance.effectiveScale
                             color: Appearance.m3colors.m3surfaceVariant

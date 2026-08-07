@@ -48,7 +48,7 @@ Rectangle {
 
             StyledText {
                 Layout.fillWidth: true
-                text: "Night Mode"
+                text: I18nService.tr("Night Mode")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 font.weight: Font.DemiBold
                 color: Appearance.m3colors.m3onSurface
@@ -90,7 +90,7 @@ Rectangle {
                 width: parent.width
                 StyledText {
                     Layout.fillWidth: true
-                    text: "Color Temperature"
+                    text: I18nService.tr("Color Temperature")
                     font.pixelSize: Appearance.font.pixelSize.small
                     font.weight: Font.Medium
                     color: Appearance.m3colors.m3onSurface
@@ -106,13 +106,13 @@ Rectangle {
             RowLayout {
                 width: parent.width
                 StyledText {
-                    text: "Warm"
+                    text: I18nService.tr("Warm")
                     font.pixelSize: Appearance.font.pixelSize.smaller
                     color: Appearance.m3colors.m3onSurfaceVariant
                 }
                 Item { Layout.fillWidth: true }
                 StyledText {
-                    text: "Cool"
+                    text: I18nService.tr("Cool")
                     font.pixelSize: Appearance.font.pixelSize.smaller
                     color: Appearance.m3colors.m3onSurfaceVariant
                 }
@@ -162,7 +162,7 @@ Rectangle {
                 StyledText {
                     id: doneText
                     anchors.centerIn: parent
-                    text: "Done"
+                    text: I18nService.tr("Done")
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colOnPrimary
                 }
