@@ -171,7 +171,7 @@ Rectangle {
                     focus: GlobalStates.overviewOpen
 
                     Text {
-                        text: "Search active windows..."
+                        text: I18nService.tr("Search active windows...")
                         visible: !searchInput.text
                         color: Appearance.m3colors.m3onSurfaceVariant
                         opacity: 0.6; font: searchInput.font

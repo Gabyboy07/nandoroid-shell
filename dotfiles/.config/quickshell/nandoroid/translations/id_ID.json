@@ -887,5 +887,7 @@
     "Total Throughput": "Total Throughput",
     "READ": "BACA",
     "WRITE": "TULIS",
-    "Disk Operations": "Operasi Disk"
+    "Disk Operations": "Operasi Disk",
+    "Search active windows...": "Cari jendela aktif...",
+    "Open Window Overview": "Buka Ikhtisar Jendela"
 }

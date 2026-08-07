@@ -887,5 +887,7 @@
     "Total Throughput": "Total Throughput",
     "READ": "READ",
     "WRITE": "WRITE",
-    "Disk Operations": "Disk Operations"
+    "Disk Operations": "Disk Operations",
+    "Search active windows...": "Search active windows...",
+    "Open Window Overview": "Open Window Overview"
 }

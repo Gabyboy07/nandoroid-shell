@@ -7,7 +7,7 @@ import "../../core"
 
 ToggleButton {
     buttonIcon: "grid_view"
-    tooltipText: "Open Window Overview"
+    tooltipText: I18nService.tr("Open Window Overview")
 
     onToggle: function () {
         if (GlobalStates.overviewOpen) {
