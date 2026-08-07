@@ -71,10 +71,15 @@ ColumnLayout {
     readonly property bool hideAmPm:   Config.ready && cfg.hideAmPm
 
     // ── Time strings ───────────────────────────────────────────
+    readonly property bool is24H: Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : true
+    readonly property string amPm: {
+        const h = DateTime.hours
+        const upper = Config.ready && Config.options.time ? Config.options.time.timeStyle === "12H_PM" : true
+        return h >= 12 ? (upper ? "PM" : "pm") : (upper ? "AM" : "am")
+    }
     readonly property string displayHours: {
         const h = DateTime.hours
-        const is24 = Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : true
-        if (is24) return h.toString().padStart(2, "0")
+        if (is24H) return h.toString().padStart(2, "0")
         return (h % 12 || 12).toString().padStart(2, "0")
     }
     readonly property string displayMinutes: DateTime.minutes.toString().padStart(2, "0")

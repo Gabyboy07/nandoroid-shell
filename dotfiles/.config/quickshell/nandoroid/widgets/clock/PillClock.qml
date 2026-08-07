@@ -17,6 +17,10 @@ Rectangle {
     readonly property string timeFontFamily: root.isLockscreen ? Appearance.font.family.lockscreenTimeFont : Appearance.font.family.desktopTimeFont
     readonly property string dateFontFamily: root.isLockscreen ? Appearance.font.family.lockscreenDateFont : Appearance.font.family.desktopDateFont
     readonly property bool showDate: Config.ready ? (root.isLockscreen ? (Config.options.appearance.clock.useSameStyle ? Config.options.appearance.clock.showDesktopDate : Config.options.appearance.clock.showLockscreenDate) : Config.options.appearance.clock.showDesktopDate) : true
+    readonly property date nowDate: {
+        const _ = DateTime.currentDate;
+        return new Date();
+    }
     
     readonly property var cfg: {
         if (!Config.ready) return { size: 120, isVertical: false, showBackground: true, timeColorStyle: "onLayer0", dateColorStyle: "primary", pillColorStyle: "surfaceContainerHigh" }
@@ -175,7 +179,7 @@ Rectangle {
             visible: root.showDate && root.cfg.showBackground
 
             StyledText {
-                text: Qt.formatDate(new Date(), "dddd")
+                text: Qt.formatDate(root.nowDate, "dddd")
                 font.pixelSize: Math.round((root.cfg.size * 0.18 || 22) * Appearance.effectiveScale)
                 font.weight: Font.DemiBold
                 font.family: root.dateFontFamily
@@ -183,7 +187,7 @@ Rectangle {
                 Layout.alignment: Qt.AlignHCenter
             }
             StyledText {
-                text: Qt.formatDate(new Date(), "d MMMM, yyyy")
+                text: Qt.formatDate(root.nowDate, "d MMMM, yyyy")
                 font.pixelSize: Math.round((root.cfg.size * 0.12 || 14) * Appearance.effectiveScale)
                 font.weight: Font.Light
                 font.family: root.dateFontFamily
@@ -197,7 +201,7 @@ Rectangle {
         AdaptivePill {
             Layout.alignment: Qt.AlignHCenter
             visible: root.showDate && !root.cfg.showBackground
-            labelText: Qt.formatDate(new Date(), "dddd, d MMMM yyyy")
+            labelText: Qt.formatDate(root.nowDate, "dddd, d MMMM yyyy")
             isBold: true
             fontSize: (root.cfg.size * 0.14 || 16) * Appearance.effectiveScale
         }
@@ -253,7 +257,7 @@ Rectangle {
             visible: root.showDate && root.cfg.showBackground
 
             StyledText {
-                text: Qt.formatDate(new Date(), "dddd")
+                text: Qt.formatDate(root.nowDate, "dddd")
                 font.pixelSize: Math.round((root.cfg.size * 0.18 || 22) * Appearance.effectiveScale)
                 font.weight: Font.DemiBold
                 font.family: root.dateFontFamily
@@ -261,7 +265,7 @@ Rectangle {
                 Layout.alignment: Qt.AlignHCenter
             }
             StyledText {
-                text: Qt.formatDate(new Date(), "d MMMM, yyyy")
+                text: Qt.formatDate(root.nowDate, "d MMMM, yyyy")
                 font.pixelSize: Math.round((root.cfg.size * 0.12 || 14) * Appearance.effectiveScale)
                 font.weight: Font.Light
                 font.family: root.dateFontFamily
@@ -275,7 +279,7 @@ Rectangle {
         AdaptivePill {
             Layout.alignment: Qt.AlignHCenter
             visible: root.showDate && !root.cfg.showBackground
-            labelText: Qt.formatDate(new Date(), "dddd, d MMMM yyyy")
+            labelText: Qt.formatDate(root.nowDate, "dddd, d MMMM yyyy")
             isBold: true
             fontSize: (root.cfg.size * 0.14 || 16) * Appearance.effectiveScale
         }

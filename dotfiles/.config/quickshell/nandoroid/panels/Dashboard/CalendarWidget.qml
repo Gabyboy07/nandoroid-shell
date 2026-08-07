@@ -12,7 +12,10 @@ Item {
     property var eventDates: []
     // Full event objects for click popup
     property var scheduledEvents: []
-    property var viewingDate: CalendarLayout.getDateInXMonthsTime(monthShift)
+    property var viewingDate: {
+        const _ = DateTime.currentDate;
+        return CalendarLayout.getDateInXMonthsTime(monthShift);
+    }
     property var calendarLayout: CalendarLayout.getCalendarLayout(viewingDate, monthShift === 0, Config.ready ? (Config.options.time.firstDayOfWeek ?? 1) : 1)
 
     // Build a Set of "YYYY-MM-DD" strings for O(1) lookup
@@ -101,6 +104,7 @@ Item {
     }
 
     readonly property string currentDayShort: {
+        const _ = DateTime.currentDate;
         const today = new Date();
         const todayJsDay = today.getDay();
         const daysShort = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];

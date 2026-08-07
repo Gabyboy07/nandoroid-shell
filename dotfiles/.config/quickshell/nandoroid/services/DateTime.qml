@@ -7,52 +7,49 @@ import Quickshell.Io
 import "../core"
 
 /**
- * Provides current date and time as properties that auto-update.
+ * Provides current date and time using Quickshell's native C++ SystemClock
+ * with declarative QML property bindings.
  */
 Singleton {
     id: root
-    property string currentTime: ""
-    property string currentDate: ""
-    property string uptime: "0m"
-    property int hours: 0
-    property int minutes: 0
-    property int seconds: 0
-    property string time12h: ""
 
-    Timer {
-        interval: 1000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-            const now = new Date()
-            
-            // Manual formatting to ensure leading zeros for 12h mode as requested
-            const h = now.getHours()
-            const m = now.getMinutes()
-            const is24 = Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : true
-            
-            if (is24) {
-                root.currentTime = h.toString().padStart(2, "0") + ":" + m.toString().padStart(2, "0")
-            } else {
-                const upper = Config.options.time.timeStyle === "12H_PM"
-                const ap = h >= 12 ? (upper ? "PM" : "pm") : (upper ? "AM" : "am")
-                const h12 = h % 12 || 12
-                root.currentTime = h12.toString().padStart(2, "0") + ":" + m.toString().padStart(2, "0") + " " + ap
-            }
-            
-            root.currentDate = Qt.formatDate(now, Config.dateFormat)
-            root.hours = h
-            root.minutes = m
-            root.seconds = now.getSeconds()
-            
-            // Always provide a standard 12h string for accessories
-            const h12_raw = h % 12 || 12
-            root.time12h = h12_raw.toString().padStart(2, "0") + ":" + m.toString().padStart(2, "0") + " " + (h >= 12 ? "pm" : "am")
+    property var clock: SystemClock {
+        id: clock
+        precision: SystemClock.Seconds
+    }
+
+    readonly property date now: clock.date
+    readonly property int hours: clock.date.getHours()
+    readonly property int minutes: clock.date.getMinutes()
+    readonly property int seconds: clock.date.getSeconds()
+
+    readonly property string currentDate: Qt.formatDate(clock.date, Config.ready ? Config.dateFormat : "ddd, dd/MM")
+
+    readonly property string currentTime: {
+        const h = root.hours
+        const m = root.minutes
+        const is24 = Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : true
+
+        if (is24) {
+            return h.toString().padStart(2, "0") + ":" + m.toString().padStart(2, "0")
+        } else {
+            const upper = Config.ready && Config.options.time ? Config.options.time.timeStyle === "12H_PM" : true
+            const ap = h >= 12 ? (upper ? "PM" : "pm") : (upper ? "AM" : "am")
+            const h12 = h % 12 || 12
+            return h12.toString().padStart(2, "0") + ":" + m.toString().padStart(2, "0") + " " + ap
         }
     }
 
-    // Uptime from /proc/uptime
+    readonly property string time12h: {
+        const h = root.hours
+        const m = root.minutes
+        const h12 = h % 12 || 12
+        return h12.toString().padStart(2, "0") + ":" + m.toString().padStart(2, "0") + " " + (h >= 12 ? "pm" : "am")
+    }
+
+    // Uptime calculation from /proc/uptime
+    property string uptime: "0m"
+
     Timer {
         interval: 10000
         running: true

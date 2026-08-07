@@ -92,7 +92,10 @@ ColumnLayout {
         return Text.AlignLeft
     }
 
-    readonly property date now: new Date()
+    readonly property date now: {
+        const _ = DateTime.currentDate;
+        return new Date();
+    }
     readonly property string dayName: Qt.formatDate(now, "ddd").toLowerCase()
     readonly property string dayNumber: getOrdinal(now.getDate()).toLowerCase()
     
