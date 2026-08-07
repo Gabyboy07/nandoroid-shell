@@ -12,6 +12,7 @@ Singleton {
     property var generatedTranslations: ({})
     property var availableLanguages: ["en_US"]
     property var availableGeneratedLanguages: []
+    property var availableLanguageNames: ({})
     property var allAvailableLanguages: {
         const combined = new Set([...root.availableLanguages, ...root.availableGeneratedLanguages]);
         return Array.from(combined).sort();
@@ -36,32 +37,39 @@ Singleton {
     TranslationScanner {
         id: scanLanguagesProcess
         translationsDir: root.translationsDir
-        onLanguagesScanned: (languages) => {
+        onLanguagesScanned: (languages, names) => {
             root.availableLanguages = [...languages];
+            if (names) root.availableLanguageNames = Object.assign({}, root.availableLanguageNames, names);
         }
     }
 
     TranslationScanner {
         id: scanGeneratedLanguagesProcess
         translationsDir: root.generatedTranslationsDir
-        onLanguagesScanned: (languages) => {
+        onLanguagesScanned: (languages, names) => {
             root.availableGeneratedLanguages = [...languages];
+            if (names) root.availableLanguageNames = Object.assign({}, root.availableLanguageNames, names);
         }
     }
 
-    onLanguageCodeChanged: updateTranslations()
+    onLanguageCodeChanged: {
+        translationFileView.languageCode = root.languageCode;
+        translationFileView.reread();
+        root.syncGeneratedTranslations();
+    }
     onAvailableGeneratedLanguagesChanged: updateTranslations()
+
+    function syncGeneratedTranslations() {
+        const hasLang = root.availableGeneratedLanguages.indexOf(root.languageCode) !== -1;
+        generatedTranslationFileView.languageCode = hasLang ? root.languageCode : "";
+        generatedTranslationFileView.reread();
+    }
 
     function updateTranslations() {
         if (!root.languageCode) return;
+        translationFileView.languageCode = root.languageCode;
         translationFileView.reread();
-
-        if (root.availableGeneratedLanguages && root.availableGeneratedLanguages.indexOf(root.languageCode) !== -1) {
-            generatedTranslationFileView.reread();
-        } else {
-            root.generatedTranslations = ({});
-            generatedTranslationFileView.path = "";
-        }
+        root.syncGeneratedTranslations();
     }
 
     TranslationReader {
@@ -77,7 +85,7 @@ Singleton {
     TranslationReader {
         id: generatedTranslationFileView
         translationsDir: root.generatedTranslationsDir
-        languageCode: ""
+        languageCode: root.languageCode
         onContentLoaded: (data) => {
             root.generatedTranslations = data;
             root.isLoading = false;
@@ -100,32 +108,73 @@ Singleton {
         return translation;
     }
 
+    function languageName(code) {
+        if (!code || code === "auto") return "";
+        // Optional per-file override (Language Name key); otherwise derive
+        // the native name automatically from Qt's locale database so that
+        // adding a new language = just dropping a translation JSON.
+        const name = root.availableLanguageNames[code];
+        if (name && name !== code) return name;
+        try {
+            const loc = Qt.locale(code);
+            const lang = loc.nativeLanguageName || "";
+            const country = loc.nativeCountryName || "";
+            if (lang && country && country !== lang) return `${lang} (${country})`;
+            if (lang) return lang;
+        } catch (e) {}
+        return code;
+    }
+
     component TranslationScanner: Process {
         id: translationScanner
         required property string translationsDir
-        signal languagesScanned(var languages)
+        signal languagesScanned(var languages, var names)
 
-        command: ["find", translationScanner.translationsDir, "-name", "*.json", "-exec", "basename", "{}", ".json", ";"]
+        command: [
+            "python3", "-c",
+            `import glob, json, os, sys
+langs = {}
+for path in glob.glob(os.path.join(sys.argv[1], '*.json')):
+    code = os.path.splitext(os.path.basename(path))[0]
+    name = code
+    try:
+        data = json.load(open(path, encoding='utf-8'))
+        name = data.get('Language Name', code)
+    except Exception:
+        pass
+    langs[code] = name
+for code in sorted(langs):
+    print(code + '|' + langs[code])`,
+            translationScanner.translationsDir
+        ]
         running: true
 
         stdout: StdioCollector {
             id: languagesCollector
             onStreamFinished: {
                 const output = languagesCollector.text;
+                const langs = {};
                 if (output.trim().length > 0) {
-                    const files = output.trim().split('\n').map(f => f.trim()).filter(f => f.length > 0);
-                    if (files.length > 0) {
-                        translationScanner.languagesScanned(files);
-                        return;
+                    const lines = output.trim().split('\n').map(f => f.trim()).filter(f => f.length > 0);
+                    for (const line of lines) {
+                        const sep = line.indexOf('|');
+                        if (sep < 0) continue;
+                        const code = line.substring(0, sep);
+                        const name = line.substring(sep + 1);
+                        if (code.length > 0) langs[code] = name.length > 0 ? name : code;
                     }
                 }
-                translationScanner.languagesScanned(["en_US", "id_ID"]);
+                if (Object.keys(langs).length > 0) {
+                    translationScanner.languagesScanned(Object.keys(langs), langs);
+                    return;
+                }
+                translationScanner.languagesScanned([], {});
             }
         }
 
         onExited: (exitCode, exitStatus) => {
             if (exitCode !== 0) {
-                translationScanner.languagesScanned(["en_US", "id_ID"]);
+                translationScanner.languagesScanned([], {});
             }
         }
     }
@@ -136,15 +185,14 @@ Singleton {
         property string languageCode: ""
         signal contentLoaded(var data)
 
-        function reread() {
-            if (!translationsDir || !languageCode) {
-                path = "";
+        function reread() { // Proper reload in case the file was incorrect before
+            if (!translationReader.translationsDir || !translationReader.languageCode) {
+                translationReader.path = "";
                 return;
             }
-            var targetPath = `${translationsDir}/${languageCode}.json`;
-            if (path !== targetPath) {
-                path = targetPath;
-            }
+            translationReader.path = "";
+            translationReader.path = `${translationReader.translationsDir}/${translationReader.languageCode}.json`;
+            translationReader.reload();
         }
         path: ""
 

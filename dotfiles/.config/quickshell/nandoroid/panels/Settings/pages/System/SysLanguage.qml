@@ -9,8 +9,28 @@ import Qt5Compat.GraphicalEffects
 import Quickshell
 
 ColumnLayout {
+    id: root
     Layout.fillWidth: true
     spacing: 0
+
+    property var languageCodes: {
+        const codes = ["auto"];
+        for (const c of I18nService.allAvailableLanguages) {
+            if (codes.indexOf(c) === -1) codes.push(c);
+        }
+        return codes;
+    }
+    property var languageDisplayModel: root.languageCodes.map(c => root.langDisplay(c))
+    property string currentLanguageCode: Config.ready ? Config.options.language.ui : "auto"
+
+    function langDisplay(code) {
+        if (code === "auto") return I18nService.tr("Auto (System)");
+        return I18nService.languageName(code);
+    }
+    function langCode(display) {
+        const i = root.languageDisplayModel.indexOf(display);
+        return i >= 0 ? root.languageCodes[i] : display;
+    }
 
     SearchHandler {
         searchString: "Language"
@@ -81,10 +101,17 @@ ColumnLayout {
                         }
                     }
 
-                    // Native SegmentedButton (Always Active)
-                    SegmentedButton {
-                        isHighlighted: true
-                        buttonText: "English (US)"
+                    // Language selector dropdown
+                    StyledComboBox {
+                        Layout.preferredWidth: 220 * Appearance.effectiveScale
+                        model: root.languageDisplayModel
+                        text: root.langDisplay(root.currentLanguageCode)
+                        searchable: false
+                        placeholder: ""
+                        onAccepted: (value) => {
+                            const code = root.langCode(value);
+                            if (Config.ready) Config.options.language.ui = code;
+                        }
                     }
                 }
             }
