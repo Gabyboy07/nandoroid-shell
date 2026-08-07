@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import "../core"
 import "../widgets"
+import "../services"
 import "../panels/Dashboard/calendar_layout.js" as CalendarLayout
 
 Item {
@@ -87,11 +88,29 @@ Item {
         return ds + "/" + ms + "/" + ys
     }
 
+    function __getMonthYearHeader(dateObj) {
+        if (!dateObj) return ""
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ]
+        const m = dateObj.getMonth()
+        const y = dateObj.getFullYear()
+        return I18nService.tr(monthNames[m]) + " " + y
+    }
+
     function __formatHeaderDate(dateStr) {
         let p = root.__parseAnyDate(dateStr)
-        if (!p) return "Select date"
+        if (!p) return I18nService.tr("Select Date")
+        const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ]
         const d = new Date(p.year, p.month - 1, p.day)
-        return Qt.formatDate(d, "ddd, MMM d")
+        const dayShort = I18nService.tr(dayNames[d.getDay()])
+        const monthName = I18nService.tr(monthNames[p.month - 1])
+        return dayShort + ", " + monthName + " " + p.day
     }
 
     function __daysInMonth(year, month) {
@@ -111,8 +130,8 @@ Item {
     function __errorText() {
         const fmt = root.dateStyle === "YMD" ? "YYYY/MM/DD" : (root.dateStyle === "MDY" ? "MM/DD/YYYY" : "DD/MM/YYYY")
         const digits = root.inputText.replace(/\D/g, '')
-        if (digits.length < 8) return "Complete the date: " + fmt
-        return "Invalid date"
+        if (digits.length < 8) return I18nService.tr("Complete the date: ") + fmt
+        return I18nService.tr("Invalid date")
     }
 
     function __formatTypedDateInput(rawText, isDeleting) {
@@ -206,7 +225,7 @@ Item {
         spacing: 8 * Appearance.effectiveScale
 
         StyledText {
-            text: "Select Date"
+            text: I18nService.tr("Select Date")
             Layout.leftMargin: 32 * Appearance.effectiveScale
             Layout.topMargin: 24 * Appearance.effectiveScale
             font.pixelSize: Appearance.font.pixelSize.small
@@ -223,7 +242,7 @@ Item {
 
             StyledText {
                 Layout.fillWidth: true
-                text: root.selectMode === 0 ? root.__formatHeaderDate(root.pendingDateStr) : "Enter dates"
+                text: root.selectMode === 0 ? root.__formatHeaderDate(root.pendingDateStr) : I18nService.tr("Enter date")
                 font.pixelSize: Math.round(32 * Appearance.effectiveScale)
                 font.weight: Font.Normal
                 color: Appearance.colors.colOnLayer1
@@ -278,7 +297,7 @@ Item {
                     contentItem: RowLayout {
                         spacing: 2 * Appearance.effectiveScale
                         StyledText {
-                            text: root.viewingDate.toLocaleDateString(Qt.locale(), "MMMM yyyy")
+                            text: root.__getMonthYearHeader(root.viewingDate)
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnLayer1
@@ -328,7 +347,7 @@ Item {
                     spacing: Appearance.sizes.calendarSpacing
                     Repeater {
                         model: {
-                            const baseDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+                            const baseDays = [I18nService.tr("Mo"), I18nService.tr("Tu"), I18nService.tr("We"), I18nService.tr("Th"), I18nService.tr("Fr"), I18nService.tr("Sa"), I18nService.tr("Su")]
                             const offset = (root.firstDayOfWeek + 6) % 7
                             let r = []
                             for (let i = 0; i < 7; i++) r.push(baseDays[(i + offset) % 7])
@@ -500,7 +519,7 @@ Item {
                     StyledText {
                         id: dateLabel
                         anchors.centerIn: parent
-                        text: "Date"
+                        text: I18nService.tr("Date")
                         font.pixelSize: Appearance.font.pixelSize.smaller
                         font.weight: Font.Medium
                         color: !root.inputValid ? Appearance.colors.colError
@@ -570,7 +589,7 @@ Item {
                 colBackground: "transparent"; colBackgroundHover: Appearance.colors.colLayer2Hover
                 onClicked: root.cancelled()
                 contentItem: StyledText {
-                    text: "Cancel"; font.pixelSize: Appearance.font.pixelSize.small
+                    text: I18nService.tr("Cancel"); font.pixelSize: Appearance.font.pixelSize.small
                     font.weight: Font.Medium; color: Appearance.colors.colPrimary
                 }
             }
@@ -589,7 +608,7 @@ Item {
                     }
                 }
                 contentItem: StyledText {
-                    text: "OK"; font.pixelSize: Appearance.font.pixelSize.small
+                    text: I18nService.tr("OK"); font.pixelSize: Appearance.font.pixelSize.small
                     font.weight: Font.Medium; color: Appearance.colors.colPrimary
                 }
             }

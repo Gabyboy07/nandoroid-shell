@@ -103,6 +103,17 @@ Item {
         }
     }
 
+    function getMonthYearHeader(dateObj) {
+        if (!dateObj) return ""
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ]
+        const m = dateObj.getMonth()
+        const y = dateObj.getFullYear()
+        return I18nService.tr(monthNames[m]) + " " + y
+    }
+
     readonly property string currentDayShort: {
         const _ = DateTime.currentDate;
         const today = new Date();
@@ -275,7 +286,7 @@ Item {
 
             CalendarHeaderButton {
                 clip: true
-                buttonText: root.viewingDate.toLocaleDateString(Qt.locale(), "MMMM yyyy")
+                buttonText: root.getMonthYearHeader(root.viewingDate)
                 tooltipText: (root.monthShift === 0) ? "" : I18nService.tr("Jump to current month")
                 colBackground: "transparent"
                 colBackgroundHover: Appearance.colors.colLayer2Hover

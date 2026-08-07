@@ -583,5 +583,22 @@
     "Notepad": "Notepad",
     "Translator": "Translator",
     "Short Break": "Short Break",
-    "Long Break": "Long Break"
+    "Long Break": "Long Break",
+    "January": "January",
+    "February": "February",
+    "March": "March",
+    "April": "April",
+    "May": "May",
+    "June": "June",
+    "July": "July",
+    "August": "August",
+    "September": "September",
+    "October": "October",
+    "November": "November",
+    "December": "December",
+    "Select Date": "Select Date",
+    "Enter date": "Enter date",
+    "Date": "Date",
+    "Complete the date: ": "Complete the date: ",
+    "Invalid date": "Invalid date"
 }

@@ -583,5 +583,22 @@
     "Notepad": "Notepad",
     "Translator": "Penerjemah",
     "Short Break": "Istirahat Singkat",
-    "Long Break": "Istirahat Panjang"
+    "Long Break": "Istirahat Panjang",
+    "January": "Januari",
+    "February": "Februari",
+    "March": "Maret",
+    "April": "April",
+    "May": "Mei",
+    "June": "Juni",
+    "July": "Juli",
+    "August": "Agustus",
+    "September": "September",
+    "October": "Oktober",
+    "November": "November",
+    "December": "Desember",
+    "Select Date": "Pilih Tanggal",
+    "Enter date": "Ketik tanggal",
+    "Date": "Tanggal",
+    "Complete the date: ": "Lengkapi tanggal: ",
+    "Invalid date": "Tanggal tidak valid"
 }
