@@ -767,5 +767,22 @@
     "Sleep": "Sleep",
     "Logout": "Logout",
     "Shutdown": "Shutdown",
-    "Reboot": "Reboot"
+    "Reboot": "Reboot",
+    "Scroll to change brightness": "Scroll to change brightness",
+    "Scroll to change volume": "Scroll to change volume",
+    "Workspace %1": "Workspace %1",
+    "Notification": "Notification",
+    "New Message": "New Message",
+    "Messages": "Messages",
+    "Jan": "Jan",
+    "Feb": "Feb",
+    "Mar": "Mar",
+    "Apr": "Apr",
+    "Jun": "Jun",
+    "Jul": "Jul",
+    "Aug": "Aug",
+    "Sep": "Sep",
+    "Oct": "Oct",
+    "Nov": "Nov",
+    "Dec": "Dec"
 }

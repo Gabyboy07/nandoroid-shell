@@ -23,10 +23,10 @@ Item {
     property int textAlignment: Text.AlignLeft
 
     property string appClassText: root.focusingThisMonitor && root.activeWindow?.activated ?
-                (root.activeWindow?.appId ?? "Desktop") : (HyprlandData.activeWindow?.class ?? "Desktop")
+                (root.activeWindow?.appId ?? I18nService.tr("Desktop")) : (HyprlandData.activeWindow?.class ?? I18nService.tr("Desktop"))
 
     property string appTitleText: root.focusingThisMonitor && root.activeWindow?.activated ?
-                (root.activeWindow?.title ?? "Overview") : (HyprlandData.activeWindow?.title ?? `Workspace ${monitor?.activeWorkspace?.id ?? 1}`)
+                (root.activeWindow?.title ?? I18nService.tr("Overview")) : (HyprlandData.activeWindow?.title ?? I18nService.tr("Workspace %1").replace("%1", monitor?.activeWorkspace?.id ?? 1))
 
     property real maxWidth: 400 * Appearance.effectiveScale
 

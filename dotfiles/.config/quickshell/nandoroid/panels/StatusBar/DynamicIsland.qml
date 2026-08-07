@@ -164,7 +164,7 @@ Item {
             }
             StyledText {
                 id: notifAppNameLabel
-                text: Notifications.activePopup?.appName || (islandStateOverride !== "" ? "Messages" : "Notification")
+                text: Notifications.activePopup?.appName || (islandStateOverride !== "" ? I18nService.tr("Messages") : I18nService.tr("Notification"))
                 visible: islandState === "notification"
                 opacity: parent.parent.width > (30 * Appearance.effectiveScale) ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: 200 } }
@@ -230,7 +230,7 @@ Item {
                 }
             }
             StyledText {
-                id: mediaArtistLabel; text: MprisController.trackArtist || "Unknown Artist"
+                id: mediaArtistLabel; text: I18nService.tr(MprisController.trackArtist || "Unknown Artist")
                 visible: islandState === "media"; opacity: parent.parent.width > (30 * Appearance.effectiveScale) ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: 200 } }
                 font.pixelSize: Math.round(12 * Appearance.effectiveScale); font.weight: Font.Medium; color: Appearance.colors.colNotchText
@@ -276,7 +276,7 @@ Item {
 
         StyledText {
             id: notifSummaryLabel; anchors.centerIn: parent
-            text: Notifications.activePopup?.summary || (islandStateOverride !== "" ? "New Message" : "")
+            text: Notifications.activePopup?.summary || (islandStateOverride !== "" ? I18nService.tr("New Message") : "")
             visible: islandState === "notification"
             opacity: parent.width > (20 * Appearance.effectiveScale) ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 200 } }

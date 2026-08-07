@@ -767,5 +767,22 @@
     "Sleep": "Tidur",
     "Logout": "Keluar",
     "Shutdown": "Matikan",
-    "Reboot": "Mulai Ulang"
+    "Reboot": "Mulai Ulang",
+    "Scroll to change brightness": "Gulir untuk mengubah kecerahan",
+    "Scroll to change volume": "Gulir untuk mengubah volume",
+    "Workspace %1": "Ruang Kerja %1",
+    "Notification": "Notifikasi",
+    "New Message": "Pesan Baru",
+    "Messages": "Pesan",
+    "Jan": "Jan",
+    "Feb": "Feb",
+    "Mar": "Mar",
+    "Apr": "Apr",
+    "Jun": "Jun",
+    "Jul": "Jul",
+    "Aug": "Agu",
+    "Sep": "Sep",
+    "Oct": "Okt",
+    "Nov": "Nov",
+    "Dec": "Des"
 }

@@ -358,7 +358,7 @@ Item {
         ScrollHint {
             hovered: parent.hovered
             icon: "light_mode"
-            tooltipText: "Scroll to change brightness"
+            tooltipText: I18nService.tr("Scroll to change brightness")
             side: "left"
             anchors.left: parent.left
             anchors.leftMargin: root.isCentered ? root.sidePadding : 4 * Appearance.effectiveScale
@@ -388,7 +388,7 @@ Item {
         ScrollHint {
             hovered: parent.hovered
             icon: "volume_up"
-            tooltipText: "Scroll to change volume"
+            tooltipText: I18nService.tr("Scroll to change volume")
             side: "right"
             anchors.right: parent.right
             anchors.rightMargin: root.isCentered ? root.sidePadding : 4 * Appearance.effectiveScale
