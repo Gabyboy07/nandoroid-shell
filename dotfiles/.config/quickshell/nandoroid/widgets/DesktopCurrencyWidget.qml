@@ -143,14 +143,14 @@ Item {
                         leftMargin: 14 * Appearance.effectiveScale
                     }
                     StyledText {
-                        text: "Rates"
+                        text: I18nService.tr("Rates")
                         font.pixelSize: Appearance.font.pixelSize.smallest
                         font.weight: Font.DemiBold
                         color: Appearance.colors.colOnPrimaryContainer
                         opacity: 0.6
                     }
                     StyledText {
-                        text: "to " + CurrencyService.baseCurrency
+                        text: I18nService.tr("to %1").replace("%1", CurrencyService.baseCurrency)
                         font.pixelSize: 10 * Appearance.effectiveScale
                         font.weight: Font.Bold
                         color: Appearance.colors.colPrimary
@@ -293,7 +293,7 @@ Item {
                     spacing: -4 * Appearance.effectiveScale
 
                     StyledText {
-                        text: "Rates"
+                        text: I18nService.tr("Rates")
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: Font.Bold
                         color: Appearance.colors.colOnPrimaryContainer
@@ -431,7 +431,7 @@ Item {
                     spacing: 8 * Appearance.effectiveScale
 
                     StyledText {
-                        text: "Base:"
+                        text: I18nService.tr("Base:")
                         font.pixelSize: Appearance.font.pixelSize.smallest
                         font.weight: Font.Bold
                         color: Appearance.m3colors.m3onSurface

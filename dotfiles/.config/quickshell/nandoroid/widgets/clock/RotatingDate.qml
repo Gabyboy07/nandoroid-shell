@@ -15,7 +15,7 @@ Item {
     property real angleStep: 12 * Math.PI / 180
     property string dateText: {
         const _ = DateTime.currentDate; // reactive
-        return Qt.formatDate(new Date(), "ddd dd");
+        return new Date().toLocaleDateString(Qt.locale(I18nService.languageCode), "ddd dd");
     }
 
     readonly property bool timeIndicators: Config.options.appearance.clock.analog.timeIndicators

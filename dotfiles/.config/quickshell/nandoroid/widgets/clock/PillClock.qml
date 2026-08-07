@@ -179,7 +179,7 @@ Rectangle {
             visible: root.showDate && root.cfg.showBackground
 
             StyledText {
-                text: Qt.formatDate(root.nowDate, "dddd")
+                text: root.nowDate.toLocaleDateString(Qt.locale(I18nService.languageCode), "dddd")
                 font.pixelSize: Math.round((root.cfg.size * 0.18 || 22) * Appearance.effectiveScale)
                 font.weight: Font.DemiBold
                 font.family: root.dateFontFamily
@@ -187,7 +187,7 @@ Rectangle {
                 Layout.alignment: Qt.AlignHCenter
             }
             StyledText {
-                text: Qt.formatDate(root.nowDate, "d MMMM, yyyy")
+                text: root.nowDate.toLocaleDateString(Qt.locale(I18nService.languageCode), "d MMMM, yyyy")
                 font.pixelSize: Math.round((root.cfg.size * 0.12 || 14) * Appearance.effectiveScale)
                 font.weight: Font.Light
                 font.family: root.dateFontFamily
@@ -201,7 +201,7 @@ Rectangle {
         AdaptivePill {
             Layout.alignment: Qt.AlignHCenter
             visible: root.showDate && !root.cfg.showBackground
-            labelText: Qt.formatDate(root.nowDate, "dddd, d MMMM yyyy")
+            labelText: root.nowDate.toLocaleDateString(Qt.locale(I18nService.languageCode), "dddd, d MMMM yyyy")
             isBold: true
             fontSize: (root.cfg.size * 0.14 || 16) * Appearance.effectiveScale
         }
@@ -257,7 +257,7 @@ Rectangle {
             visible: root.showDate && root.cfg.showBackground
 
             StyledText {
-                text: Qt.formatDate(root.nowDate, "dddd")
+                text: root.nowDate.toLocaleDateString(Qt.locale(I18nService.languageCode), "dddd")
                 font.pixelSize: Math.round((root.cfg.size * 0.18 || 22) * Appearance.effectiveScale)
                 font.weight: Font.DemiBold
                 font.family: root.dateFontFamily
@@ -265,7 +265,7 @@ Rectangle {
                 Layout.alignment: Qt.AlignHCenter
             }
             StyledText {
-                text: Qt.formatDate(root.nowDate, "d MMMM, yyyy")
+                text: root.nowDate.toLocaleDateString(Qt.locale(I18nService.languageCode), "d MMMM, yyyy")
                 font.pixelSize: Math.round((root.cfg.size * 0.12 || 14) * Appearance.effectiveScale)
                 font.weight: Font.Light
                 font.family: root.dateFontFamily
@@ -279,7 +279,7 @@ Rectangle {
         AdaptivePill {
             Layout.alignment: Qt.AlignHCenter
             visible: root.showDate && !root.cfg.showBackground
-            labelText: Qt.formatDate(root.nowDate, "dddd, d MMMM yyyy")
+            labelText: root.nowDate.toLocaleDateString(Qt.locale(I18nService.languageCode), "dddd, d MMMM yyyy")
             isBold: true
             fontSize: (root.cfg.size * 0.14 || 16) * Appearance.effectiveScale
         }

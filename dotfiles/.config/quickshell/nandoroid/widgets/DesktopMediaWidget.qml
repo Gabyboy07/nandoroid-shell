@@ -135,7 +135,11 @@ Item {
                 Layout.leftMargin: 48 * Appearance.effectiveScale
                 Layout.rightMargin: 48 * Appearance.effectiveScale
                 horizontalAlignment: Text.AlignHCenter
-                text: Functions.StringUtils.cleanMusicTitle(MprisController.trackTitle) || "No Music Playing"
+                text: {
+                    let t = Functions.StringUtils.cleanMusicTitle(MprisController.trackTitle);
+                    let isNoMedia = !t || t.toLowerCase() === "no media";
+                    return isNoMedia ? I18nService.tr("No media") : t;
+                }
                 font.pixelSize: Appearance.font.pixelSize.normal
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colPrimary // Title on colOnPrimary dark card
@@ -153,9 +157,9 @@ Item {
                     let hasTitle = rawTitle !== "" && rawTitle !== "no media" && rawTitle !== "no music playing";
                     let hasArtist = MprisController.trackArtist && MprisController.trackArtist.trim() !== "";
                     if (hasTitle) {
-                        return hasArtist ? MprisController.trackArtist : "Unknown Artist";
+                        return hasArtist ? MprisController.trackArtist : I18nService.tr("Unknown Artist");
                     }
-                    return "Play some media";
+                    return I18nService.tr("Play some media");
                 }
                 font.pixelSize: Appearance.font.pixelSize.smaller
                 font.weight: Font.DemiBold
@@ -428,7 +432,7 @@ Item {
                             Layout.leftMargin: 12 * Appearance.effectiveScale
                             Layout.rightMargin: 12 * Appearance.effectiveScale
                             horizontalAlignment: Text.AlignHCenter
-                            text: (MprisController.trackTitle && MprisController.trackTitle !== "No media") ? Functions.StringUtils.cleanMusicTitle(MprisController.trackTitle) : "No media"
+                            text: (MprisController.trackTitle && MprisController.trackTitle !== "No media") ? Functions.StringUtils.cleanMusicTitle(MprisController.trackTitle) : I18nService.tr("No media")
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.Bold
                             color: Appearance.colors.colPrimary
@@ -441,7 +445,7 @@ Item {
                             Layout.leftMargin: 12 * Appearance.effectiveScale
                             Layout.rightMargin: 12 * Appearance.effectiveScale
                             horizontalAlignment: Text.AlignHCenter
-                            text: (MprisController.activePlayer && MprisController.trackTitle !== "No media") ? (MprisController.trackArtist || "Unknown Artist") : "Play some media"
+                            text: (MprisController.activePlayer && MprisController.trackTitle !== "No media") ? (MprisController.trackArtist || I18nService.tr("Unknown Artist")) : I18nService.tr("Play some media")
                             font.pixelSize: Appearance.font.pixelSize.smallest
                             font.weight: Font.Normal
                             color: Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.8)
@@ -664,7 +668,11 @@ Item {
                             if (slotIndex < 0 || slotIndex >= LyricsService.slots.length) return "";
                             let slot = LyricsService.slots[slotIndex];
                             if (!slot) return "";
-                            return Config.options.appearance.lyrics.lyricsUseRomaji ? slot.romajiText : slot.originalText;
+                            let raw = Config.options.appearance.lyrics.lyricsUseRomaji ? slot.romajiText : slot.originalText;
+                            // Translate LyricsService status placeholder strings
+                            const statusKeys = ["No lyrics found", "No track playing", "Preparing lyrics..."];
+                            if (statusKeys.includes(raw)) return I18nService.tr(raw);
+                            return raw;
                         }
                         font.pixelSize: modelData === LyricsService.before // Active line is bigger
                             ? Appearance.font.pixelSize.large
@@ -690,7 +698,7 @@ Item {
                     visible: LyricsService.slots.length === 0
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignHCenter
-                    text: LyricsService.status === "loading" ? "Loading lyrics..." : "No lyrics available"
+                    text: LyricsService.status === "loading" ? I18nService.tr("Loading lyrics...") : I18nService.tr("No lyrics available")
                     color: Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.6)
                     font.pixelSize: Appearance.font.pixelSize.normal
                 }

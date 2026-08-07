@@ -289,7 +289,7 @@ Item {
                 }
                 StyledText {
                     Layout.alignment: Qt.AlignHCenter
-                    text: "Disk"
+                    text: I18nService.tr("Disk")
                     font.pixelSize: Appearance.font.pixelSize.smallest
                     color: Appearance.colors.colOnTertiaryContainer
                     opacity: 0.6

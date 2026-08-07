@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import "../core"
+import "../services"
 
 
 Item {
@@ -91,7 +92,7 @@ Item {
         }
 
         SubmenuItem {
-            menuText: "Clock"
+            menuText: I18nService.tr("Clock")
             visible: Config.ready && Config.options.appearance && Config.options.appearance.clock
             widgetLocked: (Config.ready && Config.options.appearance && Config.options.appearance.clock) ? Config.options.appearance.clock.locked : false
             onLockToggled: if (Config.ready && Config.options.appearance && Config.options.appearance.clock) Config.options.appearance.clock.locked = !Config.options.appearance.clock.locked
@@ -100,7 +101,7 @@ Item {
         }
 
         SubmenuItem {
-            menuText: "At a Glance"
+            menuText: I18nService.tr("At a Glance")
             visible: Config.ready && Config.options.appearance && Config.options.appearance.atAGlance
             widgetLocked: (Config.ready && Config.options.appearance && Config.options.appearance.atAGlance) ? Config.options.appearance.atAGlance.locked : false
             onLockToggled: if (Config.ready && Config.options.appearance && Config.options.appearance.atAGlance) Config.options.appearance.atAGlance.locked = !Config.options.appearance.atAGlance.locked
@@ -109,7 +110,7 @@ Item {
         }
 
         SubmenuItem {
-            menuText: "Media Player"
+            menuText: I18nService.tr("Media Player")
             visible: Config.ready && Config.options.appearance && Config.options.appearance.mediaWidget
             widgetLocked: (Config.ready && Config.options.appearance && Config.options.appearance.mediaWidget) ? Config.options.appearance.mediaWidget.locked : false
             onLockToggled: if (Config.ready && Config.options.appearance && Config.options.appearance.mediaWidget) Config.options.appearance.mediaWidget.locked = !Config.options.appearance.mediaWidget.locked
@@ -118,7 +119,7 @@ Item {
         }
 
         SubmenuItem {
-            menuText: "System Monitor"
+            menuText: I18nService.tr("System Monitor")
             visible: Config.ready && Config.options.appearance && Config.options.appearance.systemMonitor
             widgetLocked: (Config.ready && Config.options.appearance && Config.options.appearance.systemMonitor) ? Config.options.appearance.systemMonitor.locked : false
             onLockToggled: if (Config.ready && Config.options.appearance && Config.options.appearance.systemMonitor) Config.options.appearance.systemMonitor.locked = !Config.options.appearance.systemMonitor.locked
@@ -127,7 +128,7 @@ Item {
         }
 
         SubmenuItem {
-            menuText: "Weather"
+            menuText: I18nService.tr("Weather")
             visible: Config.ready && Config.options.appearance && Config.options.appearance.weatherWidget
             enabled: Config.ready && (Config.options.weather?.enable ?? true)
             widgetLocked: (Config.ready && Config.options.appearance && Config.options.appearance.weatherWidget) ? Config.options.appearance.weatherWidget.locked : false
@@ -137,7 +138,7 @@ Item {
         }
 
         SubmenuItem {
-            menuText: "Currency"
+            menuText: I18nService.tr("Currency")
             visible: Config.ready && Config.options.appearance && Config.options.appearance.currencyWidget
             widgetLocked: (Config.ready && Config.options.appearance && Config.options.appearance.currencyWidget) ? Config.options.appearance.currencyWidget.locked : false
             onLockToggled: if (Config.ready && Config.options.appearance && Config.options.appearance.currencyWidget) Config.options.appearance.currencyWidget.locked = !Config.options.appearance.currencyWidget.locked

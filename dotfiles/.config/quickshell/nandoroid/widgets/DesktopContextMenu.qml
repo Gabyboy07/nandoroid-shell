@@ -206,7 +206,7 @@ PanelWindow {
             // --- Widget Specific Items ---
             MenuItem {
                 visible: root.activeConfigObject !== null && root.activeConfigObject.locked !== undefined
-                menuText: (root.activeConfigObject && root.activeConfigObject.locked) ? "Unlock " + root.activeWidgetName + " Position" : "Lock " + root.activeWidgetName + " Position"
+                menuText: (root.activeConfigObject && root.activeConfigObject.locked) ? I18nService.tr("Unlock %1 Position").replace("%1", I18nService.tr(root.activeWidgetName)) : I18nService.tr("Lock %1 Position").replace("%1", I18nService.tr(root.activeWidgetName))
                 menuIcon: (root.activeConfigObject && root.activeConfigObject.locked) ? "lock_open" : "lock"
                 onClicked: {
                     if (root.activeConfigObject) {
@@ -218,7 +218,7 @@ PanelWindow {
 
             MenuItem {
                 visible: root.activeConfigObject !== null && root.activeWidgetName !== ""
-                menuText: root.activeWidgetName + " Settings"
+                menuText: I18nService.tr("%1 Settings").replace("%1", I18nService.tr(root.activeWidgetName))
                 menuIcon: "settings" // Generic settings icon for widgets
                 onClicked: {
                     GlobalStates.settingsPageIndex = 5 // Widgets panel is index 5
@@ -233,7 +233,7 @@ PanelWindow {
             MenuItem {
                 id: widgetsRow
                 visible: root.activeConfigObject === null
-                menuText: "Widgets"
+                menuText: I18nService.tr("Widgets")
                 menuIcon: "widgets"
                 rightIcon: "chevron_right"
                 
@@ -265,7 +265,7 @@ PanelWindow {
             
             MenuItem {
                 visible: root.activeConfigObject === null
-                menuText: "Display settings"
+                menuText: I18nService.tr("Display settings")
                 menuIcon: "monitor"
                 
                 HoverHandler {
@@ -282,7 +282,7 @@ PanelWindow {
 
             MenuItem {
                 visible: root.activeConfigObject === null
-                menuText: "Wallpaper & style"
+                menuText: I18nService.tr("Wallpaper & style")
                 menuIcon: "format_paint"
                 
                 HoverHandler {

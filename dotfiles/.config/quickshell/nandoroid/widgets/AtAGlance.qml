@@ -23,7 +23,12 @@ Item {
     readonly property int currentHour: DateTime.hours
     readonly property string dateString: {
         var dummy = DateTime.currentDate;
-        return Qt.formatDate(new Date(), "dddd, MMMM d");
+        var lang = I18nService.languageCode || "en_US";
+        try {
+            return new Date().toLocaleDateString(Qt.locale(lang), "dddd, MMMM d");
+        } catch (e) {
+            return Qt.formatDate(new Date(), "dddd, MMMM d");
+        }
     }
     
     // State
@@ -254,10 +259,22 @@ Item {
         updateQuoteOnly();
     }
 
-    // Load Quotes JSON via Process
+    readonly property string _quotesLangFile: {
+        let code = I18nService.languageCode || "en_US";
+        return "translations/quotes_" + code + ".json";
+    }
+
+    // Load Quotes JSON via Process dynamically matching active language
     Process {
         id: quotesLoader
-        command: ["cat", Quickshell.shellPath("data/quotes.json")]
+        command: ["bash", "-c", `
+            file="${Quickshell.shellPath(root._quotesLangFile)}"
+            if [ -f "$file" ]; then
+                cat "$file"
+            else
+                cat "${Quickshell.shellPath("translations/quotes_en_US.json")}" 2>/dev/null || cat "${Quickshell.shellPath("data/quotes.json")}"
+            fi
+        `]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -268,6 +285,14 @@ Item {
                     console.error("Failed to parse quotes:", e);
                 }
             }
+        }
+    }
+
+    Connections {
+        target: I18nService
+        function onLanguageCodeChanged() {
+            quotesLoader.running = false;
+            quotesLoader.running = true;
         }
     }
 
@@ -340,7 +365,7 @@ Item {
 
         StyledText {
             visible: cfg.showDate
-            text: "It's " + dateString
+            text: I18nService.tr("It's %1").replace("%1", dateString)
             font.pixelSize: Math.round(fontSize * Appearance.effectiveScale)
             font.family: fontFamily
             color: dateColor

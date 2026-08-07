@@ -96,7 +96,7 @@ ColumnLayout {
         const _ = DateTime.currentDate;
         return new Date();
     }
-    readonly property string dayName: Qt.formatDate(now, "ddd").toLowerCase()
+    readonly property string dayName: now.toLocaleDateString(Qt.locale(I18nService.languageCode), "ddd").toLowerCase()
     readonly property string dayNumber: getOrdinal(now.getDate()).toLowerCase()
     
     readonly property bool is24H: Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : true

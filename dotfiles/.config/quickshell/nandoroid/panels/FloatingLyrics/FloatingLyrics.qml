@@ -100,7 +100,12 @@ PanelWindow {
                         width: lyricsWrapper.width - (80 * Appearance.effectiveScale)
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
-                        text: Config.options.appearance.lyrics.lyricsUseRomaji ? modelData.romajiText : modelData.originalText
+                        text: {
+                            let raw = Config.options.appearance.lyrics.lyricsUseRomaji ? modelData.romajiText : modelData.originalText;
+                            const statusKeys = ["No lyrics found", "No track playing", "Preparing lyrics..."];
+                            if (statusKeys.includes(raw)) return I18nService.tr(raw);
+                            return raw;
+                        }
                         font.family: (Config.ready && Config.options.appearance.lyrics.fontFamily !== "") ? Config.options.appearance.lyrics.fontFamily : Config.options.appearance.fonts.main
                         font.pixelSize: Math.round(index === LyricsService.before) 
                             ? (Config.ready && Config.options.appearance.lyrics ? Config.options.appearance.lyrics.fontSize : 36) 
@@ -123,8 +128,8 @@ PanelWindow {
             anchors.bottomMargin: 16
             anchors.horizontalCenter: parent.horizontalCenter
             text: Config.options.appearance.lyrics.lyricsUseRomaji 
-                  ? "Double click to change to original | Right click to lock" 
-                  : "Double click to change to romaji | Right click to lock"
+                  ? I18nService.tr("Double click to change to original | Right click to lock") 
+                  : I18nService.tr("Double click to change to romaji | Right click to lock")
             font.family: Config.options.appearance.fonts.main
             font.pixelSize: Math.round(12 * Appearance.effectiveScale)
             color: "white"
