@@ -30,14 +30,14 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "At a Glance"
+                text: I18nService.tr("At a Glance")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
                 Layout.fillWidth: true
             }
             StyledText {
-                text: "Reset Position"
+                text: I18nService.tr("Reset Position")
                 font.pixelSize: Appearance.font.pixelSize.small
                 color: maResetAag.containsMouse ? Appearance.colors.colPrimaryHover : Appearance.colors.colPrimary
 
@@ -73,7 +73,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "waving_hand"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Show Greeting"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show Greeting"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle { checked: Config.ready && Config.options.appearance.atAGlance.showGreeting; onToggled: if(Config.ready) Config.options.appearance.atAGlance.showGreeting = !Config.options.appearance.atAGlance.showGreeting }
                 }
             }
@@ -86,7 +86,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "calendar_month"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Show Date"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show Date"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle { checked: Config.ready && Config.options.appearance.atAGlance.showDate; onToggled: if(Config.ready) Config.options.appearance.atAGlance.showDate = !Config.options.appearance.atAGlance.showDate }
                 }
             }
@@ -99,7 +99,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "format_quote"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Show Quotes"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show Quotes"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle { checked: Config.ready && Config.options.appearance.atAGlance.showQuote; onToggled: if(Config.ready) Config.options.appearance.atAGlance.showQuote = !Config.options.appearance.atAGlance.showQuote }
                 }
             }
@@ -117,7 +117,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "format_align_left"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Alignment"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Alignment"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     
                     Row {
                         spacing: 4 * Appearance.effectiveScale
@@ -168,7 +168,7 @@ ColumnLayout {
                         Layout.preferredWidth: 70 * Appearance.effectiveScale
                         MaterialSymbol { text: "text_fields"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                         StyledText {
-                            text: "Font Family"
+                            text: I18nService.tr("Font Family")
                             color: Appearance.colors.colOnLayer1
                             Layout.fillWidth: true
                         }
@@ -178,9 +178,9 @@ ColumnLayout {
                         Layout.preferredWidth: 300 * Appearance.effectiveScale
                         model: SystemFonts.all
                         text: {
-                            if (!Config.ready) return "Default";
+                            if (!Config.ready) return I18nService.tr("Default");
                             const val = Config.options.appearance.atAGlance.fontFamily;
-                            return (val === "" || val === undefined) ? "Default" : val;
+                            return (val === "" || val === undefined) ? I18nService.tr("Default") : val;
                         }
                         onAccepted: (val) => {
                             if (!Config.ready) return;
@@ -207,7 +207,7 @@ ColumnLayout {
                         Layout.preferredWidth: 70 * Appearance.effectiveScale
                         MaterialSymbol { text: "format_size"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                         StyledText {
-                            text: "Font Size"
+                            text: I18nService.tr("Font Size")
                             color: Appearance.colors.colOnLayer1
                             Layout.fillWidth: true
                         }
@@ -245,7 +245,7 @@ ColumnLayout {
                         Layout.preferredWidth: 70 * Appearance.effectiveScale
                         MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                         StyledText {
-                            text: "Greeting Color"
+                            text: I18nService.tr("Greeting Color")
                             color: Appearance.colors.colOnLayer1
                             Layout.fillWidth: true
                         }
@@ -283,7 +283,7 @@ ColumnLayout {
                         Layout.preferredWidth: 70 * Appearance.effectiveScale
                         MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                         StyledText {
-                            text: "Date Color"
+                            text: I18nService.tr("Date Color")
                             color: Appearance.colors.colOnLayer1
                             Layout.fillWidth: true
                         }
@@ -321,7 +321,7 @@ ColumnLayout {
                         Layout.preferredWidth: 70 * Appearance.effectiveScale
                         MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                         StyledText {
-                            text: "Quote Color"
+                            text: I18nService.tr("Quote Color")
                             color: Appearance.colors.colOnLayer1
                             Layout.fillWidth: true
                         }

@@ -32,7 +32,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Presets"
+                text: I18nService.tr("Presets")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -55,13 +55,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Save Current Config"
+                        text: I18nService.tr("Save Current Config")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Save a snapshot of your current config."
+                        text: I18nService.tr("Save a snapshot of your current config.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.WordWrap
@@ -72,7 +72,7 @@ ColumnLayout {
 
                 StyledTextInput {
                     id: presetNameInput
-                    placeholder: "Preset name"
+                    placeholder: I18nService.tr("Preset name")
                     onEditingFinished: savePreset()
                 }
 
@@ -99,7 +99,7 @@ ColumnLayout {
             Layout.topMargin: 24 * Appearance.effectiveScale
             visible: presetsModel.count === 0
             horizontalAlignment: Text.AlignHCenter
-            text: "No presets yet"
+            text: I18nService.tr("No presets yet")
             color: Appearance.colors.colSubtext
             font.pixelSize: Appearance.font.pixelSize.normal
         }
@@ -139,7 +139,7 @@ ColumnLayout {
                             const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
                             return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear()
                         } catch (e) {
-                            return "Unknown date"
+                            return I18nService.tr("Unknown date")
                         }
                     }
 
@@ -229,7 +229,7 @@ ColumnLayout {
 
                             StyledText {
                                 Layout.fillWidth: true
-                                text: "Saved " + cardDate
+                                text: I18nService.tr("Saved ") + cardDate
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 color: Appearance.colors.colSubtext
                             }
@@ -253,7 +253,7 @@ ColumnLayout {
                                         deleteProc.running = true
                                     }
                                     contentItem: StyledText {
-                                        text: "Delete"
+                                        text: I18nService.tr("Delete")
                                         font.pixelSize: Appearance.font.pixelSize.small
                                         font.weight: Font.Medium
                                         color: Appearance.colors.colError
@@ -270,7 +270,7 @@ ColumnLayout {
                                         Quickshell.execDetached(["bash", Directories.presetsScriptPath, "--apply", fileBaseName])
                                     }
                                     contentItem: StyledText {
-                                        text: "Apply"
+                                        text: I18nService.tr("Apply")
                                         font.pixelSize: Appearance.font.pixelSize.small
                                         font.weight: Font.Medium
                                         color: Appearance.colors.colPrimary

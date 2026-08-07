@@ -30,7 +30,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Power Profile"
+                text: I18nService.tr("Power Profile")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -55,13 +55,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Custom Power Profile"
+                        text: I18nService.tr("Custom Power Profile")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Enable overriding system power modes via a local file."
+                        text: I18nService.tr("Enable overriding system power modes via a local file.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -103,13 +103,13 @@ ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     Layout.maximumWidth: 400 * Appearance.effectiveScale
                     StyledText {
-                        text: "Custom Profile Path"
+                        text: I18nService.tr("Custom Profile Path")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "The exact path to write custom profile strings."
+                        text: I18nService.tr("The exact path to write custom profile strings.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -122,7 +122,7 @@ ColumnLayout {
                     Layout.preferredWidth: 250 * Appearance.effectiveScale
                     Layout.preferredHeight: 48 * Appearance.effectiveScale
                     text: (Config.ready && Config.options.powerProfile) ? Functions.FileUtils.shortenHomePath(Config.options.powerProfile.customPath) : "/tmp/ryzen_mode"
-                    placeholder: "Enter path (e.g., /tmp/ryzen_mode)"
+                    placeholder: I18nService.tr("Enter path (e.g., /tmp/ryzen_mode)")
                     onEditingFinished: { 
                         if (Config.ready && Config.options.powerProfile) {
                             Config.options.powerProfile.customPath = Functions.FileUtils.expandHomePath(text);

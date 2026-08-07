@@ -66,7 +66,7 @@ import Quickshell
                     StyledText {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignHCenter
-                        text: "Add Network"
+                        text: I18nService.tr("Add Network")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.DemiBold
                         color: Appearance.colors.colOnLayer1
@@ -74,7 +74,7 @@ import Quickshell
                     StyledText {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignHCenter
-                        text: "Enter the details of the network you want to join."
+                        text: I18nService.tr("Enter the details of the network you want to join.")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.Wrap
@@ -107,7 +107,7 @@ import Quickshell
                         StyledText {
                             id: ssidLabel
                             anchors.centerIn: parent
-                            text: "Network Name"
+                            text: I18nService.tr("Network Name")
                             font.pixelSize: Appearance.font.pixelSize.smaller
                             font.weight: Font.Medium
                             color: ssidInput.input.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline
@@ -119,7 +119,7 @@ import Quickshell
                         anchors.fill: parent
                         anchors.leftMargin: 16 * Appearance.effectiveScale
                         anchors.rightMargin: 16 * Appearance.effectiveScale
-                        placeholder: "SSID"
+                        placeholder: I18nService.tr("SSID")
                         backgroundColor: "transparent"
                         inputRadius: 0
                         borderInactiveWidth: 0
@@ -147,7 +147,7 @@ import Quickshell
                         StyledText {
                             id: passLabel
                             anchors.centerIn: parent
-                            text: "Password"
+                            text: I18nService.tr("Password")
                             font.pixelSize: Appearance.font.pixelSize.smaller
                             font.weight: Font.Medium
                             color: hiddenPassInput.input.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline
@@ -163,7 +163,7 @@ import Quickshell
                             id: hiddenPassInput
                             Layout.fillWidth: true
                             echoMode: addNetworkDialog.showPassword ? TextInput.Normal : TextInput.Password
-                            placeholder: "Optional"
+                            placeholder: I18nService.tr("Optional")
                             backgroundColor: "transparent"
                             inputRadius: 0
                             borderInactiveWidth: 0
@@ -213,7 +213,7 @@ import Quickshell
                     }
                     
                     StyledText {
-                        text: "Hidden network"
+                        text: I18nService.tr("Hidden network")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         color: Appearance.colors.colOnLayer1
                     }
@@ -231,7 +231,7 @@ import Quickshell
                 Item { Layout.fillWidth: true }
                 
                 RippleButton {
-                    buttonText: "Cancel"
+                    buttonText: I18nService.tr("Cancel")
                     implicitWidth: 100 * Appearance.effectiveScale
                     implicitHeight: 40 * Appearance.effectiveScale
                     buttonRadius: Appearance.rounding.button
@@ -241,7 +241,7 @@ import Quickshell
                 }
                 
                 RippleButton {
-                    buttonText: "Connect"
+                    buttonText: I18nService.tr("Connect")
                     implicitWidth: 100 * Appearance.effectiveScale
                     implicitHeight: 40 * Appearance.effectiveScale
                     buttonRadius: Appearance.rounding.button

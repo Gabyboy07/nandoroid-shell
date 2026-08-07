@@ -161,13 +161,13 @@ Item {
         ColumnLayout {
             spacing: 4 * Appearance.effectiveScale
             StyledText {
-                text: "Display"
+                text: I18nService.tr("Display")
                 font.pixelSize: Appearance.font.pixelSize.huge
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }
             StyledText {
-                text: "Configure your monitors, visual comfort, and layout."
+                text: I18nService.tr("Configure your monitors, visual comfort, and layout.")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 color: Appearance.colors.colSubtext
             }
@@ -188,9 +188,9 @@ Item {
                 }
                 StyledText {
                     text: {
-                        let base = "Monitor Layout";
+                        let base = I18nService.tr("Monitor Layout");
                         if (root.monitorList.length > 1) {
-                            base += " (" + root.monitorList.length + " detected)";
+                            base += I18nService.tr(" (") + root.monitorList.length + I18nService.tr(" detected)");
                         }
                         return base;
                     }
@@ -201,7 +201,7 @@ Item {
                 }
                 
                 StyledText {
-                    text: "Layout visualization"
+                    text: I18nService.tr("Layout visualization")
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colSubtext
                     visible: root.monitorList.length > 1
@@ -386,13 +386,13 @@ Item {
                         ColumnLayout {
                             spacing: 0
                             StyledText {
-                                text: "Physical Arrangement"
+                                text: I18nService.tr("Physical Arrangement")
                                 font.pixelSize: Appearance.font.pixelSize.normal
                                 font.weight: Font.Medium
                                 color: Appearance.colors.colOnLayer1
                             }
                             StyledText {
-                                text: "Position relative to Main"
+                                text: I18nService.tr("Position relative to Main")
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 color: Appearance.colors.colSubtext
                             }
@@ -471,13 +471,13 @@ Item {
                         ColumnLayout {
                             spacing: 0
                             StyledText {
-                                text: "Mirror Display"
+                                text: I18nService.tr("Mirror Display")
                                 font.pixelSize: Appearance.font.pixelSize.normal
                                 font.weight: Font.Medium
                                 color: Appearance.colors.colOnLayer1
                             }
                             StyledText {
-                                text: "Duplicate Main content"
+                                text: I18nService.tr("Duplicate Main content")
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 color: Appearance.colors.colSubtext
                             }
@@ -543,13 +543,13 @@ Item {
                         ColumnLayout {
                             spacing: 0
                             StyledText {
-                                text: "Primary Display"
+                                text: I18nService.tr("Primary Display")
                                 font.pixelSize: Appearance.font.pixelSize.normal
                                 font.weight: Font.Medium
                                 color: Appearance.colors.colOnLayer1
                             }
                             StyledText {
-                                text: "Switch primary monitor"
+                                text: I18nService.tr("Switch primary monitor")
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 color: Appearance.colors.colSubtext
                             }
@@ -561,7 +561,7 @@ Item {
                             implicitWidth: 100 * Appearance.effectiveScale
                             implicitHeight: 32 * Appearance.effectiveScale
                             buttonRadius: 16 * Appearance.effectiveScale
-                            buttonText: "Set Main"
+                            buttonText: I18nService.tr("Set Main")
                             Layout.alignment: Qt.AlignVCenter
                             colBackground: Appearance.colors.colPrimary
                             colText: Appearance.colors.colOnPrimary
@@ -596,9 +596,9 @@ Item {
                 }
                 StyledText {
                     text: {
-                        if (!root.currentMonitor) return "Monitor Configuration";
+                        if (!root.currentMonitor) return I18nService.tr("Monitor Configuration");
                         let desc = root.currentMonitor.description || root.currentMonitor.name;
-                        return "Monitor " + (root.currentMonitorIndex + 1) + ": " + desc;
+                        return I18nService.tr("Monitor ") + (root.currentMonitorIndex + 1) + ": " + desc;
                     }
                     font.pixelSize: Appearance.font.pixelSize.large
                     font.weight: Font.Medium
@@ -623,7 +623,7 @@ Item {
                         StyledText {
                             id: cancelText
                             anchors.centerIn: parent
-                            text: "Cancel"
+                            text: I18nService.tr("Cancel")
                             font.pixelSize: Math.round(13 * Appearance.effectiveScale)
                             font.weight: Font.Medium
                             color: Appearance.colors.colSubtext
@@ -638,7 +638,7 @@ Item {
                         StyledText {
                             id: applyText
                             anchors.centerIn: parent
-                            text: "Apply"
+                            text: I18nService.tr("Apply")
                             font.pixelSize: Math.round(13 * Appearance.effectiveScale)
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colPrimary
@@ -668,7 +668,7 @@ Item {
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
                         StyledText {
-                            text: "Resolution & Refresh"
+                            text: I18nService.tr("Resolution & Refresh")
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
@@ -735,13 +735,13 @@ Item {
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
                         StyledText {
-                            text: "Display Scaling"
+                            text: I18nService.tr("Display Scaling")
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }
                         StyledText {
-                            text: "Adjust text and UI size."
+                            text: I18nService.tr("Adjust text and UI size.")
                             font.pixelSize: Appearance.font.pixelSize.small
                             color: Appearance.colors.colSubtext
                         }
@@ -793,13 +793,13 @@ Item {
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
                         StyledText {
-                            text: "Orientation"
+                            text: I18nService.tr("Orientation")
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }
                         StyledText {
-                            text: "Rotate the screen content."
+                            text: I18nService.tr("Rotate the screen content.")
                             font.pixelSize: Appearance.font.pixelSize.small
                             color: Appearance.colors.colSubtext
                         }
@@ -811,7 +811,7 @@ Item {
                         spacing: 4 * Appearance.effectiveScale
                         Repeater {
                             model: [
-                                { label: "Normal", value: 0 },
+                                { label: I18nService.tr("Normal"), value: 0 },
                                 { label: "90°", value: 1 },
                                 { label: "180°", value: 2 },
                                 { label: "270°", value: 3 }
@@ -858,7 +858,7 @@ Item {
                             RowLayout {
                             width: parent.width
                             StyledText {
-                            text: "Brightness"
+                            text: I18nService.tr("Brightness")
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
@@ -922,7 +922,7 @@ Item {
                             color: Appearance.colors.colPrimary
                             }
                             StyledText {
-                            text: "UI Scaling"
+                            text: I18nService.tr("UI Scaling")
                             font.pixelSize: Appearance.font.pixelSize.large
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
@@ -948,13 +948,13 @@ Item {
                             ColumnLayout {
                                 spacing: 0
                                 StyledText {
-                                    text: "Automatic Scaling"
+                                    text: I18nService.tr("Automatic Scaling")
                                     font.pixelSize: Appearance.font.pixelSize.normal
                                     font.weight: Font.Medium
                                     color: Appearance.colors.colOnLayer1
                                 }
                                 StyledText {
-                                    text: "Adjust interface size automatically based on display resolution"
+                                    text: I18nService.tr("Adjust interface size automatically based on display resolution")
                                     font.pixelSize: Appearance.font.pixelSize.small
                                     color: Appearance.colors.colSubtext
                                 }
@@ -997,13 +997,13 @@ Item {
                                 ColumnLayout {
                                     spacing: 0
                                     StyledText {
-                                        text: "Manual Scale"
+                                        text: I18nService.tr("Manual Scale")
                                         font.pixelSize: Appearance.font.pixelSize.normal
                                         font.weight: Font.Medium
                                         color: Appearance.colors.colOnLayer1
                                     }
                                     StyledText {
-                                        text: "Manually adjust the size of the interface and text."
+                                        text: I18nService.tr("Manually adjust the size of the interface and text.")
                                         font.pixelSize: Appearance.font.pixelSize.small
                                         color: Appearance.colors.colSubtext
                                     }
@@ -1138,7 +1138,7 @@ Item {
 
                             StyledText {
                             Layout.fillWidth: true
-                            text: "Keep these display settings?"
+                            text: I18nService.tr("Keep these display settings?")
                             font.pixelSize: Appearance.font.pixelSize.large
                             font.weight: Font.Medium
                             horizontalAlignment: Text.AlignHCenter
@@ -1147,7 +1147,7 @@ Item {
 
                             StyledText {
                             Layout.fillWidth: true
-                            text: "Changes will be reverted in " + revertPopup.countdown + " seconds."
+                            text: I18nService.tr("Changes will be reverted in ") + revertPopup.countdown + I18nService.tr(" seconds.")
                             font.pixelSize: Appearance.font.pixelSize.small
                             horizontalAlignment: Text.AlignHCenter
                             color: Appearance.m3colors.m3onSurfaceVariant
@@ -1165,7 +1165,7 @@ Item {
                             Layout.preferredWidth: 100 * Appearance.effectiveScale
                             Layout.preferredHeight: 40 * Appearance.effectiveScale
                             buttonRadius: Appearance.rounding.button
-                            buttonText: "Revert"
+                            buttonText: I18nService.tr("Revert")
                             colBackground: "transparent"
                             colBackgroundHover: Appearance.colors.colLayer2Hover
                             colText: Appearance.m3colors.m3onSurface
@@ -1180,7 +1180,7 @@ Item {
                             Layout.minimumWidth: 110 * Appearance.effectiveScale
                             Layout.leftMargin: 8 * Appearance.effectiveScale
                             buttonRadius: Appearance.rounding.button
-                            buttonText: "Keep changes"
+                            buttonText: I18nService.tr("Keep changes")
                             colBackground: Appearance.colors.colPrimary
                             colText: Appearance.colors.colOnPrimary
                             onClicked: {

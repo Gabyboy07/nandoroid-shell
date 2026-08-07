@@ -76,11 +76,11 @@ Flickable {
 
                 StyledText {
                     text: {
-                        if (GlobalStates.settingsAboutView === "main") return "About"
-                        if (GlobalStates.settingsAboutView === "update") return "Shell Update"
-                        if (GlobalStates.settingsAboutView === "dependency") return "Dependency Check"
-                        if (GlobalStates.settingsAboutView === "credits") return "Special Thanks"
-                        return "About"
+                        if (GlobalStates.settingsAboutView === "main") return I18nService.tr("About")
+                        if (GlobalStates.settingsAboutView === "update") return I18nService.tr("Shell Update")
+                        if (GlobalStates.settingsAboutView === "dependency") return I18nService.tr("Dependency Check")
+                        if (GlobalStates.settingsAboutView === "credits") return I18nService.tr("Special Thanks")
+                        return I18nService.tr("About")
                     }
                     font.pixelSize: Math.round(24 * Appearance.effectiveScale)
                     font.weight: Font.DemiBold
@@ -91,10 +91,10 @@ Flickable {
 
             StyledText {
                 text: {
-                    if (GlobalStates.settingsAboutView === "main") return "System information and shell details."
-                    if (GlobalStates.settingsAboutView === "update") return "Manage shell update channels and fetch new versions."
-                    if (GlobalStates.settingsAboutView === "dependency") return "Check and install missing system dependencies."
-                    if (GlobalStates.settingsAboutView === "credits") return "Contributors and projects that made Nandoroid possible."
+                    if (GlobalStates.settingsAboutView === "main") return I18nService.tr("System information and shell details.")
+                    if (GlobalStates.settingsAboutView === "update") return I18nService.tr("Manage shell update channels and fetch new versions.")
+                    if (GlobalStates.settingsAboutView === "dependency") return I18nService.tr("Check and install missing system dependencies.")
+                    if (GlobalStates.settingsAboutView === "credits") return I18nService.tr("Contributors and projects that made Nandoroid possible.")
                     return ""
                 }
                 font.pixelSize: Appearance.font.pixelSize.normal

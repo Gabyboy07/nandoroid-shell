@@ -38,13 +38,13 @@ Flickable {
         ColumnLayout {
             spacing: 4 * Appearance.effectiveScale
             StyledText {
-                text: "Services"
+                text: I18nService.tr("Services")
                 font.pixelSize: Math.round(24 * Appearance.effectiveScale)
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }
             StyledText {
-                text: "Configure global system services and data providers."
+                text: I18nService.tr("Configure global system services and data providers.")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 color: Appearance.colors.colSubtext
             }

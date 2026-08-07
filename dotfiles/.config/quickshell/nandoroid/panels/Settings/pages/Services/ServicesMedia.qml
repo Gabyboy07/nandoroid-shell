@@ -27,7 +27,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Media Management"
+                text: I18nService.tr("Media Management")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -51,13 +51,13 @@ ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     Layout.maximumWidth: 400 * Appearance.effectiveScale
                     StyledText {
-                        text: "Media Player Priority"
+                        text: I18nService.tr("Media Player Priority")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Prioritize specific players. Put highest priority first (e.g. 'spotify, firefox'). Case-insensitive."
+                        text: I18nService.tr("Prioritize specific players. Put highest priority first (e.g. 'spotify, firefox'). Case-insensitive.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.Wrap
@@ -94,13 +94,13 @@ ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     Layout.maximumWidth: 400 * Appearance.effectiveScale
                     StyledText {
-                        text: "Dynamic Island Hover"
+                        text: I18nService.tr("Dynamic Island Hover")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Show the media controls popup when hovering over the Dynamic Island."
+                        text: I18nService.tr("Show the media controls popup when hovering over the Dynamic Island.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.Wrap
@@ -140,13 +140,13 @@ ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     Layout.fillWidth: true
                     StyledText {
-                        text: "Notch Media Style"
+                        text: I18nService.tr("Notch Media Style")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Choose between a compact mini HUD or a full-featured media card."
+                        text: I18nService.tr("Choose between a compact mini HUD or a full-featured media card.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.Wrap
@@ -158,8 +158,8 @@ ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     Repeater {
                         model: [
-                            { id: "mini", label: "Mini HUD" },
-                            { id: "full", label: "Full Card" }
+                            { id: "mini", label: I18nService.tr("Mini HUD") },
+                            { id: "full", label: I18nService.tr("Full Card") }
                         ]
                         delegate: SegmentedButton {
                             required property var modelData

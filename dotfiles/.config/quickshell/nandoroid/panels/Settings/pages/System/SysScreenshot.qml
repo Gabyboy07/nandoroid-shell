@@ -30,7 +30,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Screenshot & Screen Record"
+                text: I18nService.tr("Screenshot & Screen Record")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -55,13 +55,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Auto Save Screenshots"
+                        text: I18nService.tr("Auto Save Screenshots")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Automatically save screenshots to the storage folder."
+                        text: I18nService.tr("Automatically save screenshots to the storage folder.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -98,13 +98,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Auto Copy to Clipboard"
+                        text: I18nService.tr("Auto Copy to Clipboard")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Automatically copy the screenshot to your clipboard."
+                        text: I18nService.tr("Automatically copy the screenshot to your clipboard.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -141,13 +141,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Show Android-style Preview"
+                        text: I18nService.tr("Show Android-style Preview")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Display a floating preview overlay after capturing."
+                        text: I18nService.tr("Display a floating preview overlay after capturing.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -182,7 +182,7 @@ ColumnLayout {
                 spacing: 20 * Appearance.effectiveScale
 
                 StyledText {
-                    text: "Screenshot Path"
+                    text: I18nService.tr("Screenshot Path")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
@@ -194,7 +194,7 @@ ColumnLayout {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 48 * Appearance.effectiveScale
                     text: (Config.ready && Config.options.screenshot) ? Functions.FileUtils.shortenHomePath(Config.options.screenshot.savePath) : ""
-                    placeholder: "Enter screenshot directory path"
+                    placeholder: I18nService.tr("Enter screenshot directory path")
                     onEditingFinished: {
                         if (Config.ready && Config.options.screenshot) {
                             Config.options.screenshot.savePath = Functions.FileUtils.expandHomePath(Functions.FileUtils.trimFileProtocol(text));
@@ -220,7 +220,7 @@ ColumnLayout {
                 spacing: 20 * Appearance.effectiveScale
 
                 StyledText {
-                    text: "Recording Path"
+                    text: I18nService.tr("Recording Path")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
@@ -232,7 +232,7 @@ ColumnLayout {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 48 * Appearance.effectiveScale
                     text: (Config.ready && Config.options.screenshot) ? Functions.FileUtils.shortenHomePath(Config.options.screenshot.recordPath) : ""
-                    placeholder: "Enter recording directory path"
+                    placeholder: I18nService.tr("Enter recording directory path")
                     onEditingFinished: {
                         if (Config.ready && Config.options.screenshot) {
                             Config.options.screenshot.recordPath = Functions.FileUtils.expandHomePath(Functions.FileUtils.trimFileProtocol(text));

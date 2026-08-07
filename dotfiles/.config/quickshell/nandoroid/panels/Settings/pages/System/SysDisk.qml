@@ -31,7 +31,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Disk Monitoring"
+                text: I18nService.tr("Disk Monitoring")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -142,14 +142,14 @@ ColumnLayout {
                             id: addDiskPathInput
                             Layout.fillWidth: true
                             Layout.preferredHeight: 48 * Appearance.effectiveScale
-                            placeholder: "Mount path (e.g. /home)"
+                            placeholder: I18nService.tr("Mount path (e.g. /home)")
                         }
 
                         StyledTextInput {
                             id: addDiskAliasInput
                             Layout.fillWidth: true
                             Layout.preferredHeight: 48 * Appearance.effectiveScale
-                            placeholder: "Alias (e.g. Work)"
+                            placeholder: I18nService.tr("Alias (e.g. Work)")
                         }
                     }
 

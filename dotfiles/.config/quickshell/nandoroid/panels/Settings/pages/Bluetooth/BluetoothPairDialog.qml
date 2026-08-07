@@ -33,7 +33,7 @@ ColumnLayout {
                     }
                 }
                 StyledText {
-                    text: "Pair new device"
+                    text: I18nService.tr("Pair new device")
                     font.pixelSize: Appearance.font.pixelSize.huge
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
@@ -52,13 +52,13 @@ ColumnLayout {
             ColumnLayout {
                 spacing: 4 * Appearance.effectiveScale
                 StyledText {
-                    text: "Device name"
+                    text: I18nService.tr("Device name")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
                 }
                 StyledText {
-                    text: (Bluetooth.defaultAdapter ? Bluetooth.defaultAdapter.name : "") || "Unknown"
+                    text: (Bluetooth.defaultAdapter ? Bluetooth.defaultAdapter.name : "") || I18nService.tr("Unknown")
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colSubtext
                 }
@@ -69,7 +69,7 @@ ColumnLayout {
                 Layout.fillWidth: true
                 Layout.topMargin: 12 * Appearance.effectiveScale
                 StyledText {
-                    text: "Available devices"
+                    text: I18nService.tr("Available devices")
                     font.pixelSize: Appearance.font.pixelSize.large
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
@@ -158,7 +158,7 @@ ColumnLayout {
                                 Layout.fillWidth: true
                                 spacing: 0
                                 StyledText {
-                                    text: modelData.name || "Unknown Device"
+                                    text: modelData.name || I18nService.tr("Unknown Device")
                                     font.pixelSize: Appearance.font.pixelSize.normal
                                     color: Appearance.colors.colOnLayer1
                                     elide: Text.ElideRight
@@ -166,7 +166,7 @@ ColumnLayout {
                                 }
                                 StyledText {
                                     text: {
-                                        if (modelData.pairing || modelData.state === BluetoothDeviceState.Connecting || BluetoothStatus.pairingAddress === modelData.address) return "Pairing...";
+                                        if (modelData.pairing || modelData.state === BluetoothDeviceState.Connecting || BluetoothStatus.pairingAddress === modelData.address) return I18nService.tr("Pairing...");
                                         return modelData.address;
                                     }
                                     font.pixelSize: Appearance.font.pixelSize.smaller

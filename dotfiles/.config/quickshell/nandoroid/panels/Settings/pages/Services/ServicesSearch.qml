@@ -28,7 +28,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Search & Launcher"
+                text: I18nService.tr("Search & Launcher")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -51,13 +51,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Math Prefix"
+                        text: I18nService.tr("Math Prefix")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Prefix to trigger mathematical evaluations."
+                        text: I18nService.tr("Prefix to trigger mathematical evaluations.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -92,13 +92,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Web Search Prefix"
+                        text: I18nService.tr("Web Search Prefix")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Prefix to trigger a Google search."
+                        text: I18nService.tr("Prefix to trigger a Google search.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -133,13 +133,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Emoji Prefix"
+                        text: I18nService.tr("Emoji Prefix")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Prefix to search and copy emojis."
+                        text: I18nService.tr("Prefix to search and copy emojis.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -174,13 +174,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Clipboard Prefix"
+                        text: I18nService.tr("Clipboard Prefix")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Prefix to search clipboard history."
+                        text: I18nService.tr("Prefix to search clipboard history.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -215,13 +215,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "File Search Prefix"
+                        text: I18nService.tr("File Search Prefix")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Prefix to trigger local file searching."
+                        text: I18nService.tr("Prefix to trigger local file searching.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -256,13 +256,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Command Prefix"
+                        text: I18nService.tr("Command Prefix")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Prefix to trigger shell commands and quick actions."
+                        text: I18nService.tr("Prefix to trigger shell commands and quick actions.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -297,13 +297,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Settings Search Prefix"
+                        text: I18nService.tr("Settings Search Prefix")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Prefix to search and jump to a setting."
+                        text: I18nService.tr("Prefix to search and jump to a setting.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -338,13 +338,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "App Usage Tracking"
+                        text: I18nService.tr("App Usage Tracking")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Prioritize frequently used apps in search results."
+                        text: I18nService.tr("Prioritize frequently used apps in search results.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }

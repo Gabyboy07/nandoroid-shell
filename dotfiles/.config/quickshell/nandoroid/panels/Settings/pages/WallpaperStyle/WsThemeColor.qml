@@ -44,7 +44,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Dark theme"
+                        text: I18nService.tr("Dark theme")
                         color: Appearance.colors.colOnLayer1
                         Layout.fillWidth: true
                     }
@@ -91,7 +91,7 @@ ColumnLayout {
                     width: (parent.width - (4 * Appearance.effectiveScale)) / 2
                     height: parent.height
                     isHighlighted: parent.currentTab === "wallpaper"
-                    buttonText: "Wallpaper color"
+                    buttonText: I18nService.tr("Wallpaper color")
                     onClicked: colorSwitcherRow.currentTab = "wallpaper"
                 }
 
@@ -99,7 +99,7 @@ ColumnLayout {
                     width: (parent.width - (4 * Appearance.effectiveScale)) / 2
                     height: parent.height
                     isHighlighted: parent.currentTab === "basic"
-                    buttonText: "Basic colors"
+                    buttonText: I18nService.tr("Basic colors")
                     onClicked: colorSwitcherRow.currentTab = "basic"
                 }
             }
@@ -148,7 +148,7 @@ ColumnLayout {
 
                     ColorCard {
                         Layout.fillWidth: true
-                        label: "Accent Picker"
+                        label: I18nService.tr("Accent Picker")
                         iconName: "colorize"
                         cardColors: [Appearance.m3colors.m3primary, Appearance.m3colors.m3secondary, Appearance.m3colors.m3tertiary]
                         isSelected: Config.ready && !Config.options.appearance.background.matugen && Config.options.appearance.background.matugenCustomColor !== "" && Config.options.appearance.background.matugenThemeFile === ""
@@ -235,7 +235,7 @@ ColumnLayout {
                             color: Appearance.colors.colPrimary
                         }
                         StyledText {
-                            text: colorSettingsCol.showAllBasic ? "Show less" : "Show more colors"
+                            text: colorSettingsCol.showAllBasic ? I18nService.tr("Show less") : I18nService.tr("Show more colors")
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }

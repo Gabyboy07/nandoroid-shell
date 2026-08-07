@@ -26,9 +26,9 @@ ColumnLayout {
                 BrandingCard {
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
-                    title: "Shell"
+                    title: I18nService.tr("Shell")
                     name: "NAnDoroid"
-                    subText: "Version " + version
+                    subText: I18nService.tr("Version ") + version
                     accentColor: Appearance.colors.colPrimary
                     icon: "verified_user"
                     logoSource: "nandoroid-symbolic"
@@ -38,9 +38,9 @@ ColumnLayout {
                 BrandingCard {
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
-                    title: "Distro"
+                    title: I18nService.tr("Distro")
                     name: SystemInfo.distroName
-                    subText: "Kernel " + SystemInfo.kernel
+                    subText: I18nService.tr("Kernel ") + SystemInfo.kernel
                     accentColor: Appearance.m3colors.m3tertiary
                     icon: "terminal"
                     logoSource: SystemInfo.distroIcon || SystemInfo.logo
@@ -72,12 +72,12 @@ ColumnLayout {
                         }
                         StyledText {
                             Layout.fillWidth: true
-                            text: "Shell Update"
+                            text: I18nService.tr("Shell Update")
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }
                         StyledText {
-                            text: "Update available"
+                            text: I18nService.tr("Update available")
                             color: Appearance.colors.colError
                             font.pixelSize: Appearance.font.pixelSize.small
                             visible: updateAvailable
@@ -109,7 +109,7 @@ ColumnLayout {
                         }
                         StyledText {
                             Layout.fillWidth: true
-                            text: "Dependency Check"
+                            text: I18nService.tr("Dependency Check")
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }
@@ -152,7 +152,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "System Information"
+                        text: I18nService.tr("System Information")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -163,11 +163,11 @@ ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 4 * Appearance.effectiveScale
 
-                    InfoRow { label: "Distro"; value: SystemInfo.distroName }
-                    InfoRow { label: "Username"; value: SystemInfo.username }
-                    InfoRow { label: "Host"; value: SystemInfo.hostname }
-                    InfoRow { label: "Kernel"; value: SystemInfo.kernel }
-                    InfoRow { label: "Shell"; value: "nandoroid-shell" }
+                    InfoRow { label: I18nService.tr("Distro"); value: SystemInfo.distroName }
+                    InfoRow { label: I18nService.tr("Username"); value: SystemInfo.username }
+                    InfoRow { label: I18nService.tr("Host"); value: SystemInfo.hostname }
+                    InfoRow { label: I18nService.tr("Kernel"); value: SystemInfo.kernel }
+                    InfoRow { label: I18nService.tr("Shell"); value: "nandoroid-shell" }
                 }
             }
 
@@ -190,7 +190,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Hardware"
+                        text: I18nService.tr("Hardware")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -201,11 +201,11 @@ ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 4 * Appearance.effectiveScale
 
-                    InfoRow { label: "Processor"; value: SystemInfo.cpu }
+                    InfoRow { label: I18nService.tr("Processor"); value: SystemInfo.cpu }
                     InfoRow { label: "GPU"; value: SystemInfo.gpu }
-                    InfoRow { label: "Memory"; value: SystemInfo.memory }
-                    InfoRow { label: "Storage"; value: SystemInfo.storage }
-                    InfoRow { label: "Displays"; value: HyprlandData.monitors.length + " connected" }
+                    InfoRow { label: I18nService.tr("Memory"); value: SystemInfo.memory }
+                    InfoRow { label: I18nService.tr("Storage"); value: SystemInfo.storage }
+                    InfoRow { label: I18nService.tr("Displays"); value: HyprlandData.monitors.length + I18nService.tr(" connected") }
                 }
             }
 
@@ -223,7 +223,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Links & Resources"
+                        text: I18nService.tr("Links & Resources")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -269,7 +269,7 @@ ColumnLayout {
                                 }
                                 StyledText {
                                     Layout.fillWidth: true
-                                    text: "Start Onboarding Tour"
+                                    text: I18nService.tr("Start Onboarding Tour")
                                     font.pixelSize: Appearance.font.pixelSize.normal
                                     color: Appearance.colors.colOnLayer0
                                 }
@@ -318,7 +318,7 @@ ColumnLayout {
                                 }
                                 StyledText {
                                     Layout.fillWidth: true
-                                    text: "IPC Integration Guide"
+                                    text: I18nService.tr("IPC Integration Guide")
                                     font.pixelSize: Appearance.font.pixelSize.normal
                                     color: Appearance.colors.colOnLayer0
                                 }
@@ -363,12 +363,12 @@ ColumnLayout {
                                 }
                                 StyledText {
                                     Layout.fillWidth: true
-                                    text: "Source Code"
+                                    text: I18nService.tr("Source Code")
                                     font.pixelSize: Appearance.font.pixelSize.normal
                                     color: Appearance.colors.colOnLayer0
                                 }
                                 StyledText {
-                                    text: "GitHub Repository"
+                                    text: I18nService.tr("GitHub Repository")
                                     font.pixelSize: Appearance.font.pixelSize.small
                                     color: Appearance.colors.colPrimary
                                 }
@@ -408,7 +408,7 @@ ColumnLayout {
                                 }
                                 StyledText {
                                     Layout.fillWidth: true
-                                    text: "Special Thanks"
+                                    text: I18nService.tr("Special Thanks")
                                     font.pixelSize: Appearance.font.pixelSize.normal
                                     color: Appearance.colors.colOnLayer0
                                 }

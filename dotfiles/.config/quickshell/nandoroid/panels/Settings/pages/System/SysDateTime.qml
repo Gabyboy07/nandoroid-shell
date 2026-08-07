@@ -33,7 +33,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Date & Time"
+                        text: I18nService.tr("Date & Time")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -60,7 +60,7 @@ ColumnLayout {
                             
                             MaterialSymbol { text: "pace"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText {
-                                text: "Time Format"
+                                text: I18nService.tr("Time Format")
                                 color: Appearance.colors.colOnLayer1
                                 Layout.fillWidth: true
                             }
@@ -111,7 +111,7 @@ ColumnLayout {
                             
                             MaterialSymbol { text: "calendar_month"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText {
-                                text: "Date Format"
+                                text: I18nService.tr("Date Format")
                                 color: Appearance.colors.colOnLayer1
                                 Layout.fillWidth: true
                             }

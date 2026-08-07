@@ -25,13 +25,13 @@ Flickable {
         ColumnLayout {
             spacing: 4 * Appearance.effectiveScale
             StyledText {
-                text: "Profile"
+                text: I18nService.tr("Profile")
                 font.pixelSize: Math.round(24 * Appearance.effectiveScale)
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }
             StyledText {
-                text: "Avatar, display name, hostname, and configuration presets."
+                text: I18nService.tr("Avatar, display name, hostname, and configuration presets.")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 color: Appearance.colors.colSubtext
             }

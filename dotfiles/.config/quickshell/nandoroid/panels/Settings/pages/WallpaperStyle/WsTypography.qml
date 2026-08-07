@@ -47,7 +47,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Typography"
+                        text: I18nService.tr("Typography")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -55,7 +55,7 @@ ColumnLayout {
                     }
 
                     StyledText {
-                        text: "Refresh Font"
+                        text: I18nService.tr("Refresh Font")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: maRefreshFont.containsMouse ? Appearance.colors.colPrimaryHover : Appearance.colors.colPrimary
 
@@ -82,7 +82,7 @@ ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 8 * Appearance.effectiveScale
                             z: mainCombo.isOpened ? 10 : 1
-                            StyledText { text: "Main Font"; font.weight: Font.Medium; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Main Font"); font.weight: Font.Medium; color: Appearance.colors.colOnLayer1 }
                             StyledComboBox {
                                 id: mainCombo
                                 Layout.fillWidth: true
@@ -97,7 +97,7 @@ ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 8 * Appearance.effectiveScale
                             z: titleCombo.isOpened ? 10 : 1
-                            StyledText { text: "Title Font"; font.weight: Font.Medium; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Title Font"); font.weight: Font.Medium; color: Appearance.colors.colOnLayer1 }
                             StyledComboBox {
                                 id: titleCombo
                                 Layout.fillWidth: true
@@ -112,7 +112,7 @@ ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 8 * Appearance.effectiveScale
                             z: numbersCombo.isOpened ? 10 : 1
-                            StyledText { text: "Numbers Font"; font.weight: Font.Medium; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Numbers Font"); font.weight: Font.Medium; color: Appearance.colors.colOnLayer1 }
                             StyledComboBox {
                                 id: numbersCombo
                                 Layout.fillWidth: true
@@ -127,7 +127,7 @@ ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 8 * Appearance.effectiveScale
                             z: monoCombo.isOpened ? 10 : 1
-                            StyledText { text: "Monospace Font"; font.weight: Font.Medium; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Monospace Font"); font.weight: Font.Medium; color: Appearance.colors.colOnLayer1 }
                             StyledComboBox {
                                 id: monoCombo
                                 Layout.fillWidth: true
@@ -160,7 +160,7 @@ ColumnLayout {
                                 spacing: 8 * Appearance.effectiveScale
 
                                 Text {
-                                    text: "Preview"
+                                    text: I18nService.tr("Preview")
                                     font.family: Appearance.font.family.main
                                     font.pixelSize: Appearance.font.pixelSize.small
                                     font.weight: Font.Medium

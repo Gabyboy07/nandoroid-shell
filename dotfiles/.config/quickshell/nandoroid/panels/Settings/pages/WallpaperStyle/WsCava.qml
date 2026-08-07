@@ -32,7 +32,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Audio Visualizer"
+                text: I18nService.tr("Audio Visualizer")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -56,7 +56,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "desktop_windows"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Show on desktop"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show on desktop"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
                         checked: Config.ready && Config.options.appearance.background.showCava
                         onToggled: if(Config.ready) Config.options.appearance.background.showCava = !checked
@@ -80,7 +80,7 @@ ColumnLayout {
                         spacing: 16 * Appearance.effectiveScale
                         Layout.preferredWidth: 70 * Appearance.effectiveScale
                         MaterialSymbol { text: "opacity"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                        StyledText { text: "Desktop opacity"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                        StyledText { text: I18nService.tr("Desktop opacity"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     }
                     StyledSlider {
                         Layout.fillWidth: true
@@ -109,7 +109,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "lock"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Show on lock screen"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show on lock screen"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
                         checked: Config.ready && Config.options.lock.showCava
                         onToggled: if(Config.ready) Config.options.lock.showCava = !checked
@@ -133,7 +133,7 @@ ColumnLayout {
                         spacing: 16 * Appearance.effectiveScale
                         Layout.preferredWidth: 70 * Appearance.effectiveScale
                         MaterialSymbol { text: "opacity"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                        StyledText { text: "Lock screen opacity"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                        StyledText { text: I18nService.tr("Lock screen opacity"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     }
                     StyledSlider {
                         Layout.fillWidth: true

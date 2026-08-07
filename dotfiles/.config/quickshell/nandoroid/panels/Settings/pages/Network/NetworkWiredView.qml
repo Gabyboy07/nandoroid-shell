@@ -14,7 +14,7 @@ import Quickshell
                     spacing: 24 * Appearance.effectiveScale
 
                     StyledText {
-                        text: "Ethernet Connections"
+                        text: I18nService.tr("Ethernet Connections")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.DemiBold
                         color: Appearance.colors.colOnLayer1
@@ -62,7 +62,7 @@ import Quickshell
                                                 color: Appearance.colors.colOnLayer1
                                             }
                                             StyledText {
-                                                text: modelData.active ? "Connected" : "Disconnected"
+                                                text: modelData.active ? I18nService.tr("Connected") : I18nService.tr("Disconnected")
                                                 font.pixelSize: Appearance.font.pixelSize.small
                                                 color: Appearance.colors.colSubtext
                                             }
@@ -107,10 +107,10 @@ import Quickshell
 
                                         Repeater {
                                             model: [
-                                                { label: "IP Address", key: "ip4.address[1]" },
-                                                { label: "Gateway", key: "ip4.gateway" },
-                                                { label: "DNS", key: "ip4.dns[1]" },
-                                                { label: "MAC Address", key: "general.hwaddr" }
+                                                { label: I18nService.tr("IP Address"), key: "ip4.address[1]" },
+                                                { label: I18nService.tr("Gateway"), key: "ip4.gateway" },
+                                                { label: I18nService.tr("DNS"), key: "ip4.dns[1]" },
+                                                { label: I18nService.tr("MAC Address"), key: "general.hwaddr" }
                                             ]
                                             delegate: RowLayout {
                                                 Layout.fillWidth: true
@@ -121,7 +121,7 @@ import Quickshell
                                                     Layout.preferredWidth: 100 * Appearance.effectiveScale
                                                 }
                                                 StyledText {
-                                                    text: Network.wiredDetails[modelData.key] || "Not available"
+                                                    text: Network.wiredDetails[modelData.key] || I18nService.tr("Not available")
                                                     font.pixelSize: Appearance.font.pixelSize.small
                                                     color: Appearance.colors.colOnLayer1
                                                     Layout.fillWidth: true
@@ -135,7 +135,7 @@ import Quickshell
                                             Layout.topMargin: 4 * Appearance.effectiveScale
                                             Item { Layout.fillWidth: true }
                                             RippleButton {
-                                                buttonText: modelData.active ? "Disconnect" : "Connect"
+                                                buttonText: modelData.active ? I18nService.tr("Disconnect") : I18nService.tr("Connect")
                                                 implicitWidth: 110 * Appearance.effectiveScale
                                                 implicitHeight: 32 * Appearance.effectiveScale
                                                 buttonRadius: 16 * Appearance.effectiveScale
@@ -164,7 +164,7 @@ import Quickshell
                         }
                         StyledText {
                             Layout.alignment: Qt.AlignHCenter
-                            text: "No wired interfaces found"
+                            text: I18nService.tr("No wired interfaces found")
                             font.pixelSize: Appearance.font.pixelSize.large
                             color: Appearance.colors.colSubtext
                         }

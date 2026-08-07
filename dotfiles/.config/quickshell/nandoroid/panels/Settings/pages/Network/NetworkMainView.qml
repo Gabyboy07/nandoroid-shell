@@ -17,7 +17,7 @@ import Quickshell
                     // ── Available Networks Header ──
                     StyledText {
                         visible: Network.wifiEnabled && Network.friendlyWifiNetworks.length > 0
-                        text: "Available Networks"
+                        text: I18nService.tr("Available Networks")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.DemiBold
                         color: Appearance.colors.colOnLayer1
@@ -134,7 +134,7 @@ import Quickshell
                                                     Layout.fillWidth: true
                                                 }
                                                 StyledText {
-                                                    text: modelData.active ? "Connected" : (modelData.isSecure ? "Secured" : "Open")
+                                                    text: modelData.active ? I18nService.tr("Connected") : (modelData.isSecure ? I18nService.tr("Secured") : I18nService.tr("Open"))
                                                     font.pixelSize: Appearance.font.pixelSize.small
                                                     color: Appearance.colors.colSubtext
                                                     Layout.fillWidth: true
@@ -234,7 +234,7 @@ import Quickshell
                                                             id: passInput
                                                             Layout.fillWidth: true
                                                             echoMode: networkItem.showPassword ? TextInput.Normal : TextInput.Password
-                                                            placeholder: "Enter Password..."
+                                                            placeholder: I18nService.tr("Enter Password...")
                                                             backgroundColor: "transparent"
                                                             inputRadius: 0
                                                             showActiveBorder: false
@@ -273,7 +273,7 @@ import Quickshell
                                                         }
                                                     }
                                                     StyledText {
-                                                        text: "Connect automatically"
+                                                        text: I18nService.tr("Connect automatically")
                                                         font.pixelSize: Appearance.font.pixelSize.small
                                                         color: Appearance.colors.colSubtext
                                                     }
@@ -284,7 +284,7 @@ import Quickshell
                                                     spacing: 12 * Appearance.effectiveScale
                                                     Item { Layout.fillWidth: true }
                                                     RippleButton {
-                                                        buttonText: "Connect"
+                                                        buttonText: I18nService.tr("Connect")
                                                         implicitWidth: 100 * Appearance.effectiveScale
                                                         implicitHeight: 36 * Appearance.effectiveScale
                                                         buttonRadius: 18 * Appearance.effectiveScale
@@ -310,7 +310,7 @@ import Quickshell
                                                     spacing: 12 * Appearance.effectiveScale
 
                                                     StyledText {
-                                                        text: `BSSID: ${modelData.bssid}`
+                                                        text: I18nService.tr("BSSID: ") + modelData.bssid
                                                         font.pixelSize: Appearance.font.pixelSize.smaller
                                                         color: Appearance.colors.colSubtext
                                                     }
@@ -318,7 +318,7 @@ import Quickshell
                                                     Item { Layout.fillWidth: true }
 
                                                     RippleButton {
-                                                        buttonText: "Forget"
+                                                        buttonText: I18nService.tr("Forget")
                                                         implicitWidth: 80 * Appearance.effectiveScale
                                                         implicitHeight: 36 * Appearance.effectiveScale
                                                         buttonRadius: 18 * Appearance.effectiveScale
@@ -328,7 +328,7 @@ import Quickshell
                                                     }
 
                                                     RippleButton {
-                                                        buttonText: "Edit"
+                                                        buttonText: I18nService.tr("Edit")
                                                         implicitWidth: 70 * Appearance.effectiveScale
                                                         implicitHeight: 36 * Appearance.effectiveScale
                                                         buttonRadius: 18 * Appearance.effectiveScale
@@ -337,7 +337,7 @@ import Quickshell
                                                     }
 
                                                     RippleButton {
-                                                        buttonText: "Pin"
+                                                        buttonText: I18nService.tr("Pin")
                                                         implicitWidth: 60 * Appearance.effectiveScale
                                                         implicitHeight: 36 * Appearance.effectiveScale
                                                         buttonRadius: 18 * Appearance.effectiveScale
@@ -375,7 +375,7 @@ import Quickshell
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignHCenter
                             horizontalAlignment: Text.AlignHCenter
-                            text: "WiFi is turned off"
+                            text: I18nService.tr("WiFi is turned off")
                             font.pixelSize: Appearance.font.pixelSize.large
                             color: Appearance.colors.colSubtext
                         }

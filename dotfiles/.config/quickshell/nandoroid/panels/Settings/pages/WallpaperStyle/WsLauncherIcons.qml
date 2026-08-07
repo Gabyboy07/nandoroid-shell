@@ -37,7 +37,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Launcher Icons"
+                        text: I18nService.tr("Launcher Icons")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -114,7 +114,7 @@ ColumnLayout {
                             color: Appearance.colors.colPrimary
                         }
                         StyledText {
-                            text: launcherIconsSection.showAllShapes ? "Show less" : "Show more shapes"
+                            text: launcherIconsSection.showAllShapes ? I18nService.tr("Show less") : I18nService.tr("Show more shapes")
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }

@@ -1,4 +1,5 @@
 import "../../../../core"
+import "../../../../services"
 import "../../../../widgets"
 import QtQuick
 import QtQuick.Layouts
@@ -64,14 +65,14 @@ Rectangle {
             spacing: 0
             
             StyledText {
-                text: "Media Player"
+                text: I18nService.tr("Media Player")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }
             StyledText {
                 id: statusText
-                text: (Config.ready && Config.options.appearance && Config.options.appearance.mediaWidget && Config.options.appearance.mediaWidget.showOnDesktop) ? "Enabled" : "Disabled"
+                text: (Config.ready && Config.options.appearance && Config.options.appearance.mediaWidget && Config.options.appearance.mediaWidget.showOnDesktop) ? I18nService.tr("Enabled") : I18nService.tr("Disabled")
                 font.pixelSize: Appearance.font.pixelSize.smaller
                 color: Appearance.colors.colSubtext
             }
@@ -80,7 +81,7 @@ Rectangle {
         Item { Layout.fillWidth: true } // Spacer
 
         StyledText {
-            text: "Reset Position"
+            text: I18nService.tr("Reset Position")
             font.pixelSize: Appearance.font.pixelSize.small
             color: maResetMedia.containsMouse ? Appearance.colors.colPrimaryHover : Appearance.colors.colPrimary
             Layout.alignment: Qt.AlignBottom

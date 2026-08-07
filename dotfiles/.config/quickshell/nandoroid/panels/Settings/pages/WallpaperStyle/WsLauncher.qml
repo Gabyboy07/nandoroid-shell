@@ -40,7 +40,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Launcher"
+                text: I18nService.tr("Launcher")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -64,7 +64,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "category"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Enable App Grouping"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Enable App Grouping"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
                         checked: Config.ready && Config.options.search ? Config.options.search.enableGrouping : false
                         onToggled: if (Config.ready && Config.options.search)
@@ -92,7 +92,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Icon Shapes"
+                        text: I18nService.tr("Icon Shapes")
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
@@ -165,7 +165,7 @@ ColumnLayout {
                             color: Appearance.colors.colPrimary
                         }
                         StyledText {
-                            text: launcherIconsSection.showAllShapes ? "Show less" : "Show more shapes"
+                            text: launcherIconsSection.showAllShapes ? I18nService.tr("Show less") : I18nService.tr("Show more shapes")
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }

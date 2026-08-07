@@ -34,7 +34,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Dock"
+                text: I18nService.tr("Dock")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -58,7 +58,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "visibility"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Enable Dock"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Enable Dock"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
                         checked: Config.ready && Config.options.dock ? Config.options.dock.enable : false
                         onToggled: if (Config.ready && Config.options.dock)
@@ -81,7 +81,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "desktop_windows"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Show Only in Desktop"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show Only in Desktop"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
                         checked: Config.ready && Config.options.dock ? Config.options.dock.showOnlyInDesktop : false
                         onToggled: {
@@ -111,14 +111,14 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "visibility_off"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Auto Hide"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Auto Hide"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         spacing: 2 * Appearance.effectiveScale
                         Repeater {
                             model: {
                                 const onlyDesktop = Config.ready && Config.options.dock && Config.options.dock.showOnlyInDesktop;
-                                if (onlyDesktop) return [{ val: -1, label: "Off" }, { val: 1,  label: "Always" }];
-                                return [{ val: -1, label: "Off" }, { val: 0,  label: "Adaptive" }, { val: 1,  label: "Always" }];
+                                if (onlyDesktop) return [{ val: -1, label: I18nService.tr("Off") }, { val: 1,  label: I18nService.tr("Always") }];
+                                return [{ val: -1, label: I18nService.tr("Off") }, { val: 0,  label: I18nService.tr("Adaptive") }, { val: 1,  label: I18nService.tr("Always") }];
                             }
                             delegate: SegmentedButton {
                                 required property var modelData
@@ -152,11 +152,11 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "layers"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Background"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Background"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         spacing: 2 * Appearance.effectiveScale
                         Repeater {
-                            model: [{ val: 0, label: "None" }, { val: 1, label: "Floating" }, { val: 2, label: "Attached" }]
+                            model: [{ val: 0, label: I18nService.tr("None") }, { val: 1, label: I18nService.tr("Floating") }, { val: 2, label: I18nService.tr("Attached") }]
                             delegate: SegmentedButton {
                                 required property var modelData
                                 buttonText: modelData.label
@@ -183,7 +183,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Themed Icons"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Themed Icons"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
                         checked: Config.ready && Config.options.dock ? Config.options.dock.monochromeIcons : false
                         onToggled: if (Config.ready && Config.options.dock)
@@ -210,7 +210,7 @@ ColumnLayout {
                         spacing: 16 * Appearance.effectiveScale
                         Layout.preferredWidth: 70 * Appearance.effectiveScale
                         MaterialSymbol { text: "open_in_full"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                        StyledText { text: "Scale"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; elide: Text.ElideRight }
+                        StyledText { text: I18nService.tr("Scale"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; elide: Text.ElideRight }
                     }
 
                     StyledSlider {
@@ -240,7 +240,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "widgets"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Show App Launcher"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show App Launcher"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
                         checked: Config.ready && Config.options.dock ? (Config.options.dock.showLauncher ?? true) : true
                         onToggled: if (Config.ready && Config.options.dock)
@@ -263,7 +263,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "grid_view"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Show Overview Button"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show Overview Button"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
                         checked: Config.ready && Config.options.dock ? (Config.options.dock.showOverview ?? true) : true
                         onToggled: if (Config.ready && Config.options.dock)

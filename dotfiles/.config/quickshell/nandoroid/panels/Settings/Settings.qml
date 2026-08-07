@@ -132,7 +132,7 @@ Scope {
                         spacing: 20 * Appearance.effectiveScale
 
                         StyledText {
-                            text: "Settings"
+                            text: I18nService.tr("Settings")
                             font.pixelSize: Math.round(24 * Appearance.effectiveScale)
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnLayer0
@@ -168,7 +168,7 @@ Scope {
                                     borderInactiveWidth: 0
                                     showActiveBorder: false
                                     font.pixelSize: Appearance.font.pixelSize.normal
-                                    placeholder: searchInput.hasNoResults ? "No results found" : "Search all settings.."
+                                    placeholder: searchInput.hasNoResults ? I18nService.tr("No results found") : I18nService.tr("Search all settings..")
                                     placeholderColor: searchInput.hasNoResults ? Appearance.m3colors.m3error : Appearance.colors.colSubtext
                                     leftMargin: 0
                                     rightMargin: 0
@@ -324,7 +324,7 @@ Scope {
                                         wrapMode: TextEdit.Wrap
                                         readOnly: true
                                         selectByMouse: true
-                                        text: "Error loading page: " + pageLoader.source + "\n\n" + (pageLoader.sourceComponent ? pageLoader.sourceComponent.errorString() : "Unknown component error")
+                                        text: I18nService.tr("Error loading page: ") + pageLoader.source + "\n\n" + (pageLoader.sourceComponent ? pageLoader.sourceComponent.errorString() : I18nService.tr("Unknown component error"))
                                         color: "#FF5555"
                                         font.pixelSize: Math.round(14 * Appearance.effectiveScale)
                                         font.family: "monospace"

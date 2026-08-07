@@ -34,7 +34,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Screen Decor"
+                        text: I18nService.tr("Screen Decor")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -57,14 +57,14 @@ ColumnLayout {
                             anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "rounded_corner"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Rounded screen corners"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Rounded screen corners"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { val: 0, label: "Off" },
-                                        { val: 1, label: "Adaptive" },
-                                        { val: 2, label: "Always" }
+                                        { val: 0, label: I18nService.tr("Off") },
+                                        { val: 1, label: I18nService.tr("Adaptive") },
+                                        { val: 2, label: I18nService.tr("Always") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -98,7 +98,7 @@ ColumnLayout {
                                 Layout.preferredWidth: 70 * Appearance.effectiveScale
                                 MaterialSymbol { text: "straighten"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                                 StyledText { 
-                                    text: "Corner radius"
+                                    text: I18nService.tr("Corner radius")
                                     Layout.fillWidth: true
                                     color: Appearance.colors.colOnLayer1 
                                 }

@@ -60,10 +60,10 @@ Item {
 
                 StyledText {
                     text: {
-                        if (root.currentView === "main") return "Network & Internet"
-                        if (root.currentView === "saved") return "Saved Networks"
-                        if (root.currentView === "wired") return "Wired Network"
-                        return "Network"
+                        if (root.currentView === "main") return I18nService.tr("Network & Internet")
+                        if (root.currentView === "saved") return I18nService.tr("Saved Networks")
+                        if (root.currentView === "wired") return I18nService.tr("Wired Network")
+                        return I18nService.tr("Network")
                     }
                     font.pixelSize: Appearance.font.pixelSize.huge
                     font.weight: Font.DemiBold
@@ -124,9 +124,9 @@ Item {
             }
             StyledText {
                 text: {
-                    if (root.currentView === "main") return "Manage your WiFi networks, Ethernet, and connectivity."
-                    if (root.currentView === "saved") return "Manage and forget your saved WiFi networks."
-                    if (root.currentView === "wired") return "Manage your wired ethernet connections."
+                    if (root.currentView === "main") return I18nService.tr("Manage your WiFi networks, Ethernet, and connectivity.")
+                    if (root.currentView === "saved") return I18nService.tr("Manage and forget your saved WiFi networks.")
+                    if (root.currentView === "wired") return I18nService.tr("Manage your wired ethernet connections.")
                     return ""
                 }
                 font.pixelSize: Appearance.font.pixelSize.normal
@@ -194,7 +194,7 @@ Item {
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Wired Network"
+                        text: I18nService.tr("Wired Network")
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
@@ -217,7 +217,7 @@ Item {
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Saved Networks"
+                        text: I18nService.tr("Saved Networks")
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }

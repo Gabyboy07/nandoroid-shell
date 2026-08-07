@@ -68,14 +68,14 @@ ColumnLayout {
     }
 
     property var allModules: [
-        { id: "distroIcon", name: "Distro Icon", icon: "computer" },
-        { id: "activeWindow", name: "Active Window", icon: "subtitles" },
-        { id: "systemMonitor", name: "System Monitor", icon: "memory" },
-        { id: "clock", name: "Clock", icon: "schedule" },
-        { id: "networkSpeed", name: "Network Speed", icon: "network_check" },
-        { id: "sysTray", name: "System Tray", icon: "inbox" },
-        { id: "statusIconsGroup", name: "Status Icons (WiFi/Volume)", icon: "info" },
-        { id: "battery", name: "Battery", icon: "battery_full" }
+        { id: "distroIcon", name: I18nService.tr("Distro Icon"), icon: "computer" },
+        { id: "activeWindow", name: I18nService.tr("Active Window"), icon: "subtitles" },
+        { id: "systemMonitor", name: I18nService.tr("System Monitor"), icon: "memory" },
+        { id: "clock", name: I18nService.tr("Clock"), icon: "schedule" },
+        { id: "networkSpeed", name: I18nService.tr("Network Speed"), icon: "network_check" },
+        { id: "sysTray", name: I18nService.tr("System Tray"), icon: "inbox" },
+        { id: "statusIconsGroup", name: I18nService.tr("Status Icons (WiFi/Volume)"), icon: "info" },
+        { id: "battery", name: I18nService.tr("Battery"), icon: "battery_full" }
     ]
 
     function getLeftModules() {
@@ -194,7 +194,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Status Bar"
+                        text: I18nService.tr("Status Bar")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -216,7 +216,7 @@ ColumnLayout {
                             width: (parent.width - (4 * Appearance.effectiveScale)) / 2
                             height: parent.height
                             isHighlighted: Config.ready && Config.options.statusBar && Config.options.statusBar.moduleStyle !== "m3"
-                            buttonText: "Base Style"
+                            buttonText: I18nService.tr("Base Style")
                             onClicked: if (Config.ready && Config.options.statusBar) Config.options.statusBar.moduleStyle = "base"
                         }
         
@@ -224,14 +224,14 @@ ColumnLayout {
                             width: (parent.width - (4 * Appearance.effectiveScale)) / 2
                             height: parent.height
                             isHighlighted: Config.ready && Config.options.statusBar && Config.options.statusBar.moduleStyle === "m3"
-                            buttonText: "M3 Style"
+                            buttonText: I18nService.tr("M3 Style")
                             onClicked: if (Config.ready && Config.options.statusBar) Config.options.statusBar.moduleStyle = "m3"
                         }
                     }
 
                     // ── Layout & Appearance ─────────────────────────────
                     StyledText {
-                        text: "Layout & Appearance"
+                        text: I18nService.tr("Layout & Appearance")
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -254,7 +254,7 @@ ColumnLayout {
                             anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "visibility_off"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Auto hide"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Auto hide"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             AndroidToggle {
                                 checked: Config.ready && Config.options.statusBar ? (Config.options.statusBar.autoHide ?? false) : false
                                 onToggled: if (Config.ready && Config.options.statusBar)
@@ -279,14 +279,14 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Text color"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Text color"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "adaptive", label: "Adaptive" },
-                                        { id: "light",    label: "Light" },
-                                        { id: "dark",     label: "Dark" }
+                                        { id: "adaptive", label: I18nService.tr("Adaptive") },
+                                        { id: "light",    label: I18nService.tr("Light") },
+                                        { id: "dark",     label: I18nService.tr("Dark") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -321,7 +321,7 @@ ColumnLayout {
                             anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "gradient"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Use gradient"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Use gradient"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             AndroidToggle {
                                 checked: Config.ready && Config.options.statusBar ? Config.options.statusBar.useGradient : true
                                 onToggled: if (Config.ready && Config.options.statusBar && !sbSettingsCol.parent.sbAlwaysSolid)
@@ -344,14 +344,14 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "rectangle"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Background"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Background"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { val: 0, label: "None" },
-                                        { val: 1, label: "Always" },
-                                        { val: 2, label: "Adaptive" }
+                                        { val: 0, label: I18nService.tr("None") },
+                                        { val: 1, label: I18nService.tr("Always") },
+                                        { val: 2, label: I18nService.tr("Adaptive") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -388,7 +388,7 @@ ColumnLayout {
                                 Layout.preferredWidth: 70 * Appearance.effectiveScale
                                 MaterialSymbol { text: "rounded_corner"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                                 StyledText { 
-                                    text: "Corner radius"
+                                    text: I18nService.tr("Corner radius")
                                     Layout.fillWidth: true
                                     color: Appearance.colors.colOnLayer1 
                                 }
@@ -425,13 +425,13 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "center_focus_strong"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Layout Style"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Layout Style"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "standard", label: "Standard" },
-                                        { id: "centered", label: "Centered (HUD)" }
+                                        { id: "standard", label: I18nService.tr("Standard") },
+                                        { id: "centered", label: I18nService.tr("Centered (HUD)") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -455,7 +455,7 @@ ColumnLayout {
 
                     // ── Modules Positioning ──────────────────────────────────
                     StyledText {
-                        text: "Modules Positioning"
+                        text: I18nService.tr("Modules Positioning")
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -479,13 +479,13 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "view_agenda"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Center Module"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Center Module"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "clock", label: "Clock" },
-                                        { id: "none",  label: "None" }
+                                        { id: "clock", label: I18nService.tr("Clock") },
+                                        { id: "none",  label: I18nService.tr("None") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -548,7 +548,7 @@ ColumnLayout {
                             RowLayout {
                                 spacing: 16 * Appearance.effectiveScale
                                 MaterialSymbol { text: "align_horizontal_left"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                                StyledText { text: "Left Cluster Modules (" + getClusterPoints(getLeftModules()) + "/" + maxClusterPoints + ")"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
+                                StyledText { text: I18nService.tr("Left Cluster Modules") + " (" + getClusterPoints(getLeftModules()) + "/" + maxClusterPoints + ")"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
                                 
                                 // Add Module Dropdown Button
                                 Rectangle {
@@ -689,7 +689,7 @@ ColumnLayout {
                                 spacing: 4 * Appearance.effectiveScale
 
                                 StyledText {
-                                    text: "Available modules to add:"
+                                    text: I18nService.tr("Available modules to add:")
                                     font.pixelSize: Appearance.font.pixelSize.smallest
                                     color: Appearance.colors.colSubtext
                                 }
@@ -742,7 +742,7 @@ ColumnLayout {
                             RowLayout {
                                 spacing: 16 * Appearance.effectiveScale
                                 MaterialSymbol { text: "align_horizontal_right"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                                StyledText { text: "Right Cluster Modules (" + getClusterPoints(getRightModules()) + "/" + maxClusterPoints + ")"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
+                                StyledText { text: I18nService.tr("Right Cluster Modules") + " (" + getClusterPoints(getRightModules()) + "/" + maxClusterPoints + ")"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
 
                                 // Add Module Dropdown Button
                                 Rectangle {
@@ -877,7 +877,7 @@ ColumnLayout {
                                 spacing: 4 * Appearance.effectiveScale
 
                                 StyledText {
-                                    text: "Available modules to add:"
+                                    text: I18nService.tr("Available modules to add:")
                                     font.pixelSize: Appearance.font.pixelSize.smallest
                                     color: Appearance.colors.colSubtext
                                 }
@@ -927,13 +927,13 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "notifications"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Notification Unread Badge Host"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Notification Unread Badge Host"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "distroIcon", label: "Distro Icon" },
-                                        { id: "statusIconsGroup", label: "Status Icons" }
+                                        { id: "distroIcon", label: I18nService.tr("Distro Icon") },
+                                        { id: "statusIconsGroup", label: I18nService.tr("Status Icons") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -965,14 +965,14 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "mark_chat_unread"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Notification Counter"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Notification Counter"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "counter", label: "Counter" },
-                                        { id: "simple", label: "Simple" },
-                                        { id: "hidden", label: "Hidden" }
+                                        { id: "counter", label: I18nService.tr("Counter") },
+                                        { id: "simple", label: I18nService.tr("Simple") },
+                                        { id: "hidden", label: I18nService.tr("Hidden") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -1008,7 +1008,7 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "memory"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "System Monitor Options"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("System Monitor Options"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             
                             RowLayout {
                                 spacing: 10 * Appearance.effectiveScale
@@ -1019,7 +1019,7 @@ ColumnLayout {
                                         checked: Config.ready && Config.options.statusBar ? (Config.options.statusBar.showSystemMonitorCpu ?? true) : true
                                         onToggled: if (Config.ready && Config.options.statusBar) Config.options.statusBar.showSystemMonitorCpu = !Config.options.statusBar.showSystemMonitorCpu
                                     }
-                                    StyledText { text: "CPU"; color: Appearance.colors.colOnLayer1; font.pixelSize: Appearance.font.pixelSize.smaller }
+                                    StyledText { text: I18nService.tr("CPU"); color: Appearance.colors.colOnLayer1; font.pixelSize: Appearance.font.pixelSize.smaller }
                                 }
                                 RowLayout {
                                     spacing: 4 * Appearance.effectiveScale
@@ -1027,7 +1027,7 @@ ColumnLayout {
                                         checked: Config.ready && Config.options.statusBar ? (Config.options.statusBar.showSystemMonitorRam ?? true) : true
                                         onToggled: if (Config.ready && Config.options.statusBar) Config.options.statusBar.showSystemMonitorRam = !Config.options.statusBar.showSystemMonitorRam
                                     }
-                                    StyledText { text: "RAM"; color: Appearance.colors.colOnLayer1; font.pixelSize: Appearance.font.pixelSize.smaller }
+                                    StyledText { text: I18nService.tr("RAM"); color: Appearance.colors.colOnLayer1; font.pixelSize: Appearance.font.pixelSize.smaller }
                                 }
                                 RowLayout {
                                     spacing: 4 * Appearance.effectiveScale
@@ -1035,7 +1035,7 @@ ColumnLayout {
                                         checked: Config.ready && Config.options.statusBar ? (Config.options.statusBar.showSystemMonitorSwap ?? false) : false
                                         onToggled: if (Config.ready && Config.options.statusBar) Config.options.statusBar.showSystemMonitorSwap = !Config.options.statusBar.showSystemMonitorSwap
                                     }
-                                    StyledText { text: "Swap"; color: Appearance.colors.colOnLayer1; font.pixelSize: Appearance.font.pixelSize.smaller }
+                                    StyledText { text: I18nService.tr("Swap"); color: Appearance.colors.colOnLayer1; font.pixelSize: Appearance.font.pixelSize.smaller }
                                 }
                                 RowLayout {
                                     spacing: 4 * Appearance.effectiveScale
@@ -1043,7 +1043,7 @@ ColumnLayout {
                                         checked: Config.ready && Config.options.statusBar ? (Config.options.statusBar.showSystemMonitorTemp ?? true) : true
                                         onToggled: if (Config.ready && Config.options.statusBar) Config.options.statusBar.showSystemMonitorTemp = !Config.options.statusBar.showSystemMonitorTemp
                                     }
-                                    StyledText { text: "Temp"; color: Appearance.colors.colOnLayer1; font.pixelSize: Appearance.font.pixelSize.smaller }
+                                    StyledText { text: I18nService.tr("Temp"); color: Appearance.colors.colOnLayer1; font.pixelSize: Appearance.font.pixelSize.smaller }
                                 }
                                 RowLayout {
                                     spacing: 4 * Appearance.effectiveScale
@@ -1051,7 +1051,7 @@ ColumnLayout {
                                         checked: Config.ready && Config.options.statusBar ? (Config.options.statusBar.showSystemMonitorText ?? false) : false
                                         onToggled: if (Config.ready && Config.options.statusBar) Config.options.statusBar.showSystemMonitorText = !Config.options.statusBar.showSystemMonitorText
                                     }
-                                    StyledText { text: "Text"; color: Appearance.colors.colOnLayer1; font.pixelSize: Appearance.font.pixelSize.smaller }
+                                    StyledText { text: I18nService.tr("Text"); color: Appearance.colors.colOnLayer1; font.pixelSize: Appearance.font.pixelSize.smaller }
                                 }
                             }
                         }
@@ -1074,13 +1074,13 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "style"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "System Monitor Style"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("System Monitor Style"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "outline", label: "Outline" },
-                                        { id: "filled", label: "Filled" }
+                                        { id: "outline", label: I18nService.tr("Outline") },
+                                        { id: "filled", label: I18nService.tr("Filled") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -1117,7 +1117,7 @@ ColumnLayout {
                                 Layout.preferredWidth: 70 * Appearance.effectiveScale // Ramped down to give maximum space to slider
                                 MaterialSymbol { text: "width_full"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                                 StyledText { 
-                                    text: "Centered width"
+                                    text: I18nService.tr("Centered width")
                                     Layout.fillWidth: true
                                     color: Appearance.colors.colOnLayer1 
                                 }
@@ -1144,7 +1144,7 @@ ColumnLayout {
 
                     // ── Modules Styling ──────────────────────────────────────
                     StyledText {
-                        text: "Modules Styling"
+                        text: I18nService.tr("Modules Styling")
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -1169,13 +1169,13 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "layers"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Indicator Shape"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Indicator Shape"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "pill", label: "Pill" },
-                                        { id: "unified", label: "Unified" }
+                                        { id: "pill", label: I18nService.tr("Pill") },
+                                        { id: "unified", label: I18nService.tr("Unified") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -1207,15 +1207,15 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "format_list_numbered"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Indicator Label"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Indicator Label"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "none", label: "None" },
-                                        { id: "numeric", label: "Numeric" },
-                                        { id: "japanese", label: "Japanese" },
-                                        { id: "roman", label: "Roman" }
+                                        { id: "none", label: I18nService.tr("None") },
+                                        { id: "numeric", label: I18nService.tr("Numeric") },
+                                        { id: "japanese", label: I18nService.tr("Japanese") },
+                                        { id: "roman", label: I18nService.tr("Roman") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -1248,13 +1248,13 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "animation"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Island Style"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Island Style"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "pill", label: "Pill" },
-                                        { id: "waterdrop", label: "Waterdrop" }
+                                        { id: "pill", label: I18nService.tr("Pill") },
+                                        { id: "waterdrop", label: I18nService.tr("Waterdrop") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -1286,14 +1286,14 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "apps"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Tray Style"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Tray Style"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "all", label: "All" },
-                                        { id: "adaptive", label: "Adaptive" },
-                                        { id: "hide", label: "Hide" }
+                                        { id: "all", label: I18nService.tr("All") },
+                                        { id: "adaptive", label: I18nService.tr("Adaptive") },
+                                        { id: "hide", label: I18nService.tr("Hide") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -1324,7 +1324,7 @@ ColumnLayout {
                             anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "volume_up"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Volume Indicator"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Volume Indicator"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             AndroidToggle {
                                 checked: Config.ready && Config.options.statusBar ? (Config.options.statusBar.showVolumeIndicator ?? true) : true
                                 onToggled: if (Config.ready && Config.options.statusBar)
@@ -1345,7 +1345,7 @@ ColumnLayout {
                             anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "grid_view"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Workspace count"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Workspace count"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 8 * Appearance.effectiveScale
                                 M3IconButton {

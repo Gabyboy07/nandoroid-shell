@@ -60,7 +60,7 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 StyledText {
-                    text: "Bluetooth"
+                    text: I18nService.tr("Bluetooth")
                     font.pixelSize: Appearance.font.pixelSize.huge
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
@@ -77,7 +77,7 @@ Item {
                 }
             }
             StyledText {
-                text: "Pair and manage your Bluetooth devices."
+                text: I18nService.tr("Pair and manage your Bluetooth devices.")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 color: Appearance.colors.colSubtext
             }
@@ -106,7 +106,7 @@ Item {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Pair new device"
+                        text: I18nService.tr("Pair new device")
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
@@ -114,7 +114,7 @@ Item {
             }
 
             StyledText {
-                text: "Saved devices"
+                text: I18nService.tr("Saved devices")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
@@ -199,11 +199,11 @@ Item {
                                         }
                                         StyledText {
                                             text: {
-                                                if (modelData.connected) return "Connected" + (modelData.batteryAvailable ? " · " + Math.round(modelData.battery * 100) + "%" : "");
-                                                if (modelData.state === BluetoothDeviceState.Connecting) return "Connecting...";
-                                                if (modelData.pairing) return "Pairing...";
-                                                if (modelData.paired || modelData.trusted) return "Paired";
-                                                return "Available";
+                                                if (modelData.connected) return I18nService.tr("Connected") + (modelData.batteryAvailable ? " · " + Math.round(modelData.battery * 100) + "%" : "");
+                                                if (modelData.state === BluetoothDeviceState.Connecting) return I18nService.tr("Connecting...");
+                                                if (modelData.pairing) return I18nService.tr("Pairing...");
+                                                if (modelData.paired || modelData.trusted) return I18nService.tr("Paired");
+                                                return I18nService.tr("Available");
                                             }
                                             font.pixelSize: Appearance.font.pixelSize.small
                                             color: {
@@ -285,7 +285,7 @@ Item {
                                         
                                         // Left Side: Address (Always left when expanded)
                                         StyledText {
-                                            text: "Address: " + modelData.address
+                                            text: I18nService.tr("Address: ") + modelData.address
                                             font.pixelSize: Appearance.font.pixelSize.smaller
                                             color: Appearance.colors.colSubtext
                                             Layout.alignment: Qt.AlignVCenter
@@ -297,7 +297,7 @@ Item {
                                         // Forget button (only if saved and NOT currently connected)
                                         RippleButton {
                                             visible: (modelData.paired || modelData.trusted) && !modelData.connected
-                                            buttonText: "Forget"
+                                            buttonText: I18nService.tr("Forget")
                                             implicitWidth: 90 * Appearance.effectiveScale
                                             implicitHeight: 36 * Appearance.effectiveScale
                                             buttonRadius: 18 * Appearance.effectiveScale
@@ -313,7 +313,7 @@ Item {
 
                                         RippleButton {
                                             visible: modelData.paired
-                                            buttonText: modelData.connected ? "Disconnect" : "Connect"
+                                            buttonText: modelData.connected ? I18nService.tr("Disconnect") : I18nService.tr("Connect")
                                             implicitWidth: 110 * Appearance.effectiveScale
                                             implicitHeight: 36 * Appearance.effectiveScale
                                             buttonRadius: 18 * Appearance.effectiveScale
@@ -328,7 +328,7 @@ Item {
 
                                         RippleButton {
                                             visible: !modelData.paired
-                                            buttonText: "Pair & Connect"
+                                            buttonText: I18nService.tr("Pair & Connect")
                                             implicitWidth: 110 * Appearance.effectiveScale
                                             implicitHeight: 36 * Appearance.effectiveScale
                                             buttonRadius: 18 * Appearance.effectiveScale
@@ -372,7 +372,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignHCenter
                 horizontalAlignment: Text.AlignHCenter
-                text: "Bluetooth is turned off"
+                text: I18nService.tr("Bluetooth is turned off")
                 font.pixelSize: Appearance.font.pixelSize.large
                 color: Appearance.colors.colSubtext
             }

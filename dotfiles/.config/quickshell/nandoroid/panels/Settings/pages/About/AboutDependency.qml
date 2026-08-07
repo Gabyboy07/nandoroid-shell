@@ -53,15 +53,15 @@ ColumnLayout {
                     Layout.fillWidth: true
 
                     StyledText {
-                        text: "Dependency Scanner"
+                        text: I18nService.tr("Dependency Scanner")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
                         text: SysCheckService.missingCount > 0 
-                            ? `${SysCheckService.missingCount} critical components are missing.` 
-                            : "All critical components are installed and ready."
+                            ? `${SysCheckService.missingCount} ${I18nService.tr("critical components are missing.")}` 
+                            : I18nService.tr("All critical components are installed and ready.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: SysCheckService.missingCount > 0 ? Appearance.colors.colError : Appearance.colors.colSubtext
                         wrapMode: Text.WordWrap
@@ -92,7 +92,7 @@ ColumnLayout {
                             }
                         }
                         StyledText {
-                            text: SysCheckService.isChecking ? "Scanning..." : "Scan Now"
+                            text: SysCheckService.isChecking ? I18nService.tr("Scanning...") : I18nService.tr("Scan Now")
                             color: Appearance.colors.colOnPrimary
                             font.weight: Font.Medium
                             font.pixelSize: Appearance.font.pixelSize.small
@@ -106,13 +106,13 @@ ColumnLayout {
     // ── Categorized List (2-Column Grid with System Settings style headers) ──
     Repeater {
         model: [
-            { id: "core", name: "Core Components (Required)", icon: "widgets" },
-            { id: "services", name: "System Services", icon: "dns" },
-            { id: "utilities", name: "Utility Tools", icon: "build" },
-            { id: "theming", name: "Theming & Appearance", icon: "palette" },
-            { id: "fonts", name: "Required Fonts", icon: "font_download" },
-            { id: "livewallpaper", name: "Live Wallpaper Support", icon: "movie" },
-            { id: "optional", name: "Optional Addons", icon: "extension" }
+            { id: "core", name: I18nService.tr("Core Components (Required)"), icon: "widgets" },
+            { id: "services", name: I18nService.tr("System Services"), icon: "dns" },
+            { id: "utilities", name: I18nService.tr("Utility Tools"), icon: "build" },
+            { id: "theming", name: I18nService.tr("Theming & Appearance"), icon: "palette" },
+            { id: "fonts", name: I18nService.tr("Required Fonts"), icon: "font_download" },
+            { id: "livewallpaper", name: I18nService.tr("Live Wallpaper Support"), icon: "movie" },
+            { id: "optional", name: I18nService.tr("Optional Addons"), icon: "extension" }
         ]
 
         delegate: ColumnLayout {
@@ -202,7 +202,7 @@ ColumnLayout {
                                     }
                                     StyledText {
                                         Layout.fillWidth: true
-                                        text: modelData.description || "System dependency"
+                                        text: modelData.description || I18nService.tr("System dependency")
                                         font.pixelSize: Appearance.font.pixelSize.smallest
                                         color: Appearance.colors.colSubtext
                                         elide: Text.ElideRight
@@ -211,7 +211,7 @@ ColumnLayout {
 
                                 StyledText {
                                     visible: modelData.installed
-                                    text: "Installed"
+                                    text: I18nService.tr("Installed")
                                     color: "#81C995"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     font.weight: Font.Medium
@@ -230,7 +230,7 @@ ColumnLayout {
 
                                     StyledText {
                                         anchors.centerIn: parent
-                                        text: "Install"
+                                        text: I18nService.tr("Install")
                                         font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                                         font.weight: Font.DemiBold
                                         color: Appearance.colors.colError

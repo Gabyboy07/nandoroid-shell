@@ -21,7 +21,7 @@ ColumnLayout {
                     color: Appearance.colors.colPrimary
                 }
                 StyledText {
-                    text: "Eye Care"
+                    text: I18nService.tr("Eye Care")
                     font.pixelSize: Appearance.font.pixelSize.large
                     font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
@@ -45,13 +45,13 @@ ColumnLayout {
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
                         StyledText {
-                            text: "Night Light"
+                            text: I18nService.tr("Night Light")
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }
                         StyledText {
-                            text: "Reduce eye strain by displaying warmer colors."
+                            text: I18nService.tr("Reduce eye strain by displaying warmer colors.")
                             font.pixelSize: Appearance.font.pixelSize.small
                             color: Appearance.colors.colSubtext
                         }
@@ -86,7 +86,7 @@ ColumnLayout {
                     RowLayout {
                         width: parent.width
                         StyledText {
-                            text: "Color Temperature"
+                            text: I18nService.tr("Color Temperature")
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1

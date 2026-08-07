@@ -1,4 +1,5 @@
 import "../../../../core"
+import "../../../../services"
 import "../../../../widgets"
 import QtQuick
 import QtQuick.Layouts
@@ -70,7 +71,7 @@ Rectangle {
             spacing: 0
             
             StyledText {
-                text: "Weather"
+                text: I18nService.tr("Weather")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
@@ -79,9 +80,9 @@ Rectangle {
                 id: statusText
                 text: {
                     if (!rootWeatherSettings.weatherServiceOn)
-                        return "Enable Weather Service first"
+                        return I18nService.tr("Enable Weather Service first")
                     const on = Config.ready && Config.options.appearance?.weatherWidget?.showOnDesktop
-                    return on ? "Enabled" : "Disabled"
+                    return on ? I18nService.tr("Enabled") : I18nService.tr("Disabled")
                 }
                 font.pixelSize: Appearance.font.pixelSize.smaller
                 color: Appearance.colors.colSubtext
@@ -91,7 +92,7 @@ Rectangle {
         Item { Layout.fillWidth: true } // Spacer
 
         StyledText {
-            text: "Reset Position"
+            text: I18nService.tr("Reset Position")
             font.pixelSize: Appearance.font.pixelSize.small
             color: maResetWeather.containsMouse ? Appearance.colors.colPrimaryHover : Appearance.colors.colPrimary
             Layout.alignment: Qt.AlignBottom

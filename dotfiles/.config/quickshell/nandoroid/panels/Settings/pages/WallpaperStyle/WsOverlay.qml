@@ -32,7 +32,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Overlays"
+                text: I18nService.tr("Overlays")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -42,7 +42,7 @@ ColumnLayout {
 
         // ── Notification Center ──
         StyledText {
-            text: "Notification Center"
+            text: I18nService.tr("Notification Center")
             font.pixelSize: Appearance.font.pixelSize.small
             font.weight: Font.Medium
             color: Appearance.colors.colOnLayer1
@@ -67,7 +67,7 @@ ColumnLayout {
                     anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "music_note"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Show Media Card"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show Media Card"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
                         checked: Config.ready && Config.options.media && Config.options.media.showMediaCard
                         onToggled: if (Config.ready && Config.options.media)
@@ -100,11 +100,11 @@ ColumnLayout {
                     ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
                         StyledText {
-                            text: "Show Weather Card"
+                            text: I18nService.tr("Show Weather Card")
                             color: Appearance.colors.colOnLayer1
                         }
                         StyledText {
-                            text: "Enable Weather Service first"
+                            text: I18nService.tr("Enable Weather Service first")
                             font.pixelSize: Appearance.font.pixelSize.smaller
                             color: Appearance.colors.colSubtext
                             visible: !weatherColumn.weatherServiceOn
@@ -128,7 +128,7 @@ ColumnLayout {
 
         // ── Quick Settings ──
         StyledText {
-            text: "Quick Settings"
+            text: I18nService.tr("Quick Settings")
             font.pixelSize: Appearance.font.pixelSize.small
             font.weight: Font.Medium
             color: Appearance.colors.colOnLayer1
@@ -151,7 +151,7 @@ ColumnLayout {
                     anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "monitoring"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Show Performance Stats"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show Performance Stats"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
                         checked: Config.ready && Config.options.quickSettings && Config.options.quickSettings.showPerformanceStats
                         onToggled: if (Config.ready && Config.options.quickSettings)
@@ -172,7 +172,7 @@ ColumnLayout {
                     anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "panorama"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Show Banner Image"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show Banner Image"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
                         checked: Config.ready && Config.options.quickSettings && Config.options.quickSettings.showBanner
                         onToggled: if (Config.ready && Config.options.quickSettings)

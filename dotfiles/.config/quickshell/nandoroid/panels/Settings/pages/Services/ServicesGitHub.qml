@@ -31,7 +31,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "GitHub"
+                text: I18nService.tr("GitHub")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -39,7 +39,7 @@ ColumnLayout {
         }
 
         StyledText {
-            text: "Configure your GitHub account for the Dashboard GitHub tracker. A Personal Access Token is required for private repos and the contribution heatmap."
+            text: I18nService.tr("Configure your GitHub account for the Dashboard GitHub tracker. A Personal Access Token is required for private repos and the contribution heatmap.")
             font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.colors.colSubtext
             wrapMode: Text.WordWrap
@@ -63,7 +63,7 @@ ColumnLayout {
                 spacing: 8 * Appearance.effectiveScale
 
                 StyledText {
-                    text: "GitHub Username"
+                    text: I18nService.tr("GitHub Username")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
@@ -99,7 +99,7 @@ ColumnLayout {
                 spacing: 8 * Appearance.effectiveScale
 
                 StyledText {
-                    text: "Personal Access Token"
+                    text: I18nService.tr("Personal Access Token")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
@@ -153,7 +153,7 @@ ColumnLayout {
 
                 // Help text — aligned with the input field (no leading filler)
                 StyledText {
-                    text: "Create a token at GitHub → Settings → Developer settings → Personal access tokens"
+                    text: I18nService.tr("Create a token at GitHub → Settings → Developer settings → Personal access tokens")
                     font.pixelSize: Appearance.font.pixelSize.smaller
                     color: Appearance.colors.colSubtext
                     wrapMode: Text.WordWrap

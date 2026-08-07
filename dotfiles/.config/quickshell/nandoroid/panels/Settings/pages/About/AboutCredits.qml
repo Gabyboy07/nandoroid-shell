@@ -19,7 +19,7 @@ ColumnLayout {
         
         StyledText {
             Layout.fillWidth: true
-            text: "This project is a port and personal creation, built with love and inspired by these amazing developers and projects."
+            text: I18nService.tr("This project is a port and personal creation, built with love and inspired by these amazing developers and projects.")
             wrapMode: Text.WordWrap
             font.pixelSize: Appearance.font.pixelSize.normal
             color: Appearance.colors.colSubtext
@@ -33,7 +33,7 @@ ColumnLayout {
 
         ProjectCard {
             title: "illogical-impulse"
-            description: "End-4's Hyprland dotfiles. A lot of the architecture and shell logic here traces back to this."
+            description: I18nService.tr("End-4's Hyprland dotfiles. A lot of the architecture and shell logic here traces back to this.")
             iconSource: "../../../../assets/icons/illogical-impulse.svg"
             url: "https://github.com/end-4/dots-hyprland"
             accentColor: "#89b4fa"
@@ -41,7 +41,7 @@ ColumnLayout {
 
         ProjectCard {
             title: "ii-vynx"
-            description: "Vynx's fork of illogical-impulse. Helped a lot with the Quickshell port and various other bits throughout the config."
+            description: I18nService.tr("Vynx's fork of illogical-impulse. Helped a lot with the Quickshell port and various other bits throughout the config.")
             iconSource: "../../../../assets/icons/illogical-impulse.svg"
             url: "https://github.com/vaguesyntax/ii-vynx"
             accentColor: "#cba6f7"
@@ -49,7 +49,7 @@ ColumnLayout {
 
         ProjectCard {
             title: "end4-pC"
-            description: "pC's fork of illogical-impulse. Provided valuable references for design layout, widgets, and logic architecture."
+            description: I18nService.tr("pC's fork of illogical-impulse. Provided valuable references for design layout, widgets, and logic architecture.")
             iconSource: "../../../../assets/icons/illogical-impulse.svg"
             url: "https://github.com/pctrade/end4-pC"
             accentColor: "#f9e2af"
@@ -57,7 +57,7 @@ ColumnLayout {
 
         ProjectCard {
             title: "Dank Material Shell"
-            description: "AvengeMedia's DMS. Helped a ton with a lot of the harder parts of the config, and dgop was super useful for system monitoring stuff."
+            description: I18nService.tr("AvengeMedia's DMS. Helped a ton with a lot of the harder parts of the config, and dgop was super useful for system monitoring stuff.")
             iconSource: "../../../../assets/icons/danklogo.svg"
             url: "https://github.com/AvengeMedia/DankMaterialShell"
             accentColor: "#f38ba8"
@@ -65,7 +65,7 @@ ColumnLayout {
 
         ProjectCard {
             title: "Ambxst"
-            description: "Axenide's Ambxst. Where the notch idea came from, and probably a few other things down the line."
+            description: I18nService.tr("Axenide's Ambxst. Where the notch idea came from, and probably a few other things down the line.")
             iconSource: "../../../../assets/icons/ambxst-logo-color.svg"
             url: "https://github.com/Axenide/Ambxst"
             accentColor: "#89dceb"

@@ -34,7 +34,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Overview"
+                        text: I18nService.tr("Overview")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -61,7 +61,7 @@ ColumnLayout {
                             Layout.preferredWidth: 70 * Appearance.effectiveScale
                             MaterialSymbol { text: "reorder"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { 
-                                text: "Rows"
+                                text: I18nService.tr("Rows")
                                 color: Appearance.colors.colOnLayer1
                                 Layout.fillWidth: true
                             }
@@ -101,7 +101,7 @@ ColumnLayout {
                             Layout.preferredWidth: 70 * Appearance.effectiveScale
                             MaterialSymbol { text: "view_week"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { 
-                                text: "Columns"
+                                text: I18nService.tr("Columns")
                                 color: Appearance.colors.colOnLayer1
                                 Layout.fillWidth: true
                             }
@@ -141,7 +141,7 @@ ColumnLayout {
                             Layout.preferredWidth: 70 * Appearance.effectiveScale
                             MaterialSymbol { text: "zoom_in"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { 
-                                text: "Window Scale"
+                                text: I18nService.tr("Window Scale")
                                 color: Appearance.colors.colOnLayer1
                                 Layout.fillWidth: true
                             }
@@ -181,7 +181,7 @@ ColumnLayout {
                             Layout.preferredWidth: 70 * Appearance.effectiveScale
                             MaterialSymbol { text: "space_dashboard"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { 
-                                text: "Workspace Spacing"
+                                text: I18nService.tr("Workspace Spacing")
                                 color: Appearance.colors.colOnLayer1
                                 Layout.fillWidth: true
                             }

@@ -1,4 +1,5 @@
 import "../../../../core"
+import "../../../../services"
 import "../../../../widgets"
 import QtQuick
 import QtQuick.Layouts
@@ -70,7 +71,7 @@ ColumnLayout {
                     color: "white"
                 }
                 StyledText {
-                    text: "Change wallpaper"
+                    text: I18nService.tr("Change wallpaper")
                     font.pixelSize: Appearance.font.pixelSize.smaller
                     font.weight: Font.DemiBold
                     color: "white"

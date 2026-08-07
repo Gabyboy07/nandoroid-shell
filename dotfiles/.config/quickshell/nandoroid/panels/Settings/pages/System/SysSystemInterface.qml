@@ -30,7 +30,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "System Interface"
+                text: I18nService.tr("System Interface")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -54,13 +54,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Privacy Indicators"
+                        text: I18nService.tr("Privacy Indicators")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Show Android-style green pill when microphone or camera is active."
+                        text: I18nService.tr("Show Android-style green pill when microphone or camera is active.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -96,13 +96,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Region Selector: Window Snapping"
+                        text: I18nService.tr("Region Selector: Window Snapping")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Enable automatic window detection and snapping when selecting a region."
+                        text: I18nService.tr("Enable automatic window detection and snapping when selecting a region.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -138,13 +138,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Block Desktop Interactions When Windows Open"
+                        text: I18nService.tr("Block Desktop Interactions When Windows Open")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Block right-click, swipe-up, and widget input when windows are open."
+                        text: I18nService.tr("Block right-click, swipe-up, and widget input when windows are open.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }

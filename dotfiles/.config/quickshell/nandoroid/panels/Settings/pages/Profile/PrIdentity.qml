@@ -30,7 +30,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Identity"
+                text: I18nService.tr("Identity")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -54,13 +54,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Display Name"
+                        text: I18nService.tr("Display Name")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Leave empty to use system real name."
+                        text: I18nService.tr("Leave empty to use system real name.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -107,13 +107,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Description Text"
+                        text: I18nService.tr("Description Text")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Shown below your display name."
+                        text: I18nService.tr("Shown below your display name.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -126,8 +126,8 @@ ColumnLayout {
 
                     Repeater {
                         model: [
-                            { label: "Distro", value: "::distro::" },
-                            { label: "Uptime", value: "::uptime::" }
+                            { label: I18nService.tr("Distro"), value: "::distro::" },
+                            { label: I18nService.tr("Uptime"), value: "::uptime::" }
                         ]
 
                         delegate: SegmentedButton {

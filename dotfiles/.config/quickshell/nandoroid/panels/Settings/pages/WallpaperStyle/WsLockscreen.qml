@@ -42,7 +42,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Lockscreen"
+                        text: I18nService.tr("Lockscreen")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -66,7 +66,7 @@ ColumnLayout {
                             anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "cloud"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Show Weather Text"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Show Weather Text"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             AndroidToggle {
                                 checked: Config.ready && Config.options.lock.showWeather
                                 onToggled: if(Config.ready) Config.options.lock.showWeather = !Config.options.lock.showWeather
@@ -88,14 +88,14 @@ ColumnLayout {
                             anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Weather text color"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Weather text color"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2 * Appearance.effectiveScale
                                 Repeater {
                                     model: [
-                                        { id: "adaptive", label: "Adaptive" },
-                                        { id: "light",    label: "Light" },
-                                        { id: "dark",     label: "Dark" }
+                                        { id: "adaptive", label: I18nService.tr("Adaptive") },
+                                        { id: "light",    label: I18nService.tr("Light") },
+                                        { id: "dark",     label: I18nService.tr("Dark") }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -126,7 +126,7 @@ ColumnLayout {
                             anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "event"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Show date on lockscreen"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Show date on lockscreen"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             AndroidToggle {
                                 checked: Config.ready && Config.options.appearance.clock.showLockscreenDate
                                 onToggled: if(Config.ready) Config.options.appearance.clock.showLockscreenDate = !Config.options.appearance.clock.showLockscreenDate
@@ -146,7 +146,7 @@ ColumnLayout {
                             anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "movie"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Show Media Controls"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: I18nService.tr("Show Media Controls"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             AndroidToggle {
                                 checked: Config.ready && Config.options.lock.showMediaCard
                                 onToggled: if(Config.ready) Config.options.lock.showMediaCard = !Config.options.lock.showMediaCard

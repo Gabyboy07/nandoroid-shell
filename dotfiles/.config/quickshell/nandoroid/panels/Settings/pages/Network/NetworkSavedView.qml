@@ -14,7 +14,7 @@ import Quickshell
                     spacing: 24 * Appearance.effectiveScale
 
                     StyledText {
-                        text: "You have " + Network.savedConnections.length + " saved networks"
+                        text: I18nService.tr("You have ") + Network.savedConnections.length + I18nService.tr(" saved networks")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         color: Appearance.colors.colSubtext
                     }
@@ -134,7 +134,7 @@ import Quickshell
                                                 Item { Layout.fillWidth: true }
 
                                                 RippleButton {
-                                                    buttonText: "Forget"
+                                                    buttonText: I18nService.tr("Forget")
                                                     implicitWidth: 90 * Appearance.effectiveScale
                                                     implicitHeight: 36 * Appearance.effectiveScale
                                                     buttonRadius: 18 * Appearance.effectiveScale
@@ -144,7 +144,7 @@ import Quickshell
                                                 }
 
                                                 RippleButton {
-                                                    buttonText: savedPassLabel.text.length > 0 ? "Hide" : "Share"
+                                                    buttonText: savedPassLabel.text.length > 0 ? I18nService.tr("Hide") : I18nService.tr("Share")
                                                     implicitWidth: 100 * Appearance.effectiveScale
                                                     implicitHeight: 36 * Appearance.effectiveScale
                                                     buttonRadius: 18 * Appearance.effectiveScale
@@ -164,7 +164,7 @@ import Quickshell
                                                 target: Network
                                                 function onPasswordRecovered(password) {
                                                     if (savedItem.expanded) {
-                                                        savedPassLabel.text = "Password: " + password;
+                                                        savedPassLabel.text = I18nService.tr("Password: ") + password;
                                                     }
                                                 }
                                             }

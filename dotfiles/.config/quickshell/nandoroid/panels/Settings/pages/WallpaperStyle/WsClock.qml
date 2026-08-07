@@ -51,7 +51,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Clock"
+                text: I18nService.tr("Clock")
                 font.pixelSize: rootClock.isSubSection ? Appearance.font.pixelSize.small : Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -60,7 +60,7 @@ ColumnLayout {
             
             StyledText {
                 visible: !rootClock.dedicatedIsLock
-                text: "Reset Position"
+                text: I18nService.tr("Reset Position")
                 font.pixelSize: Appearance.font.pixelSize.small
                 color: maResetClock.containsMouse ? Appearance.colors.colPrimaryHover : Appearance.colors.colPrimary
 
@@ -99,7 +99,7 @@ ColumnLayout {
             SegmentedButton {
                 width: (parent.width - (4 * Appearance.effectiveScale)) / 2
                 height: parent.height
-                buttonText: "Desktop"
+                buttonText: I18nService.tr("Desktop")
                 isHighlighted: clockStyleSection.activeContext === "desktop"
                 onClicked: clockStyleSection.activeContext = "desktop"
                 colActive: Appearance.m3colors.m3primary
@@ -108,7 +108,7 @@ ColumnLayout {
             SegmentedButton {
                 width: (parent.width - (4 * Appearance.effectiveScale)) / 2
                 height: parent.height
-                buttonText: "Lockscreen"
+                buttonText: I18nService.tr("Lockscreen")
                 isHighlighted: clockStyleSection.activeContext === "lock"
                 onClicked: clockStyleSection.activeContext = "lock"
                 colActive: Appearance.m3colors.m3primary
@@ -124,12 +124,12 @@ ColumnLayout {
 
             Repeater {
                 model: [
-                    { id: "digital", name: "Digital", icon: "numbers" },
-                    { id: "analog",  name: "Analog",  icon: "watch" },
-                    { id: "stacked", name: "Stacked", icon: "view_day" },
-                    { id: "text",    name: "Text",    icon: "text_fields" },
-                    { id: "pill",    name: "Pill",    icon: "smart_button" },
-                    { id: "code",    name: "Code",    icon: "code" }
+                    { id: "digital", name: I18nService.tr("Digital"), icon: "numbers" },
+                    { id: "analog",  name: I18nService.tr("Analog"),  icon: "watch" },
+                    { id: "stacked", name: I18nService.tr("Stacked"), icon: "view_day" },
+                    { id: "text",    name: I18nService.tr("Text"),    icon: "text_fields" },
+                    { id: "pill",    name: I18nService.tr("Pill"),    icon: "smart_button" },
+                    { id: "code",    name: I18nService.tr("Code"),    icon: "code" }
                 ]
                 delegate: RippleButton {
                     id: clockStyleBtn
@@ -199,7 +199,7 @@ ColumnLayout {
                     color: Appearance.colors.colPrimary
                 }
                 StyledText {
-                    text: "Advanced Settings"
+                    text: I18nService.tr("Advanced Settings")
                     font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
                 }
@@ -236,7 +236,7 @@ ColumnLayout {
                     columns: 2
                     Layout.fillWidth: true
                     rowSpacing: 12 * Appearance.effectiveScale
-                    StyledText { text: "Color"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Color"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -251,22 +251,22 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Orientation"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Orientation"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
                         SegmentedButton {
-                            buttonText: "Horizontal"
+                            buttonText: I18nService.tr("Horizontal")
                             isHighlighted: Config.ready && !advancedPanel.digitalCfg.isVertical
                             onClicked: advancedPanel.digitalCfg.isVertical = false
                         }
                         SegmentedButton {
-                            buttonText: "Vertical"
+                            buttonText: I18nService.tr("Vertical")
                             isHighlighted: Config.ready && advancedPanel.digitalCfg.isVertical
                             onClicked: advancedPanel.digitalCfg.isVertical = true
                         }
                     }
-                    StyledText { text: "Font Size"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Font Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
                         StyledSlider {
@@ -276,7 +276,7 @@ ColumnLayout {
                         }
                         StyledText { text: Math.round(advancedPanel.digitalCfg.fontSize).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
-                    StyledText { text: "Date Size"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Date Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
                         StyledSlider {
@@ -286,7 +286,7 @@ ColumnLayout {
                         }
                         StyledText { text: Math.round(advancedPanel.digitalCfg.dateFontSize || 24).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
-                    StyledText { text: "Date Gap"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Date Gap"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
                         StyledSlider {
@@ -297,7 +297,7 @@ ColumnLayout {
                         }
                         StyledText { text: Math.round(advancedPanel.digitalCfg.dateGap ?? 4).toString() + "px"; color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
-                    StyledText { text: "Alignment"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Alignment"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -321,7 +321,7 @@ ColumnLayout {
                 spacing: 16 * Appearance.effectiveScale
                 GridLayout {
                     columns: 2; Layout.fillWidth: true; rowSpacing: 16 * Appearance.effectiveScale; columnSpacing: 12 * Appearance.effectiveScale
-                    StyledText { text: "Clock Size"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Clock Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
                         StyledSlider {
@@ -332,7 +332,7 @@ ColumnLayout {
                         StyledText { text: Math.round(advancedPanel.analogCfg.size).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
                     StyledText {
-                        text: "Face Shape"
+                        text: I18nService.tr("Face Shape")
                         Layout.alignment: Qt.AlignTop
                         color: Appearance.colors.colOnLayer1
                         Layout.topMargin: 12 * Appearance.effectiveScale
@@ -353,7 +353,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Background Style"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Background Style"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
                         Repeater {
@@ -366,7 +366,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Sides"; color: Appearance.colors.colOnLayer1; visible: Config.ready && (advancedPanel.analogCfg.backgroundStyle === "cookie" || advancedPanel.analogCfg.backgroundStyle === "sine") }
+                    StyledText { text: I18nService.tr("Sides"); color: Appearance.colors.colOnLayer1; visible: Config.ready && (advancedPanel.analogCfg.backgroundStyle === "cookie" || advancedPanel.analogCfg.backgroundStyle === "sine") }
                     RowLayout {
                         visible: Config.ready && (advancedPanel.analogCfg.backgroundStyle === "cookie" || advancedPanel.analogCfg.backgroundStyle === "sine")
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
@@ -376,15 +376,15 @@ ColumnLayout {
                         }
                         StyledText { text: Math.round(advancedPanel.analogCfg.sides).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40; horizontalAlignment: Text.AlignRight }
                     }
-                    StyledText { text: "Constantly Rotate"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Constantly Rotate"); color: Appearance.colors.colOnLayer1 }
                     AndroidToggle { Layout.alignment: Qt.AlignRight; checked: Config.ready && advancedPanel.analogCfg.constantlyRotate; onToggled: advancedPanel.analogCfg.constantlyRotate = !advancedPanel.analogCfg.constantlyRotate }
-                    StyledText { text: "Time Indicators"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Time Indicators"); color: Appearance.colors.colOnLayer1 }
                     AndroidToggle { Layout.alignment: Qt.AlignRight; checked: Config.ready && advancedPanel.analogCfg.timeIndicators; onToggled: advancedPanel.analogCfg.timeIndicators = !advancedPanel.analogCfg.timeIndicators }
-                    StyledText { text: "Hour Marks"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Hour Marks"); color: Appearance.colors.colOnLayer1 }
                     AndroidToggle { Layout.alignment: Qt.AlignRight; checked: Config.ready && advancedPanel.analogCfg.hourMarks; onToggled: advancedPanel.analogCfg.hourMarks = !advancedPanel.analogCfg.hourMarks }
-                    StyledText { text: "Show Marks"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show Marks"); color: Appearance.colors.colOnLayer1 }
                     AndroidToggle { Layout.alignment: Qt.AlignRight; checked: Config.ready && advancedPanel.analogCfg.showMarks; onToggled: advancedPanel.analogCfg.showMarks = !advancedPanel.analogCfg.showMarks }
-                    StyledText { text: "Dial Style"; color: Appearance.colors.colOnLayer1; visible: Config.ready && advancedPanel.analogCfg.showMarks }
+                    StyledText { text: I18nService.tr("Dial Style"); color: Appearance.colors.colOnLayer1; visible: Config.ready && advancedPanel.analogCfg.showMarks }
                     Row {
                         visible: Config.ready && advancedPanel.analogCfg.showMarks; Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
                         Repeater {
@@ -395,7 +395,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Hour Hand"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Hour Hand"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
                         Repeater {
@@ -406,7 +406,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Minute Hand"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Minute Hand"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
                         Repeater {
@@ -417,7 +417,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Second Hand"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Second Hand"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
                         Repeater {
@@ -428,7 +428,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Date Style"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Date Style"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
                         Repeater {
@@ -448,7 +448,7 @@ ColumnLayout {
                 Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
                 GridLayout {
                     columns: 2; Layout.fillWidth: true; rowSpacing: 16 * Appearance.effectiveScale; columnSpacing: 12 * Appearance.effectiveScale
-                    StyledText { text: "Value Color"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Value Color"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -463,7 +463,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Keyword Color"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Keyword Color"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -478,7 +478,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Block Color"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Block Color"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -493,17 +493,17 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Block Style"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Block Style"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
                         Repeater {
                             model: [
-                                { id: "js", label: "JS / while" },
-                                { id: "python", label: "Python" },
-                                { id: "rust", label: "Rust" },
-                                { id: "c", label: "C/C++" },
-                                { id: "kotlin", label: "Kotlin" }
+                                { id: "js", label: I18nService.tr("JS / while") },
+                                { id: "python", label: I18nService.tr("Python") },
+                                { id: "rust", label: I18nService.tr("Rust") },
+                                { id: "c", label: I18nService.tr("C/C++") },
+                                { id: "kotlin", label: I18nService.tr("Kotlin") }
                             ]
                             delegate: SegmentedButton {
                                 required property var modelData
@@ -513,7 +513,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Font Size"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Font Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
                         StyledSlider {
@@ -534,7 +534,7 @@ ColumnLayout {
                 Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
                 GridLayout {
                     columns: 2; Layout.fillWidth: true; rowSpacing: 16 * Appearance.effectiveScale; columnSpacing: 12 * Appearance.effectiveScale
-                    StyledText { text: "Main Color"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Main Color"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -549,7 +549,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Text Color"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Text Color"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -564,7 +564,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Alignment"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Alignment"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -578,7 +578,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Clock Size"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Clock Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
                         StyledSlider {
@@ -590,7 +590,7 @@ ColumnLayout {
                         }
                         StyledText { text: Math.round(advancedPanel.stackedCfg.fontSize).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
-                    StyledText { text: "Label Size"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Label Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
                         StyledSlider {
@@ -611,7 +611,7 @@ ColumnLayout {
                 Layout.fillWidth: true; spacing: 8 * Appearance.effectiveScale
                 GridLayout {
                     columns: 2; Layout.fillWidth: true; rowSpacing: 12 * Appearance.effectiveScale
-                    StyledText { text: "Time Color"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Time Color"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -626,7 +626,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Date Color"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Date Color"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -641,7 +641,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Alignment"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Alignment"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -655,7 +655,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Font Size"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Font Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
                         StyledSlider {
@@ -667,7 +667,7 @@ ColumnLayout {
                         }
                         StyledText { text: Math.round(advancedPanel.textCfg.fontSize || 42).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
-                    StyledText { text: "Date Size"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Date Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
                         StyledSlider {
@@ -688,7 +688,7 @@ ColumnLayout {
                 Layout.fillWidth: true; spacing: 8 * Appearance.effectiveScale
                 GridLayout {
                     columns: 2; Layout.fillWidth: true; rowSpacing: 12 * Appearance.effectiveScale
-                    StyledText { text: "Time Color"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Time Color"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -703,7 +703,7 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Pill Color"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Pill Color"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight
                         spacing: 2 * Appearance.effectiveScale
@@ -718,15 +718,15 @@ ColumnLayout {
                             }
                         }
                     }
-                    StyledText { text: "Orientation"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Orientation"); color: Appearance.colors.colOnLayer1 }
                     Row {
                         Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
-                        SegmentedButton { buttonText: "Horizontal"; isHighlighted: Config.ready && !advancedPanel.pillCfg.isVertical; onClicked: advancedPanel.pillCfg.isVertical = false }
-                        SegmentedButton { buttonText: "Vertical"; isHighlighted: Config.ready && advancedPanel.pillCfg.isVertical; onClicked: advancedPanel.pillCfg.isVertical = true }
+                        SegmentedButton { buttonText: I18nService.tr("Horizontal"); isHighlighted: Config.ready && !advancedPanel.pillCfg.isVertical; onClicked: advancedPanel.pillCfg.isVertical = false }
+                        SegmentedButton { buttonText: I18nService.tr("Vertical"); isHighlighted: Config.ready && advancedPanel.pillCfg.isVertical; onClicked: advancedPanel.pillCfg.isVertical = true }
                     }
-                    StyledText { text: "Show Background"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show Background"); color: Appearance.colors.colOnLayer1 }
                     AndroidToggle { Layout.alignment: Qt.AlignRight; checked: Config.ready && advancedPanel.pillCfg.showBackground; onToggled: advancedPanel.pillCfg.showBackground = !advancedPanel.pillCfg.showBackground }
-                    StyledText { text: "Clock Size"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Clock Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
                         StyledSlider {
@@ -760,7 +760,7 @@ ColumnLayout {
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "text_fields"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { 
-                        text: Config.options.appearance.clock.useSameStyle ? "Time Font" : (clockStyleSection.activeContext === "desktop" ? "Desktop Time Font" : "Lockscreen Time Font")
+                        text: Config.options.appearance.clock.useSameStyle ? I18nService.tr("Time Font") : (clockStyleSection.activeContext === "desktop" ? I18nService.tr("Desktop Time Font") : I18nService.tr("Lockscreen Time Font"))
                         Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 
                     }
                     StyledComboBox {
@@ -792,7 +792,7 @@ ColumnLayout {
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "calendar_month"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { 
-                        text: Config.options.appearance.clock.useSameStyle ? "Date Font" : (clockStyleSection.activeContext === "desktop" ? "Desktop Date Font" : "Lockscreen Date Font")
+                        text: Config.options.appearance.clock.useSameStyle ? I18nService.tr("Date Font") : (clockStyleSection.activeContext === "desktop" ? I18nService.tr("Desktop Date Font") : I18nService.tr("Lockscreen Date Font"))
                         Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 
                     }
                     StyledComboBox {
@@ -824,7 +824,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.leftMargin: 16 * Appearance.effectiveScale; anchors.rightMargin: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "calendar_today"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Show date on desktop"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Show date on desktop"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle { checked: Config.ready && Config.options.appearance.clock.showDesktopDate; onToggled: if(Config.ready) Config.options.appearance.clock.showDesktopDate = !Config.options.appearance.clock.showDesktopDate }
                 }
             }
@@ -843,7 +843,7 @@ ColumnLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "sync"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Sync desktop with lockscreen"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Sync desktop with lockscreen"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
                         checked: Config.ready && Config.options.appearance.clock.useSameStyle
                         onToggled: {

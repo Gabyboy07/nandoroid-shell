@@ -58,7 +58,7 @@ ColumnLayout {
                     color: Appearance.colors.colPrimary
                 }
                 StyledText {
-                    text: "Desktop wallpaper slideshow"
+                    text: I18nService.tr("Desktop wallpaper slideshow")
                     color: Appearance.colors.colOnLayer1
                     Layout.fillWidth: true
                 }
@@ -91,7 +91,7 @@ ColumnLayout {
                 Layout.preferredWidth: 70 * Appearance.effectiveScale
                 MaterialSymbol { text: "schedule"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                 StyledText { 
-                    text: "Interval"
+                    text: I18nService.tr("Interval")
                     Layout.fillWidth: true
                     color: Appearance.colors.colOnLayer1 
                 }
@@ -129,11 +129,11 @@ ColumnLayout {
                 MaterialSymbol { text: "folder_open"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                 ColumnLayout {
                     Layout.fillWidth: true; spacing: 0
-                    StyledText { text: "Source folder"; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: I18nService.tr("Source folder"); color: Appearance.colors.colOnLayer1 }
                     StyledText {
                         text: {
                             const dir = Config.ready ? Config.options.appearance.background.autoCycleDirectory : "";
-                            if (dir === "" || dir === undefined) return "Not selected";
+                            if (dir === "" || dir === undefined) return I18nService.tr("Not selected");
                             return Functions.FileUtils.shortenHomePath(dir);
                         }
                         font.pixelSize: (Appearance.font && Appearance.font.pixelSize) ? Appearance.font.pixelSize.smallest : 10 * Appearance.effectiveScale

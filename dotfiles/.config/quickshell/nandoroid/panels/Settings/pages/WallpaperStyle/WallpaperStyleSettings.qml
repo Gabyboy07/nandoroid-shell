@@ -283,13 +283,13 @@ Flickable {
             spacing: 4 * Appearance.effectiveScale
             visible: !root.isOnboarding
             StyledText {
-                text: "Wallpaper & Style"
+                text: I18nService.tr("Wallpaper & Style")
                 font.pixelSize: Appearance.font.pixelSize.huge
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }
             StyledText {
-                text: "Personalize your desktop and lock screen."
+                text: I18nService.tr("Personalize your desktop and lock screen.")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 color: Appearance.colors.colSubtext
             }
@@ -321,7 +321,7 @@ Flickable {
                             color: Appearance.colors.colPrimary
                         }
                         StyledText {
-                            text: "Use same wallpaper for lock screen"
+                            text: I18nService.tr("Use same wallpaper for lock screen")
                             color: Appearance.colors.colOnLayer1
                             Layout.fillWidth: true
                         }
@@ -368,7 +368,7 @@ Flickable {
                 WallpaperPreview {
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
-                    title: "Desktop wallpaper"
+                    title: I18nService.tr("Desktop wallpaper")
                     source: {
                         if (WallpaperEngineService.active) return "file://" + WallpaperEngineService.screenshotPath + "?v=" + WallpaperEngineService.screenshotVersion;
                         return (Config.ready && Config.options.appearance && Config.options.appearance.background) ? Config.options.appearance.background.wallpaperPath : "";
@@ -384,7 +384,7 @@ Flickable {
                 WallpaperPreview {
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
-                    title: "Lock screen wallpaper"
+                    title: I18nService.tr("Lock screen wallpaper")
                     source: {
                         if (!Config.ready || !Config.options.lock) return "";
                         if (!Config.options.lock.useSeparateWallpaper) {

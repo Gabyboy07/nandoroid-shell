@@ -45,14 +45,14 @@ Flickable {
             visible: !root.isOnboarding
 
             StyledText {
-                text: "Widgets"
+                text: I18nService.tr("Widgets")
                 font.pixelSize: Appearance.font.pixelSize.huge
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }
 
             StyledText {
-                text: "Manage your desktop widgets."
+                text: I18nService.tr("Manage your desktop widgets.")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 color: Appearance.colors.colSubtext
                 Layout.fillWidth: true

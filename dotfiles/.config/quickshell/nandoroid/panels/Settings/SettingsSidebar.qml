@@ -1,5 +1,6 @@
 import "../../core"
 import "../../core/functions" as Functions
+import "../../services"
 import "../../widgets"
 import QtQuick
 import QtQuick.Layouts
@@ -57,7 +58,7 @@ Rectangle {
                     color: Appearance.colors.colOnPrimary
                 }
                 StyledText {
-                    text: "Config file"
+                    text: I18nService.tr("Config file")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     color: Appearance.colors.colOnPrimary
                 }
@@ -126,16 +127,16 @@ Rectangle {
 
                 Repeater {
                     model: [
-                        { name: "Network", icon: "wifi" },
-                        { name: "Bluetooth", icon: "bluetooth" },
-                        { name: "Audio", icon: "volume_up" },
-                        { name: "Display", icon: "monitor" },
-                        { name: "Wallpaper & Style", icon: "palette" },
-                        { name: "Widgets", icon: "widgets" },
-                        { name: "System", icon: "settings_applications" },
-                        { name: "Services", icon: "cloud" },
-                        { name: "Profile", icon: "person" },
-                        { name: "About", icon: "info" }
+                        { name: I18nService.tr("Network"), icon: "wifi" },
+                        { name: I18nService.tr("Bluetooth"), icon: "bluetooth" },
+                        { name: I18nService.tr("Audio"), icon: "volume_up" },
+                        { name: I18nService.tr("Display"), icon: "monitor" },
+                        { name: I18nService.tr("Wallpaper & Style"), icon: "palette" },
+                        { name: I18nService.tr("Widgets"), icon: "widgets" },
+                        { name: I18nService.tr("System"), icon: "settings_applications" },
+                        { name: I18nService.tr("Services"), icon: "cloud" },
+                        { name: I18nService.tr("Profile"), icon: "person" },
+                        { name: I18nService.tr("About"), icon: "info" }
                     ]
 
                     delegate: RippleButton {

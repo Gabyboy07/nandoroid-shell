@@ -27,13 +27,13 @@ Flickable {
         ColumnLayout {
             spacing: 4 * Appearance.effectiveScale
             StyledText {
-                text: "Audio"
+                text: I18nService.tr("Audio")
                 font.pixelSize: Appearance.font.pixelSize.huge
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }
             StyledText {
-                text: "Adjust volume levels and manage your audio input/output devices."
+                text: I18nService.tr("Adjust volume levels and manage your audio input/output devices.")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 color: Appearance.colors.colSubtext
             }
@@ -45,7 +45,7 @@ Flickable {
             spacing: 16 * Appearance.effectiveScale
 
             StyledText {
-                text: "Volume Levels"
+                text: I18nService.tr("Volume Levels")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
@@ -74,7 +74,7 @@ Flickable {
                                 color: Appearance.colors.colPrimary
                             }
                             StyledText {
-                                text: "Master Volume"
+                                text: I18nService.tr("Master Volume")
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 font.weight: Font.DemiBold
                                 color: Appearance.colors.colOnLayer1
@@ -105,7 +105,7 @@ Flickable {
                                 color: Appearance.colors.colSecondary
                             }
                             StyledText {
-                                text: "Microphone"
+                                text: I18nService.tr("Microphone")
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 font.weight: Font.DemiBold
                                 color: Appearance.colors.colOnLayer1
@@ -135,7 +135,7 @@ Flickable {
             visible: Audio.streamNodes.length > 0
 
             StyledText {
-                text: "Volume per Application"
+                text: I18nService.tr("Volume per Application")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
@@ -218,7 +218,7 @@ Flickable {
                 Layout.preferredWidth: 1
                 spacing: 12 * Appearance.effectiveScale
                 StyledText {
-                    text: "Output Devices"
+                    text: I18nService.tr("Output Devices")
                     font.pixelSize: Appearance.font.pixelSize.large
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
@@ -236,7 +236,7 @@ Flickable {
                 Layout.preferredWidth: 1
                 spacing: 12 * Appearance.effectiveScale
                 StyledText {
-                    text: "Input Devices"
+                    text: I18nService.tr("Input Devices")
                     font.pixelSize: Appearance.font.pixelSize.large
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1

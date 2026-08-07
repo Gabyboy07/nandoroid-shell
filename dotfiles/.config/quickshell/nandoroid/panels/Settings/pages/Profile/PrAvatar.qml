@@ -82,7 +82,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Avatar"
+                text: I18nService.tr("Avatar")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -151,7 +151,7 @@ ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
 
                     StyledText {
-                        text: "Avatar Picture"
+                        text: I18nService.tr("Avatar Picture")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -160,7 +160,7 @@ ColumnLayout {
                     StyledText {
                         text: Config.options.profile.avatarPicture !== ""
                             ? Functions.FileUtils.shortenHomePath(Config.options.profile.avatarPicture)
-                            : "No custom avatar set"
+                            : I18nService.tr("No custom avatar set")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                         elide: Text.ElideRight
@@ -187,7 +187,7 @@ ColumnLayout {
                                 color: Appearance.m3colors.m3onPrimaryContainer
                             }
                             StyledText {
-                                text: "Browse"
+                                text: I18nService.tr("Browse")
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 color: Appearance.m3colors.m3onPrimaryContainer
                             }
@@ -222,7 +222,7 @@ ColumnLayout {
                                 color: Appearance.colors.colError
                             }
                             StyledText {
-                                text: "Clear"
+                                text: I18nService.tr("Clear")
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 color: Appearance.colors.colError
                             }
@@ -259,7 +259,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Banner Image"
+                text: I18nService.tr("Banner Image")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -327,7 +327,7 @@ ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
 
                     StyledText {
-                        text: "Quick Settings Banner"
+                        text: I18nService.tr("Quick Settings Banner")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -336,7 +336,7 @@ ColumnLayout {
                     StyledText {
                         text: Config.options.profile.bannerImage !== ""
                             ? Functions.FileUtils.shortenHomePath(Config.options.profile.bannerImage)
-                            : "Uses current wallpaper"
+                            : I18nService.tr("Uses current wallpaper")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                         elide: Text.ElideRight
@@ -362,16 +362,16 @@ ColumnLayout {
                                 iconSize: 16 * Appearance.effectiveScale
                                 color: Appearance.m3colors.m3onPrimaryContainer
                             }
-                            StyledText {
-                                text: "Browse"
-                                font.pixelSize: Appearance.font.pixelSize.small
-                                color: Appearance.m3colors.m3onPrimaryContainer
-                            }
-                        }
+                                    StyledText {
+                                        text: I18nService.tr("Browse")
+                                        font.pixelSize: Appearance.font.pixelSize.small
+                                        color: Appearance.m3colors.m3onPrimaryContainer
+                                    }
+                                }
 
-                        onClicked: {
-                            bannerPickerProc.running = true
-                        }
+                                onClicked: {
+                                    bannerPickerProc.running = true
+                                }
                     }
 
                     Item {
@@ -397,15 +397,15 @@ ColumnLayout {
                                 iconSize: 16 * Appearance.effectiveScale
                                 color: Appearance.colors.colError
                             }
-                            StyledText {
-                                text: "Clear"
-                                font.pixelSize: Appearance.font.pixelSize.small
-                                color: Appearance.colors.colError
+                                StyledText {
+                                    text: I18nService.tr("Clear")
+                                    font.pixelSize: Appearance.font.pixelSize.small
+                                    color: Appearance.colors.colError
+                                }
                             }
-                        }
 
-                        MouseArea {
-                            id: bannerClearMouse
+                            MouseArea {
+                                id: bannerClearMouse
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
                             hoverEnabled: true
@@ -428,7 +428,7 @@ ColumnLayout {
         if (count === 0) return;
 
         const list = [
-            { label: "Auto", iconName: "auto_awesome", iconSource: "", value: "" }
+            { label: I18nService.tr("Auto"), iconName: "auto_awesome", iconSource: "", value: "" }
         ];
 
         for (let i = 0; i < count; i++) {
@@ -448,7 +448,7 @@ ColumnLayout {
             });
         }
 
-        list.push({ label: "Custom Icon", iconName: "folder_open", iconSource: "", value: "custom" });
+        list.push({ label: I18nService.tr("Custom Icon"), iconName: "folder_open", iconSource: "", value: "custom" });
         root.cachedDistroIcons = list;
         root.distroIconsReady = true;
     }
@@ -492,7 +492,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Distro Icon"
+                text: I18nService.tr("Distro Icon")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -549,7 +549,7 @@ ColumnLayout {
                         spacing: 2 * Appearance.effectiveScale
 
                         StyledText {
-                            text: "Status Bar Distro Icon"
+                            text: I18nService.tr("Status Bar Distro Icon")
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
@@ -557,9 +557,9 @@ ColumnLayout {
 
                         StyledText {
                             text: {
-                                if (!Config.ready || !Config.options.bar) return "Auto-detect"
+                                if (!Config.ready || !Config.options.bar) return I18nService.tr("Auto-detect")
                                 const current = Config.options.bar.distroIcon || ""
-                                if (current === "") return "Auto-detect (" + (SystemInfo.distroIcon || "linux-symbolic") + ")"
+                                if (current === "") return I18nService.tr("Auto-detect (") + (SystemInfo.distroIcon || "linux-symbolic") + ")"
                                 return Functions.FileUtils.shortenHomePath(current)
                             }
                             font.pixelSize: Appearance.font.pixelSize.small
@@ -596,8 +596,8 @@ ColumnLayout {
                                     iconSize: 16 * Appearance.effectiveScale
                                     color: Appearance.m3colors.m3onPrimaryContainer
                                 }
-                                StyledText {
-                                    text: "Browse"
+                            StyledText {
+                                text: I18nService.tr("Browse")
                                     font.pixelSize: Appearance.font.pixelSize.small
                                     color: Appearance.m3colors.m3onPrimaryContainer
                                 }

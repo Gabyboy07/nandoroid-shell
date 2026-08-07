@@ -30,7 +30,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Lyrics Configuration"
+                text: I18nService.tr("Lyrics Configuration")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -53,16 +53,16 @@ ColumnLayout {
                 
                 MaterialSymbol { text: "text_fields"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                 StyledText { 
-                    text: "Lyrics Font Family"
+                    text: I18nService.tr("Lyrics Font Family")
                     Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 
                 }
                 StyledComboBox {
                     Layout.preferredWidth: 300 * Appearance.effectiveScale
                     model: SystemFonts.all
                     text: {
-                        if (!Config.ready) return "Default";
+                        if (!Config.ready) return I18nService.tr("Default");
                         const val = Config.options.appearance.lyrics.fontFamily;
-                        return (val === "" || val === undefined) ? "Default" : val;
+                        return (val === "" || val === undefined) ? I18nService.tr("Default") : val;
                     }
                     onAccepted: (val) => {
                         if (!Config.ready) return;
@@ -91,7 +91,7 @@ ColumnLayout {
                     Layout.preferredWidth: 70 * Appearance.effectiveScale
                     MaterialSymbol { text: "format_size"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { 
-                        text: "Base Font Size"
+                        text: I18nService.tr("Base Font Size")
                         color: Appearance.colors.colOnLayer1
                         Layout.fillWidth: true
                     }
@@ -131,7 +131,7 @@ ColumnLayout {
                     Layout.preferredWidth: 70 * Appearance.effectiveScale
                     MaterialSymbol { text: "subject"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { 
-                        text: "Context Lines"
+                        text: I18nService.tr("Context Lines")
                         color: Appearance.colors.colOnLayer1
                         Layout.fillWidth: true
                     }

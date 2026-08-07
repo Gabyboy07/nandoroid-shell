@@ -30,7 +30,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "Weather"
+                text: I18nService.tr("Weather")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
@@ -54,13 +54,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Enable Weather Service"
+                        text: I18nService.tr("Enable Weather Service")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Fetch weather data for the notification center, desktop widget, and lock screen."
+                        text: I18nService.tr("Fetch weather data for the notification center, desktop widget, and lock screen.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -101,13 +101,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Weather Provider"
+                        text: I18nService.tr("Weather Provider")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Choose the weather data service to use."
+                        text: I18nService.tr("Choose the weather data service to use.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -169,13 +169,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Location Settings"
+                        text: I18nService.tr("Location Settings")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Automatically detect location or set a city name manually."
+                        text: I18nService.tr("Automatically detect location or set a city name manually.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -189,8 +189,8 @@ ColumnLayout {
                     
                     Repeater {
                         model: [
-                            { label: "Auto", value: true },
-                            { label: "Manual", value: false }
+                            { label: I18nService.tr("Auto"), value: true },
+                            { label: I18nService.tr("Manual"), value: false }
                         ]
                         delegate: SegmentedButton {
                             isHighlighted: (Config.ready && Config.options.weather) ? Config.options.weather.autoLocation === modelData.value : false
@@ -233,13 +233,13 @@ ColumnLayout {
                 spacing: 8 * Appearance.effectiveScale
 
                 StyledText {
-                    text: "City name"
+                    text: I18nService.tr("City name")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
                 }
                 StyledText {
-                    text: "Used to resolve coordinates via geocoding (e.g. Jakarta)."
+                    text: I18nService.tr("Used to resolve coordinates via geocoding (e.g. Jakarta).")
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colSubtext
                 }
@@ -280,13 +280,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Show Daily Forecast"
+                        text: I18nService.tr("Show Daily Forecast")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Display weather forecast for the upcoming days."
+                        text: I18nService.tr("Display weather forecast for the upcoming days.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -327,13 +327,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Temperature Unit"
+                        text: I18nService.tr("Temperature Unit")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Choose Celsius or Fahrenheit for weather temperatures."
+                        text: I18nService.tr("Choose Celsius or Fahrenheit for weather temperatures.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }
@@ -395,13 +395,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
-                        text: "Update Interval"
+                        text: I18nService.tr("Update Interval")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "How often to refresh weather data."
+                        text: I18nService.tr("How often to refresh weather data.")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                     }

@@ -42,13 +42,13 @@ ColumnLayout {
             ColumnLayout {
                 spacing: 2 * Appearance.effectiveScale
                 StyledText {
-                    text: "Update Channel"
+                    text: I18nService.tr("Update Channel")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
                 }
                 StyledText {
-                    text: "Choose between Release (Tags) and Latest (Commits).\nLatest is highly recommended for the fastest bug fixes."
+                    text: I18nService.tr("Choose between Release (Tags) and Latest (Commits).\nLatest is highly recommended for the fastest bug fixes.")
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colSubtext
                 }
@@ -62,8 +62,8 @@ ColumnLayout {
                 
                 Repeater {
                     model: [
-                        { label: "Release", value: "stable" },
-                        { label: "Latest", value: "canary" }
+                        { label: I18nService.tr("Release"), value: "stable" },
+                        { label: I18nService.tr("Latest"), value: "canary" }
                     ]
                     delegate: SegmentedButton {
                         isHighlighted: installState.channel === modelData.value
@@ -151,13 +151,13 @@ ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 2 * Appearance.effectiveScale
                 StyledText {
-                    text: "Update Status"
+                    text: I18nService.tr("Update Status")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
                 }
                 StyledText {
-                    text: checkUpdateProc.running ? "Checking..." : (checkUpdateCollector.text ? checkUpdateCollector.text.trim() : "Fetch the latest changes from the repository.")
+                    text: checkUpdateProc.running ? I18nService.tr("Checking...") : (checkUpdateCollector.text ? checkUpdateCollector.text.trim() : I18nService.tr("Fetch the latest changes from the repository."))
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: (checkUpdateCollector.text && checkUpdateCollector.text.includes("Available")) ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
                 }
@@ -187,7 +187,7 @@ ColumnLayout {
                         color: Appearance.colors.colOnPrimary
                     }
                     StyledText {
-                        text: "Check Now"
+                        text: I18nService.tr("Check Now")
                         color: Appearance.colors.colOnPrimary
                         font.weight: Font.Medium
                         font.pixelSize: Appearance.font.pixelSize.small
@@ -238,7 +238,7 @@ ColumnLayout {
                 }
                 StyledText {
                     Layout.fillWidth: true
-                    text: "Update Shell Only"
+                    text: I18nService.tr("Update Shell Only")
                     font.weight: Font.Medium
                     font.pixelSize: Appearance.font.pixelSize.normal
                     color: Appearance.colors.colOnLayer1
@@ -274,7 +274,7 @@ ColumnLayout {
                 }
                 StyledText {
                     Layout.fillWidth: true
-                    text: "Update All Files"
+                    text: I18nService.tr("Update All Files")
                     font.weight: Font.Medium
                     font.pixelSize: Appearance.font.pixelSize.normal
                     color: Appearance.colors.colError
@@ -322,7 +322,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Recent Commits"
+                        text: I18nService.tr("Recent Commits")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -337,7 +337,7 @@ ColumnLayout {
                     
                     StyledText {
                         id: logText
-                        text: gitLogCollector.text || "Fetching recent commits..."
+                        text: gitLogCollector.text || I18nService.tr("Fetching recent commits...")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.WrapAnywhere
@@ -376,7 +376,7 @@ ColumnLayout {
                         color: Appearance.colors.colPrimary
                     }
                     StyledText {
-                        text: "Recent Releases"
+                        text: I18nService.tr("Recent Releases")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -391,7 +391,7 @@ ColumnLayout {
                     
                     StyledText {
                         id: tagText
-                        text: gitTagCollector.text || "Fetching recent releases..."
+                        text: gitTagCollector.text || I18nService.tr("Fetching recent releases...")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.WrapAnywhere
@@ -405,7 +405,7 @@ ColumnLayout {
     
     StyledText {
         visible: installState.install_dir === ""
-        text: "Update system unavailable. Installation state missing."
+        text: I18nService.tr("Update system unavailable. Installation state missing.")
         color: Appearance.colors.colError
         Layout.alignment: Qt.AlignHCenter
     }
