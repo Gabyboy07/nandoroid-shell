@@ -93,7 +93,7 @@ Item {
                             Text {
                                 Layout.alignment: Qt.AlignHCenter
                                 Layout.maximumWidth: delegateRoot.width - 4 * root.baseScale
-                                text: modelData ? modelData.text : ""
+                                text: modelData ? I18nService.tr(modelData.text) : ""
                                 font.pixelSize: Math.max(9, Math.round(10 * root.baseScale))
                                 font.weight: Font.Medium
                                 color: isFocused ? Appearance.m3colors.m3onPrimary : Appearance.m3colors.m3onSurface

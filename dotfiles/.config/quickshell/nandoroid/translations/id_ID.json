@@ -762,5 +762,10 @@
     "Open Recordings": "Buka Rekaman",
     "OCR (Text Recognition)": "OCR (Pengenalan Teks)",
     "QR Code Scanner": "Pemindai Kode QR",
-    "Lens Search": "Pencarian Lensa"
+    "Lens Search": "Pencarian Lensa",
+    "Lock": "Kunci",
+    "Sleep": "Tidur",
+    "Logout": "Keluar",
+    "Shutdown": "Matikan",
+    "Reboot": "Mulai Ulang"
 }
