@@ -402,8 +402,10 @@ Singleton {
 
             for (let i = startIndex; i < startIndex + 6 && i < allHourly.length; i++) {
                 const h = allHourly[i];
+                const rawH = Math.floor(parseInt(h.time) / 100);
                 hourlyList.push({
-                    time: formatHour(h.time),
+                    rawHour: rawH,
+                    time: formatHour(rawH),
                     temp: root.unit === "C" ? h.tempC : h.tempF,
                     icon: mapWeatherIcon(h.weatherCode, isDaytime(h.time)),
                     condition: h.weatherDesc[0].value
@@ -454,8 +456,10 @@ Singleton {
             
             for (let i = startIdx; i < startIdx + 6; i++) {
                 if (!hourly.time[i]) break;
+                const rawH = new Date(hourly.time[i]).getHours();
                 hourlyList.push({
-                    time: formatHour(((new Date(hourly.time[i]).getHours()) * 100).toString()),
+                    rawHour: rawH,
+                    time: formatHour(rawH),
                     temp: Math.round(hourly.temperature_2m[i]).toString(),
                     icon: mapWeatherIcon(wmoToWwo(hourly.weather_code[i]), i >= startIdx && i <= startIdx + 12 ? cur.is_day === 1 : true),
                     condition: wmoToDesc(hourly.weather_code[i])
@@ -515,10 +519,18 @@ Singleton {
     }
 
     function formatHour(timeStr) {
-        let h = parseInt(timeStr) / 100;
-        if (h === 0) return "12 AM";
-        if (h === 12) return "12 PM";
-        return h > 12 ? (h - 12) + " PM" : h + " AM";
+        if (timeStr === undefined || timeStr === null) return "";
+        let val = parseInt(timeStr);
+        let h = val >= 100 ? Math.floor(val / 100) : val;
+        if (isNaN(h)) return timeStr;
+        const is24 = Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : true;
+        if (is24) {
+            return h.toString().padStart(2, "0") + ":00";
+        } else {
+            if (h === 0) return "12 AM";
+            if (h === 12) return "12 PM";
+            return h > 12 ? (h - 12) + " PM" : h + " AM";
+        }
     }
 
     function formatDate(dateStr) {

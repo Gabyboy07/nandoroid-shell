@@ -278,7 +278,7 @@ Item { // Notification item area
                                 id: restartBtn
                                 visible: actionRowLayout.isWarning
                                 Layout.fillWidth: true
-                                buttonText: "Restart"
+                                buttonText: I18nService.tr("Restart")
                                 urgency: notificationObject && notificationObject.urgency
                                 colBackground: Appearance.colors.colWarning
                                 colBackgroundHover: Functions.ColorUtils.mix(Appearance.colors.colWarning, "white", 0.85)
@@ -304,7 +304,7 @@ Item { // Notification item area
                                             text: "restart_alt"
                                         }
                                         StyledText {
-                                            text: "Restart"
+                                            text: I18nService.tr("Restart")
                                             font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                                             anchors.verticalCenter: parent.verticalCenter
                                             visible: parent.parent.parent.width > 60 * Appearance.effectiveScale
@@ -318,7 +318,7 @@ Item { // Notification item area
                                 id: viewBtn
                                 visible: actionRowLayout.hasDefaultAction
                                 Layout.fillWidth: true
-                                buttonText: "View"
+                                buttonText: I18nService.tr("View")
                                 urgency: notificationObject && notificationObject.urgency
                                 colBackground: actionRowLayout.btnBg
                                 colBackgroundHover: actionRowLayout.btnHover
@@ -346,7 +346,7 @@ Item { // Notification item area
                                             text: "visibility"
                                         }
                                         StyledText {
-                                            text: "View"
+                                            text: I18nService.tr("View")
                                             font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                                             anchors.verticalCenter: parent.verticalCenter
                                             visible: parent.parent.parent.width > 60 * Appearance.effectiveScale
@@ -359,7 +359,7 @@ Item { // Notification item area
                             NotificationActionButton {
                                 id: closeBtn
                                 Layout.fillWidth: true
-                                buttonText: "Close"
+                                buttonText: I18nService.tr("Close")
                                 urgency: notificationObject && notificationObject.urgency
                                 colBackground: actionRowLayout.btnBg
                                 colBackgroundHover: actionRowLayout.btnHover
@@ -386,7 +386,7 @@ Item { // Notification item area
                                             text: "close"
                                         }
                                         StyledText {
-                                            text: "Close"
+                                            text: I18nService.tr("Close")
                                             font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                                             anchors.verticalCenter: parent.verticalCenter
                                             visible: parent.parent.parent.width > 60 * Appearance.effectiveScale
@@ -420,7 +420,7 @@ Item { // Notification item area
                             NotificationActionButton {
                                 id: copyBtn
                                 Layout.fillWidth: true
-                                buttonText: "Copy"
+                                buttonText: I18nService.tr("Copy")
                                 urgency: notificationObject && notificationObject.urgency
                                 colBackground: actionRowLayout.btnBg
                                 colBackgroundHover: actionRowLayout.btnHover
@@ -459,7 +459,7 @@ Item { // Notification item area
                                             text: "content_copy"
                                         }
                                         StyledText {
-                                            text: "Copy"
+                                            text: I18nService.tr("Copy")
                                             font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                                             anchors.verticalCenter: parent.verticalCenter
                                             visible: parent.parent.parent.width > 60 * Appearance.effectiveScale

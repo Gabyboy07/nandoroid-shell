@@ -109,7 +109,7 @@ Item {
                     }
 
                     StyledText {
-                        text: Weather.loading ? "Updating..." : (Weather.current.condition || "Unknown")
+                        text: Weather.loading ? I18nService.tr("Updating...") : I18nService.tr(Weather.current.condition || "Unknown")
                         font.pixelSize: Appearance.font.pixelSize.smallest
                         font.weight: Font.Medium
                         color: root.contentColor
@@ -183,7 +183,7 @@ Item {
 
                     StyledText {
                         Layout.fillWidth: true
-                        text: Weather.loading ? "Updating..." : (Weather.current.condition || "Unknown")
+                        text: Weather.loading ? I18nService.tr("Updating...") : I18nService.tr(Weather.current.condition || "Unknown")
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.DemiBold
                         color: root.contentColor
@@ -192,7 +192,7 @@ Item {
 
                     StyledText {
                         Layout.fillWidth: true
-                        text: `Feels like ${Weather.current.feelsLike}°`
+                        text: I18nService.tr("Feels like %1°").replace("%1", Weather.current.feelsLike)
                         font.pixelSize: Appearance.font.pixelSize.smallest
                         color: root.contentColor
                         opacity: 0.6
@@ -250,7 +250,7 @@ Item {
                     }
                     
                     StyledText {
-                        text: `High ${Weather.todayHigh}° · Low ${Weather.todayLow}°`
+                        text: I18nService.tr("High %1° · Low %2°").replace("%1", Weather.todayHigh).replace("%2", Weather.todayLow)
                         font.pixelSize: Appearance.font.pixelSize.smallest
                         color: root.contentColor
                         opacity: 0.6
@@ -273,7 +273,7 @@ Item {
 
                     StyledText {
                         Layout.fillWidth: true
-                        text: Weather.loading ? "Updating..." : (Weather.current.condition || "Unknown")
+                        text: Weather.loading ? I18nService.tr("Updating...") : I18nService.tr(Weather.current.condition || "Unknown")
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.DemiBold
                         color: root.contentColor

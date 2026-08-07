@@ -200,7 +200,7 @@ Item {
                         
                         StyledText {
                             anchors.centerIn: parent
-                            text: Notifications.list.length > 0 ? Notifications.list.length + " notifications" : "No notifications"
+                            text: Notifications.list.length > 0 ? Notifications.list.length + " " + I18nService.tr("notifications") : I18nService.tr("No notifications")
                             font.pixelSize: Appearance.font.pixelSize.small
                             color: Appearance.m3colors.m3onSurfaceVariant
                         }

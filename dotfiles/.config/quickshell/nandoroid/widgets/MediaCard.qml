@@ -182,7 +182,7 @@ Rectangle {
                             StyledText {
                                 id: trackTitleText
                                 Layout.fillWidth: true
-                                text: Functions.StringUtils.cleanMusicTitle(MprisController.trackTitle) || "No media"
+                                text: Functions.StringUtils.cleanMusicTitle(MprisController.trackTitle) || I18nService.tr("No media")
                                 font.pixelSize: Appearance.font.pixelSize.normal
                                 font.weight: Font.DemiBold
                                 color: root.effectiveOnLayer0
@@ -192,7 +192,7 @@ Rectangle {
                             StyledText {
                                 id: trackArtistText
                                 Layout.fillWidth: true
-                                text: MprisController.trackArtist || "Unknown Artist"
+                                text: MprisController.trackArtist || I18nService.tr("Unknown Artist")
                                 font.pixelSize: Appearance.font.pixelSize.smaller
                                 color: root.effectiveSubtext
                                 elide: Text.ElideRight

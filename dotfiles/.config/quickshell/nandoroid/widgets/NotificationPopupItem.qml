@@ -160,7 +160,7 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                     }
                     StyledText {
-                        text: "Restart Required"
+                        text: I18nService.tr("Restart Required")
                         font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                         font.weight: Font.Bold
                         color: Appearance.colors.colOnWarning
@@ -267,7 +267,7 @@ Item {
                                         text: "restart_alt"
                                     }
                                     StyledText {
-                                        text: "Restart"
+                                        text: I18nService.tr("Restart")
                                         font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                                         anchors.verticalCenter: parent.verticalCenter
                                         visible: parent.parent.parent.width > 60 * Appearance.effectiveScale
@@ -301,7 +301,7 @@ Item {
                                         text: "visibility"
                                     }
                                     StyledText {
-                                        text: "View"
+                                        text: I18nService.tr("View")
                                         font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                                         anchors.verticalCenter: parent.verticalCenter
                                         visible: parent.parent.parent.width > 60 * Appearance.effectiveScale
@@ -313,7 +313,7 @@ Item {
 
                         NotificationActionButton {
                             width: actionsRow.buttonWidth
-                            buttonText: "Close"
+                            buttonText: I18nService.tr("Close")
                             onClicked: {
                                 if (notificationObject) Notifications.discardNotification(notificationObject.notificationId);
                             }
@@ -335,7 +335,7 @@ Item {
                                         text: "close"
                                     }
                                     StyledText {
-                                        text: "Close"
+                                        text: I18nService.tr("Close")
                                         font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                                         anchors.verticalCenter: parent.verticalCenter
                                         visible: parent.parent.parent.width > 60 * Appearance.effectiveScale
@@ -378,7 +378,7 @@ Item {
                                         text: "content_copy"
                                     }
                                     StyledText {
-                                        text: "Copy"
+                                        text: I18nService.tr("Copy")
                                         font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                                         anchors.verticalCenter: parent.verticalCenter
                                         visible: parent.parent.parent.width > 60 * Appearance.effectiveScale

@@ -75,7 +75,7 @@ Rectangle {
                     }
 
                     StyledText {
-                        text: Weather.loading ? "Updating..." : Weather.current.condition
+                        text: Weather.loading ? I18nService.tr("Updating...") : I18nService.tr(Weather.current.condition)
                         font.pixelSize: Appearance.font.pixelSize.large
                         font.weight: Font.Medium
                         color: root.contentColor
@@ -83,7 +83,7 @@ Rectangle {
                 }
 
                 StyledText {
-                    text: "Feels like " + Weather.current.feelsLike + "\u00b0"
+                    text: I18nService.tr("Feels like %1°").replace("%1", Weather.current.feelsLike)
                     font.pixelSize: Appearance.font.pixelSize.normal
                     color: root.contentColor
                     opacity: root.midOpacity
@@ -130,7 +130,7 @@ Rectangle {
                         spacing: 4 * Appearance.effectiveScale
 
                         StyledText {
-                            text: index === 0 ? "Now" : modelData.time
+                            text: index === 0 ? I18nService.tr("Now") : Weather.formatHour(modelData.rawHour ?? modelData.time)
                             font.pixelSize: Math.round(9 * Appearance.effectiveScale)
                             font.weight: index === 0 ? Font.DemiBold : Font.Medium
                             color: index === 0 ? Appearance.colors.colPrimary : root.contentColor
@@ -186,7 +186,7 @@ Rectangle {
                     anchors.rightMargin: 12 * Appearance.effectiveScale
 
                     StyledText {
-                        text: Weather.daily[0].date
+                        text: I18nService.tr(Weather.daily[0].date)
                         font.pixelSize: Math.round(13 * Appearance.effectiveScale)
                         font.weight: Font.DemiBold
                         color: root.contentColor
@@ -242,7 +242,7 @@ Rectangle {
                                 spacing: 4 * Appearance.effectiveScale
 
                                 StyledText {
-                                    text: modelData.date
+                                    text: I18nService.tr(modelData.date)
                                     font.pixelSize: Math.round(9 * Appearance.effectiveScale)
                                     font.weight: Font.DemiBold
                                     color: root.contentColor

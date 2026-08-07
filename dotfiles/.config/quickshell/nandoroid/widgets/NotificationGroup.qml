@@ -240,7 +240,7 @@ MouseArea { // Notification group area
                             id: timeText
                             Layout.rightMargin: 10 * Appearance.effectiveScale
                             horizontalAlignment: Text.AlignLeft
-                            text: NotificationUtils.getFriendlyNotifTimeString(notificationGroup?.time)
+                            text: I18nService.tr(NotificationUtils.getFriendlyNotifTimeString(notificationGroup?.time))
                             font.pixelSize: Math.round(topRow.fontSize)
                             color: root.anyRestartRequired ? 
                                 Appearance.colors.colOnWarningContainer : 
@@ -259,7 +259,7 @@ MouseArea { // Notification group area
                         altAction: () => { root.toggleExpanded() }
 
                         StyledToolTip {
-                            text: "Tip: right-clicking a group\nalso expands it"
+                            text: I18nService.tr("Tip: right-clicking a group\nalso expands it")
                         }
                     }
                 }

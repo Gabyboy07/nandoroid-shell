@@ -847,7 +847,7 @@ MouseArea {
 
             StyledText {
                 Layout.alignment: Qt.AlignHCenter
-                text: Weather.current.condition
+                text: I18nService.tr(Weather.current.condition)
                 font.pixelSize: Math.round(15 * Appearance.effectiveScale)
                 font.weight: Font.Normal
                 color: Appearance.colors.colLockscreenWeatherSubtext
