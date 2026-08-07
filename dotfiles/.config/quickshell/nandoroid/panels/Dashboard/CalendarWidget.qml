@@ -91,6 +91,15 @@ Item {
         return Qt.formatTime(new Date(2000, 0, 1, h, min), Config.ready ? Config.timeFormat : "HH:mm")
     }
 
+    function _recurrenceLabel(code) {
+        switch (code) {
+            case "daily": return I18nService.tr("Daily")
+            case "weekly": return I18nService.tr("Weekly")
+            case "monthly": return I18nService.tr("Monthly")
+            default: return code
+        }
+    }
+
     readonly property string currentDayShort: {
         const today = new Date();
         const todayJsDay = today.getDay();
@@ -225,8 +234,8 @@ Item {
                         text: {
                             let t = root._displayTime(modelData.time)
                             if (modelData.endTime) t += " - " + root._displayTime(modelData.endTime)
-                            if (modelData.endDate && modelData.endDate !== modelData.date) t += " · End " + root._displayDate(modelData.endDate)
-                            if (modelData.recurrence !== "once") t += " · " + modelData.recurrence
+                            if (modelData.endDate && modelData.endDate !== modelData.date) t += " · " + I18nService.tr("End ") + root._displayDate(modelData.endDate)
+                            if (modelData.recurrence !== "once") t += " · " + root._recurrenceLabel(modelData.recurrence)
                             return t
                         }
                         font.pixelSize: Appearance.font.pixelSize.smaller
@@ -237,7 +246,7 @@ Item {
 
             StyledText {
                 visible: eventPopup.events.length === 0
-                text: "No events"
+                text: I18nService.tr("No events")
                 font.pixelSize: Appearance.font.pixelSize.smaller
                 color: Appearance.colors.colSubtext
                 Layout.fillWidth: true
@@ -263,7 +272,7 @@ Item {
             CalendarHeaderButton {
                 clip: true
                 buttonText: root.viewingDate.toLocaleDateString(Qt.locale(), "MMMM yyyy")
-                tooltipText: (root.monthShift === 0) ? "" : "Jump to current month"
+                tooltipText: (root.monthShift === 0) ? "" : I18nService.tr("Jump to current month")
                 colBackground: "transparent"
                 colBackgroundHover: Appearance.colors.colLayer2Hover
                 onClicked: {
@@ -316,7 +325,7 @@ Item {
             Repeater {
                 id: buttonRepeater
                 model: {
-                    const baseDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+                    const baseDays = [I18nService.tr("Mo"), I18nService.tr("Tu"), I18nService.tr("We"), I18nService.tr("Th"), I18nService.tr("Fr"), I18nService.tr("Sa"), I18nService.tr("Su")];
                     const firstDay = Config.ready ? (Config.options.time.firstDayOfWeek ?? 1) : 1;
                     const offset = (firstDay + 6) % 7;
                     let result = [];

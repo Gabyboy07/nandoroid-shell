@@ -49,11 +49,11 @@ Item {
                 try {
                     let data = JSON.parse(this.text)
                     if (data.login) root.profile = data
-                    else root.errorMsg = data.message || "User not found"
-                } catch(e) { root.errorMsg = "Parse error" }
+                    else root.errorMsg = data.message || I18nService.tr("User not found")
+                } catch(e) { root.errorMsg = I18nService.tr("Parse error") }
             }
         }
-        onExited: (code) => { if (code !== 0) root.errorMsg = "Request failed" }
+        onExited: (code) => { if (code !== 0) root.errorMsg = I18nService.tr("Request failed") }
     }
 
     // 2. Repositories
@@ -96,13 +96,13 @@ Item {
         MaterialSymbol { Layout.alignment: Qt.AlignHCenter; text: "hub"; iconSize: 56 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
         StyledText {
             Layout.alignment: Qt.AlignHCenter
-            text: "GitHub Profile Tracker"
+            text: I18nService.tr("GitHub Profile Tracker")
             font.pixelSize: Appearance.font.pixelSize.large; font.weight: Font.DemiBold
             color: Appearance.colors.colOnLayer1
         }
         StyledText {
             Layout.alignment: Qt.AlignHCenter
-            text: "Set your username in config to track stats"
+            text: I18nService.tr("Set your username in config to track stats")
             color: Appearance.colors.colSubtext; font.pixelSize: Appearance.font.pixelSize.normal
         }
     }
@@ -147,7 +147,7 @@ Item {
             implicitWidth: 100 * Appearance.effectiveScale; implicitHeight: 36 * Appearance.effectiveScale; buttonRadius: 18 * Appearance.effectiveScale
             colBackground: Appearance.m3colors.m3surfaceContainer
             onClicked: root.fetch()
-            StyledText { anchors.centerIn: parent; text: "Retry"; color: Appearance.colors.colOnLayer1 }
+            StyledText { anchors.centerIn: parent; text: I18nService.tr("Retry"); color: Appearance.colors.colOnLayer1 }
         }
     }
 
@@ -237,9 +237,9 @@ Item {
 
                     Repeater {
                         model: [
-                            { icon: "folder", value: root.profile ? root.profile.public_repos : 0, label: "repos" },
-                            { icon: "group", value: root.profile ? root.profile.followers : 0, label: "followers" },
-                            { icon: "person_add", value: root.profile ? root.profile.following : 0, label: "following" }
+                            { icon: "folder", value: root.profile ? root.profile.public_repos : 0, label: I18nService.tr("repos") },
+                            { icon: "group", value: root.profile ? root.profile.followers : 0, label: I18nService.tr("followers") },
+                            { icon: "person_add", value: root.profile ? root.profile.following : 0, label: I18nService.tr("following") }
                         ]
                         delegate: RowLayout {
                             spacing: 4 * Appearance.effectiveScale
@@ -262,7 +262,7 @@ Item {
             RowLayout {
                 Layout.fillWidth: true
                 StyledText {
-                    text: root.totalContribs + " contributions in the last year"
+                    text: root.totalContribs + " " + I18nService.tr("contributions in the last year")
                     font.pixelSize: Appearance.font.pixelSize.small; font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1; Layout.fillWidth: true
                 }
@@ -271,7 +271,7 @@ Item {
                     implicitWidth: 28 * Appearance.effectiveScale; implicitHeight: 28 * Appearance.effectiveScale; buttonRadius: 14 * Appearance.effectiveScale; colBackground: "transparent"
                     onClicked: root.fetch()
                     MaterialSymbol { anchors.centerIn: parent; text: "refresh"; iconSize: 15 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
-                    StyledToolTip { text: "Refresh GitHub data" }
+                    StyledToolTip { text: I18nService.tr("Refresh GitHub data") }
                 }
             }
 
@@ -322,7 +322,7 @@ Item {
         }
 
         StyledText {
-            text: "Recent Repositories"
+            text: I18nService.tr("Recent Repositories")
             font.pixelSize: Appearance.font.pixelSize.small; font.weight: Font.DemiBold
             color: Appearance.colors.colOnLayer1
         }

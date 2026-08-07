@@ -48,7 +48,7 @@ RowLayout {
             RowLayout {
                 Layout.fillWidth: true
                 MaterialSymbol { text: "translate"; iconSize: 22 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                StyledText { text: "Source"; font.pixelSize: Math.round(15 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colOnLayer1 }
+                StyledText { text: I18nService.tr("Source"); font.pixelSize: Math.round(15 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colOnLayer1 }
                 Item { Layout.fillWidth: true }
                 
                 StyledComboBox {
@@ -68,7 +68,7 @@ RowLayout {
                 Layout.fillWidth: true; Layout.fillHeight: true; clip: true
                 TextArea {
                     id: inputText
-                    placeholderText: "Type or paste text here..."
+                    placeholderText: I18nService.tr("Type or paste text here...")
                     placeholderTextColor: Appearance.colors.colSubtext
                     color: Appearance.colors.colOnLayer1
                     font.family: Appearance.font.family.main
@@ -86,7 +86,7 @@ RowLayout {
                     id: clearBtn
                     iconName: "close"; visible: inputText.text.length > 0
                     onClicked: { inputText.text = ""; TranslationService.translatedText = ""; }
-                    StyledToolTip { text: "Clear input"; extraVisibleCondition: clearBtn.realHovered }
+                    StyledToolTip { text: I18nService.tr("Clear input"); extraVisibleCondition: clearBtn.realHovered }
                 }
                 M3IconButton {
                     id: pasteBtn
@@ -96,7 +96,7 @@ RowLayout {
                         inputText.forceActiveFocus();
                         root.triggerTranslate();
                     }
-                    StyledToolTip { text: "Paste from clipboard"; extraVisibleCondition: pasteBtn.realHovered }
+                    StyledToolTip { text: I18nService.tr("Paste from clipboard"); extraVisibleCondition: pasteBtn.realHovered }
                 }
             }
         }
@@ -115,7 +115,7 @@ RowLayout {
 
             RowLayout {
                 Layout.fillWidth: true
-                StyledText { text: "Translation"; font.pixelSize: Math.round(15 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colPrimary }
+                StyledText { text: I18nService.tr("Translation"); font.pixelSize: Math.round(15 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colPrimary }
                 Item { Layout.fillWidth: true }
                 
                 StyledComboBox {
@@ -140,7 +140,7 @@ RowLayout {
                     id: resultText
                     text: TranslationService.translatedText || ""
                     readOnly: true
-                    placeholderText: TranslationService.isTranslating ? "Translating..." : "Translation will appear here..."
+                    placeholderText: TranslationService.isTranslating ? I18nService.tr("Translating...") : I18nService.tr("Translation will appear here...")
                     placeholderTextColor: Appearance.colors.colSubtext
                     color: Appearance.colors.colOnLayer2
                     font.family: Appearance.font.family.main
@@ -162,7 +162,7 @@ RowLayout {
                         text: "sync"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colPrimary
                         RotationAnimation on rotation { from: 0; to: 360; duration: 1000; loops: Animation.Infinite; running: parent.visible }
                     }
-                    StyledText { text: "Translating..."; font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colPrimary }
+                    StyledText { text: I18nService.tr("Translating..."); font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colPrimary }
                 }
                 
                 Item { Layout.fillWidth: true }
@@ -173,7 +173,7 @@ RowLayout {
                     highlighted: true
                     visible: inputText.text.length > 0
                     onClicked: TranslationService.translate(inputText.text, root.srcLang, root.targetLang)
-                    StyledToolTip { text: "Translate now"; extraVisibleCondition: translateBtn.realHovered }
+                    StyledToolTip { text: I18nService.tr("Translate now"); extraVisibleCondition: translateBtn.realHovered }
                 }
                 
                 M3IconButton {
@@ -181,7 +181,7 @@ RowLayout {
                     iconName: "content_copy"
                     enabled: (TranslationService.translatedText && TranslationService.translatedText.length > 0)
                     onClicked: Quickshell.clipboardText = TranslationService.translatedText
-                    StyledToolTip { text: "Copy translation"; extraVisibleCondition: copyBtn.realHovered }
+                    StyledToolTip { text: I18nService.tr("Copy translation"); extraVisibleCondition: copyBtn.realHovered }
                 }
             }
         }

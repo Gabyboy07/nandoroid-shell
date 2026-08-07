@@ -91,12 +91,22 @@ Item {
         else if (style === "MDY") { m = parts[0]; d = parts[1]; y = parts[2] }
         else { d = parts[0]; m = parts[1]; y = parts[2] }
         if (!y || !m || !d) return dStr
-        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        const days = [I18nService.tr("Sun"), I18nService.tr("Mon"), I18nService.tr("Tue"), I18nService.tr("Wed"), I18nService.tr("Thu"), I18nService.tr("Fri"), I18nService.tr("Sat")]
         return days[new Date(y, m - 1, d).getDay()] + ", " + dStr
     }
 
     function _defaultDateStr() {
         return _formatDateObj(new Date())
+    }
+
+    function _recurrenceLabel(code) {
+        switch (code) {
+            case "once": return I18nService.tr("Once")
+            case "daily": return I18nService.tr("Daily")
+            case "weekly": return I18nService.tr("Weekly")
+            case "monthly": return I18nService.tr("Monthly")
+            default: return code
+        }
     }
 
     property string formDate: _defaultDateStr()
@@ -245,7 +255,7 @@ Item {
                 RowLayout {
                     anchors.centerIn: parent; spacing: 6 * Appearance.effectiveScale
                     MaterialSymbol { text: "add"; iconSize: 18 * Appearance.effectiveScale; color: Appearance.colors.colOnPrimary }
-                    StyledText { text: "New Event"; color: Appearance.colors.colOnPrimary; font.weight: Font.Medium }
+                    StyledText { text: I18nService.tr("New Event"); color: Appearance.colors.colOnPrimary; font.weight: Font.Medium }
                 }
             }
 
@@ -317,18 +327,18 @@ Item {
                                     StyledText {
                                         text: {
                                             const r = modelData.recurrence
-                                            const ed = modelData.endDate && modelData.endDate !== modelData.date ? " · End " + modelData.endDate : ""
-                                            if (r === "daily") return "Daily" + ed
+                                            const ed = modelData.endDate && modelData.endDate !== modelData.date ? " · " + I18nService.tr("End ") + modelData.endDate : ""
+                                            if (r === "daily") return I18nService.tr("Daily") + ed
                                             if (r === "weekly") {
                                                 const d = new Date(modelData.date + "T00:00:00")
-                                                const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
-                                                return "Every " + days[d.getDay()] + ed
+                                                const days = [I18nService.tr("Sunday"),I18nService.tr("Monday"),I18nService.tr("Tuesday"),I18nService.tr("Wednesday"),I18nService.tr("Thursday"),I18nService.tr("Friday"),I18nService.tr("Saturday")]
+                                                return I18nService.tr("Every ") + days[d.getDay()] + ed
                                             }
                                             if (r === "monthly") {
                                                 const d = new Date(modelData.date + "T00:00:00")
                                                 const day = d.getDate()
                                                 const suffix = day % 10 === 1 && day !== 11 ? "st" : day % 10 === 2 && day !== 12 ? "nd" : day % 10 === 3 && day !== 13 ? "rd" : "th"
-                                                return "Every " + day + suffix + ed
+                                                return I18nService.tr("Every ") + day + suffix + ed
                                             }
                                             let t = modelData.date + " " + root._displayTime(modelData.time)
                                             if (modelData.endTime) t += " - " + root._displayTime(modelData.endTime)
@@ -399,7 +409,7 @@ Item {
                 Layout.fillWidth: true
                 spacing: 12 * Appearance.effectiveScale
                 StyledText {
-                    text: root.selectedId ? "Edit Event" : "New Event"
+                    text: root.selectedId ? I18nService.tr("Edit Event") : I18nService.tr("New Event")
                     font.pixelSize: Appearance.font.pixelSize.large
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
@@ -414,7 +424,7 @@ Item {
                         color: root.formFocus ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
                     }
                     StyledText {
-                        text: "Focus Mode"
+                        text: I18nService.tr("Focus Mode")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: root.formFocus ? Appearance.colors.colOnLayer1 : Appearance.colors.colSubtext
                     }
@@ -436,7 +446,7 @@ Item {
                 implicitHeight: 44 * Appearance.effectiveScale
                 inputRadius: Appearance.rounding.small / Appearance.effectiveScale
                 backgroundColor: Appearance.m3colors.m3surfaceContainer
-                placeholder: "Event title..."
+                placeholder: I18nService.tr("Event title...")
                 text: root.formTitle
                 onTextChanged: { root.formTitle = text; if(root.selectedId && titleField.input.activeFocus) autoSaveTimer.restart() }
             }
@@ -447,7 +457,7 @@ Item {
                 spacing: 8 * Appearance.effectiveScale
 
                 StyledText {
-                    text: "Start:"
+                    text: I18nService.tr("Start:")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     color: Appearance.colors.colSubtext
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
@@ -499,7 +509,7 @@ Item {
                 spacing: 8 * Appearance.effectiveScale
 
                 StyledText {
-                    text: "End:"
+                    text: I18nService.tr("End:")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     color: Appearance.colors.colSubtext
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
@@ -547,7 +557,7 @@ Item {
 
             StyledText {
                 visible: root.formEndDate.trim() && !root.formDatesValid
-                text: "End must be later than start"
+                text: I18nService.tr("End must be later than start")
                 font.pixelSize: Appearance.font.pixelSize.smaller
                 color: Appearance.colors.colError
             }
@@ -592,7 +602,7 @@ Item {
                             anchors.top: parent.top
                             anchors.left: parent.left
                             anchors.right: parent.right
-                            text: "Description (optional)..."
+                            text: I18nService.tr("Description (optional)...")
                             color: Appearance.colors.colSubtext
                             visible: !descArea.text && !descArea.activeFocus
                             font.pixelSize: Appearance.font.pixelSize.small
@@ -608,7 +618,7 @@ Item {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 4 * Appearance.effectiveScale
-                StyledText { text: "Repeat"; font.pixelSize: Appearance.font.pixelSize.small; color: Appearance.colors.colSubtext }
+                StyledText { text: I18nService.tr("Repeat"); font.pixelSize: Appearance.font.pixelSize.small; color: Appearance.colors.colSubtext }
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 6 * Appearance.effectiveScale
@@ -634,7 +644,7 @@ Item {
                             }
                             StyledText {
                                 anchors.centerIn: parent
-                                text: modelData.charAt(0).toUpperCase() + modelData.slice(1)
+                                text: root._recurrenceLabel(modelData)
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 color: root.formRecurrence === modelData
                                     ? Appearance.colors.colOnPrimary
@@ -657,7 +667,7 @@ Item {
                 RowLayout {
                     anchors.centerIn: parent; spacing: 6 * Appearance.effectiveScale
                     MaterialSymbol { text: "save"; iconSize: 18 * Appearance.effectiveScale; color: Appearance.colors.colOnPrimary }
-                    StyledText { text: root.selectedId ? "Update Event" : "Add Event"; font.weight: Font.Medium; color: Appearance.colors.colOnPrimary }
+                    StyledText { text: root.selectedId ? I18nService.tr("Update Event") : I18nService.tr("Add Event"); font.weight: Font.Medium; color: Appearance.colors.colOnPrimary }
                 }
             }
         }

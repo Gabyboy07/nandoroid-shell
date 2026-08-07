@@ -335,11 +335,11 @@ Item {
 
                     Repeater {
                         model: [
-                            { icon: "calendar_today",  tooltip: "Calendar & Pomodoro" },
-                            { icon: "event_note",       tooltip: "Schedule" },
-                            { icon: "edit_note",        tooltip: "Notepad" },
-                            { icon: "translate",        tooltip: "Translator" },
-                            { icon: "code",             tooltip: "GitHub" }
+                            { icon: "calendar_today",  tooltip: I18nService.tr("Calendar & Pomodoro") },
+                            { icon: "event_note",       tooltip: I18nService.tr("Schedule") },
+                            { icon: "edit_note",        tooltip: I18nService.tr("Notepad") },
+                            { icon: "translate",        tooltip: I18nService.tr("Translator") },
+                            { icon: "code",             tooltip: I18nService.tr("GitHub") }
                         ]
                         delegate: Item {
                             required property int index

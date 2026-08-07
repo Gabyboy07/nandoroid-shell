@@ -96,8 +96,8 @@ RowLayout {
         let combined = root.scheduledEvents.slice()
         for (let dl of GlobalStates.todoDeadlines) {
             combined.push({
-                title: dl.taskContent || "(untitled task)",
-                description: "From: " + dl.itemTitle,
+                title: dl.taskContent || I18nService.tr("(untitled task)"),
+                description: I18nService.tr("From: ") + dl.itemTitle,
                 time: dl.time,
                 date: dl.date,
                 recurrence: "once"
@@ -213,7 +213,7 @@ RowLayout {
                     }
                     StyledText {
                         Layout.alignment: Qt.AlignHCenter
-                        text: PomodoroService.modeName
+                        text: I18nService.tr(PomodoroService.modeName)
                         font.pixelSize: Appearance.font.pixelSize.smaller
                         color: Appearance.colors.colSubtext
                     }
@@ -241,9 +241,9 @@ RowLayout {
                 spacing: 4 * Appearance.effectiveScale
                 Repeater {
                     model: [
-                        { icon: "alarm", name: "Focus", mode: 0 },
-                        { icon: "coffee", name: "Short", mode: 1 },
-                        { icon: "self_improvement", name: "Long", mode: 2 }
+                        { icon: "alarm", name: I18nService.tr("Focus"), mode: 0 },
+                        { icon: "coffee", name: I18nService.tr("Short"), mode: 1 },
+                        { icon: "self_improvement", name: I18nService.tr("Long"), mode: 2 }
                     ]
                     delegate: SegmentedButton {
                         Layout.fillWidth: true
@@ -268,7 +268,7 @@ RowLayout {
                 M3IconButton {
                     iconName: "stop"
                     onClicked: PomodoroService.stop()
-                    StyledToolTip { text: "Stop & Reset" }
+                    StyledToolTip { text: I18nService.tr("Stop & Reset") }
                 }
 
                 RippleButton {
@@ -283,7 +283,7 @@ RowLayout {
                             iconSize: 20 * Appearance.effectiveScale; color: Appearance.m3colors.m3onPrimary
                         }
                         StyledText {
-                            text: PomodoroService.active ? "Pause" : "Start"
+                            text: PomodoroService.active ? I18nService.tr("Pause") : I18nService.tr("Start")
                             font.pixelSize: Appearance.font.pixelSize.small; font.weight: Font.DemiBold
                             color: Appearance.m3colors.m3onPrimary
                         }
@@ -293,7 +293,7 @@ RowLayout {
                 M3IconButton {
                     iconName: "refresh"
                     onClicked: { PomodoroService.reset(); PomodoroService.rotations = 0 }
-                    StyledToolTip { text: "Reset Everything" }
+                    StyledToolTip { text: I18nService.tr("Reset Everything") }
                 }
             }
 
@@ -306,7 +306,7 @@ RowLayout {
                     Layout.fillWidth: true
                     StyledText {
                         Layout.fillWidth: true
-                        text: "Auto-continue"
+                        text: I18nService.tr("Auto-continue")
                         font.pixelSize: Appearance.font.pixelSize.smaller
                         color: Appearance.colors.colSubtext
                         verticalAlignment: Text.AlignVCenter
@@ -333,7 +333,7 @@ RowLayout {
                     visible: PomodoroService.autoContinue
                     StyledText {
                         Layout.fillWidth: true
-                        text: "Next Break"
+                        text: I18nService.tr("Next Break")
                         font.pixelSize: Appearance.font.pixelSize.smaller
                         color: Appearance.colors.colSubtext
                         verticalAlignment: Text.AlignVCenter
@@ -342,8 +342,8 @@ RowLayout {
                         spacing: 4 * Appearance.effectiveScale
                         Repeater {
                             model: [
-                                { icon: "coffee", name: "Short", mode: 1 },
-                                { icon: "self_improvement", name: "Long", mode: 2 }
+                                { icon: "coffee", name: I18nService.tr("Short"), mode: 1 },
+                                { icon: "self_improvement", name: I18nService.tr("Long"), mode: 2 }
                             ]
                             delegate: SegmentedButton {
                                 implicitWidth: 72 * Appearance.effectiveScale; implicitHeight: 24 * Appearance.effectiveScale

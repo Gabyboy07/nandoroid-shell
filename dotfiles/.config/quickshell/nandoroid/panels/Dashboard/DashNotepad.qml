@@ -69,14 +69,14 @@ Item {
     }
 
     function newNotepad() {
-        const n = { type: "notepad", id: makeId(), title: "Untitled", body: "", color: "", updatedAt: new Date().toISOString() }
+        const n = { type: "notepad", id: makeId(), title: I18nService.tr("Untitled"), body: "", color: "", updatedAt: new Date().toISOString() }
         root.items = [n].concat(root.items)
         save()
         openItem(n.id)
     }
 
     function newTodo() {
-        const t = { type: "todo", id: makeId(), title: "Untitled", tasks: [], color: "", updatedAt: new Date().toISOString() }
+        const t = { type: "todo", id: makeId(), title: I18nService.tr("Untitled"), tasks: [], color: "", updatedAt: new Date().toISOString() }
         root.items = [t].concat(root.items)
         save()
         openItem(t.id)
@@ -181,7 +181,7 @@ Item {
         else if (style === "MDY") { m = parts[0]; d = parts[1]; y = parts[2] }
         else { d = parts[0]; m = parts[1]; y = parts[2] }
         if (!y || !m || !d) return dStr
-        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        const days = [I18nService.tr("Sun"), I18nService.tr("Mon"), I18nService.tr("Tue"), I18nService.tr("Wed"), I18nService.tr("Thu"), I18nService.tr("Fri"), I18nService.tr("Sat")]
         return days[new Date(y, m - 1, d).getDay()] + ", " + dStr
     }
 
@@ -368,7 +368,7 @@ Item {
                     RowLayout {
                         anchors.centerIn: parent; spacing: 6 * Appearance.effectiveScale
                         MaterialSymbol { text: "edit_note"; iconSize: 20 * Appearance.effectiveScale; color: Appearance.colors.colOnPrimary }
-                        StyledText { text: "Add Notepad"; color: Appearance.colors.colOnPrimary; font.weight: Font.Medium }
+                        StyledText { text: I18nService.tr("Add Notepad"); color: Appearance.colors.colOnPrimary; font.weight: Font.Medium }
                     }
                 }
 
@@ -381,7 +381,7 @@ Item {
                     RowLayout {
                         anchors.centerIn: parent; spacing: 6 * Appearance.effectiveScale
                         MaterialSymbol { text: "checklist"; iconSize: 20 * Appearance.effectiveScale; color: Appearance.colors.colOnSecondary }
-                        StyledText { text: "Add Todo"; color: Appearance.colors.colOnSecondary; font.weight: Font.Medium }
+                        StyledText { text: I18nService.tr("Add Todo"); color: Appearance.colors.colOnSecondary; font.weight: Font.Medium }
                     }
                 }
             }
@@ -454,7 +454,7 @@ Item {
 
                                 StyledText {
                                     Layout.fillWidth: true
-                                    text: modelData.title || "Untitled"
+                                    text: modelData.title || I18nService.tr("Untitled")
                                     font.pixelSize: Appearance.font.pixelSize.normal
                                     font.weight: Font.Medium
                                     color: Appearance.colors.colOnLayer1
@@ -465,9 +465,9 @@ Item {
                                     Layout.fillWidth: true
                                     text: modelData.type === "todo"
                                         ? (modelData.tasks
-                                            ? modelData.tasks.filter(i => i.done).length + "/" + modelData.tasks.length + " done"
-                                            : "0/0 done")
-                                        : root.stripHtml(modelData.body).split("\n")[0] || "Empty notepad"
+                                            ? modelData.tasks.filter(i => i.done).length + "/" + modelData.tasks.length + " " + I18nService.tr("done")
+                                            : "0/0 " + I18nService.tr("done"))
+                                        : root.stripHtml(modelData.body).split("\n")[0] || I18nService.tr("Empty notepad")
                                     font.pixelSize: Appearance.font.pixelSize.smaller
                                     color: Appearance.colors.colSubtext
                                     elide: Text.ElideRight
@@ -485,7 +485,7 @@ Item {
                                 StyledText {
                                     id: badgeText
                                     anchors.centerIn: parent
-                                    text: modelData.type === "todo" ? "Todo" : "Note"
+                                    text: modelData.type === "todo" ? I18nService.tr("Todo") : I18nService.tr("Note")
                                     font.pixelSize: Appearance.font.pixelSize.smaller
                                     font.weight: Font.Medium
                                     color: modelData.type === "todo"
@@ -507,7 +507,7 @@ Item {
                                     iconSize: 16 * Appearance.effectiveScale
                                     color: Appearance.colors.colError
                                 }
-                                StyledToolTip { text: "Delete" }
+                                StyledToolTip { text: I18nService.tr("Delete") }
                             }
                         }
                     }
@@ -549,7 +549,7 @@ Item {
                     inputRadius: Appearance.rounding.small / Appearance.effectiveScale
                     backgroundColor: Appearance.m3colors.m3surfaceContainer
                     text: ""
-                    placeholder: "Note title..."
+                    placeholder: I18nService.tr("Note title...")
                     onTextChanged: saveTimer.restart()
                 }
 
@@ -560,7 +560,7 @@ Item {
                     colBackground: Appearance.m3colors.m3surfaceContainer
                     onClicked: root.deleteCurrent()
                     MaterialSymbol { anchors.centerIn: parent; text: "delete"; iconSize: 20 * Appearance.effectiveScale; color: Appearance.colors.colError }
-                    StyledToolTip { text: "Delete" }
+                    StyledToolTip { text: I18nService.tr("Delete") }
                 }
             }
 
@@ -606,7 +606,7 @@ Item {
                             anchors.top: parent.top
                             anchors.left: parent.left
                             anchors.right: parent.right
-                            text: "Start typing your note..."
+                            text: I18nService.tr("Start typing your note...")
                             color: Appearance.colors.colSubtext
                             visible: !parent.text && !parent.activeFocus
                             font.pixelSize: Appearance.font.pixelSize.normal
@@ -653,7 +653,7 @@ Item {
                     inputRadius: Appearance.rounding.small / Appearance.effectiveScale
                     backgroundColor: Appearance.m3colors.m3surfaceContainer
                     text: ""
-                    placeholder: "Todo list title..."
+                    placeholder: I18nService.tr("Todo list title...")
                     onTextChanged: saveTimer.restart()
                 }
 
@@ -664,7 +664,7 @@ Item {
                     colBackground: Appearance.m3colors.m3surfaceContainer
                     onClicked: root.deleteCurrent()
                     MaterialSymbol { anchors.centerIn: parent; text: "delete"; iconSize: 20 * Appearance.effectiveScale; color: Appearance.colors.colError }
-                    StyledToolTip { text: "Delete" }
+                    StyledToolTip { text: I18nService.tr("Delete") }
                 }
             }
 
@@ -678,7 +678,7 @@ Item {
                 RowLayout {
                     anchors.centerIn: parent; spacing: 6 * Appearance.effectiveScale
                     MaterialSymbol { text: "add"; iconSize: 18 * Appearance.effectiveScale; color: Appearance.colors.colOnSecondary }
-                    StyledText { text: "Add item"; color: Appearance.colors.colOnSecondary; font.weight: Font.Medium }
+                    StyledText { text: I18nService.tr("Add item"); color: Appearance.colors.colOnSecondary; font.weight: Font.Medium }
                 }
             }
 
@@ -749,7 +749,7 @@ Item {
                                     inputRadius: Appearance.rounding.small / Appearance.effectiveScale
                                     backgroundColor: "transparent"
                                     text: modelData.content
-                                    placeholder: "Task..."
+                                    placeholder: I18nService.tr("Task...")
                                     font.strikeout: modelData.done
                                     opacity: modelData.done ? 0.5 : 1.0
                                     onTextChanged: {
@@ -808,7 +808,7 @@ Item {
                                         iconSize: 16 * Appearance.effectiveScale
                                         color: Appearance.colors.colSubtext
                                     }
-                                    StyledToolTip { text: "Add deadline" }
+                                    StyledToolTip { text: I18nService.tr("Add deadline") }
                                 }
 
                                 // Delete task

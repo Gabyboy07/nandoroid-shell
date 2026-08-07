@@ -20,7 +20,7 @@ ColumnLayout {
         ColumnLayout {
             spacing: 2 * Appearance.effectiveScale
             StyledText {
-                text: PomodoroService.modeName
+                text: I18nService.tr(PomodoroService.modeName)
                 font.pixelSize: Appearance.font.pixelSize.small
                 color: Appearance.colors.colOnLayer1
                 opacity: 0.7
@@ -28,7 +28,7 @@ ColumnLayout {
             RowLayout {
                 spacing: 6 * Appearance.effectiveScale
                 StyledText {
-                    text: "Pomodoro"
+                    text: I18nService.tr("Pomodoro")
                     font.pixelSize: Appearance.font.pixelSize.normal
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
@@ -85,9 +85,9 @@ ColumnLayout {
         
         Repeater {
             model: [
-                { icon: "alarm", name: "Focus", mode: 0 },
-                { icon: "coffee", name: "Short", mode: 1 },
-                { icon: "self_improvement", name: "Long", mode: 2 }
+                { icon: "alarm", name: I18nService.tr("Focus"), mode: 0 },
+                { icon: "coffee", name: I18nService.tr("Short"), mode: 1 },
+                { icon: "self_improvement", name: I18nService.tr("Long"), mode: 2 }
             ]
             delegate: SegmentedButton {
                 isHighlighted: PomodoroService.mode === modelData.mode
@@ -112,7 +112,7 @@ ColumnLayout {
         M3IconButton {
             iconName: "stop"
             onClicked: PomodoroService.stop()
-            StyledToolTip { text: "Stop & Reset" }
+            StyledToolTip { text: I18nService.tr("Stop & Reset") }
         }
 
         // Pill Style Start Button
@@ -141,7 +141,7 @@ ColumnLayout {
                     anchors.horizontalCenterOffset: (!PomodoroService.active) ? 2 * Appearance.effectiveScale : 0
                 }
                 StyledText {
-                    text: PomodoroService.active ? "Pause" : "Start"
+                    text: PomodoroService.active ? I18nService.tr("Pause") : I18nService.tr("Start")
                     font.pixelSize: Math.round(14 * Appearance.effectiveScale)
                     font.weight: Font.DemiBold
                     color: startPill.colText
@@ -155,7 +155,7 @@ ColumnLayout {
                 PomodoroService.reset();
                 PomodoroService.rotations = 0;
             }
-            StyledToolTip { text: "Reset Everything" }
+            StyledToolTip { text: I18nService.tr("Reset Everything") }
         }
     }
 
@@ -168,7 +168,7 @@ ColumnLayout {
         RowLayout {
             Layout.fillWidth: true
             StyledText {
-                text: "Auto-continue Sessions"
+                text: I18nService.tr("Auto-continue Sessions")
                 font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                 color: Appearance.colors.colOnLayer1
                 opacity: 0.7
@@ -183,7 +183,7 @@ ColumnLayout {
                 
                 onClicked: PomodoroService.autoContinue = !PomodoroService.autoContinue
                 
-                StyledToolTip { text: "Automatically start next session" }
+                StyledToolTip { text: I18nService.tr("Automatically start next session") }
 
                 Rectangle {
                     x: PomodoroService.autoContinue ? parent.width - width - 4 * Appearance.effectiveScale : 4 * Appearance.effectiveScale
@@ -204,7 +204,7 @@ ColumnLayout {
             spacing: 8 * Appearance.effectiveScale
             
             StyledText {
-                text: "Next Break"
+                text: I18nService.tr("Next Break")
                 font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                 color: Appearance.colors.colOnLayer1
                 opacity: 0.7
@@ -222,14 +222,14 @@ ColumnLayout {
                     implicitWidth: 60 * Appearance.effectiveScale
                     implicitHeight: 24 * Appearance.effectiveScale
                     iconName: "coffee"
-                    buttonText: "Short"
+                    buttonText: I18nService.tr("Short")
                     iconSize: 11 * Appearance.effectiveScale
                     
                     colInactive: Appearance.m3colors.m3surfaceContainerHigh
                     colActive: Appearance.m3colors.m3secondary
                     colActiveText: Appearance.m3colors.m3onSecondary
                     onClicked: PomodoroService.nextBreakMode = 1
-                    StyledToolTip { text: "Short break after focus" }
+                    StyledToolTip { text: I18nService.tr("Short break after focus") }
                 }
                 
                 SegmentedButton {
@@ -237,14 +237,14 @@ ColumnLayout {
                     implicitWidth: 64 * Appearance.effectiveScale
                     implicitHeight: 24 * Appearance.effectiveScale
                     iconName: "self_improvement"
-                    buttonText: "Long"
+                    buttonText: I18nService.tr("Long")
                     iconSize: 11 * Appearance.effectiveScale
                     
                     colInactive: Appearance.m3colors.m3surfaceContainerHigh
                     colActive: Appearance.m3colors.m3secondary
                     colActiveText: Appearance.m3colors.m3onSecondary
                     onClicked: PomodoroService.nextBreakMode = 2
-                    StyledToolTip { text: "Long break after focus" }
+                    StyledToolTip { text: I18nService.tr("Long break after focus") }
                 }
             }
         }
