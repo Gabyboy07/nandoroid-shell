@@ -238,9 +238,10 @@ Item {
                 onClicked: {
                     input.text = modelData;
                     input.focus = false; // Drop focus synchronously
+                    const comboRoot = root;
                     root.selectItem(modelData);
                     Qt.callLater(() => {
-                        root.isOpened = false;
+                        comboRoot.isOpened = false;
                     });
                 }
             }
