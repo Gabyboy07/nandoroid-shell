@@ -418,14 +418,14 @@ Rectangle {
                 text: {
                     const q = LauncherSearch.query;
                     const search = Config.ready && Config.options.search;
-                    if (LauncherSearch.isEmojiMode) return "Emoji Picker";
-                    if (search.webPrefix && q.startsWith(search.webPrefix)) return "Web Search";
-                    if (search.mathPrefix && q.startsWith(search.mathPrefix)) return "Calculator";
-                    if (search.clipboardPrefix && q.startsWith(search.clipboardPrefix)) return "Clipboard History";
-                    if (search.filePrefix && q.startsWith(search.filePrefix)) return "File Search";
-                    if (search.commandPrefix && q.startsWith(search.commandPrefix)) return "Quick Commands";
-                    if (search.settingsPrefix && q.startsWith(search.settingsPrefix)) return "Settings Search";
-                    return q ? "Spotlight Search" : "Applications";
+                    if (LauncherSearch.isEmojiMode) return I18nService.tr("Emoji Picker");
+                    if (search.webPrefix && q.startsWith(search.webPrefix)) return I18nService.tr("Web Search");
+                    if (search.mathPrefix && q.startsWith(search.mathPrefix)) return I18nService.tr("Calculator");
+                    if (search.clipboardPrefix && q.startsWith(search.clipboardPrefix)) return I18nService.tr("Clipboard History");
+                    if (search.filePrefix && q.startsWith(search.filePrefix)) return I18nService.tr("File Search");
+                    if (search.commandPrefix && q.startsWith(search.commandPrefix)) return I18nService.tr("Quick Commands");
+                    if (search.settingsPrefix && q.startsWith(search.settingsPrefix)) return I18nService.tr("Settings Search");
+                    return q ? I18nService.tr("Spotlight Search") : I18nService.tr("Applications");
                 }
             }
             
@@ -440,7 +440,7 @@ Rectangle {
                     Layout.alignment: Qt.AlignVCenter
                     spacing: 6 * Appearance.effectiveScale
                     StyledText {
-                        text: "Navigate"
+                        text: I18nService.tr("Navigate")
                         font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                         color: Appearance.colors.colOnLayer1
                     }
@@ -475,7 +475,7 @@ Rectangle {
                     Layout.alignment: Qt.AlignVCenter
                     spacing: 6 * Appearance.effectiveScale
                     StyledText {
-                        text: "Open"
+                        text: I18nService.tr("Open")
                         font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                         color: Appearance.colors.colOnLayer1
                     }

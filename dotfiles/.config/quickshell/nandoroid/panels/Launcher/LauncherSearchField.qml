@@ -75,7 +75,7 @@ Rectangle {
             }
 
             Text {
-                text: root.isSpotlightMode ? "Search for anything..." : "Search apps, files or commands..."
+                text: root.isSpotlightMode ? I18nService.tr("Search for anything...") : I18nService.tr("Search apps, files or commands...")
                 visible: !input.text
                 color: Appearance.m3colors.m3onSurfaceVariant
                 opacity: 0.6
