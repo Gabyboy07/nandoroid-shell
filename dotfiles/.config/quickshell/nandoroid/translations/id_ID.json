@@ -192,7 +192,7 @@
     "How often to poll network speeds.": "Seberapa sering memeriksa kecepatan jaringan.",
     "How often to refresh system data (statusbar, quick settings, desktop widget).": "Seberapa sering menyegarkan data sistem (statusbar, quick settings, widget desktop).",
     "How often to refresh weather data.": "Seberapa sering menyegarkan data cuaca.",
-    "I18n backend is available, but full UI string translation is currently unmaintained.": "Backend I18n tersedia, tetapi terjemahan string UI lengkap saat ini belum dikelola.",
+    "Select your preferred UI language. Some strings may not yet be translated.": "Pilih bahasa UI yang kamu inginkan. Beberapa string mungkin belum diterjemahkan.",
     "Icon Shapes": "Bentuk Ikon",
     "Identity": "Identitas",
     "Indicator Label": "Label Indikator",
@@ -963,5 +963,16 @@
     "No track playing": "Tidak ada lagu yang diputar",
     "Preparing lyrics...": "Menyiapkan lirik...",
     "Double click to change to original | Right click to lock": "Klik dua kali untuk ganti ke asli | Klik kanan untuk kunci",
-    "Double click to change to romaji | Right click to lock": "Klik dua kali untuk ganti ke romaji | Klik kanan untuk kunci"
+    "Double click to change to romaji | Right click to lock": "Klik dua kali untuk ganti ke romaji | Klik kanan untuk kunci",
+    "New Window": "Jendela Baru",
+    "Unpin from Dock": "Lepas dari Dock",
+    "Pin to Dock": "Sematkan ke Dock",
+    "Close Window": "Tutup Jendela",
+    "Close All Windows": "Tutup Semua Jendela",
+    "Force Close": "Paksa Tutup",
+    "Restart Shell": "Mulai Ulang Shell",
+    "Restart Fix": "Perbaiki & Mulai Ulang",
+    "Lock Session": "Kunci Sesi",
+    "Power Off": "Matikan",
+    "Window": "Jendela"
 }

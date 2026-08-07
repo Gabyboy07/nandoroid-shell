@@ -139,7 +139,7 @@ PanelWindow {
 
                 MenuItem {
                     visible: root.appId !== "" && (!root.desktopEntry || !root.desktopEntry.actions || root.desktopEntry.actions.length === 0)
-                    menuText: "New Window"; menuIcon: "add_box"
+                    menuText: I18nService.tr("New Window"); menuIcon: "add_box"
                     onClicked: { 
                         if (root.desktopEntry) root.desktopEntry.execute();
                         else Quickshell.execDetached([root.appId]);
@@ -150,7 +150,7 @@ PanelWindow {
                 Rectangle { Layout.fillWidth: true; Layout.preferredHeight: Math.max(1, 1 * Appearance.effectiveScale); Layout.margins: 4 * Appearance.effectiveScale; color: Appearance.colors.colOutlineVariant; opacity: 0.1 }
 
                 MenuItem {
-                    menuText: root.isPinned ? "Unpin from Dock" : "Pin to Dock"
+                    menuText: root.isPinned ? I18nService.tr("Unpin from Dock") : I18nService.tr("Pin to Dock")
                     menuIcon: root.isPinned ? "keep_off" : "keep"
                     onClicked: { TaskbarApps.togglePin(root.appId); root.close() }
                 }
@@ -159,7 +159,7 @@ PanelWindow {
 
                 MenuItem {
                     visible: root.windowCount > 0
-                    menuText: root.windowCount > 1 ? "Close All Windows" : "Close Window"; menuIcon: "close"
+                    menuText: root.windowCount > 1 ? I18nService.tr("Close All Windows") : I18nService.tr("Close Window"); menuIcon: "close"
                     onClicked: {
                         if (root.appToplevel && root.appToplevel.toplevels) {
                             const windows = root.appToplevel.toplevels;
@@ -171,7 +171,7 @@ PanelWindow {
 
                 MenuItem {
                     visible: root.windowCount > 0
-                    menuText: "Force Close"; menuIcon: "gavel"
+                    menuText: I18nService.tr("Force Close"); menuIcon: "gavel"
                     onClicked: {
                         if (root.appToplevel && root.appToplevel.toplevels && root.appToplevel.toplevels.length > 0) {
                             const tl = root.appToplevel.toplevels[0];
@@ -190,26 +190,26 @@ PanelWindow {
                 visible: root.isLauncher
                 Layout.fillWidth: true; spacing: 1 * Appearance.effectiveScale
                 MenuItem {
-                    menuText: "Restart Shell"; menuIcon: "refresh"
+                    menuText: I18nService.tr("Restart Shell"); menuIcon: "refresh"
                     onClicked: { Quickshell.execDetached([Directories.home.replace("file://", "") + "/.config/quickshell/nandoroid/scripts/restartshell.sh"]); root.close() }
                 }
                 MenuItem {
-                    menuText: "Restart Fix"; menuIcon: "build"
+                    menuText: I18nService.tr("Restart Fix"); menuIcon: "build"
                     onClicked: { Quickshell.execDetached([Directories.home.replace("file://", "") + "/.config/quickshell/nandoroid/scripts/restart_fix.sh"]); root.close() }
                 }
                 MenuItem {
-                    menuText: "Settings"; menuIcon: "settings"
+                    menuText: I18nService.tr("Settings"); menuIcon: "settings"
                     onClicked: { GlobalStates.activateSettings(); root.close() }
                 }
                 MenuItem {
-                    menuText: "System Monitor"; menuIcon: "monitoring"
+                    menuText: I18nService.tr("System Monitor"); menuIcon: "monitoring"
                     onClicked: { GlobalStates.activateSystemMonitor(); root.close() }
                 }
                 Rectangle { Layout.fillWidth: true; Layout.preferredHeight: Math.max(1, 1 * Appearance.effectiveScale); Layout.margins: 4 * Appearance.effectiveScale; color: Appearance.colors.colOutlineVariant; opacity: 0.1 }
-                MenuItem { menuText: "Lock Session"; menuIcon: "lock"; onClicked: { Session.lock(); root.close() } }
-                MenuItem { menuText: "Logout"; menuIcon: "logout"; onClicked: { Session.logout(); root.close() } }
-                MenuItem { menuText: "Reboot"; menuIcon: "restart_alt"; onClicked: { Session.reboot(); root.close() } }
-                MenuItem { menuText: "Power Off"; menuIcon: "power_settings_new"; onClicked: { Session.poweroff(); root.close() } }
+                MenuItem { menuText: I18nService.tr("Lock Session"); menuIcon: "lock"; onClicked: { Session.lock(); root.close() } }
+                MenuItem { menuText: I18nService.tr("Logout"); menuIcon: "logout"; onClicked: { Session.logout(); root.close() } }
+                MenuItem { menuText: I18nService.tr("Reboot"); menuIcon: "restart_alt"; onClicked: { Session.reboot(); root.close() } }
+                MenuItem { menuText: I18nService.tr("Power Off"); menuIcon: "power_settings_new"; onClicked: { Session.poweroff(); root.close() } }
             }
         }
     }

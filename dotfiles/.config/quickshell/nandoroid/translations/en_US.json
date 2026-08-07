@@ -192,7 +192,7 @@
     "How often to poll network speeds.": "How often to poll network speeds.",
     "How often to refresh system data (statusbar, quick settings, desktop widget).": "How often to refresh system data (statusbar, quick settings, desktop widget).",
     "How often to refresh weather data.": "How often to refresh weather data.",
-    "I18n backend is available, but full UI string translation is currently unmaintained.": "I18n backend is available, but full UI string translation is currently unmaintained.",
+    "Select your preferred UI language. Some strings may not yet be translated.": "Select your preferred UI language. Some strings may not yet be translated.",
     "Icon Shapes": "Icon Shapes",
     "Identity": "Identity",
     "Indicator Label": "Indicator Label",
@@ -963,5 +963,16 @@
     "No track playing": "No track playing",
     "Preparing lyrics...": "Preparing lyrics...",
     "Double click to change to original | Right click to lock": "Double click to change to original | Right click to lock",
-    "Double click to change to romaji | Right click to lock": "Double click to change to romaji | Right click to lock"
+    "Double click to change to romaji | Right click to lock": "Double click to change to romaji | Right click to lock",
+    "New Window": "New Window",
+    "Unpin from Dock": "Unpin from Dock",
+    "Pin to Dock": "Pin to Dock",
+    "Close Window": "Close Window",
+    "Close All Windows": "Close All Windows",
+    "Force Close": "Force Close",
+    "Restart Shell": "Restart Shell",
+    "Restart Fix": "Restart Fix",
+    "Lock Session": "Lock Session",
+    "Power Off": "Power Off",
+    "Window": "Window"
 }

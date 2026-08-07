@@ -93,7 +93,7 @@ ColumnLayout {
                             color: Appearance.colors.colOnLayer1
                         }
                         StyledText {
-                            text: I18nService.tr("I18n backend is available, but full UI string translation is currently unmaintained.")
+                            text: I18nService.tr("Select your preferred UI language. Some strings may not yet be translated.")
                             font.pixelSize: Appearance.font.pixelSize.small
                             color: Appearance.colors.colSubtext
                             wrapMode: Text.WordWrap

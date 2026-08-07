@@ -118,7 +118,7 @@ PopupWindow {
                     anchors.fill: parent; anchors.leftMargin: 10 * Appearance.effectiveScale; anchors.rightMargin: 6 * Appearance.effectiveScale; spacing: 8 * Appearance.effectiveScale
 
                     StyledText {
-                        text: modelData.title || "Window"
+                        text: modelData.title || I18nService.tr("Window")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colOnLayer0
                         elide: Text.ElideRight
