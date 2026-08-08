@@ -93,7 +93,7 @@ RippleButton {
             spacing: 1 * Appearance.effectiveScale
             
             StyledText {
-                text: (result && result.name) ? result.name : ""
+                text: (result && result.name) ? I18nService.tr(result.name) : ""
                 font.pixelSize: Math.round(14 * Appearance.effectiveScale)
                 font.weight: root.selected ? Font.DemiBold : Font.Medium
                 color: root.selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurface
@@ -101,7 +101,7 @@ RippleButton {
             }
             
             StyledText {
-                text: (result && result.subtitle) ? result.subtitle : ""
+                text: (result && result.subtitle) ? I18nService.tr(result.subtitle) : ""
                 visible: text !== ""
                 font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                 color: root.selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurfaceVariant

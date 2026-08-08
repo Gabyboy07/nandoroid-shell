@@ -107,7 +107,7 @@ PanelWindow {
 
                 ActionCard {
                     btnIcon: "content_copy"
-                    tooltip: "Copy to clipboard"
+                    tooltip: I18nService.tr("Copy to clipboard")
                     visible: Config.ready && !Config.options.screenshot.autoCopy
                     onClicked: {
                         Quickshell.execDetached(["bash", "-c", `cat "${root.imagePath}" | wl-copy --type image/png`]);
@@ -117,7 +117,7 @@ PanelWindow {
 
                 ActionCard {
                     btnIcon: "save"
-                    tooltip: "Save to Gallery"
+                    tooltip: I18nService.tr("Save to Gallery")
                     visible: Config.ready && !Config.options.screenshot.autoSave
                     onClicked: {
                         const rawDir = Config.options.screenshot.savePath;
@@ -129,7 +129,7 @@ PanelWindow {
 
                 ActionCard {
                     btnIcon: "center_focus_strong" 
-                    tooltip: "Google Lens"
+                    tooltip: I18nService.tr("Google Lens")
                     onClicked: {
                         const command = ScreenshotAction.getCommand(0, 0, 0, 0, root.imagePath, 2); 
                         Quickshell.execDetached(command);
@@ -139,7 +139,7 @@ PanelWindow {
 
                 ActionCard {
                     btnIcon: "delete"
-                    tooltip: "Delete"
+                    tooltip: I18nService.tr("Delete")
                     isError: true
                     onClicked: {
                         root.isDeleting = true;

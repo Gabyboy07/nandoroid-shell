@@ -1,6 +1,7 @@
 import QtQuick
 import "../../../core"
 import "../../../widgets"
+import "../../../services"
 
 Item {
     id: root
@@ -12,17 +13,17 @@ Item {
         switch (root.action) {
             case SnipAction.Copy:
             case SnipAction.Edit:
-                return "Copy region (LMB) or annotate (RMB)";
+                return I18nService.tr("Copy region (LMB) or annotate (RMB)");
             case SnipAction.Search:
-                return "Search with Google Lens";
+                return I18nService.tr("Search with Google Lens");
             case SnipAction.CharRecognition:
-                return "Recognize text";
+                return I18nService.tr("Recognize text");
             case SnipAction.Record:
             case SnipAction.RecordWithSound:
             case SnipAction.RecordFullscreenWithSound:
-                return "Record region";
+                return I18nService.tr("Record region");
             case SnipAction.QRCode:
-                return "Scan QR Code";
+                return I18nService.tr("Scan QR Code");
             default:
                 return "";
         }
