@@ -148,7 +148,7 @@ Singleton {
             }
             // Single file (or empty/loading folder) → apply as-is
             out.push({
-                name: "Apply " + FileUtils.fileNameForPath(resolved),
+                name: I18nService.tr("Apply %1").replace("%1", FileUtils.fileNameForPath(resolved)),
                 subtitle: FileUtils.shortenHomePath(resolved),
                 id: "wall-path-" + resolved, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
                 isImage: true, imagePath: FileUtils.trimFileProtocol(resolved),
@@ -197,8 +197,8 @@ Singleton {
         }
         if (candidates.length === 0) {
             out.push({
-                name: "No matching wallpaper",
-                subtitle: 'No image named "' + arg + '" in ' + FileUtils.shortenHomePath(wallHome),
+                name: I18nService.tr("No matching wallpaper"),
+                subtitle: I18nService.tr('No image named "%1" in %2').replace("%1", arg).replace("%2", FileUtils.shortenHomePath(wallHome)),
                 id: "wall-none", icon: "search_off", isPlugin: true, category: "Command", emoji: "", execute: () => {}
             });
         }
@@ -795,13 +795,13 @@ Singleton {
                 results.push(...root.buildColorCommandResults(settingsQuery.slice("color".length).trim()));
             } else if (settingsQuery.length === 0) {
                 results.push({
-                    name: "Set Desktop Wallpaper", subtitle: 'Type "' + Config.options.search.settingsPrefix + 'dwall <name or path>"', id: "wall-hint", icon: "wallpaper", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "dwall "; }
+                    name: I18nService.tr("Set Desktop Wallpaper"), subtitle: I18nService.tr('Type "%1dwall <name or path>"').replace("%1", Config.options.search.settingsPrefix), id: "wall-hint", icon: "wallpaper", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "dwall "; }
                 });
                 results.push({
-                    name: "Set Lock Screen Wallpaper", subtitle: 'Type "' + Config.options.search.settingsPrefix + 'lwall <name or path>"', id: "lwall-hint", icon: "lock", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "lwall "; }
+                    name: I18nService.tr("Set Lock Screen Wallpaper"), subtitle: I18nService.tr('Type "%1lwall <name or path>"').replace("%1", Config.options.search.settingsPrefix), id: "lwall-hint", icon: "lock", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "lwall "; }
                 });
                 results.push({
-                    name: "Set Color Scheme", subtitle: 'Type "' + Config.options.search.settingsPrefix + 'color <scheme>"', id: "color-hint", icon: "palette", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "color "; }
+                    name: I18nService.tr("Set Color Scheme"), subtitle: I18nService.tr('Type "%1color <scheme>"').replace("%1", Config.options.search.settingsPrefix), id: "color-hint", icon: "palette", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "color "; }
                 });
                 const allSettings = SearchRegistry.getAllResults();
                 for (const res of allSettings) {
