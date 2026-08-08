@@ -118,16 +118,18 @@ Flickable {
                             visible: false
 
                             Rectangle {
+                                id: progressFill
                                 anchors.left: parent.left
                                 anchors.top: parent.top
                                 anchors.bottom: parent.bottom
                                 width: parent.width * Math.max(0, Math.min(1, root.displayPercentage))
-                                color: {
+                                readonly property color barColor: {
                                     if (Battery.isCritical && !Battery.isCharging) return Appearance.colors.colError;
                                     if (Battery.isLow && !Battery.isCharging) return Appearance.colors.colWarning;
                                     if (Battery.isCharging) return Appearance.colors.colSuccess;
                                     return Appearance.colors.colPrimary;
                                 }
+                                color: barColor
 
                                 Behavior on width { NumberAnimation { duration: 800; easing.type: Easing.OutCubic } }
                                 Behavior on color { ColorAnimation { duration: 300 } }
@@ -150,8 +152,10 @@ Flickable {
                         width: 5 * Appearance.effectiveScale
                         height: 12 * Appearance.effectiveScale
                         radius: 2 * Appearance.effectiveScale
-                        color: Functions.ColorUtils.applyAlpha(Appearance.colors.colOnLayer1, 0.25)
+                        color: (root.displayPercentage >= 0.98) ? progressFill.barColor : Functions.ColorUtils.applyAlpha(Appearance.colors.colOnLayer1, 0.25)
                         Layout.alignment: Qt.AlignVCenter
+
+                        Behavior on color { ColorAnimation { duration: 300 } }
                     }
                 }
             }
