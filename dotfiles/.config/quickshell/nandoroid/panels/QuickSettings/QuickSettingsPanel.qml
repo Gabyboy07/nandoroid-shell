@@ -73,11 +73,8 @@ Variants {
 
       transform: Translate {
         id: qsSlide
-        x: panelWindow.isOpen ? 0 : (panelWindow.isCentered ? 0 : qsContent.width + 40 * Appearance.effectiveScale)
-        y: panelWindow.isOpen ? 0 : (panelWindow.isCentered ? -qsContent.height - 40 * Appearance.effectiveScale : 0)
-        Behavior on x {
-          NumberAnimation { duration: 280; easing.bezierCurve: Appearance.animationCurves.standard }
-        }
+        x: 0
+        y: panelWindow.isOpen ? 0 : -qsContent.height - 40 * Appearance.effectiveScale
         Behavior on y {
           NumberAnimation { duration: 280; easing.bezierCurve: Appearance.animationCurves.standard }
         }

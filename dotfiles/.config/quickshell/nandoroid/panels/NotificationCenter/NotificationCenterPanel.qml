@@ -71,11 +71,8 @@ Variants {
 
       transform: Translate {
         id: ncSlide
-        x: panelWindow.isOpen ? 0 : (panelWindow.isCentered ? 0 : -ncContent.width - 40 * Appearance.effectiveScale)
-        y: panelWindow.isOpen ? 0 : (panelWindow.isCentered ? -ncContent.height - 40 * Appearance.effectiveScale : 0)
-        Behavior on x {
-          NumberAnimation { duration: 280; easing.bezierCurve: Appearance.animationCurves.standard }
-        }
+        x: 0
+        y: panelWindow.isOpen ? 0 : -ncContent.height - 40 * Appearance.effectiveScale
         Behavior on y {
           NumberAnimation { duration: 280; easing.bezierCurve: Appearance.animationCurves.standard }
         }
