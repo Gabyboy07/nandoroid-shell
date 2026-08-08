@@ -32,6 +32,7 @@ Rectangle {
         
         if (root.hasQuery) {
             if (isKeyboardNavigation) pluginList.positionViewAtIndex(selectedIndex, ListView.Contain)
+            if (pluginList.count > 0 && selectedIndex >= pluginList.count - 5) Qt.callLater(() => pluginList.loadMoreKeepingPosition());
         } else {
             // Only auto-scroll for keyboard to prevent jumping when mouse hovers partially visible items
             if (isKeyboardNavigation) {
@@ -192,6 +193,23 @@ Rectangle {
                 clip: true
                 spacing: 8 * Appearance.effectiveScale
                 
+                property real _savedY: -1
+                function loadMoreKeepingPosition() {
+                    if (pluginList.contentY > 0) pluginList._savedY = pluginList.contentY;
+                    LauncherSearch.loadMoreWallpapers();
+                    if (pluginList._savedY >= 0) {
+                        // Restore right away (covers synchronous model reset) and again
+                        // after deferred binding evaluation so no frame renders at 0.
+                        pluginList.contentY = pluginList._savedY;
+                        Qt.callLater(() => {
+                            if (pluginList._savedY >= 0) {
+                                pluginList.contentY = pluginList._savedY;
+                                pluginList._savedY = -1;
+                            }
+                        });
+                    }
+                }
+                
                 model: visible ? root.resultsProxy : []
                 delegate: LauncherListView {
                     result: modelData
@@ -204,6 +222,9 @@ Rectangle {
                     }
                 }
                 // currentIndex is REMOVED to prevent automatic scrolling artifacts
+                onMovementEnded: {
+                    if (contentHeight - contentY - height < 100) Qt.callLater(() => pluginList.loadMoreKeepingPosition());
+                }
             }
         }
     }

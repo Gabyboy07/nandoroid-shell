@@ -30,8 +30,10 @@ RippleButton {
     onClicked: {
         if (result) {
             result.execute();
-            GlobalStates.launcherOpen = false;
-            GlobalStates.spotlightOpen = false;
+            if (!result.keepOpen) {
+                GlobalStates.launcherOpen = false;
+                GlobalStates.spotlightOpen = false;
+            }
         }
     }
     
@@ -87,9 +89,11 @@ RippleButton {
                 }
             }
         }
-        Column {
+        ColumnLayout {
             Layout.alignment: Qt.AlignVCenter
             Layout.fillWidth: true
+            Layout.minimumWidth: 0
+            Layout.rightMargin: 8 * Appearance.effectiveScale
             spacing: 1 * Appearance.effectiveScale
             
             StyledText {
@@ -98,6 +102,8 @@ RippleButton {
                 font.weight: root.selected ? Font.DemiBold : Font.Medium
                 color: root.selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurface
                 elide: Text.ElideRight
+                Layout.fillWidth: true
+                Layout.minimumWidth: 0
             }
             
             StyledText {
@@ -107,12 +113,15 @@ RippleButton {
                 color: root.selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurfaceVariant
                 opacity: 0.7
                 elide: Text.ElideRight
+                Layout.fillWidth: true
+                Layout.minimumWidth: 0
             }
         }
 
         StyledText {
             Layout.alignment: Qt.AlignVCenter
             text: (result && result.category) ? I18nService.tr(result.category) : (result && result.isPlugin ? I18nService.tr("Command") : I18nService.tr("Application"))
+            visible: !(result && result.isImage)
             font.pixelSize: Math.round(11 * Appearance.effectiveScale)
             color: root.selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurfaceVariant
             opacity: 0.5

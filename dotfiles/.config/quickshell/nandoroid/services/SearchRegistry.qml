@@ -265,4 +265,25 @@ Item {
         let results = getResultsRanked(query)
         return results.length > 0 ? results[0] : null
     }
+
+    function getAllResults() {
+        let uniqueResults = []
+        let seenTargets = new Set()
+        for (let section of sections) {
+            let key = section.pageIndex + "|" + section.canonical.toLowerCase()
+            if (!seenTargets.has(key)) {
+                uniqueResults.push({
+                    pageIndex: section.pageIndex,
+                    title: section.translatedTitle,
+                    matchedString: section.canonical
+                })
+                seenTargets.add(key)
+            }
+        }
+        uniqueResults.sort((a, b) => {
+            if (a.pageIndex !== b.pageIndex) return a.pageIndex - b.pageIndex
+            return a.title.localeCompare(b.title)
+        })
+        return uniqueResults
+    }
 }

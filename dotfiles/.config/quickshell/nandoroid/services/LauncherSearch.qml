@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Qt.labs.folderlistmodel
 import "../core"
 import "../core/functions"
 
@@ -63,6 +64,168 @@ Singleton {
         { name: "Record w/ Sound", subtitle: "Tool", id: "tool-record-sound", icon: "mic", isPlugin: true, category: "Tool", emoji: "", execute: () => { RegionService.recordWithSound(); root.closeAll(); } },
         { name: "Record Fullscreen", subtitle: "Tool", id: "tool-record-full", icon: "fullscreen", isPlugin: true, category: "Tool", emoji: "", execute: () => { RegionService.recordFullscreenWithSound(); root.closeAll(); } }
     ]
+
+    readonly property var matugenSchemes: [
+        { id: "scheme-content",     name: "Content" },
+        { id: "scheme-expressive",  name: "Expressive" },
+        { id: "scheme-fidelity",    name: "Fidelity" },
+        { id: "scheme-fruit-salad", name: "Fruit Salad" },
+        { id: "scheme-monochrome",  name: "Monochrome" },
+        { id: "scheme-neutral",     name: "Neutral" },
+        { id: "scheme-rainbow",     name: "Rainbow" },
+        { id: "scheme-tonal-spot",  name: "Tonal Spot" }
+    ]
+
+    // Model for listing an arbitrary folder's images (used by the "<wall <dir>" path)
+    FolderListModel {
+        id: wallFolderModel
+        showDirs: false
+        showDotAndDotDot: false
+        sortField: FolderListModel.Name
+        sortCaseSensitive: false
+        nameFilters: Wallpapers.imagePatterns
+    }
+
+    // Lazy-load limit for wallpaper browsing; grows via loadMoreWallpapers() on scroll.
+    property int wallLimit: 30
+    // Total candidates available in the current wall context; guards against pointless growth.
+    property int _wallTotal: 0
+    function loadMoreWallpapers() {
+        if (root.wallLimit >= root._wallTotal) return;
+        root.wallLimit += 30;
+    }
+
+    // Build candidate results for the "wall ..." sub-command
+    function buildWallCommandResults(arg) {
+        const out = [];
+        const folderModel = Wallpapers.folderModel;
+        if (arg === "") {
+            root._wallTotal = folderModel.count;
+            const count = Math.min(folderModel.count, root.wallLimit);
+            for (let i = 0; i < count; i++) {
+                const fp = FileUtils.trimFileProtocol(folderModel.get(i, "filePath"));
+                const fn = folderModel.get(i, "fileName");
+                if (!fp || fp === "") continue;
+                out.push({
+                    name: fn,
+                    subtitle: FileUtils.shortenHomePath(fp),
+                    id: "wall-" + fp, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
+                    isImage: true, imagePath: FileUtils.trimFileProtocol(fp),
+                    execute: () => { Wallpapers.select("file://" + fp); root.closeAll(); }
+                });
+            }
+            return out;
+        }
+
+        // Direct path → resolve (~ expands to $HOME)
+        if (arg.includes("/")) {
+            const resolved = FileUtils.expandHomePath(arg);
+            const isImageFile = Wallpapers.imagePatterns.some(p => resolved.toLowerCase().endsWith(p.slice(1)));
+            if (!isImageFile) {
+                // Treat as a directory: list its image files so it's clear what's inside
+                const dirUrl = resolved.startsWith("file://") ? resolved : "file://" + resolved;
+                if (wallFolderModel.folder !== dirUrl) wallFolderModel.folder = dirUrl;
+                root._wallTotal = wallFolderModel.count;
+                const dirCount = Math.min(wallFolderModel.count, root.wallLimit);
+                for (let i = 0; i < dirCount; i++) {
+                    const fp = FileUtils.trimFileProtocol(wallFolderModel.get(i, "filePath"));
+                    const fn = wallFolderModel.get(i, "fileName");
+                    if (!fp || fp === "") continue;
+                    out.push({
+                        name: fn,
+                        subtitle: FileUtils.shortenHomePath(fp),
+                        id: "wall-dir-" + fp, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
+                        isImage: true, imagePath: FileUtils.trimFileProtocol(fp),
+                        execute: () => { Wallpapers.select("file://" + fp); root.closeAll(); }
+                    });
+                }
+                if (wallFolderModel.count > 0) return out;
+            }
+            // Single file (or empty/loading folder) → apply as-is
+            out.push({
+                name: "Apply " + FileUtils.fileNameForPath(resolved),
+                subtitle: FileUtils.shortenHomePath(resolved),
+                id: "wall-path-" + resolved, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
+                isImage: true, imagePath: FileUtils.trimFileProtocol(resolved),
+                execute: () => { Wallpapers.select("file://" + resolved); root.closeAll(); }
+            });
+            return out;
+        }
+
+        // Fuzzy match against known wallpapers (default folder + favorites)
+        const lowered = arg.toLowerCase();
+        const wallHome = FileUtils.trimFileProtocol(Wallpapers.directory);
+        const seen = new Set();
+        const candidates = [];
+        for (let i = 0; i < folderModel.count; i++) {
+            const fp = FileUtils.trimFileProtocol(folderModel.get(i, "filePath"));
+            const fn = folderModel.get(i, "fileName");
+            if (!fp || fp === "" || seen.has(fp)) continue;
+            seen.add(fp);
+            if (fn && fn.toLowerCase().includes(lowered)) candidates.push({ name: fn, path: fp });
+        }
+        for (const fav of Wallpapers.favorites) {
+            const cleanFav = FileUtils.trimFileProtocol(fav);
+            const fn = FileUtils.fileNameForPath(cleanFav);
+            if (cleanFav === "" || seen.has(cleanFav)) continue;
+            seen.add(cleanFav);
+            if (fn && fn.toLowerCase().includes(lowered)) candidates.push({ name: fn, path: cleanFav });
+        }
+        candidates.sort((a, b) => {
+            const aStarts = a.name.toLowerCase().startsWith(lowered);
+            const bStarts = b.name.toLowerCase().startsWith(lowered);
+            if (aStarts && !bStarts) return -1;
+            if (!aStarts && bStarts) return 1;
+            return a.name.localeCompare(b.name);
+        });
+
+        root._wallTotal = candidates.length;
+        for (const c of candidates.slice(0, 8)) {
+            out.push({
+                name: c.name,
+                subtitle: FileUtils.shortenHomePath(c.path),
+                id: "wall-" + c.path, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
+                isImage: true, imagePath: FileUtils.trimFileProtocol(c.path),
+                execute: () => { Wallpapers.select("file://" + c.path); root.closeAll(); }
+            });
+        }
+        if (candidates.length === 0) {
+            out.push({
+                name: "No matching wallpaper",
+                subtitle: 'No image named "' + arg + '" in ' + FileUtils.shortenHomePath(wallHome),
+                id: "wall-none", icon: "search_off", isPlugin: true, category: "Command", emoji: "", execute: () => {}
+            });
+        }
+        return out;
+    }
+
+    // Build candidate results for the "color ..." sub-command
+    function buildColorCommandResults(arg) {
+        const out = [];
+        const loweredArg = arg.toLowerCase();
+        let matched = root.matugenSchemes;
+        if (loweredArg !== "") {
+            matched = root.matugenSchemes.filter(s => s.name.toLowerCase().includes(loweredArg) || s.id.toLowerCase().includes(loweredArg));
+        }
+        if (matched.length === 0) {
+            out.push({
+                name: "No matching scheme",
+                subtitle: 'Try "' + Config.options.search.settingsPrefix + 'color content" or "' + Config.options.search.settingsPrefix + 'color tonal spot"',
+                id: "color-none", icon: "palette", isPlugin: true, category: "Command", emoji: "", execute: () => {}
+            });
+            return out;
+        }
+        for (const s of matched) {
+            const isCurrent = Config.ready && Config.options.appearance.background.matugen && Config.options.appearance.background.matugenScheme === s.id;
+            out.push({
+                name: s.name,
+                subtitle: (isCurrent ? "Current scheme · " : "") + s.id,
+                id: "color-" + s.id, icon: "palette", isPlugin: true, category: "Command", emoji: "",
+                execute: () => { Wallpapers.applyScheme(s.id); root.closeAll(); }
+            });
+        }
+        return out;
+    }
 
     Timer {
         id: fileSearchTimer
@@ -614,10 +777,35 @@ Singleton {
             results.push(...toolResults);
         } else if (strippedQuery.startsWith(Config.options.search.settingsPrefix)) {
             const settingsQuery = strippedQuery.slice(Config.options.search.settingsPrefix.length).trim();
-            if (settingsQuery.length === 0) {
+            const lowerSettingsQuery = settingsQuery.toLowerCase();
+            if (lowerSettingsQuery === "wall" || lowerSettingsQuery.startsWith("wall ")) {
+                results.push(...root.buildWallCommandResults(settingsQuery.slice("wall".length).trim()));
+            } else if (lowerSettingsQuery === "color" || lowerSettingsQuery.startsWith("color ")) {
+                results.push(...root.buildColorCommandResults(settingsQuery.slice("color".length).trim()));
+            } else if (settingsQuery.length === 0) {
                 results.push({
-                    name: "Search Settings", subtitle: 'Type after the "' + Config.options.search.settingsPrefix + '" prefix to find settings', id: "settings-hint", icon: "settings", isPlugin: true, category: "Settings", emoji: "", execute: () => {}
+                    name: "Set Wallpaper", subtitle: 'Type "' + Config.options.search.settingsPrefix + 'wall <name or path>"', id: "wall-hint", icon: "wallpaper", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "wall "; }
                 });
+                results.push({
+                    name: "Set Color Scheme", subtitle: 'Type "' + Config.options.search.settingsPrefix + 'color <scheme>"', id: "color-hint", icon: "palette", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "color "; }
+                });
+                const allSettings = SearchRegistry.getAllResults();
+                for (const res of allSettings) {
+                    results.push({
+                        name: res.title + " · " + res.matchedString,
+                        subtitle: res.matchedString,
+                        id: "settings-all-" + res.pageIndex + "-" + res.matchedString,
+                        icon: "settings",
+                        isPlugin: true,
+                        category: "Settings",
+                        emoji: "",
+                        execute: () => {
+                            SearchRegistry.pendingJump = { pageIndex: res.pageIndex, query: res.matchedString };
+                            GlobalStates.settingsOpen = true;
+                            root.closeAll();
+                        }
+                    });
+                }
             } else {
                 const settingsResults = SearchRegistry.getResultsRanked(settingsQuery);
                 for (const res of settingsResults) {

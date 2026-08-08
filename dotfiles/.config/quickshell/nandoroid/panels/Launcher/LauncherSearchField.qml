@@ -74,6 +74,17 @@ Rectangle {
                 }
             }
 
+            Connections {
+                target: LauncherSearch
+                function onQueryChanged() {
+                    if (input && input.text !== LauncherSearch.query) {
+                        input.text = LauncherSearch.query;
+                        if (input.cursorPosition < input.length) input.cursorPosition = input.length;
+                        input.forceActiveFocus();
+                    }
+                }
+            }
+
             Text {
                 text: root.isSpotlightMode ? I18nService.tr("Search for anything...") : I18nService.tr("Search apps, files or commands...")
                 visible: !input.text

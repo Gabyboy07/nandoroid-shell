@@ -195,9 +195,12 @@ Rectangle {
             return;
         }
         if (root.resultsProxy && root.resultsProxy.length > 0 && selectedIndex >= 0 && selectedIndex < root.resultsProxy.length) {
-            root.resultsProxy[selectedIndex].execute();
-            GlobalStates.launcherOpen = false;
-            GlobalStates.spotlightOpen = false;
+            const selected = root.resultsProxy[selectedIndex];
+            selected.execute();
+            if (!selected.keepOpen) {
+                GlobalStates.launcherOpen = false;
+                GlobalStates.spotlightOpen = false;
+            }
         }
     }
 
@@ -385,6 +388,23 @@ Rectangle {
                 clip: true
                 spacing: 4 * Appearance.effectiveScale
                 
+                property real _savedY: -1
+                function loadMoreKeepingPosition() {
+                    if (pluginList.contentY > 0) pluginList._savedY = pluginList.contentY;
+                    LauncherSearch.loadMoreWallpapers();
+                    if (pluginList._savedY >= 0) {
+                        // Restore right away (covers synchronous model reset) and again
+                        // after deferred binding evaluation so no frame renders at 0.
+                        pluginList.contentY = pluginList._savedY;
+                        Qt.callLater(() => {
+                            if (pluginList._savedY >= 0) {
+                                pluginList.contentY = pluginList._savedY;
+                                pluginList._savedY = -1;
+                            }
+                        });
+                    }
+                }
+                
                 model: visible ? root.resultsProxy : []
                 delegate: LauncherListView {
                     result: modelData
@@ -398,7 +418,13 @@ Rectangle {
                 }
                 currentIndex: root.selectedIndex
                 onCurrentIndexChanged: {
-                    if (visible && currentIndex >= 0) positionViewAtIndex(currentIndex, ListView.Contain)
+                    if (visible && currentIndex >= 0) {
+                        positionViewAtIndex(currentIndex, ListView.Contain);
+                        if (count > 0 && currentIndex >= count - 5) Qt.callLater(() => pluginList.loadMoreKeepingPosition());
+                    }
+                }
+                onMovementEnded: {
+                    if (contentHeight - contentY - height < 100) Qt.callLater(() => pluginList.loadMoreKeepingPosition());
                 }
             }
         }
