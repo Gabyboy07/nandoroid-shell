@@ -1,5 +1,6 @@
 import "../../../core"
 import "../../../widgets"
+import "../../../services"
 import "../../Settings/pages/WallpaperStyle"
 import QtQuick
 import QtQuick.Layouts
@@ -16,14 +17,14 @@ ColumnLayout {
         spacing: 4 * Appearance.effectiveScale
 
         StyledText {
-            text: "Step 1: Wallpaper & Style"
+            text: I18nService.tr("Step 1: Wallpaper & Style")
             font.pixelSize: Appearance.font.pixelSize.larger
             font.weight: Font.DemiBold
             color: Appearance.colors.colOnLayer1
         }
         
         StyledText {
-            text: "Let's start by personalizing your workspace. Choose a wallpaper and pick your favorite theme colors."
+            text: I18nService.tr("Let's start by personalizing your workspace. Choose a wallpaper and pick your favorite theme colors.")
             font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.colors.colSubtext
             wrapMode: Text.WordWrap

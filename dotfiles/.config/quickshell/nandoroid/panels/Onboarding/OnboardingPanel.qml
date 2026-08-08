@@ -195,7 +195,7 @@ Scope {
                         
                         StyledText {
                             anchors.centerIn: parent
-                            text: "Back"
+                            text: I18nService.tr("Back")
                             font.pixelSize: Math.round(13 * Appearance.effectiveScale)
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
@@ -216,7 +216,7 @@ Scope {
                                 color: Appearance.colors.colSubtext
                             }
                             StyledText {
-                                text: "Use ← / → to navigate, Enter to continue, Esc to close"
+                                text: I18nService.tr("Use ← / → to navigate, Enter to continue, Esc to close")
                                 font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                                 color: Appearance.colors.colSubtext
                             }
@@ -239,7 +239,7 @@ Scope {
                         
                         StyledText {
                             anchors.centerIn: parent
-                            text: GlobalStates.onboardingStep === 0 ? "Start" : (GlobalStates.onboardingStep >= 6 ? "Finish" : "Next")
+                            text: GlobalStates.onboardingStep === 0 ? I18nService.tr("Start") : (GlobalStates.onboardingStep >= 6 ? I18nService.tr("Finish") : I18nService.tr("Next"))
                             font.pixelSize: Math.round(13 * Appearance.effectiveScale)
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnPrimary

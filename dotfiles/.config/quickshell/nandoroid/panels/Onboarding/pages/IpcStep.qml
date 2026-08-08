@@ -1,6 +1,7 @@
 import "../../../core"
 import "../../../core/functions" as Functions
 import "../../../widgets"
+import "../../../services"
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -45,55 +46,41 @@ ColumnLayout {
         return "terminal";
     }
 
+    // Curated primary IPC items list with readable names
     readonly property var allIpcItems: [
-        // ── Sidebar & Panels ──
-        { name: "App Launcher", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call launcher toggle", target: "launcher", method: "toggle" },
-        { name: "Spotlight Search", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call spotlight toggle", target: "spotlight", method: "toggle" },
-        { name: "Notification Center", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call notifications toggle", target: "notifications", method: "toggle" },
-        { name: "Quick Settings", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call quicksettings toggle", target: "quicksettings", method: "toggle" },
-        { name: "System Monitor", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call systemmonitor toggle", target: "systemmonitor", method: "toggle" },
-        { name: "Overview Panel", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call overview toggle", target: "overview", method: "toggle" },
-        { name: "Session Menu (Power)", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call session toggle", target: "session", method: "toggle" },
-        { name: "Dashboard", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call dashboard toggle", target: "dashboard", method: "toggle" },
-        { name: "Quick Actions", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call quickactions toggle", target: "quickactions", method: "toggle" },
-        { name: "Nandoroid Settings", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call settings toggle", target: "settings", method: "toggle" },
+        { name: "Toggle App Launcher", target: "launcher", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call launcher toggle" },
+        { name: "Toggle Spotlight Search", target: "spotlight", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call spotlight toggle" },
+        { name: "Toggle Notification Center", target: "notifications", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call notifications toggle" },
+        { name: "Toggle Quick Settings", target: "quicksettings", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call quicksettings toggle" },
+        { name: "Toggle System Monitor", target: "systemmonitor", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call systemmonitor toggle" },
+        { name: "Toggle Workspace Overview", target: "overview", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call overview toggle" },
+        { name: "Toggle Session Menu", target: "session", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call session toggle" },
+        { name: "Toggle Dashboard", target: "dashboard", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call dashboard toggle" },
+        { name: "Toggle Quick Actions", target: "quickactions", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call quickactions toggle" },
+        { name: "Toggle Settings Window", target: "settings", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call settings toggle" },
+        { name: "Lock Screen", target: "lock", method: "lock", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call lock lock" },
 
-        // ── Region Tools ──
-        { name: "Region Screenshot", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region screenshot", target: "region", method: "screenshot" },
-        { name: "Visual Search", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region search", target: "region", method: "search" },
-        { name: "Text OCR", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region ocr", target: "region", method: "ocr" },
-        { name: "QR Code Scan", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region qrcode", target: "region", method: "qrcode" },
-        { name: "Record Region", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region record", target: "region", method: "record" },
-        { name: "Record w/ Audio", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region recordWithSound", target: "region", method: "recordWithSound" },
+        { name: "Take Region Screenshot", target: "region", method: "screenshot", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region screenshot" },
+        { name: "Google Lens Region Search", target: "region", method: "search", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region search" },
+        { name: "OCR Screen Text", target: "region", method: "ocr", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region ocr" },
+        { name: "Scan Region QR Code", target: "region", method: "qrcode", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region qrcode" },
+        { name: "Record Selected Region", target: "region", method: "record", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region record" },
+        { name: "Record Region + Audio", target: "region", method: "recordWithSound", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region recordWithSound" },
+        { name: "Record Fullscreen + Audio", target: "region", method: "recordFullscreenWithSound", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region recordFullscreenWithSound" },
 
-        // ── Media & System ──
-        { name: "Brightness +", category: "Media & System", cmd: "quickshell -c nandoroid ipc call brightness increment", target: "brightness", method: "increment" },
-        { name: "Brightness -", category: "Media & System", cmd: "quickshell -c nandoroid ipc call brightness decrement", target: "brightness", method: "decrement" },
-        { name: "Lock Screen", category: "Media & System", cmd: "quickshell -c nandoroid ipc call lock activate", target: "lock", method: "activate" },
-        { name: "Start Pomodoro", category: "Media & System", cmd: "quickshell -c nandoroid ipc call pomodoro start", target: "pomodoro", method: "start" },
-        { name: "Pause Pomodoro", category: "Media & System", cmd: "quickshell -c nandoroid ipc call pomodoro pause", target: "pomodoro", method: "pause" },
-        { name: "Stop Pomodoro", category: "Media & System", cmd: "quickshell -c nandoroid ipc call pomodoro stop", target: "pomodoro", method: "stop" },
-        { name: "Reset Pomodoro", category: "Media & System", cmd: "quickshell -c nandoroid ipc call pomodoro reset", target: "pomodoro", method: "reset" },
-        { name: "Open Desktop Wallpaper", category: "Media & System", cmd: "quickshell -c nandoroid ipc call wallpaper openDesktop", target: "wallpaper", method: "openDesktop" },
-        { name: "Open Lock Wallpaper", category: "Media & System", cmd: "quickshell -c nandoroid ipc call wallpaper openLock", target: "wallpaper", method: "openLock" }
+        { name: "Increase Display Brightness", target: "brightness", method: "increase", category: "Media & System", cmd: "quickshell -c nandoroid ipc call brightness increase" },
+        { name: "Decrease Display Brightness", target: "brightness", method: "decrease", category: "Media & System", cmd: "quickshell -c nandoroid ipc call brightness decrease" },
+        { name: "Toggle Pomodoro Timer", target: "pomodoro", method: "toggle", category: "Media & System", cmd: "quickshell -c nandoroid ipc call pomodoro toggle" },
+        { name: "Select Wallpaper Accent Color", target: "wallpaper", method: "pickAccent", category: "Media & System", cmd: "quickshell -c nandoroid ipc call wallpaper pickAccent" }
     ]
 
     readonly property var filteredIpcItems: {
-        let items = root.allIpcItems.slice();
-
-        if (root.activeCategory !== "All") {
-            items = items.filter(i => i.category === root.activeCategory);
-        }
-
-        if (root.searchQuery.trim() !== "") {
-            const q = root.searchQuery.trim().toLowerCase();
-            items = items.filter(i => {
-                return (i.name && i.name.toLowerCase().includes(q)) ||
-                       (i.cmd && i.cmd.toLowerCase().includes(q)) ||
-                       (i.category && i.category.toLowerCase().includes(q));
-            });
-        }
-        return items;
+        return allIpcItems.filter(item => {
+            const matchesCat = root.activeCategory === "All" || item.category === root.activeCategory;
+            const q = root.searchQuery.toLowerCase().trim();
+            const matchesSearch = q === "" || item.name.toLowerCase().includes(q) || item.cmd.toLowerCase().includes(q) || item.category.toLowerCase().includes(q);
+            return matchesCat && matchesSearch;
+        });
     }
 
     ColumnLayout {
@@ -101,14 +88,14 @@ ColumnLayout {
         spacing: 4 * Appearance.effectiveScale
 
         StyledText {
-            text: "Step 4: Command Line & IPC Integration"
+            text: I18nService.tr("Step 4: Command Line & IPC Integration")
             font.pixelSize: Appearance.font.pixelSize.larger
             font.weight: Font.DemiBold
             color: Appearance.colors.colOnLayer1
         }
 
         StyledText {
-            text: "NAnDoroid IPC allows instant binding in your Window Manager. Search and test commands in real time!"
+            text: I18nService.tr("NAnDoroid IPC allows instant binding in your Window Manager. Search and test commands in real time!")
             font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.colors.colSubtext
             wrapMode: Text.WordWrap
@@ -123,7 +110,7 @@ ColumnLayout {
 
     function getCategoryLabel(cat) {
         const count = root.getCategoryCount(cat);
-        return `${cat} (${count})`;
+        return `${I18nService.tr(cat)} (${count})`;
     }
 
     // ── Toolbar Header (SegmentedButtons + Search Input Pill) ──
@@ -187,7 +174,7 @@ ColumnLayout {
                     borderInactiveWidth: 0
                     showActiveBorder: false
                     font.pixelSize: Math.round(12 * Appearance.effectiveScale)
-                    placeholder: "Search IPC commands..."
+                    placeholder: I18nService.tr("Search IPC commands...")
                     placeholderColor: Appearance.colors.colSubtext
                     leftMargin: 0
                     rightMargin: 0
@@ -233,7 +220,7 @@ ColumnLayout {
                 color: Appearance.colors.colPrimary
             }
             StyledText {
-                text: "WM Bind Example (Hyprland):"
+                text: I18nService.tr("WM Bind Example (Hyprland):")
                 font.weight: Font.DemiBold
                 font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                 color: Appearance.colors.colOnLayer0
@@ -299,7 +286,7 @@ ColumnLayout {
                     RowLayout {
                         spacing: 8 * Appearance.effectiveScale
                         StyledText {
-                            text: modelData.name
+                            text: I18nService.tr(modelData.name)
                             font.weight: Font.DemiBold
                             font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                             color: Appearance.colors.colOnLayer1
@@ -312,7 +299,7 @@ ColumnLayout {
                             StyledText {
                                 id: catLabel
                                 anchors.centerIn: parent
-                                text: modelData.category
+                                text: I18nService.tr(modelData.category)
                                 font.pixelSize: Math.round(9 * Appearance.effectiveScale)
                                 color: Appearance.colors.colSubtext
                             }
@@ -350,7 +337,7 @@ ColumnLayout {
 
                         onClicked: {
                             Quickshell.execDetached(["wl-copy", modelData.cmd]);
-                            Quickshell.execDetached(["notify-send", "-a", "NAnDoroid", "-i", "edit-copy", "Copied", "IPC Command copied to clipboard!"]);
+                            Quickshell.execDetached(["notify-send", "-a", "NAnDoroid", "-i", "edit-copy", I18nService.tr("Copied"), I18nService.tr("IPC Command copied to clipboard!")]);
                         }
                     }
                 }
@@ -375,7 +362,7 @@ ColumnLayout {
                             color: Appearance.colors.colOnPrimary
                         }
                         StyledText {
-                            text: "Run"
+                            text: I18nService.tr("Run")
                             font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnPrimary

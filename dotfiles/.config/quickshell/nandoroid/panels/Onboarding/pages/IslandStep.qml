@@ -1,5 +1,6 @@
 import "../../../core"
 import "../../../widgets"
+import "../../../services"
 import "../../StatusBar"
 import QtQuick
 import QtQuick.Layouts
@@ -18,14 +19,14 @@ ColumnLayout {
         spacing: 4 * Appearance.effectiveScale
 
         StyledText {
-            text: "Step 2: Status Bar & Dynamic Island"
+            text: I18nService.tr("Step 2: Status Bar & Dynamic Island")
             font.pixelSize: Appearance.font.pixelSize.larger
             font.weight: Font.DemiBold
             color: Appearance.colors.colOnLayer1
         }
         
         StyledText {
-            text: "The Status Bar is your central hub for Notifications, Dashboard, and Quick Settings. The middle notch acts as an interactive Dynamic Island. Try simulating different states below!"
+            text: I18nService.tr("The Status Bar is your central hub for Notifications, Dashboard, and Quick Settings. The middle notch acts as an interactive Dynamic Island. Try simulating different states below!")
             font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.colors.colSubtext
             wrapMode: Text.WordWrap
@@ -93,17 +94,17 @@ ColumnLayout {
                 RowLayout {
                     spacing: 4 * Appearance.effectiveScale
                     MaterialSymbol { text: "swipe_up"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Scroll: Workspaces"; font.pixelSize: Math.round(11 * Appearance.effectiveScale); color: Appearance.colors.colSubtext }
+                    StyledText { text: I18nService.tr("Scroll: Workspaces"); font.pixelSize: Math.round(11 * Appearance.effectiveScale); color: Appearance.colors.colSubtext }
                 }
                 RowLayout {
                     spacing: 4 * Appearance.effectiveScale
                     MaterialSymbol { text: "mouse"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Mid Click: Layout"; font.pixelSize: Math.round(11 * Appearance.effectiveScale); color: Appearance.colors.colSubtext }
+                    StyledText { text: I18nService.tr("Mid Click: Layout"); font.pixelSize: Math.round(11 * Appearance.effectiveScale); color: Appearance.colors.colSubtext }
                 }
                 RowLayout {
                     spacing: 4 * Appearance.effectiveScale
                     MaterialSymbol { text: "ads_click"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { text: "Right Click: Overview"; font.pixelSize: Math.round(11 * Appearance.effectiveScale); color: Appearance.colors.colSubtext }
+                    StyledText { text: I18nService.tr("Right Click: Overview"); font.pixelSize: Math.round(11 * Appearance.effectiveScale); color: Appearance.colors.colSubtext }
                 }
             }
 
@@ -113,25 +114,25 @@ ColumnLayout {
                 spacing: 2 * Appearance.effectiveScale
                 
                 SegmentedButton {
-                    buttonText: "Idle"
+                    buttonText: I18nService.tr("Idle")
                     checked: root.simulatedState === "idle"
                     onClicked: root.simulatedState = "idle"
                 }
 
                 SegmentedButton {
-                    buttonText: "Media"
+                    buttonText: I18nService.tr("Media")
                     checked: root.simulatedState === "media"
                     onClicked: root.simulatedState = "media"
                 }
 
                 SegmentedButton {
-                    buttonText: "Notification"
+                    buttonText: I18nService.tr("Notification")
                     checked: root.simulatedState === "notification"
                     onClicked: root.simulatedState = "notification"
                 }
 
                 SegmentedButton {
-                    buttonText: "Pomodoro"
+                    buttonText: I18nService.tr("Pomodoro")
                     checked: root.simulatedState === "pomodoro"
                     onClicked: root.simulatedState = "pomodoro"
                 }

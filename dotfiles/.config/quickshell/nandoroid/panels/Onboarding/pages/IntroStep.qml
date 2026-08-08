@@ -1,5 +1,6 @@
 import "../../../core"
 import "../../../widgets"
+import "../../../services"
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -29,7 +30,7 @@ Item {
 
             StyledText {
                 Layout.alignment: Qt.AlignHCenter
-                text: "Welcome to NAnDoroid Shell"
+                text: I18nService.tr("Welcome to NAnDoroid Shell")
                 font.pixelSize: Appearance.font.pixelSize.larger
                 font.weight: Font.Bold
                 color: Appearance.colors.colOnLayer1
@@ -38,7 +39,7 @@ Item {
             StyledText {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.maximumWidth: 540 * Appearance.effectiveScale
-                text: "A modern, Quickshell-based desktop environment tailored specifically for Hyprland. Adopting elegant Android 16 design elements, NAnDoroid brings robust widgets, deep personalization, and a fluid, highly-customizable workflow directly to your Wayland workspace."
+                text: I18nService.tr("A modern, Quickshell-based desktop environment tailored specifically for Hyprland. Adopting elegant Android 16 design elements, NAnDoroid brings robust widgets, deep personalization, and a fluid, highly-customizable workflow directly to your Wayland workspace.")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 color: Appearance.colors.colSubtext
                 wrapMode: Text.WordWrap
@@ -65,7 +66,7 @@ Item {
                     
                     StyledText {
                         anchors.centerIn: parent
-                        text: "Skip"
+                        text: I18nService.tr("Skip")
                         font.pixelSize: Math.round(14 * Appearance.effectiveScale)
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
@@ -86,7 +87,7 @@ Item {
                         spacing: 6 * Appearance.effectiveScale
                         
                         StyledText {
-                            text: "Start Tour"
+                            text: I18nService.tr("Start Tour")
                             font.pixelSize: Math.round(14 * Appearance.effectiveScale)
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnPrimary

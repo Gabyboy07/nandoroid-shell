@@ -1,5 +1,6 @@
 import "../../../core"
 import "../../../widgets"
+import "../../../services"
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -26,7 +27,7 @@ Item {
 
             StyledText {
                 Layout.alignment: Qt.AlignHCenter
-                text: "You're All Set!"
+                text: I18nService.tr("You're All Set!")
                 font.pixelSize: Appearance.font.pixelSize.larger
                 font.weight: Font.Bold
                 color: Appearance.colors.colOnLayer1
@@ -35,7 +36,7 @@ Item {
             StyledText {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.maximumWidth: 520 * Appearance.effectiveScale
-                text: "NAnDoroid is now fully configured and ready to use. Remember, you can always revisit this onboarding later from Settings > About. Enjoy your new workspace!"
+                text: I18nService.tr("NAnDoroid is now fully configured and ready to use. Remember, you can always revisit this onboarding later from Settings > About. Enjoy your new workspace!")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 color: Appearance.colors.colSubtext
                 wrapMode: Text.WordWrap

@@ -1,5 +1,6 @@
 import "../../../core"
 import "../../../widgets"
+import "../../../services"
 import "../../Settings/pages/About"
 import QtQuick
 import QtQuick.Layouts
@@ -16,14 +17,14 @@ ColumnLayout {
         spacing: 4 * Appearance.effectiveScale
 
         StyledText {
-            text: "Pre-requisite: Dependency Check"
+            text: I18nService.tr("Pre-requisite: Dependency Check")
             font.pixelSize: Appearance.font.pixelSize.larger
             font.weight: Font.DemiBold
             color: Appearance.colors.colOnLayer1
         }
         
         StyledText {
-            text: "Before we begin, let's make sure you have all the necessary components installed for NAnDoroid to function properly. You can scan and install missing dependencies here."
+            text: I18nService.tr("Before we begin, let's make sure you have all the necessary components installed for NAnDoroid to function properly. You can scan and install missing dependencies here.")
             font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.colors.colSubtext
             wrapMode: Text.WordWrap

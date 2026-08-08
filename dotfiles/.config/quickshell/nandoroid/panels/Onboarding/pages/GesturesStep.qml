@@ -1,5 +1,6 @@
 import "../../../core"
 import "../../../widgets"
+import "../../../services"
 import QtQuick
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
@@ -16,14 +17,14 @@ ColumnLayout {
         spacing: 4 * Appearance.effectiveScale
 
         StyledText {
-            text: "Step 3: Desktop & Dock Gestures"
+            text: I18nService.tr("Step 3: Desktop & Dock Gestures")
             font.pixelSize: Appearance.font.pixelSize.larger
             font.weight: Font.DemiBold
             color: Appearance.colors.colOnLayer1
         }
         
         StyledText {
-            text: "NAnDoroid comes with powerful mouse and swipe gestures built-in. Learn how to navigate your desktop effortlessly!"
+            text: I18nService.tr("NAnDoroid comes with powerful mouse and swipe gestures built-in. Learn how to navigate your desktop effortlessly!")
             font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.colors.colSubtext
             wrapMode: Text.WordWrap
@@ -73,13 +74,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 1 * Appearance.effectiveScale
                     StyledText {
-                        text: "Right Click Desktop"
+                        text: I18nService.tr("Right Click Desktop")
                         font.weight: Font.DemiBold
                         font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Opens Context Menu for Spotlight, Terminal, SysMon, or Wallpaper Settings."
+                        text: I18nService.tr("Opens Context Menu for Spotlight, Terminal, SysMon, or Wallpaper Settings.")
                         font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.WordWrap
@@ -105,13 +106,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 1 * Appearance.effectiveScale
                     StyledText {
-                        text: "Swipe Up on Desktop"
+                        text: I18nService.tr("Swipe Up on Desktop")
                         font.weight: Font.DemiBold
                         font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Opens the App Launcher (App Drawer)."
+                        text: I18nService.tr("Opens the App Launcher (App Drawer).")
                         font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.WordWrap
@@ -137,13 +138,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 1 * Appearance.effectiveScale
                     StyledText {
-                        text: "Swipe Down on Desktop (3 Regions)"
+                        text: I18nService.tr("Swipe Down on Desktop (3 Regions)")
                         font.weight: Font.DemiBold
                         font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Swipe down on Left ⅓ for Notification Center, Middle ⅓ for Dashboard, or Right ⅓ for Quick Settings."
+                        text: I18nService.tr("Swipe down on Left ⅓ for Notification Center, Middle ⅓ for Dashboard, or Right ⅓ for Quick Settings.")
                         font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.WordWrap
@@ -172,13 +173,13 @@ ColumnLayout {
                 ColumnLayout {
                     spacing: 1 * Appearance.effectiveScale
                     StyledText {
-                        text: "Right Click on Dock"
+                        text: I18nService.tr("Right Click on Dock")
                         font.weight: Font.DemiBold
                         font.pixelSize: Math.round(12 * Appearance.effectiveScale)
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
-                        text: "Opens Dock Context Menu to manage apps (Pin, Close, New Window) & power actions."
+                        text: I18nService.tr("Opens Dock Context Menu to manage apps (Pin, Close, New Window) & power actions.")
                         font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                         color: Appearance.colors.colSubtext
                         wrapMode: Text.WordWrap
