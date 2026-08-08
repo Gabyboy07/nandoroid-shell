@@ -1,37 +1,70 @@
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import "../../core"
+import "../../core/functions" as Functions
 import "../../services"
 import "../../widgets"
 
 /**
- * Refined Performance monitor island for the Quick Settings panel.
- * Displays real-time CPU, Temperature, RAM, Swap, and Multiple Disk usage via SystemData.
+ * Performance monitor island for the Quick Settings panel.
+ * Displays real-time CPU, RAM, Swap, Temperature, and Multiple Disk usage via SystemData.
+ * Metric cards reuse the liquid MaterialShape fill style from the desktop
+ * System Monitor widget, ordered like the status bar (CPU, RAM, SWAP, TEMP).
  */
 Rectangle {
     id: root
     Layout.fillWidth: true
-    implicitHeight: mainLayout.implicitHeight + (24 * Appearance.effectiveScale)
+    implicitHeight: mainLayout.implicitHeight + (20 * Appearance.effectiveScale)
     radius: Appearance.rounding.normal
     color: Appearance.colors.colLayer1
+
+    // ── Disk carousel model (capped at 2, kept fresh to mirror SystemData.diskStats) ──
+    readonly property int carouselCount: Math.min(SystemData.diskStats.count, 2)
+    property var diskCarouselModel: []
+    property string _diskSig: ""
+
+    function rebuildDiskModel() {
+        const count = Math.min(SystemData.diskStats.count, 2)
+        const arr = []
+        for (let i = 0; i < count; i++) {
+            const d = SystemData.diskStats.get(i)
+            arr.push({ path: d.path, label: d.label, hasAlias: d.hasAlias, usage: d.usage, total: d.total, used: d.used })
+        }
+        const sig = arr.map(o => `${o.path}|${o.label}|${o.hasAlias}|${o.usage.toFixed(4)}|${o.total}|${o.used}`).join("#")
+        if (sig === root._diskSig) return
+        root._diskSig = sig
+        root.diskCarouselModel = arr
+    }
+
+    Timer {
+        id: diskCarouselTimer
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: root.rebuildDiskModel()
+    }
+
+    Component.onCompleted: root.rebuildDiskModel()
 
     ColumnLayout {
         id: mainLayout
         anchors {
             fill: parent
-            margins: 12 * Appearance.effectiveScale
+            margins: 10 * Appearance.effectiveScale
         }
-        spacing: 12 * Appearance.effectiveScale
+        spacing: 4 * Appearance.effectiveScale
 
-        // Top Row: 4 key metrics with background pills
+        // ── Metric Cards: 4 liquid MaterialShape cards in a tight row ──
         RowLayout {
             Layout.fillWidth: true
-            spacing: 8 * Appearance.effectiveScale
+            spacing: 4 * Appearance.effectiveScale
 
-            StatItem {
+            StatShapeCard {
                 statIcon: "monitoring"
                 label: I18nService.tr("CPU")
                 value: SystemData.cpuUsage
+                shape: MaterialShape.Shape.Gem
                 Layout.fillWidth: true
                 onClicked: {
                     GlobalStates.systemMonitorIndex = 0;
@@ -40,11 +73,38 @@ Rectangle {
                 }
             }
 
-            StatItem {
+            StatShapeCard {
+                statIcon: "memory"
+                label: I18nService.tr("RAM")
+                value: SystemData.memUsage
+                shape: MaterialShape.Shape.Cookie4Sided
+                Layout.fillWidth: true
+                onClicked: {
+                    GlobalStates.systemMonitorIndex = 0;
+                    GlobalStates.performanceSubIndex = 3;
+                    GlobalStates.activateSystemMonitor();
+                }
+            }
+
+            StatShapeCard {
+                statIcon: "swap_horiz"
+                label: I18nService.tr("SWAP")
+                value: SystemData.swapUsage
+                shape: MaterialShape.Shape.Cookie12Sided
+                Layout.fillWidth: true
+                onClicked: {
+                    GlobalStates.systemMonitorIndex = 0;
+                    GlobalStates.performanceSubIndex = 3;
+                    GlobalStates.activateSystemMonitor();
+                }
+            }
+
+            StatShapeCard {
                 statIcon: "thermostat"
                 label: I18nService.tr("TEMP")
                 value: SystemData.cpuTemperature
                 isTemperature: true
+                shape: MaterialShape.Shape.Squircle
                 Layout.fillWidth: true
                 onClicked: {
                     GlobalStates.systemMonitorIndex = 0;
@@ -52,161 +112,268 @@ Rectangle {
                     GlobalStates.activateSystemMonitor();
                 }
             }
-
-            StatItem {
-                statIcon: "memory"
-                label: I18nService.tr("RAM")
-                value: SystemData.memUsage
-                Layout.fillWidth: true
-                onClicked: {
-                    GlobalStates.systemMonitorIndex = 0;
-                    GlobalStates.performanceSubIndex = 3;
-                    GlobalStates.activateSystemMonitor();
-                }
-            }
-
-            StatItem {
-                statIcon: "swap_horiz"
-                label: I18nService.tr("SWAP")
-                value: SystemData.swapUsage
-                Layout.fillWidth: true
-                onClicked: {
-                    GlobalStates.systemMonitorIndex = 0;
-                    GlobalStates.performanceSubIndex = 3;
-                    GlobalStates.activateSystemMonitor();
-                }
-            }
         }
 
-        // Bottom Section: Multiple Disk monitors
-        ColumnLayout {
+        // ── Disk Monitors: carousel of up to 2 cards + "more" arrow when > 2 ──
+        RowLayout {
             Layout.fillWidth: true
-            spacing: 8 * Appearance.effectiveScale
+            visible: SystemData.diskStats.count > 0
+            spacing: 4 * Appearance.effectiveScale
 
-            Repeater {
-                model: SystemData.diskStats
-                delegate: RippleButton {
-                    required property string path
-                    required property string label
-                    required property bool hasAlias
-                    required property real usage
-                    required property real total
-                    required property real used
+            Carousel {
+                id: diskCarousel
+                Layout.fillWidth: true
+                implicitHeight: 56 * Appearance.effectiveScale
+                model: root.diskCarouselModel
+                fitMode: true
+                baseItemWidth: root.carouselCount > 0
+                    ? (diskCarousel.width - (root.carouselCount - 1) * diskCarousel.itemSpacing - diskCarousel.activeBonusWidth) / root.carouselCount
+                    : 0
+                activeBonusWidth: 16 * Appearance.effectiveScale
+                itemSpacing: 4 * Appearance.effectiveScale
+                wheelEnabled: false
+                dragEnabled: false
+                hoverSelectsIndex: false
+                showCurrentIndicator: false
+                showFooter: false
+                clipRadius: Appearance.rounding.small
+                cardBackgroundRadius: Appearance.rounding.small
+                cardBackgroundColor: Appearance.colors.colLayer2
 
-                    Layout.fillWidth: true
-                    implicitHeight: 60 * Appearance.effectiveScale
-                    buttonRadius: 12 * Appearance.effectiveScale
-                    colBackground: "transparent"
-                    colBackgroundHover: Appearance.colors.colLayer2
-                    
-                    onClicked: {
-                        GlobalStates.systemMonitorIndex = 0;
-                        GlobalStates.performanceSubIndex = 5;
-                        GlobalStates.activateSystemMonitor();
-                    }
+                delegate: Component {
+                    Item {
+                        readonly property bool isHovered: index === diskCarousel.hoveredIndex
 
-                    contentItem: ColumnLayout {
-                        anchors.fill: parent
-                        anchors.margins: 4 * Appearance.effectiveScale
-                        spacing: 4 * Appearance.effectiveScale
-
-                        RowLayout {
-                            Layout.fillWidth: true
-                            MaterialSymbol {
-                                text: "storage"
-                                iconSize: 14 * Appearance.effectiveScale
-                                color: Appearance.m3colors.m3primary
-                            }
-                            StyledText {
-                                text: {
-                                    const nameStr = hasAlias ? label : `"${label}"`
-                                    return I18nService.tr("%1 DISK USAGE").replace("%1", nameStr)
-                                }
-                                font.pixelSize: Math.round(10 * Appearance.effectiveScale)
-                                font.weight: Font.DemiBold
-                                color: Appearance.m3colors.m3outline
-                            }
-                            Item { Layout.fillWidth: true }
-                            StyledText {
-                                text: `${Math.round(usage * 100)}%`
-                                font.pixelSize: Math.round(10 * Appearance.effectiveScale)
-                                font.weight: Font.DemiBold
-                                color: Appearance.m3colors.m3onSurface
-                            }
-                        }
-
-                        // Large Disk Bar
                         Rectangle {
-                            Layout.fillWidth: true
-                            implicitHeight: 8 * Appearance.effectiveScale
-                            radius: 4 * Appearance.effectiveScale
-                            color: Appearance.colors.colLayer2
-                            clip: true
+                            anchors.fill: parent
+                            radius: Appearance.rounding.small
+                            color: isHovered ? Appearance.colors.colLayer2Hover : Appearance.colors.colLayer2
 
-                            Rectangle {
-                                width: parent.width * Math.max(0, Math.min(1, usage))
-                                height: parent.height
-                                radius: 4 * Appearance.effectiveScale
-                                color: Appearance.m3colors.m3primary
-                                visible: usage > 0
+                            Behavior on color { ColorAnimation { duration: 150 } }
 
-                                Behavior on width {
-                                    NumberAnimation { duration: 500; easing.type: Easing.OutCubic }
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10 * Appearance.effectiveScale
+                                anchors.rightMargin: 10 * Appearance.effectiveScale
+                                spacing: 10 * Appearance.effectiveScale
+
+                                LiquidShape {
+                                    size: 30 * Appearance.effectiveScale
+                                    shape: MaterialShape.Shape.ClamShell
+                                    fillLevel: modelData.usage
+                                    iconText: "storage"
+                                    iconSize: 13 * Appearance.effectiveScale
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2 * Appearance.effectiveScale
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 8 * Appearance.effectiveScale
+
+                                        StyledText {
+                                            Layout.fillWidth: true
+                                            text: modelData.hasAlias ? modelData.label : `"${modelData.label}"`
+                                            font.pixelSize: Appearance.font.pixelSize.smallest
+                                            font.weight: Font.DemiBold
+                                            color: Appearance.colors.colSubtext
+                                            elide: Text.ElideRight
+                                        }
+
+                                        StyledText {
+                                            text: `${Math.round(modelData.usage * 100)}%`
+                                            font.pixelSize: Appearance.font.pixelSize.smaller
+                                            font.weight: Font.DemiBold
+                                            color: Appearance.m3colors.m3onSurface
+                                        }
+                                    }
+
+                                    StyledText {
+                                        text: modelData.total > 0
+                                            ? `${Math.round(modelData.used / (1024*1024*1024))}/${Math.round(modelData.total / (1024*1024*1024))} GB`
+                                            : "--"
+                                        font.pixelSize: Appearance.font.pixelSize.smallest
+                                        color: Appearance.colors.colSubtext
+                                        opacity: 0.8
+                                    }
                                 }
                             }
                         }
                     }
+                }
+
+                onItemSelected: {
+                    GlobalStates.systemMonitorIndex = 0;
+                    GlobalStates.performanceSubIndex = 5;
+                    GlobalStates.activateSystemMonitor();
+                }
+            }
+
+            MoreCard {
+                visible: SystemData.diskStats.count > 2
+                onClicked: {
+                    GlobalStates.systemMonitorIndex = 0;
+                    GlobalStates.performanceSubIndex = 5;
+                    GlobalStates.activateSystemMonitor();
                 }
             }
         }
     }
 
-    // StatItem: Icon, Label, and Value inside a stylized pill container
-    component StatItem: RippleButton {
-        id: statItem
+    // StatShapeCard: liquid MaterialShape fill + centered icon + value/label below
+    component StatShapeCard: RippleButton {
+        id: statCard
         property string statIcon
         property string label
         property real value: 0
         property bool isTemperature: false
-        
-        implicitHeight: 64 * Appearance.effectiveScale
-        buttonRadius: 16 * Appearance.effectiveScale
-        colBackground: "transparent"
-        colBackgroundHover: Appearance.colors.colLayer2
-        
-        contentItem: ColumnLayout {
-            spacing: 6 * Appearance.effectiveScale
+        property int shape: MaterialShape.Shape.Gem
 
-            RowLayout {
-                Layout.alignment: Qt.AlignHCenter
-                spacing: 4 * Appearance.effectiveScale
-                MaterialSymbol {
-                    text: statItem.statIcon
-                    iconSize: 14 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3primary
+        implicitHeight: 92 * Appearance.effectiveScale
+        buttonRadius: Appearance.rounding.small
+        colBackground: Appearance.colors.colLayer2
+        colBackgroundHover: Appearance.colors.colLayer2Hover
+        colRipple: Appearance.colors.colLayer2Active
+
+        readonly property real fillLevel: statCard.isTemperature
+            ? Math.min(statCard.value / 100, 1.0)
+            : statCard.value
+
+        readonly property string displayValue: statCard.isTemperature
+            ? (statCard.value > 0 ? `${Math.round(statCard.value)}°C` : "--")
+            : `${Math.round(statCard.value * 100)}%`
+
+        contentItem: Item {
+            anchors.fill: parent
+
+            LiquidShape {
+                anchors {
+                    top: parent.top
+                    horizontalCenter: parent.horizontalCenter
+                    topMargin: 10 * Appearance.effectiveScale
+                }
+                size: 38 * Appearance.effectiveScale
+                shape: statCard.shape
+                fillLevel: statCard.fillLevel
+                iconText: statCard.statIcon
+            }
+
+            // Value + label (bottom)
+            ColumnLayout {
+                spacing: -2 * Appearance.effectiveScale
+                anchors {
+                    bottom: parent.bottom
+                    horizontalCenter: parent.horizontalCenter
+                    bottomMargin: 8 * Appearance.effectiveScale
+                }
+
+                StyledText {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: statCard.displayValue
+                    font.pixelSize: Appearance.font.pixelSize.normal
+                    font.weight: Font.Bold
+                    color: Appearance.m3colors.m3onSurface
                 }
                 StyledText {
-                    text: statItem.label
-                    font.pixelSize: Math.round(10 * Appearance.effectiveScale)
-                    font.weight: Font.DemiBold
-                    color: Appearance.m3colors.m3outline
+                    Layout.alignment: Qt.AlignHCenter
+                    text: statCard.label
+                    font.pixelSize: Appearance.font.pixelSize.smallest
+                    color: Appearance.m3colors.m3onSurface
+                    opacity: 0.6
                 }
+            }
+        }
+    }
+
+    // MoreCard: "more" arrow shown when the disk count exceeds the 2-card cap.
+    // Widens on hover to match the carousel items around it.
+    component MoreCard: RippleButton {
+        id: moreCard
+        implicitWidth: (moreCard.realHovered ? 64 : 44) * Appearance.effectiveScale
+        implicitHeight: 56 * Appearance.effectiveScale
+        buttonRadius: Appearance.rounding.small
+        colBackground: Appearance.colors.colLayer2
+        colBackgroundHover: Appearance.colors.colLayer2Hover
+        colRipple: Appearance.colors.colLayer2Active
+
+        Behavior on implicitWidth {
+            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(moreCard)
+        }
+
+        contentItem: Item {
+            anchors.fill: parent
+
+            MaterialSymbol {
+                anchors.centerIn: parent
+                text: "chevron_right"
+                iconSize: 20 * Appearance.effectiveScale
+                color: Appearance.m3colors.m3onSurface
+                opacity: 0.7
+            }
+        }
+
+        StyledToolTip {
+            text: I18nService.tr("More")
+        }
+    }
+
+    // LiquidShape: reusable liquid MaterialShape fill with centered icon
+    component LiquidShape: Item {
+        id: liquidShape
+        property real size: 38 * Appearance.effectiveScale
+        property int shape: MaterialShape.Shape.Gem
+        property real fillLevel: 0
+        property string iconText: ""
+        property int iconSize: 16 * Appearance.effectiveScale
+        property color accent: Appearance.colors.colPrimary
+        property color accentOn: Appearance.colors.colOnPrimary
+
+        implicitWidth: size
+        implicitHeight: size
+
+        MaterialShape {
+            id: shapeMask
+            anchors.fill: parent
+            shape: liquidShape.shape
+            color: "black"
+            visible: false
+        }
+
+        Item {
+            id: shapeContent
+            anchors.fill: parent
+            visible: false
+
+            MaterialShape {
+                anchors.fill: parent
+                shape: liquidShape.shape
+                color: Functions.ColorUtils.applyAlpha(liquidShape.accent, 0.15)
             }
 
             Rectangle {
-                Layout.fillWidth: true
-                implicitHeight: 20 * Appearance.effectiveScale
-                radius: 10 * Appearance.effectiveScale
-                color: Appearance.colors.colLayer2
-
-                StyledText {
-                    anchors.centerIn: parent
-                    text: statItem.isTemperature ? (statItem.value > 0 ? `${Math.round(statItem.value)}°C` : "--") : `${Math.round(statItem.value * 100)}%`
-                    font.pixelSize: Math.round(10 * Appearance.effectiveScale)
-                    font.weight: Font.DemiBold
-                    color: Appearance.m3colors.m3onSurface
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    bottom: parent.bottom
                 }
+                height: parent.height * liquidShape.fillLevel
+                color: liquidShape.accent
             }
+        }
+
+        OpacityMask {
+            anchors.fill: parent
+            source: shapeContent
+            maskSource: shapeMask
+        }
+
+        MaterialSymbol {
+            anchors.centerIn: parent
+            text: liquidShape.iconText
+            iconSize: liquidShape.iconSize
+            color: liquidShape.fillLevel > 0.55 ? liquidShape.accentOn : liquidShape.accent
         }
     }
 }

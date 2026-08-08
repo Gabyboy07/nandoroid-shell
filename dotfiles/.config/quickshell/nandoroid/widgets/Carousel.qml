@@ -33,6 +33,8 @@ Item {
     property bool dragEnabled: true
 
     property real clipRadius: Appearance.rounding.extraLarge - (10 * Appearance.effectiveScale)
+    property real cardBackgroundRadius: Appearance.rounding.large
+    property color cardBackgroundColor: Appearance.colors.colLayer3
     property bool showCurrentIndicator: true
     property bool showFooter: false
     property bool isOpen: true
@@ -216,8 +218,8 @@ Item {
             Rectangle {
                 id: cardBg
                 anchors.fill: parent
-                radius: Appearance.rounding.large
-                color: Appearance.colors.colLayer3
+                radius: root.cardBackgroundRadius
+                color: root.cardBackgroundColor
                 clip: true
 
                 opacity: root.isOpen ? 1 : 0
@@ -277,7 +279,6 @@ Item {
                     radius: cardBg.radius
                     visible: false
                 }
-
                 layer.enabled: true
                 layer.effect: OpacityMask {
                     maskSource: _cardMask

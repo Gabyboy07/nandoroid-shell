@@ -37,7 +37,7 @@ Variants {
 
     margins.right: panelWindow.sidePadding
     implicitWidth: Appearance.sizes.quickSettingsWidth
-    implicitHeight: Math.round(modelData.height * 0.85)
+    implicitHeight: modelData.height
 
     Timer { id: closeTimer; interval: 300 }
 
