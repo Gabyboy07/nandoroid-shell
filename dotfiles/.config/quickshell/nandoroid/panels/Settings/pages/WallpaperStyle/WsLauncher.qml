@@ -19,16 +19,15 @@ ColumnLayout {
         aliases: ["App Launcher", "Search Bar", "Drawer"]
     }
 
+    SearchHandler { 
+        searchString: "Icon Shapes"
+        aliases: ["Icons", "Shapes", "App Icons"]
+    }
+
     // ── Launcher Section ──
     ColumnLayout {
         Layout.fillWidth: true
-        Layout.topMargin: 12 * Appearance.effectiveScale
         spacing: 16 * Appearance.effectiveScale
-        
-        SearchHandler { 
-            searchString: "Icon Shapes"
-            aliases: ["Icons", "Shapes", "App Icons"]
-        }
 
         // Section Header
         RowLayout {

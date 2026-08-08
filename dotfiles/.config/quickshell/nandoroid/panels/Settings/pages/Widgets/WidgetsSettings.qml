@@ -23,20 +23,7 @@ Flickable {
     ColumnLayout {
         id: mainCol
         width: parent.width - (24 * Appearance.effectiveScale)
-        anchors.margins: 4 * Appearance.effectiveScale
         spacing: 32 * Appearance.effectiveScale
-        
-        SearchHandler {
-            visible: false
-            searchString: "Widgets"
-            aliases: ["Widget", "Desktop"]
-        }
-        
-        SearchHandler {
-            visible: false
-            searchString: "Desktop Clock"
-            aliases: ["Clock", "Time", "Watch", "Clock Style"]
-        }
 
         // ── Header Section ──
         ColumnLayout {
@@ -84,5 +71,7 @@ Flickable {
             WsWeather { Layout.fillWidth: true }
             WsCurrency { Layout.fillWidth: true }
         }
+
+        Item { Layout.fillHeight: true; Layout.preferredHeight: 32 * Appearance.effectiveScale }
     }
 }

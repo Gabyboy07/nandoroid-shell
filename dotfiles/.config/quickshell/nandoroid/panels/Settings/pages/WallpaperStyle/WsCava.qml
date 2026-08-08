@@ -18,7 +18,6 @@ ColumnLayout {
     // ── Visualizer Section ──
     ColumnLayout {
         Layout.fillWidth: true
-        Layout.topMargin: 12 * Appearance.effectiveScale
         spacing: 16 * Appearance.effectiveScale
 
         // Section Header

@@ -14,10 +14,10 @@ ColumnLayout {
     spacing: 0
     // ── Lockscreen Section ──
     ColumnLayout {
-                id: lockscreenStyleSection
-                Layout.fillWidth: true
-                Layout.topMargin: 12 * Appearance.effectiveScale
-                spacing: 4 * Appearance.effectiveScale
+        id: lockscreenStyleSection
+        Layout.fillWidth: true
+        Layout.bottomMargin: 16 * Appearance.effectiveScale
+        spacing: 4 * Appearance.effectiveScale
                 
                 SearchHandler { 
                     visible: false

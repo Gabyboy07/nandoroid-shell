@@ -166,7 +166,6 @@ ColumnLayout {
     ColumnLayout {
         id: mainSectionCol
         Layout.fillWidth: true
-        Layout.topMargin: 12 * Appearance.effectiveScale
         spacing: 16 * Appearance.effectiveScale
     
                 readonly property bool isM3Style: Config.ready && Config.options.statusBar && (Config.options.statusBar.moduleStyle === "m3")

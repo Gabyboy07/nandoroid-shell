@@ -20,10 +20,9 @@ ColumnLayout {
 
     // ── Overview Settings Section ──
     ColumnLayout {
-                id: overviewSettingsSection
-                Layout.fillWidth: true
-                Layout.topMargin: 12 * Appearance.effectiveScale
-                spacing: 4 * Appearance.effectiveScale
+        id: overviewSettingsSection
+        Layout.fillWidth: true
+        spacing: 4 * Appearance.effectiveScale
                 
                 RowLayout {
                     spacing: 12 * Appearance.effectiveScale

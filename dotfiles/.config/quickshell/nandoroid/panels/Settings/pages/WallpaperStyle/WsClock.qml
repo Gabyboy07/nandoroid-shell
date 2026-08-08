@@ -23,7 +23,6 @@ ColumnLayout {
     ColumnLayout {
         id: clockStyleSection
         Layout.fillWidth: true
-        Layout.topMargin: 12 * Appearance.effectiveScale
         spacing: 16 * Appearance.effectiveScale
         
         property string activeContext: rootClock.isDedicatedContext ? (rootClock.dedicatedIsLock ? "lock" : "desktop") : "desktop"
@@ -834,11 +833,11 @@ ColumnLayout {
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 4 * Appearance.effectiveScale
+            visible: !rootClock.dedicatedIsLock
             SegmentedWrapper {
                 Layout.fillWidth: true; implicitHeight: 64 * Appearance.effectiveScale; color: Appearance.m3colors.m3surfaceContainerHigh
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
-                visible: !rootClock.dedicatedIsLock
                 RowLayout {
                     anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale

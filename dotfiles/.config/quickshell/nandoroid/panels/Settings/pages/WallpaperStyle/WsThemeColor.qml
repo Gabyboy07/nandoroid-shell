@@ -63,7 +63,6 @@ ColumnLayout {
         ColumnLayout {
             id: colorSettingsCol
             Layout.fillWidth: true
-            Layout.topMargin: 12 * Appearance.effectiveScale
             spacing: 24 * Appearance.effectiveScale
             
             property bool showAllBasic: false
@@ -107,12 +106,14 @@ ColumnLayout {
             // --- Wallpaper Colors Grid ---
             ColumnLayout {
                 Layout.fillWidth: true
+                Layout.preferredHeight: visible ? -1 : 0
                 spacing: 16 * Appearance.effectiveScale
                 visible: colorSwitcherRow.currentTab === "wallpaper"
 
                 Item {
                     Layout.fillWidth: true
                     implicitHeight: matugenColorGrid.implicitHeight
+                    Layout.preferredHeight: implicitHeight
 
                     GridLayout {
                         id: matugenColorGrid
@@ -181,6 +182,7 @@ ColumnLayout {
             // --- Basic Colors Grid ---
             ColumnLayout {
                 Layout.fillWidth: true
+                Layout.preferredHeight: visible ? -1 : 0
                 spacing: 16 * Appearance.effectiveScale
                 visible: colorSwitcherRow.currentTab === "basic"
                 
