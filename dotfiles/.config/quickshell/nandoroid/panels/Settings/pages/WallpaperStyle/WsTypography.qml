@@ -22,10 +22,10 @@ ColumnLayout {
     }
 
     property string activeComboLabel: {
-        if (titleCombo.isOpened) return "Title Font";
-        if (numbersCombo.isOpened) return "Numbers Font";
-        if (monoCombo.isOpened) return "Monospace Font";
-        return "Main Font";
+        if (titleCombo.isOpened) return I18nService.tr("Title Font");
+        if (numbersCombo.isOpened) return I18nService.tr("Numbers Font");
+        if (monoCombo.isOpened) return I18nService.tr("Monospace Font");
+        return I18nService.tr("Main Font");
     }
 
     SearchHandler { searchString: "Typography" }

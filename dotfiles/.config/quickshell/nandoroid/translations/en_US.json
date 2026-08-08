@@ -974,5 +974,7 @@
     "Restart Fix": "Restart Fix",
     "Lock Session": "Lock Session",
     "Power Off": "Power Off",
-    "Window": "Window"
+    "Window": "Window",
+    "Select a color from the wallpaper": "Select a color from the wallpaper",
+    "Click anywhere to pick a color, or press ESC to cancel": "Click anywhere to pick a color, or press ESC to cancel"
 }

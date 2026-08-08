@@ -90,7 +90,7 @@ PanelWindow {
             }
 
             StyledText {
-                text: "Select a color from the wallpaper"
+                text: I18nService.tr("Select a color from the wallpaper")
                 font.pixelSize: Appearance.font.pixelSize.large
                 font.weight: Font.Medium
                 color: "white"
@@ -98,7 +98,7 @@ PanelWindow {
         }
 
         StyledText {
-            text: "Click anywhere to pick a color, or press ESC to cancel"
+            text: I18nService.tr("Click anywhere to pick a color, or press ESC to cancel")
             font.pixelSize: Appearance.font.pixelSize.normal
             color: "#CCFFFFFF"
             Layout.alignment: Qt.AlignHCenter
