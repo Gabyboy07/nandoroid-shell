@@ -135,7 +135,9 @@ Singleton {
             `import glob, json, os, sys
 langs = {}
 for path in glob.glob(os.path.join(sys.argv[1], '*.json')):
-    code = os.path.splitext(os.path.basename(path))[0]
+    fname = os.path.basename(path)
+    if fname.startswith('quotes_'): continue
+    code = os.path.splitext(fname)[0]
     name = code
     try:
         data = json.load(open(path, encoding='utf-8'))

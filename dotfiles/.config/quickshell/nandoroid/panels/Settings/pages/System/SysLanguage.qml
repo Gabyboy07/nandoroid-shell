@@ -16,7 +16,7 @@ ColumnLayout {
     property var languageCodes: {
         const codes = ["auto"];
         for (const c of I18nService.allAvailableLanguages) {
-            if (codes.indexOf(c) === -1) codes.push(c);
+            if (!c.startsWith("quotes_") && codes.indexOf(c) === -1) codes.push(c);
         }
         return codes;
     }
