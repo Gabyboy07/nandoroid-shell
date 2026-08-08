@@ -300,6 +300,13 @@ Flickable {
             Layout.fillWidth: true
             spacing: 4 * Appearance.effectiveScale // Tight gap like in Clock section
 
+            // ── Wallpaper Auto-Cycle ──
+            WsWallpaperCycle {
+                Layout.fillWidth: true
+                visible: !root.isOnboarding
+            }
+
+            // ── Use Same Wallpaper for Lock Screen ──
             SegmentedWrapper {
                 Layout.fillWidth: true
                 implicitHeight: syncToggleRow.implicitHeight + (40 * Appearance.effectiveScale)
@@ -342,18 +349,12 @@ Flickable {
                                     if (WallpaperEngineService.active) {
                                         targetPath = "file://" + WallpaperEngineService.screenshotPath;
                                     }
-                                    Wallpapers.selectForLockscreen(targetPath)
+                                    Wallpapers.selectForLockscreen(targetPath, false)
                                 }
                             }
                         }
                     }
                 }
-            }
-            
-            // ── Wallpaper Auto-Cycle ──
-            WsWallpaperCycle {
-                Layout.fillWidth: true
-                visible: !root.isOnboarding
             }
         }
 
@@ -394,7 +395,7 @@ Flickable {
                         return Config.options.lock.wallpaperPath;
                     }
                      showCheckmark: Config.ready && (Config.options.lock ? !Config.options.lock.useSeparateWallpaper : false)
-                     clickable: Config.ready && (Config.options.lock ? Config.options.lock.useSeparateWallpaper : true)
+                     clickable: true
                      onClicked: {
                          GlobalStates.wallpaperSelectorTarget = "lock";
                          GlobalStates.wallpaperSelectorOpen = true;

@@ -701,8 +701,7 @@ Item {
                             SegmentedButton {
                                 width: (parent.width - (4 * Appearance.effectiveScale)) / 2; height: parent.height
                                 buttonText: "Lock"; isHighlighted: GlobalStates.wallpaperSelectorTarget === "lock"
-                                enabled: Config.ready && (Config.options.lock ? Config.options.lock.useSeparateWallpaper : true)
-                                opacity: enabled ? 1 : 0.4; colInactive: Appearance.colors.colLayer2; colActive: Appearance.m3colors.m3primary
+                                colInactive: Appearance.colors.colLayer2; colActive: Appearance.m3colors.m3primary
                                 onClicked: GlobalStates.wallpaperSelectorTarget = "lock"
                             }
                         }

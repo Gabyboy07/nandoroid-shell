@@ -95,10 +95,15 @@ Singleton {
         root.wallLimit += 30;
     }
 
-    // Build candidate results for the "wall ..." sub-command
-    function buildWallCommandResults(arg) {
+    // Build candidate results for the "dwall"/"lwall" sub-commands (target: "desktop" or "lock")
+    function buildWallCommandResults(arg, target) {
         const out = [];
         const folderModel = Wallpapers.folderModel;
+        const apply = (fp) => {
+            if (target === "lock") Wallpapers.selectForLockscreen("file://" + fp);
+            else Wallpapers.select("file://" + fp);
+            root.closeAll();
+        };
         if (arg === "") {
             root._wallTotal = folderModel.count;
             const count = Math.min(folderModel.count, root.wallLimit);
@@ -111,7 +116,7 @@ Singleton {
                     subtitle: FileUtils.shortenHomePath(fp),
                     id: "wall-" + fp, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
                     isImage: true, imagePath: FileUtils.trimFileProtocol(fp),
-                    execute: () => { Wallpapers.select("file://" + fp); root.closeAll(); }
+                    execute: () => apply(fp)
                 });
             }
             return out;
@@ -136,7 +141,7 @@ Singleton {
                         subtitle: FileUtils.shortenHomePath(fp),
                         id: "wall-dir-" + fp, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
                         isImage: true, imagePath: FileUtils.trimFileProtocol(fp),
-                        execute: () => { Wallpapers.select("file://" + fp); root.closeAll(); }
+                        execute: () => apply(fp)
                     });
                 }
                 if (wallFolderModel.count > 0) return out;
@@ -147,7 +152,7 @@ Singleton {
                 subtitle: FileUtils.shortenHomePath(resolved),
                 id: "wall-path-" + resolved, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
                 isImage: true, imagePath: FileUtils.trimFileProtocol(resolved),
-                execute: () => { Wallpapers.select("file://" + resolved); root.closeAll(); }
+                execute: () => apply(resolved)
             });
             return out;
         }
@@ -180,13 +185,14 @@ Singleton {
         });
 
         root._wallTotal = candidates.length;
-        for (const c of candidates.slice(0, 8)) {
+        const count = Math.min(candidates.length, root.wallLimit);
+        for (const c of candidates.slice(0, count)) {
             out.push({
                 name: c.name,
                 subtitle: FileUtils.shortenHomePath(c.path),
                 id: "wall-" + c.path, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
                 isImage: true, imagePath: FileUtils.trimFileProtocol(c.path),
-                execute: () => { Wallpapers.select("file://" + c.path); root.closeAll(); }
+                execute: () => apply(c.path)
             });
         }
         if (candidates.length === 0) {
@@ -280,6 +286,7 @@ Singleton {
     }
 
     onQueryChanged: {
+        root.wallLimit = 30;
         if (Config.ready && Config.options.search && query.trim().startsWith(Config.options.search.filePrefix)) {
             fileSearchTimer.restart();
         }
@@ -778,13 +785,20 @@ Singleton {
         } else if (strippedQuery.startsWith(Config.options.search.settingsPrefix)) {
             const settingsQuery = strippedQuery.slice(Config.options.search.settingsPrefix.length).trim();
             const lowerSettingsQuery = settingsQuery.toLowerCase();
-            if (lowerSettingsQuery === "wall" || lowerSettingsQuery.startsWith("wall ")) {
-                results.push(...root.buildWallCommandResults(settingsQuery.slice("wall".length).trim()));
+            if (lowerSettingsQuery === "lwall" || lowerSettingsQuery.startsWith("lwall ")) {
+                results.push(...root.buildWallCommandResults(settingsQuery.slice(5).trim(), "lock"));
+            } else if (lowerSettingsQuery === "dwall" || lowerSettingsQuery.startsWith("dwall ")) {
+                results.push(...root.buildWallCommandResults(settingsQuery.slice(5).trim(), "desktop"));
+            } else if (lowerSettingsQuery === "wall" || lowerSettingsQuery.startsWith("wall ")) {
+                results.push(...root.buildWallCommandResults(settingsQuery.slice(4).trim(), "desktop"));
             } else if (lowerSettingsQuery === "color" || lowerSettingsQuery.startsWith("color ")) {
                 results.push(...root.buildColorCommandResults(settingsQuery.slice("color".length).trim()));
             } else if (settingsQuery.length === 0) {
                 results.push({
-                    name: "Set Wallpaper", subtitle: 'Type "' + Config.options.search.settingsPrefix + 'wall <name or path>"', id: "wall-hint", icon: "wallpaper", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "wall "; }
+                    name: "Set Desktop Wallpaper", subtitle: 'Type "' + Config.options.search.settingsPrefix + 'dwall <name or path>"', id: "wall-hint", icon: "wallpaper", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "dwall "; }
+                });
+                results.push({
+                    name: "Set Lock Screen Wallpaper", subtitle: 'Type "' + Config.options.search.settingsPrefix + 'lwall <name or path>"', id: "lwall-hint", icon: "lock", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "lwall "; }
                 });
                 results.push({
                     name: "Set Color Scheme", subtitle: 'Type "' + Config.options.search.settingsPrefix + 'color <scheme>"', id: "color-hint", icon: "palette", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "color "; }

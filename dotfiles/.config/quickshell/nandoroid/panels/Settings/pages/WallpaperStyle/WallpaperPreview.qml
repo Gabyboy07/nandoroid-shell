@@ -78,9 +78,11 @@ ColumnLayout {
                 }
             }
             
-            // Selection Checkmark
+            // Selection Checkmark (top-right so it doesn't overlap the centered hover content)
             Rectangle {
-                width: 42 * Appearance.effectiveScale; height: 42 * Appearance.effectiveScale; radius: 21 * Appearance.effectiveScale; anchors.centerIn: parent
+                width: 42 * Appearance.effectiveScale; height: 42 * Appearance.effectiveScale; radius: 21 * Appearance.effectiveScale
+                anchors.top: parent.top; anchors.right: parent.right
+                anchors.topMargin: 12 * Appearance.effectiveScale; anchors.rightMargin: 12 * Appearance.effectiveScale
                 color: Appearance.colors.colPrimary
                 visible: previewComp.showCheckmark
                 MaterialSymbol { 

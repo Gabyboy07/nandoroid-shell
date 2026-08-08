@@ -514,7 +514,10 @@ Singleton {
         return basicThemes.find(t => t.file === fileName);
     }
 
-    function selectForLockscreen(path) {
+    function selectForLockscreen(path, enableSeparate = true) {
+        if (enableSeparate && Config.ready && Config.options.lock) {
+            Config.options.lock.useSeparateWallpaper = true
+        }
         const cleanPath = path.toString().startsWith("file://") ? path.toString().substring(7) : path.toString()
         Config.options.lock.wallpaperPath = "file://" + cleanPath
 
