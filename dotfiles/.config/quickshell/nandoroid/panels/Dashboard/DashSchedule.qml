@@ -1,114 +1,141 @@
 import "../../core"
-import "../../widgets"
+import "../../core/functions" as Functions
 import "../../services"
+import "../../widgets"
 import QtQuick
-import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 
 /**
- * Dashboard Tab 2: Schedule / Calendar Maker
- * Local JSON storage, recurring events.
+ * Dashboard Tab 1: Schedule
+ * "Today" timeline (Google Calendar style) with a floating "+" action.
+ * Page 0 = day timeline, Page 1 = event editor (CRUD form).
  */
 Item {
     id: root
 
-    // ── State ──
-    property string selectedId: ""
-    property string formTitle: ""
-    function _formatDateObj(d) {
-        if (!d) return ""
-        let y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate()
-        const ys = String(y).padStart(4, '0')
-        const ms = String(m).padStart(2, '0')
-        const ds = String(day).padStart(2, '0')
-        let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
-        if (style === "YMD") return ys + "/" + ms + "/" + ds
-        if (style === "MDY") return ms + "/" + ds + "/" + ys
-        return ds + "/" + ms + "/" + ys
+    // ── Navigation state ──
+    property string _view: "timeline"
+    // "timeline" | "editor"
+    property string _editingId: ""
+    property int dayOffset: 0 // 0 = today
+    // ── Timeline metrics ──
+    readonly property real hourHeight: 40 * Appearance.effectiveScale
+    readonly property real gutterWidth: 46 * Appearance.effectiveScale
+    readonly property real minBlockHeight: 22 * Appearance.effectiveScale
+    readonly property real timelineContentHeight: 24 * root.hourHeight
+    // Current-time fraction for the "now" line (refreshed while visible)
+    property real nowFrac: 0
+    readonly property string _dayDate: root._canonical(root._dateForOffset(root.dayOffset))
+    readonly property string _dayLabel: {
+        const d = root._dateForOffset(root.dayOffset);
+        if (root.dayOffset === 0)
+            return I18nService.tr("Today");
+
+        if (root.dayOffset === 1)
+            return I18nService.tr("Tomorrow");
+
+        if (root.dayOffset === -1)
+            return I18nService.tr("Yesterday");
+
+        const days = [I18nService.tr("Sunday"), I18nService.tr("Monday"), I18nService.tr("Tuesday"), I18nService.tr("Wednesday"), I18nService.tr("Thursday"), I18nService.tr("Friday"), I18nService.tr("Saturday")];
+        const months = [I18nService.tr("Jan"), I18nService.tr("Feb"), I18nService.tr("Mar"), I18nService.tr("Apr"), I18nService.tr("May"), I18nService.tr("Jun"), I18nService.tr("Jul"), I18nService.tr("Aug"), I18nService.tr("Sep"), I18nService.tr("Oct"), I18nService.tr("Nov"), I18nService.tr("Dec")];
+        return days[d.getDay()] + ", " + d.getDate() + " " + months[d.getMonth()];
     }
+    // ── Events for the selected day ──
+    readonly property var dayEvents: {
+        let list = [];
+        const day = root._dayDate;
+        for (let ev of ScheduleService.events) {
+            const evDate = ev.date;
+            if (!evDate)
+                continue;
 
-    function _parseDateObj(dStr) {
-        if (!dStr) return null
-        const parts = String(dStr).trim().split(/[-/]/).map(Number)
-        if (parts.length < 3 || parts.some(isNaN)) return null
-        let y, m, d
-        if (parts[0] > 1000) { y = parts[0]; m = parts[1]; d = parts[2] }
-        else if (parts[2] > 1000) {
-            const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
-            if (style === "MDY") { m = parts[0]; d = parts[1]; y = parts[2] }
-            else { d = parts[0]; m = parts[1]; y = parts[2] }
-        } else return null
-        const dt = new Date(y, m - 1, d)
-        return isNaN(dt.getTime()) ? null : dt
-    }
+            const end = ev.endDate && ev.endDate !== evDate ? ev.endDate : null;
+            if (ev.recurrence === "once" || ev.recurrence === "daily") {
+                if (day >= evDate && (!end || day <= end))
+                    list.push(ev);
 
-    function _formatDateByConfig(dStr) {
-        if (!dStr) return ""
-        let parts = dStr.trim().split(/[-/]/).map(Number)
-        if (parts.length < 3 || parts.some(isNaN)) return dStr
-        let y, m, d
-        if (parts[0] > 1000) { y = parts[0]; m = parts[1]; d = parts[2] }
-        else if (parts[2] > 1000) {
-            let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
-            if (style === "MDY") { m = parts[0]; d = parts[1]; y = parts[2] }
-            else { d = parts[0]; m = parts[1]; y = parts[2] }
-        } else return dStr
+            } else if (ev.recurrence === "weekly") {
+                if (day >= evDate) {
+                    const ed = new Date(evDate + "T00:00:00"), dd = new Date(day + "T00:00:00");
+                    if (ed.getDay() === dd.getDay())
+                        list.push(ev);
 
-        const ys = String(y).padStart(4, '0')
-        const ms = String(m).padStart(2, '0')
-        const ds = String(d).padStart(2, '0')
-        let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
-        if (style === "YMD") return ys + "/" + ms + "/" + ds
-        if (style === "MDY") return ms + "/" + ds + "/" + ys
-        return ds + "/" + ms + "/" + ys
-    }
+                }
+            } else if (ev.recurrence === "monthly") {
+                if (day >= evDate) {
+                    const ed = new Date(evDate + "T00:00:00"), dd = new Date(day + "T00:00:00");
+                    if (ed.getDate() === dd.getDate())
+                        list.push(ev);
 
-    function _displayTime(timeStr) {
-        if (!timeStr) return timeStr
-        const parts = String(timeStr).split(":")
-        if (parts.length < 2) return timeStr
-        const h = parseInt(parts[0], 10)
-        if (isNaN(h)) return timeStr
-        const m = parts[1]
-        const rest = parts.length > 2 ? ":" + parts.slice(2).join(":") : ""
-        const style = Config.ready && Config.options.time ? Config.options.time.timeStyle : "24H"
-        if (style === "24H") return String(h).padStart(2, "0") + ":" + m + rest
-        const upper = style === "12H_PM"
-        const ap = h >= 12 ? (upper ? "PM" : "pm") : (upper ? "AM" : "am")
-        const h12 = h % 12 || 12
-        return String(h12).padStart(2, "0") + ":" + m + rest + " " + ap
-    }
-
-    function _displayDate(dStr) {
-        if (!dStr) return dStr
-        const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
-        const parts = String(dStr).trim().split(/[-/]/).map(Number)
-        if (parts.length < 3 || parts.some(isNaN)) return dStr
-        let y, m, d
-        if (parts[0] > 1000) { y = parts[0]; m = parts[1]; d = parts[2] }
-        else if (style === "MDY") { m = parts[0]; d = parts[1]; y = parts[2] }
-        else { d = parts[0]; m = parts[1]; y = parts[2] }
-        if (!y || !m || !d) return dStr
-        const days = [I18nService.tr("Sun"), I18nService.tr("Mon"), I18nService.tr("Tue"), I18nService.tr("Wed"), I18nService.tr("Thu"), I18nService.tr("Fri"), I18nService.tr("Sat")]
-        return days[new Date(y, m - 1, d).getDay()] + ", " + dStr
-    }
-
-    function _defaultDateStr() {
-        return _formatDateObj(new Date())
-    }
-
-    function _recurrenceLabel(code) {
-        switch (code) {
-            case "once": return I18nService.tr("Once")
-            case "daily": return I18nService.tr("Daily")
-            case "weekly": return I18nService.tr("Weekly")
-            case "monthly": return I18nService.tr("Monthly")
-            default: return code
+                }
+            }
         }
+        list.sort((a, b) => {
+            return (a.time || "00:00").localeCompare(b.time || "00:00");
+        });
+        return list;
     }
+    // Column layout for overlapping events (Google Calendar style).
+    // Returns [{ ev, col, colCount }] sorted by time.
+    readonly property var dayLayout: {
+        const events = root.dayEvents;
+        const result = [];
+        if (events.length === 0)
+            return result;
 
+        // Group overlapping events into clusters
+        const clusters = [];
+        let current = [];
+        for (let ev of events) {
+            const overlapsCluster = current.some((c) => {
+                return root._overlaps(ev, c);
+            });
+            if (overlapsCluster) {
+                current.push(ev);
+            } else {
+                if (current.length)
+                    clusters.push(current);
+
+                current = [ev];
+            }
+        }
+        if (current.length)
+            clusters.push(current);
+
+        // Greedy column assignment within each cluster; all events in the
+        // cluster share the final column count (uniform width).
+        for (let cluster of clusters) {
+            const colEnds = []; // endFrac per column
+            const placed = [];
+            for (let ev of cluster) {
+                const es = root._blockStartFrac(ev);
+                const ee = root._blockEndFrac(ev);
+                let col = 0;
+                while (col < colEnds.length && es < colEnds[col])col++
+                if (col === colEnds.length)
+                    colEnds.push(0);
+
+                colEnds[col] = Math.max(colEnds[col], ee);
+                placed.push({
+                    "ev": ev,
+                    "col": col
+                });
+            }
+            const colCount = colEnds.length;
+            for (let p of placed) result.push({
+                "ev": p.ev,
+                "col": p.col,
+                "colCount": colCount
+            })
+        }
+        return result;
+    }
+    // ── Editor form state ──
+    property string formTitle: ""
     property string formDate: _defaultDateStr()
     property string formTime: "00:00"
     property string formEndTime: "01:00"
@@ -116,342 +143,1050 @@ Item {
     property string formEndDate: ""
     property string formDescription: ""
     property bool formFocus: false
-
     property int _multiDayDiff: {
-        if (!formEndDate.trim() || formEndDate === formDate) return 0;
+        if (!formEndDate.trim() || formEndDate === formDate)
+            return 0;
+
         const s = root._parseDateObj(formDate);
         const e = root._parseDateObj(formEndDate);
-        if (!s || !e) return 0;
-        return Math.round((e - s) / 86400000);
-    }
+        if (!s || !e)
+            return 0;
 
-    onFormEndDateChanged: {
-        if (_multiDayDiff > 0 && formRecurrence !== "once")
-            formRecurrence = "once";
+        return Math.round((e - s) / 8.64e+07);
     }
-
     property bool formDatesValid: {
-        if (!root.formEndDate.trim()) return true;
+        if (!root.formEndDate.trim())
+            return true;
+
         const s = root._parseDateObj(root.formDate);
         const e = root._parseDateObj(root.formEndDate);
-        if (!s || !e) return false;
-        if (e.getTime() < s.getTime()) return false;
-        if (e.getTime() > s.getTime()) return true;
+        if (!s || !e)
+            return false;
+
+        if (e.getTime() < s.getTime())
+            return false;
+
+        if (e.getTime() > s.getTime())
+            return true;
+
         const t = (str) => {
             const p = String(str || "").split(":").map(Number);
             return p.length >= 2 && !isNaN(p[0]) && !isNaN(p[1]) ? p[0] * 60 + p[1] : 0;
         };
         return t(root.formEndTime) > t(root.formTime);
     }
+    // ── Date/time pickers ──
     property string _datePickerTarget: ""
+    property string _timePickerTarget: ""
+
+    function _nowFrac() {
+        const now = new Date();
+        return (now.getHours() + now.getMinutes() / 60) / 24;
+    }
+
+    // ── Date helpers ──
+    function _canonical(d) {
+        return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0') + "-" + String(d.getDate()).padStart(2, '0');
+    }
+
+    function _dateForOffset(offset) {
+        const d = new Date();
+        d.setDate(d.getDate() + offset);
+        return d;
+    }
+
+    function _hourLabel(h) {
+        const style = Config.ready && Config.options.time ? Config.options.time.timeStyle : "24H";
+        if (style === "24H")
+            return String(h).padStart(2, "0") + ":00";
+
+        const ap = h >= 12 ? "PM" : "AM";
+        const h12 = h % 12 || 12;
+        return h12 + " " + ap;
+    }
+
+    function _formatDateObj(d) {
+        if (!d)
+            return "";
+
+        let y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate();
+        const ys = String(y).padStart(4, '0');
+        const ms = String(m).padStart(2, '0');
+        const ds = String(day).padStart(2, '0');
+        let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY";
+        if (style === "YMD")
+            return ys + "/" + ms + "/" + ds;
+
+        if (style === "MDY")
+            return ms + "/" + ds + "/" + ys;
+
+        return ds + "/" + ms + "/" + ys;
+    }
+
+    function _parseDateObj(dStr) {
+        if (!dStr)
+            return null;
+
+        const parts = String(dStr).trim().split(/[-/]/).map(Number);
+        if (parts.length < 3 || parts.some(isNaN))
+            return null;
+
+        let y, m, d;
+        if (parts[0] > 1000) {
+            y = parts[0];
+            m = parts[1];
+            d = parts[2];
+        } else if (parts[2] > 1000) {
+            const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY";
+            if (style === "MDY") {
+                m = parts[0];
+                d = parts[1];
+                y = parts[2];
+            } else {
+                d = parts[0];
+                m = parts[1];
+                y = parts[2];
+            }
+        } else {
+            return null;
+        }
+        const dt = new Date(y, m - 1, d);
+        return isNaN(dt.getTime()) ? null : dt;
+    }
+
+    function _formatDateByConfig(dStr) {
+        if (!dStr)
+            return "";
+
+        let parts = dStr.trim().split(/[-/]/).map(Number);
+        if (parts.length < 3 || parts.some(isNaN))
+            return dStr;
+
+        let y, m, d;
+        if (parts[0] > 1000) {
+            y = parts[0];
+            m = parts[1];
+            d = parts[2];
+        } else if (parts[2] > 1000) {
+            let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY";
+            if (style === "MDY") {
+                m = parts[0];
+                d = parts[1];
+                y = parts[2];
+            } else {
+                d = parts[0];
+                m = parts[1];
+                y = parts[2];
+            }
+        } else {
+            return dStr;
+        }
+        const ys = String(y).padStart(4, '0');
+        const ms = String(m).padStart(2, '0');
+        const ds = String(d).padStart(2, '0');
+        let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY";
+        if (style === "YMD")
+            return ys + "/" + ms + "/" + ds;
+
+        if (style === "MDY")
+            return ms + "/" + ds + "/" + ys;
+
+        return ds + "/" + ms + "/" + ys;
+    }
+
+    function _displayTime(timeStr) {
+        if (!timeStr)
+            return timeStr;
+
+        const parts = String(timeStr).split(":");
+        if (parts.length < 2)
+            return timeStr;
+
+        const h = parseInt(parts[0], 10);
+        if (isNaN(h))
+            return timeStr;
+
+        const m = parts[1];
+        const rest = parts.length > 2 ? ":" + parts.slice(2).join(":") : "";
+        const style = Config.ready && Config.options.time ? Config.options.time.timeStyle : "24H";
+        if (style === "24H")
+            return String(h).padStart(2, "0") + ":" + m + rest;
+
+        const upper = style === "12H_PM";
+        const ap = h >= 12 ? (upper ? "PM" : "pm") : (upper ? "AM" : "am");
+        const h12 = h % 12 || 12;
+        return String(h12).padStart(2, "0") + ":" + m + rest + " " + ap;
+    }
+
+    function _displayDate(dStr) {
+        if (!dStr)
+            return dStr;
+
+        const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY";
+        const parts = String(dStr).trim().split(/[-/]/).map(Number);
+        if (parts.length < 3 || parts.some(isNaN))
+            return dStr;
+
+        let y, m, d;
+        if (parts[0] > 1000) {
+            y = parts[0];
+            m = parts[1];
+            d = parts[2];
+        } else if (style === "MDY") {
+            m = parts[0];
+            d = parts[1];
+            y = parts[2];
+        } else {
+            d = parts[0];
+            m = parts[1];
+            y = parts[2];
+        }
+        if (!y || !m || !d)
+            return dStr;
+
+        const days = [I18nService.tr("Sun"), I18nService.tr("Mon"), I18nService.tr("Tue"), I18nService.tr("Wed"), I18nService.tr("Thu"), I18nService.tr("Fri"), I18nService.tr("Sat")];
+        return days[new Date(y, m - 1, d).getDay()] + ", " + dStr;
+    }
+
+    function _defaultDateStr() {
+        return _formatDateObj(new Date());
+    }
+
+    function _recurrenceLabel(code) {
+        switch (code) {
+        case "once":
+            return I18nService.tr("Once");
+        case "daily":
+            return I18nService.tr("Daily");
+        case "weekly":
+            return I18nService.tr("Weekly");
+        case "monthly":
+            return I18nService.tr("Monthly");
+        default:
+            return code;
+        }
+    }
+
+    function _timeFrac(t) {
+        const p = String(t || "").split(":");
+        if (p.length < 2 || isNaN(+p[0]) || isNaN(+p[1]))
+            return null;
+
+        return (+p[0] + +p[1] / 60) / 24;
+    }
+
+    function _isMultiDay(ev) {
+        return ev.recurrence === "once" && ev.endDate && ev.endDate !== ev.date;
+    }
+
+    function _blockStartFrac(ev) {
+        const multi = root._isMultiDay(ev);
+        if (multi && root._dayDate !== ev.date)
+            return 0;
+
+        return root._timeFrac(ev.time) ?? 0;
+    }
+
+    function _blockEndFrac(ev) {
+        const multi = root._isMultiDay(ev);
+        const start = root._timeFrac(ev.time) ?? 0;
+        if (multi) {
+            const first = root._dayDate === ev.date;
+            const last = root._dayDate === ev.endDate;
+            if (first && !last)
+                return 1;
+
+            if (last && !first)
+                return root._timeFrac(ev.endTime) ?? 1;
+
+        }
+        const end = root._timeFrac(ev.endTime);
+        if (end === null)
+            return Math.min(1, start + 1 / 24);
+
+        if (end > start)
+            return end;
+
+        return 1;
+    }
+
+    function _overlaps(a, b) {
+        const as = root._blockStartFrac(a), ae = root._blockEndFrac(a);
+        const bs = root._blockStartFrac(b), be = root._blockEndFrac(b);
+        if (ae <= bs || be <= as)
+            return false;
+
+        return true;
+    }
+
+    function scrollToDayStart() {
+        if (root.dayOffset !== 0) {
+            timelineFlickable.contentY = 0;
+            return ;
+        }
+        root.nowFrac = root._nowFrac();
+        const target = root.nowFrac * root.timelineContentHeight;
+        const maxScroll = Math.max(0, root.timelineContentHeight - timelineFlickable.height);
+        timelineFlickable.contentY = Math.max(0, Math.min(maxScroll, target - timelineFlickable.height / 2));
+    }
+
+    // ── View switching ──
+    function openEditorNew() {
+        root._editingId = "";
+        root.clearForm();
+        root._view = "editor";
+    }
+
+    function openEditorEdit(id) {
+        const ev = ScheduleService.events.find((e) => {
+            return e.id === id;
+        });
+        if (!ev)
+            return ;
+
+        root._editingId = id;
+        root.formTitle = ev.title;
+        root.formDate = root._formatDateByConfig(ev.date);
+        root.formTime = ev.time;
+        root.formEndTime = ev.endTime || "";
+        root.formEndDate = root._formatDateByConfig(ev.endDate || "");
+        root.formRecurrence = ev.recurrence;
+        root.formDescription = ev.description || "";
+        root.formFocus = ev.focus || false;
+        root._view = "editor";
+    }
+
+    function backToTimeline() {
+        if (autoSaveTimer.running)
+            autoSaveTimer.stop();
+
+        root._editingId = "";
+        root._view = "timeline";
+    }
+
+    function deleteEditingEvent() {
+        if (!root._editingId)
+            return ;
+
+        ScheduleService.deleteEvent(root._editingId);
+        root._editingId = "";
+        root._view = "timeline";
+    }
 
     function clearForm() {
         const now = new Date();
         let nextH = (now.getHours() + 1) % 24;
         let date = new Date(now);
-        if (nextH <= now.getHours()) date.setDate(date.getDate() + 1);
+        if (nextH <= now.getHours())
+            date.setDate(date.getDate() + 1);
 
         const nextHStr = String(nextH).padStart(2, '0') + ":00";
         const endH = (nextH + 1) % 24;
         const endHStr = String(endH).padStart(2, '0') + ":00";
-
         let endDate = new Date(date);
-        if (endH <= nextH) endDate.setDate(endDate.getDate() + 1);
+        if (endH <= nextH)
+            endDate.setDate(endDate.getDate() + 1);
 
         formTitle = "";
         formDate = _formatDateObj(date);
         formTime = nextHStr;
         formEndTime = endHStr;
         formEndDate = _formatDateObj(endDate);
-        formDescription = ""; formFocus = false
+        formDescription = "";
+        formFocus = false;
     }
 
-    function deleteEvent(id) {
-        ScheduleService.deleteEvent(id)
-        if (selectedId === id) { selectedId = ""; clearForm() }
+    function saveEvent() {
+        if (!formTitle.trim())
+            return ;
+
+        const descVal = formDescription.trim() ? formDescription.trim() : undefined;
+        const dateVal = GlobalStates.toCanonicalDateStr(formDate) || formDate;
+        const endDateVal = formEndDate.trim() && formEndDate !== formDate ? (GlobalStates.toCanonicalDateStr(formEndDate) || formEndDate) : undefined;
+        if (_editingId) {
+            ScheduleService.updateEvent(_editingId, {
+                "title": formTitle,
+                "date": dateVal,
+                "time": formTime,
+                "endTime": formEndTime,
+                "endDate": endDateVal,
+                "recurrence": formRecurrence,
+                "description": descVal,
+                "focus": formFocus
+            });
+        } else {
+            const newEv = {
+                "id": Date.now().toString(36),
+                "title": formTitle,
+                "date": dateVal,
+                "time": formTime,
+                "endTime": formEndTime,
+                "endDate": endDateVal,
+                "recurrence": formRecurrence,
+                "description": descVal,
+                "focus": formFocus,
+                "lastFired": ""
+            };
+            ScheduleService.addEvent(newEv);
+        }
+        root._editingId = "";
+        root.clearForm();
+        root._view = "timeline";
+    }
+
+    function openDatePicker() {
+        root._datePickerTarget = "start";
+        GlobalStates.datePickerCurrentDate = root.formDate;
+        GlobalStates.datePickerOnSelected = function(dateStr) {
+            root._datePickerTarget = "";
+            root.formDate = dateStr;
+            if (root._editingId)
+                autoSaveTimer.restart();
+
+        };
+        GlobalStates.datePickerOnCancelled = function() {
+            root._datePickerTarget = "";
+        };
+        GlobalStates.datePickerOpen = true;
+    }
+
+    function openEndDatePicker() {
+        root._datePickerTarget = "end";
+        GlobalStates.datePickerCurrentDate = root.formEndDate || root.formDate;
+        GlobalStates.datePickerOnSelected = function(dateStr) {
+            root._datePickerTarget = "";
+            root.formEndDate = dateStr;
+            if (root._editingId)
+                autoSaveTimer.restart();
+
+        };
+        GlobalStates.datePickerOnCancelled = function() {
+            root._datePickerTarget = "";
+        };
+        GlobalStates.datePickerOpen = true;
+    }
+
+    function openStartTimePicker() {
+        root._timePickerTarget = "start";
+        GlobalStates.openTimePicker(root.formTime || "00:00", function(timeStr) {
+            root._timePickerTarget = "";
+            root.formTime = timeStr;
+            if (root._editingId)
+                autoSaveTimer.restart();
+
+        }, function() {
+            root._timePickerTarget = "";
+        }, Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : false);
+    }
+
+    function openEndTimePicker() {
+        root._timePickerTarget = "end";
+        GlobalStates.openTimePicker(root.formEndTime || "01:00", function(timeStr) {
+            root._timePickerTarget = "";
+            root.formEndTime = timeStr;
+            if (root._editingId)
+                autoSaveTimer.restart();
+
+        }, function() {
+            root._timePickerTarget = "";
+        }, Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : false);
+    }
+
+    onDayOffsetChanged: Qt.callLater(() => {
+        return scrollToDayStart();
+    })
+    onFormEndDateChanged: {
+        if (_multiDayDiff > 0 && formRecurrence !== "once")
+            formRecurrence = "once";
+
+    }
+    Component.onCompleted: {
+        clearForm();
+        root.nowFrac = root._nowFrac();
+        Qt.callLater(() => {
+            return scrollToDayStart();
+        });
+        recenterTimer.start();
+    }
+
+    Timer {
+        interval: 30000
+        running: root._view === "timeline" && root.dayOffset === 0 && GlobalStates.dashboardOpen
+        repeat: true
+        onTriggered: root.nowFrac = root._nowFrac()
+    }
+
+    // Recenter once layout/panel animation has settled so the target hour
+    // is centered within the timeline area (not the whole panel).
+    Timer {
+        id: recenterTimer
+
+        interval: 400
+        repeat: false
+        onTriggered: root.scrollToDayStart()
     }
 
     // Auto-save debounce for existing events
     Timer {
         id: autoSaveTimer
+
         interval: 500
         repeat: false
         onTriggered: {
-            if (!root.selectedId || !root.formTitle.trim()) return
-            const descVal = root.formDescription.trim() ? root.formDescription.trim() : undefined
-            const dateVal = GlobalStates.toCanonicalDateStr(root.formDate) || root.formDate
-            const endDateVal = root.formEndDate.trim() && root.formEndDate !== root.formDate
-                ? (GlobalStates.toCanonicalDateStr(root.formEndDate) || root.formEndDate) : undefined
-            ScheduleService.updateEvent(root.selectedId, {
-                title: root.formTitle, 
-                date: dateVal, 
-                time: root.formTime, 
-                endTime: root.formEndTime,
-                endDate: endDateVal,
-                recurrence: root.formRecurrence, 
-                description: descVal,
-                focus: root.formFocus
-            })
+            if (!root._editingId || !root.formTitle.trim())
+                return ;
+
+            const descVal = root.formDescription.trim() ? root.formDescription.trim() : undefined;
+            const dateVal = GlobalStates.toCanonicalDateStr(root.formDate) || root.formDate;
+            const endDateVal = root.formEndDate.trim() && root.formEndDate !== root.formDate ? (GlobalStates.toCanonicalDateStr(root.formEndDate) || root.formEndDate) : undefined;
+            ScheduleService.updateEvent(root._editingId, {
+                "title": root.formTitle,
+                "date": dateVal,
+                "time": root.formTime,
+                "endTime": root.formEndTime,
+                "endDate": endDateVal,
+                "recurrence": root.formRecurrence,
+                "description": descVal,
+                "focus": root.formFocus
+            });
         }
     }
 
-    function saveEvent() {
-        if (!formTitle.trim()) return
-        const descVal = formDescription.trim() ? formDescription.trim() : undefined
-        const dateVal = GlobalStates.toCanonicalDateStr(formDate) || formDate
-        const endDateVal = formEndDate.trim() && formEndDate !== formDate
-            ? (GlobalStates.toCanonicalDateStr(formEndDate) || formEndDate) : undefined
-        if (selectedId) {
-            ScheduleService.updateEvent(selectedId, { 
-                title: formTitle, 
-                date: dateVal, 
-                time: formTime, 
-                endTime: formEndTime,
-                endDate: endDateVal,
-                recurrence: formRecurrence, 
-                description: descVal,
-                focus: formFocus
-            })
-        } else {
-            const newEv = { 
-                id: Date.now().toString(36), 
-                title: formTitle, 
-                date: dateVal, 
-                time: formTime, 
-                endTime: formEndTime,
-                endDate: endDateVal,
-                recurrence: formRecurrence, 
-                description: descVal, 
-                focus: formFocus,
-                lastFired: "" 
-            }
-            ScheduleService.addEvent(newEv)
-        }
-        selectedId = ""
-        clearForm()
-    }
+    // ══════════════════════════════════════════════════
+    //  PAGE 0: TODAY TIMELINE
+    // ══════════════════════════════════════════════════
+    Item {
+        id: timelineView
 
-    // ── Layout ──
-    RowLayout {
-        id: layoutRow
         anchors.fill: parent
-        spacing: 12 * Appearance.effectiveScale
+        visible: root._view === "timeline"
 
-        // ── Event List (fixed width) ──
-        ColumnLayout {
-            id: schedSidebar
-            Layout.preferredWidth: 200 * Appearance.effectiveScale
-            Layout.minimumWidth: Layout.preferredWidth
-            Layout.maximumWidth: Layout.preferredWidth
-            Layout.fillHeight: true
-            spacing: 8 * Appearance.effectiveScale
+        Rectangle {
+            id: timelineIsland
 
-            RippleButton {
-                Layout.fillWidth: true
-                implicitHeight: 40 * Appearance.effectiveScale
-                buttonRadius: 20 * Appearance.effectiveScale
-                colBackground: Appearance.colors.colPrimary
-                onClicked: { root.selectedId = ""; root.clearForm() }
+            anchors.fill: parent
+            color: Appearance.colors.colLayer1
+            radius: Appearance.rounding.large
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 10 * Appearance.effectiveScale
+                spacing: 8 * Appearance.effectiveScale
+
+                // ── Day navigation header ──
                 RowLayout {
-                    anchors.centerIn: parent; spacing: 6 * Appearance.effectiveScale
-                    MaterialSymbol { text: "add"; iconSize: 18 * Appearance.effectiveScale; color: Appearance.colors.colOnPrimary }
-                    StyledText { text: I18nService.tr("New Event"); color: Appearance.colors.colOnPrimary; font.weight: Font.Medium }
-                }
-            }
+                    Layout.fillWidth: true
+                    spacing: 8 * Appearance.effectiveScale
 
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: Appearance.m3colors.m3surfaceContainer
-                radius: Appearance.rounding.normal
-                clip: true
+                    // Interactive day label — click returns to today
+                    Item {
+                        id: labelSlot
 
-                ListView {
-                    id: eventList
-                    anchors.fill: parent
-                    anchors.margins: 6 * Appearance.effectiveScale
-                    spacing: 4 * Appearance.effectiveScale
-                    model: ScheduleService.events.slice().sort((a, b) =>
-                            (a.date + a.time).localeCompare(b.date + b.time))
-
-                    delegate: Item {
-                        required property var modelData
-                        width: eventList.width
-                        height: 48 * Appearance.effectiveScale
-
-                        readonly property bool isSelected: root.selectedId === modelData.id
-                        readonly property bool isHovered: delegateMouse.containsMouse
-                        readonly property bool inDeleteZone: delegateMouse.containsMouse && delegateMouse._mx > width - 36 * Appearance.effectiveScale
+                        implicitWidth: labelText.width + 18 * Appearance.effectiveScale
+                        implicitHeight: 32 * Appearance.effectiveScale
 
                         Rectangle {
+                            id: labelPill
+
                             anchors.fill: parent
-                            radius: Appearance.rounding.small
-                            color: isSelected
-                                ? Appearance.colors.colPrimaryContainer
-                                : (isHovered ? Appearance.m3colors.m3surfaceContainerHigh : "transparent")
+                            radius: 16 * Appearance.effectiveScale
+                            visible: root.dayOffset !== 0
+                            color: labelMouse.containsMouse ? Appearance.colors.colLayer2 : "transparent"
 
-                            RowLayout {
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.leftMargin: 12 * Appearance.effectiveScale
-                                anchors.rightMargin: 8 * Appearance.effectiveScale
-
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 2 * Appearance.effectiveScale
-
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 4 * Appearance.effectiveScale
-                                        StyledText {
-                                            text: modelData.title
-                                            elide: Text.ElideRight
-                                            font.pixelSize: Appearance.font.pixelSize.normal
-                                            font.weight: Font.Medium
-                                            color: isSelected
-                                                ? Appearance.colors.colOnPrimaryContainer
-                                                : Appearance.colors.colOnLayer1
-                                            Layout.fillWidth: true
-                                        }
-                                        MaterialSymbol {
-                                            visible: modelData.focus || false
-                                            text: "do_not_disturb_on"
-                                            iconSize: 14 * Appearance.effectiveScale
-                                            color: isSelected
-                                                ? Appearance.colors.colOnPrimaryContainer
-                                                : Appearance.colors.colPrimary
-                                        }
-                                    }
-
-                                    StyledText {
-                                        text: {
-                                            const r = modelData.recurrence
-                                            const ed = modelData.endDate && modelData.endDate !== modelData.date ? " · " + I18nService.tr("End ") + modelData.endDate : ""
-                                            if (r === "daily") return I18nService.tr("Daily") + ed
-                                            if (r === "weekly") {
-                                                const d = new Date(modelData.date + "T00:00:00")
-                                                const days = [I18nService.tr("Sunday"),I18nService.tr("Monday"),I18nService.tr("Tuesday"),I18nService.tr("Wednesday"),I18nService.tr("Thursday"),I18nService.tr("Friday"),I18nService.tr("Saturday")]
-                                                return I18nService.tr("Every ") + days[d.getDay()] + ed
-                                            }
-                                            if (r === "monthly") {
-                                                const d = new Date(modelData.date + "T00:00:00")
-                                                const day = d.getDate()
-                                                const suffix = day % 10 === 1 && day !== 11 ? "st" : day % 10 === 2 && day !== 12 ? "nd" : day % 10 === 3 && day !== 13 ? "rd" : "th"
-                                                return I18nService.tr("Every ") + day + suffix + ed
-                                            }
-                                            let t = modelData.date + " " + root._displayTime(modelData.time)
-                                            if (modelData.endTime) t += " - " + root._displayTime(modelData.endTime)
-                                            return t + ed
-                                        }
-                                        elide: Text.ElideRight
-                                        font.pixelSize: Appearance.font.pixelSize.smaller
-                                        color: Appearance.colors.colSubtext
-                                        Layout.fillWidth: true
-                                    }
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 150
                                 }
 
-                                Rectangle {
-                                    implicitWidth: 24 * Appearance.effectiveScale
-                                    implicitHeight: 24 * Appearance.effectiveScale
-                                    radius: Appearance.rounding.small
-                                    color: inDeleteZone ? Appearance.m3colors.m3surfaceContainerHigh : "transparent"
-                                    MaterialSymbol {
-                                        anchors.centerIn: parent
-                                        text: "delete"
-                                        iconSize: 16 * Appearance.effectiveScale
-                                        color: inDeleteZone ? Appearance.colors.colError : Appearance.colors.colSubtext
-                                    }
-                                }
                             }
+
+                        }
+
+                        StyledText {
+                            id: labelText
+
+                            anchors.left: parent.left
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.leftMargin: 9 * Appearance.effectiveScale
+                            text: root._dayLabel
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            font.weight: Font.DemiBold
+                            color: Appearance.m3colors.m3onSurface
                         }
 
                         MouseArea {
-                            id: delegateMouse
-                            property real _mx: 0
+                            id: labelMouse
+
                             anchors.fill: parent
                             hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onPositionChanged: (mouse) => { _mx = mouse.x }
-                            onClicked: (mouse) => {
-                                if (mouse.x > parent.width - 36 * Appearance.effectiveScale) {
-                                    root.deleteEvent(modelData.id)
-                                    return
-                                }
+                            cursorShape: root.dayOffset !== 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
+                            onClicked: {
+                                if (root.dayOffset !== 0)
+                                    root.dayOffset = 0;
 
-                                root.selectedId = ""
-                                root.formTitle = modelData.title
-                                root.formDate = root._formatDateByConfig(modelData.date)
-                                root.formTime = modelData.time
-                                root.formEndTime = modelData.endTime || ""
-                                root.formEndDate = root._formatDateByConfig(modelData.endDate || "")
-                                root.formRecurrence = modelData.recurrence
-                                root.formDescription = modelData.description || ""
-                                root.formFocus = modelData.focus || false
-                                root.selectedId = modelData.id
                             }
                         }
+
+                        StyledToolTip {
+                            x: labelText.x + (labelText.width - width) / 2
+                            y: 34 * Appearance.effectiveScale
+                            text: I18nService.tr("Back to today")
+                            alternativeVisibleCondition: labelMouse.containsMouse && root.dayOffset !== 0
+                        }
+
                     }
 
-                    ScrollBar.vertical: StyledScrollBar {}
+                    Item {
+                        Layout.fillWidth: true
+                        implicitHeight: 32 * Appearance.effectiveScale
+                    }
+
+                    // Navigation group: ‹ ›
+                    RowLayout {
+                        spacing: 4 * Appearance.effectiveScale
+
+                        RippleButton {
+                            implicitWidth: 32 * Appearance.effectiveScale
+                            implicitHeight: 32 * Appearance.effectiveScale
+                            buttonRadius: 16 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer2
+                            colRipple: Appearance.colors.colLayer2Active
+                            onClicked: root.dayOffset -= 1
+
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "chevron_left"
+                                iconSize: 20 * Appearance.effectiveScale
+                                color: Appearance.m3colors.m3onSurface
+                            }
+
+                            StyledToolTip {
+                                text: I18nService.tr("Previous day")
+                            }
+
+                        }
+
+                        RippleButton {
+                            implicitWidth: 32 * Appearance.effectiveScale
+                            implicitHeight: 32 * Appearance.effectiveScale
+                            buttonRadius: 16 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer2
+                            colRipple: Appearance.colors.colLayer2Active
+                            onClicked: root.dayOffset += 1
+
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "chevron_right"
+                                iconSize: 20 * Appearance.effectiveScale
+                                color: Appearance.m3colors.m3onSurface
+                            }
+
+                            StyledToolTip {
+                                text: I18nService.tr("Next day")
+                            }
+
+                        }
+
+                    }
+
                 }
+
+                // ── Hour grid timeline ──
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    color: "transparent"
+                    clip: true
+
+                    Flickable {
+                        id: timelineFlickable
+
+                        anchors.fill: parent
+                        clip: true
+                        contentWidth: width
+                        contentHeight: root.timelineContentHeight
+                        boundsBehavior: Flickable.StopAtBounds
+
+                        Item {
+                            width: timelineFlickable.width
+                            height: root.timelineContentHeight
+
+                            // Horizontal grid lines
+                            Repeater {
+                                model: 25
+
+                                delegate: Rectangle {
+                                    required property int index
+
+                                    x: 0
+                                    y: index * root.hourHeight
+                                    width: parent.width
+                                    height: 1
+                                    color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.06)
+                                }
+
+                            }
+
+                            // Hour label gutter
+                            Column {
+                                x: 0
+                                y: 0
+                                width: root.gutterWidth
+
+                                Repeater {
+                                    model: 24
+
+                                    delegate: Item {
+                                        required property int index
+
+                                        width: root.gutterWidth
+                                        height: root.hourHeight
+
+                                        StyledText {
+                                            anchors.topMargin: 2 * Appearance.effectiveScale
+                                            anchors.rightMargin: 8 * Appearance.effectiveScale
+                                            text: root._hourLabel(index)
+                                            font.pixelSize: Appearance.font.pixelSize.smaller
+                                            color: Appearance.colors.colSubtext
+                                            horizontalAlignment: Text.AlignRight
+
+                                            anchors {
+                                                top: parent.top
+                                                left: parent.left
+                                                right: parent.right
+                                            }
+
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                            // Event blocks
+                            Item {
+                                x: root.gutterWidth + 4 * Appearance.effectiveScale
+                                y: 0
+                                width: parent.width - x - 4 * Appearance.effectiveScale
+                                height: parent.height
+
+                                Repeater {
+                                    model: root.dayLayout
+
+                                    delegate: Item {
+                                        required property var modelData
+                                        readonly property var ev: modelData.ev
+                                        readonly property real startFrac: root._blockStartFrac(ev)
+                                        readonly property real endFrac: root._blockEndFrac(ev)
+
+                                        x: modelData.col / modelData.colCount * parent.width
+                                        y: startFrac * root.timelineContentHeight
+                                        width: parent.width / modelData.colCount
+                                        height: Math.max(root.minBlockHeight, (endFrac - startFrac) * root.timelineContentHeight)
+
+                                        Rectangle {
+                                            radius: Appearance.rounding.small
+                                            color: ev.focus ? Appearance.m3colors.m3tertiaryContainer : Appearance.colors.colLayer3
+                                            clip: true
+
+                                            anchors {
+                                                fill: parent
+                                                topMargin: 1 * Appearance.effectiveScale
+                                                bottomMargin: 3 * Appearance.effectiveScale
+                                                leftMargin: 1 * Appearance.effectiveScale
+                                                rightMargin: 4 * Appearance.effectiveScale
+                                            }
+
+                                            // Text pinned to the top like Google Calendar
+                                            Item {
+                                                anchors {
+                                                    top: parent.top
+                                                    left: parent.left
+                                                    right: parent.right
+                                                    topMargin: 6 * Appearance.effectiveScale
+                                                    leftMargin: 10 * Appearance.effectiveScale
+                                                    rightMargin: 8 * Appearance.effectiveScale
+                                                }
+
+                                                StyledText {
+                                                    id: pillTitle
+
+                                                    text: ev.title
+                                                    font.pixelSize: Appearance.font.pixelSize.small
+                                                    font.weight: Font.Medium
+                                                    color: ev.focus ? Appearance.m3colors.m3onTertiaryContainer : Appearance.m3colors.m3onSurface
+                                                    wrapMode: Text.Wrap
+                                                    maximumLineCount: 2
+                                                    elide: Text.ElideRight
+
+                                                    anchors {
+                                                        top: parent.top
+                                                        left: parent.left
+                                                        right: parent.right
+                                                    }
+
+                                                }
+
+                                                StyledText {
+                                                    text: root._displayTime(ev.time) + (ev.endTime && ev.endTime !== ev.time ? " - " + root._displayTime(ev.endTime) : "")
+                                                    font.pixelSize: Appearance.font.pixelSize.smallest
+                                                    color: ev.focus ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onTertiaryContainer, 0.75) : Appearance.colors.colSubtext
+                                                    elide: Text.ElideRight
+
+                                                    anchors {
+                                                        top: pillTitle.bottom
+                                                        topMargin: 1 * Appearance.effectiveScale
+                                                        left: parent.left
+                                                        right: parent.right
+                                                    }
+
+                                                }
+
+                                            }
+
+                                            MouseArea {
+                                                anchors.fill: parent
+                                                cursorShape: Qt.PointingHandCursor
+                                                onClicked: root.openEditorEdit(ev.id)
+                                            }
+
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                            // Current time indicator (today only)
+                            Item {
+                                visible: root.dayOffset === 0
+                                x: 0
+                                y: root.nowFrac * root.timelineContentHeight - 1 * Appearance.effectiveScale
+                                width: parent.width
+                                height: 2 * Appearance.effectiveScale
+
+                                Rectangle {
+                                    x: root.gutterWidth + 5 * Appearance.effectiveScale
+                                    y: 0
+                                    width: parent.width - x
+                                    height: parent.height
+                                    radius: 1 * Appearance.effectiveScale
+                                    color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.85)
+                                }
+
+                                Rectangle {
+                                    width: 10 * Appearance.effectiveScale
+                                    height: 10 * Appearance.effectiveScale
+                                    radius: 5 * Appearance.effectiveScale
+                                    color: Appearance.m3colors.m3onSurface
+                                    x: root.gutterWidth - 5 * Appearance.effectiveScale
+                                    y: -4 * Appearance.effectiveScale
+                                }
+
+                            }
+
+                        }
+
+                        ScrollBar.vertical: StyledScrollBar {
+                        }
+
+                    }
+
+                    // ── Empty state overlay ──
+                    ColumnLayout {
+                        anchors.centerIn: parent
+                        spacing: 8 * Appearance.effectiveScale
+                        visible: root.dayEvents.length === 0
+                        opacity: visible ? 1 : 0
+
+                        MaterialSymbol {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: "event_busy"
+                            iconSize: 40 * Appearance.effectiveScale
+                            color: Appearance.colors.colSubtext
+                        }
+
+                        StyledText {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: root.dayOffset === 0 ? I18nService.tr("No schedule for today") : I18nService.tr("No schedule for this day")
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            font.weight: Font.Medium
+                            color: Appearance.m3colors.m3onSurface
+                        }
+
+                        StyledText {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: I18nService.tr("Tap + to add an event")
+                            font.pixelSize: Appearance.font.pixelSize.smaller
+                            color: Appearance.colors.colSubtext
+                        }
+
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: 200
+                            }
+
+                        }
+
+                    }
+
+                }
+
             }
+
+            // ── FAB ──
+            RippleButton {
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.rightMargin: 14 * Appearance.effectiveScale
+                anchors.bottomMargin: 14 * Appearance.effectiveScale
+                implicitWidth: 48 * Appearance.effectiveScale
+                implicitHeight: 48 * Appearance.effectiveScale
+                buttonRadius: 24 * Appearance.effectiveScale
+                colBackground: Appearance.m3colors.m3primaryContainer
+                colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.9)
+                colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
+                onClicked: root.openEditorNew()
+
+                MaterialSymbol {
+                    anchors.centerIn: parent
+                    text: "add"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.m3colors.m3onPrimaryContainer
+                }
+
+                StyledToolTip {
+                    text: I18nService.tr("New Event")
+                }
+
+            }
+
         }
 
-        // ── Event Editor ──
+    }
+
+    // ══════════════════════════════════════════════════
+    //  PAGE 1: EVENT EDITOR
+    // ══════════════════════════════════════════════════
+    Item {
+        id: editorView
+
+        anchors.fill: parent
+        visible: root._view === "editor"
+
         ColumnLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            anchors.fill: parent
             spacing: 12 * Appearance.effectiveScale
 
-            // Header row with Focus toggle
+            // ── Header: back + title + focus toggle + delete ──
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 12 * Appearance.effectiveScale
+                spacing: 8 * Appearance.effectiveScale
+
+                RippleButton {
+                    implicitWidth: 36 * Appearance.effectiveScale
+                    implicitHeight: 36 * Appearance.effectiveScale
+                    buttonRadius: 18 * Appearance.effectiveScale
+                    colBackground: Appearance.colors.colLayer2
+                    colRipple: Appearance.colors.colLayer2Active
+                    onClicked: root.backToTimeline()
+
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: "arrow_back"
+                        iconSize: 20 * Appearance.effectiveScale
+                        color: Appearance.m3colors.m3onSurface
+                    }
+
+                    StyledToolTip {
+                        text: I18nService.tr("Back to schedule")
+                    }
+
+                }
+
                 StyledText {
-                    text: root.selectedId ? I18nService.tr("Edit Event") : I18nService.tr("New Event")
+                    Layout.fillWidth: true
+                    text: root._editingId ? I18nService.tr("Edit Event") : I18nService.tr("New Event")
                     font.pixelSize: Appearance.font.pixelSize.large
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
-                    Layout.fillWidth: true
+                    elide: Text.ElideRight
                 }
 
                 RowLayout {
                     spacing: 8 * Appearance.effectiveScale
+
                     MaterialSymbol {
                         text: "do_not_disturb_on"
                         iconSize: 18 * Appearance.effectiveScale
                         color: root.formFocus ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
                     }
+
                     StyledText {
                         text: I18nService.tr("Focus Mode")
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: root.formFocus ? Appearance.colors.colOnLayer1 : Appearance.colors.colSubtext
                     }
+
                     AndroidToggle {
                         checked: root.formFocus
                         color: checked ? Appearance.colors.colPrimary : Appearance.m3colors.m3surfaceContainerHigh
                         onToggled: {
-                            root.formFocus = !root.formFocus
-                            if (root.selectedId) autoSaveTimer.restart()
+                            root.formFocus = !root.formFocus;
+                            if (root._editingId)
+                                autoSaveTimer.restart();
+
                         }
                     }
+
                 }
+
+                RippleButton {
+                    visible: root._editingId !== ""
+                    implicitWidth: 36 * Appearance.effectiveScale
+                    implicitHeight: 36 * Appearance.effectiveScale
+                    buttonRadius: 18 * Appearance.effectiveScale
+                    colBackground: Appearance.m3colors.m3surfaceContainer
+                    onClicked: root.deleteEditingEvent()
+
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: "delete"
+                        iconSize: 20 * Appearance.effectiveScale
+                        color: Appearance.colors.colError
+                    }
+
+                    StyledToolTip {
+                        text: I18nService.tr("Delete event")
+                    }
+
+                }
+
             }
 
-            // Title field
+            // ── Title field ──
             StyledTextInput {
                 id: titleField
+
                 Layout.fillWidth: true
                 implicitHeight: 44 * Appearance.effectiveScale
                 inputRadius: Appearance.rounding.small / Appearance.effectiveScale
                 backgroundColor: Appearance.m3colors.m3surfaceContainer
                 placeholder: I18nService.tr("Event title...")
                 text: root.formTitle
-                onTextChanged: { root.formTitle = text; if(root.selectedId && titleField.input.activeFocus) autoSaveTimer.restart() }
+                onTextChanged: {
+                    root.formTitle = text;
+                    if (root._editingId && titleField.input.activeFocus)
+                        autoSaveTimer.restart();
+
+                }
             }
 
-            // Start row: Start label + Start Date + Start Time
+            // ── Start row ──
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8 * Appearance.effectiveScale
@@ -472,6 +1207,7 @@ Item {
                     colBackgroundHover: "transparent"
                     colText: "transparent"
                     onClicked: root.openDatePicker()
+
                     StyledText {
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
@@ -481,6 +1217,7 @@ Item {
                         color: Appearance.colors.colOnLayer1
                         horizontalAlignment: Text.AlignLeft
                     }
+
                 }
 
                 RippleButton {
@@ -491,6 +1228,7 @@ Item {
                     colBackgroundHover: "transparent"
                     colText: "transparent"
                     onClicked: root.openStartTimePicker()
+
                     StyledText {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
@@ -500,10 +1238,12 @@ Item {
                         color: Appearance.colors.colOnLayer1
                         horizontalAlignment: Text.AlignRight
                     }
+
                 }
+
             }
 
-            // End row: End label + End Date + End Time
+            // ── End row ──
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8 * Appearance.effectiveScale
@@ -524,6 +1264,7 @@ Item {
                     colBackgroundHover: "transparent"
                     colText: "transparent"
                     onClicked: root.openEndDatePicker()
+
                     StyledText {
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
@@ -533,6 +1274,7 @@ Item {
                         color: Appearance.colors.colOnLayer1
                         horizontalAlignment: Text.AlignLeft
                     }
+
                 }
 
                 RippleButton {
@@ -543,6 +1285,7 @@ Item {
                     colBackgroundHover: "transparent"
                     colText: "transparent"
                     onClicked: root.openEndTimePicker()
+
                     StyledText {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
@@ -552,7 +1295,9 @@ Item {
                         color: Appearance.colors.colOnLayer1
                         horizontalAlignment: Text.AlignRight
                     }
+
                 }
+
             }
 
             StyledText {
@@ -562,7 +1307,7 @@ Item {
                 color: Appearance.colors.colError
             }
 
-            // Description field — fills all remaining vertical space
+            // ── Description field ──
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -574,6 +1319,7 @@ Item {
 
                 Flickable {
                     id: descFlickable
+
                     anchors.fill: parent
                     anchors.margins: 12 * Appearance.effectiveScale
                     contentHeight: descArea.height
@@ -581,6 +1327,7 @@ Item {
 
                     TextEdit {
                         id: descArea
+
                         width: descFlickable.width
                         height: Math.max(implicitHeight, descFlickable.height)
                         text: root.formDescription
@@ -588,8 +1335,12 @@ Item {
                         font.pixelSize: Appearance.font.pixelSize.small
                         color: Appearance.colors.colOnLayer1
                         wrapMode: TextEdit.Wrap
-                        onTextChanged: { root.formDescription = text; if(root.selectedId && descArea.activeFocus) autoSaveTimer.restart() }
+                        onTextChanged: {
+                            root.formDescription = text;
+                            if (root._editingId && descArea.activeFocus)
+                                autoSaveTimer.restart();
 
+                        }
                         onCursorRectangleChanged: {
                             const margin = 20 * Appearance.effectiveScale;
                             if (cursorRectangle.y < descFlickable.contentY)
@@ -608,54 +1359,68 @@ Item {
                             font.pixelSize: Appearance.font.pixelSize.small
                             wrapMode: Text.Wrap
                         }
+
                     }
 
-                    ScrollBar.vertical: StyledScrollBar {}
+                    ScrollBar.vertical: StyledScrollBar {
+                    }
+
                 }
+
             }
 
-            // Recurrence selector
+            // ── Recurrence selector ──
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 4 * Appearance.effectiveScale
-                StyledText { text: I18nService.tr("Repeat"); font.pixelSize: Appearance.font.pixelSize.small; color: Appearance.colors.colSubtext }
+
+                StyledText {
+                    text: I18nService.tr("Repeat")
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    color: Appearance.colors.colSubtext
+                }
+
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 6 * Appearance.effectiveScale
+
                     Repeater {
                         model: ["once", "daily", "weekly", "monthly"]
+
                         delegate: RippleButton {
                             required property string modelData
                             readonly property bool _hidden: root._multiDayDiff > 0 && modelData !== "once"
+
                             Layout.fillWidth: true
                             opacity: _hidden ? 0 : 1
                             enabled: !_hidden
                             implicitHeight: 32 * Appearance.effectiveScale
                             buttonRadius: 16 * Appearance.effectiveScale
-                            colBackground: root.formRecurrence === modelData
-                                ? Appearance.colors.colPrimary
-                                : Appearance.m3colors.m3surfaceContainer
-                            colBackgroundHover: root.formRecurrence === modelData
-                                ? Appearance.colors.colPrimary
-                                : Appearance.colors.colLayer2
+                            colBackground: root.formRecurrence === modelData ? Appearance.colors.colPrimary : Appearance.m3colors.m3surfaceContainer
+                            colBackgroundHover: root.formRecurrence === modelData ? Appearance.colors.colPrimary : Appearance.colors.colLayer2
                             onClicked: {
-                                root.formRecurrence = modelData
-                                if (root.selectedId) autoSaveTimer.restart()
+                                root.formRecurrence = modelData;
+                                if (root._editingId)
+                                    autoSaveTimer.restart();
+
                             }
+
                             StyledText {
                                 anchors.centerIn: parent
                                 text: root._recurrenceLabel(modelData)
                                 font.pixelSize: Appearance.font.pixelSize.small
-                                color: root.formRecurrence === modelData
-                                    ? Appearance.colors.colOnPrimary
-                                    : Appearance.colors.colOnLayer1
+                                color: root.formRecurrence === modelData ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer1
                             }
+
                         }
+
                     }
+
                 }
+
             }
 
-            // Save button
+            // ── Save button ──
             RippleButton {
                 Layout.fillWidth: true
                 implicitHeight: 44 * Appearance.effectiveScale
@@ -664,70 +1429,29 @@ Item {
                 enabled: root.formTitle.trim().length > 0 && root.formDatesValid
                 opacity: enabled ? 1 : 0.5
                 onClicked: root.saveEvent()
+
                 RowLayout {
-                    anchors.centerIn: parent; spacing: 6 * Appearance.effectiveScale
-                    MaterialSymbol { text: "save"; iconSize: 18 * Appearance.effectiveScale; color: Appearance.colors.colOnPrimary }
-                    StyledText { text: root.selectedId ? I18nService.tr("Update Event") : I18nService.tr("Add Event"); font.weight: Font.Medium; color: Appearance.colors.colOnPrimary }
+                    anchors.centerIn: parent
+                    spacing: 6 * Appearance.effectiveScale
+
+                    MaterialSymbol {
+                        text: "save"
+                        iconSize: 18 * Appearance.effectiveScale
+                        color: Appearance.colors.colOnPrimary
+                    }
+
+                    StyledText {
+                        text: root._editingId ? I18nService.tr("Update Event") : I18nService.tr("Add Event")
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnPrimary
+                    }
+
                 }
+
             }
+
         }
+
     }
 
-    // ── Date picker ──
-    function openDatePicker() {
-        root._datePickerTarget = "start"
-        GlobalStates.datePickerCurrentDate = root.formDate
-        GlobalStates.datePickerOnSelected = function(dateStr) {
-            root._datePickerTarget = ""
-            root.formDate = dateStr
-            if (root.selectedId) autoSaveTimer.restart()
-        }
-        GlobalStates.datePickerOnCancelled = function() { root._datePickerTarget = "" }
-        GlobalStates.datePickerOpen = true
-    }
-
-    function openEndDatePicker() {
-        root._datePickerTarget = "end"
-        GlobalStates.datePickerCurrentDate = root.formEndDate || root.formDate
-        GlobalStates.datePickerOnSelected = function(dateStr) {
-            root._datePickerTarget = ""
-            root.formEndDate = dateStr
-            if (root.selectedId) autoSaveTimer.restart()
-        }
-        GlobalStates.datePickerOnCancelled = function() { root._datePickerTarget = "" }
-        GlobalStates.datePickerOpen = true
-    }
-
-    // ── Time picker ──
-    property string _timePickerTarget: ""
-
-    function openStartTimePicker() {
-        root._timePickerTarget = "start"
-        GlobalStates.openTimePicker(
-            root.formTime || "00:00",
-            function(timeStr) {
-                root._timePickerTarget = ""
-                root.formTime = timeStr
-                if (root.selectedId) autoSaveTimer.restart()
-            },
-            function() { root._timePickerTarget = "" },
-            Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : false
-        )
-    }
-
-    function openEndTimePicker() {
-        root._timePickerTarget = "end"
-        GlobalStates.openTimePicker(
-            root.formEndTime || "01:00",
-            function(timeStr) {
-                root._timePickerTarget = ""
-                root.formEndTime = timeStr
-                if (root.selectedId) autoSaveTimer.restart()
-            },
-            function() { root._timePickerTarget = "" },
-            Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : false
-        )
-    }
-
-    Component.onCompleted: clearForm()
 }
