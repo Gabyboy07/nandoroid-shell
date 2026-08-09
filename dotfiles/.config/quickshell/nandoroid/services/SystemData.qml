@@ -77,6 +77,11 @@ Singleton {
     // List of objects: { mount: string, usage: real, total: real, used: real }
     property ListModel diskStats: ListModel {}
     property real primaryDiskUsage: 0
+
+    // Emitted whenever diskStats rows are (re)populated so consumers that mirror
+    // the list (e.g. the QuickSettings disk carousel) can rebuild immediately
+    // instead of lagging behind a fixed polling timer.
+    signal diskStatsUpdated()
     
     // Processes
     property var allProcesses: []
@@ -309,6 +314,7 @@ Singleton {
                     });
                 }
                 root.primaryDiskUsage = root.diskStats.count > 0 ? root.diskStats.get(0).usage : 0;
+                root.diskStatsUpdated();
             }
         }
     }
@@ -531,6 +537,13 @@ Singleton {
                 root.update();
             }
         }
+        function onQuickSettingsOpenChanged() {
+            // Refresh immediately on open so the panel shows fresh data
+            // instead of waiting up to a full poll interval.
+            if (GlobalStates.quickSettingsOpen) {
+                root.update();
+            }
+        }
     }
 
     function initCpuInfo() {
@@ -556,6 +569,17 @@ Singleton {
             const path = d.path || "/", alias = d.alias || "", hasAlias = !!alias;
             root.diskStats.append({ path: path, label: (alias || path).toUpperCase(), hasAlias: hasAlias, usage: 0, total: 0, used: 0 });
         });
+        root.diskStatsUpdated();
+    }
+
+    // The config file may load after this singleton is created; re-seed the disk
+    // list once it is ready so the real monitored disks are known up front
+    // instead of flipping from the default single disk on the first panel open.
+    Connections {
+        target: Config
+        function onReadyChanged() {
+            if (Config.ready) root.prePopulateDisks();
+        }
     }
 
     Component.onCompleted: {

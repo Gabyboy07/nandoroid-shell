@@ -21,20 +21,35 @@ Rectangle {
 
     // ── Disk carousel model (capped at 2, kept fresh to mirror SystemData.diskStats) ──
     readonly property int carouselCount: Math.min(SystemData.diskStats.count, 2)
-    property var diskCarouselModel: []
+    property ListModel diskCarouselModel: ListModel {}
     property string _diskSig: ""
 
     function rebuildDiskModel() {
         const count = Math.min(SystemData.diskStats.count, 2)
-        const arr = []
+        const identity = []
         for (let i = 0; i < count; i++) {
             const d = SystemData.diskStats.get(i)
-            arr.push({ path: d.path, label: d.label, hasAlias: d.hasAlias, usage: d.usage, total: d.total, used: d.used })
+            identity.push(`${d.path}|${d.label}|${d.hasAlias}`)
         }
-        const sig = arr.map(o => `${o.path}|${o.label}|${o.hasAlias}|${o.usage.toFixed(4)}|${o.total}|${o.used}`).join("#")
-        if (sig === root._diskSig) return
-        root._diskSig = sig
-        root.diskCarouselModel = arr
+        const sig = identity.join("#")
+        if (sig !== root._diskSig) {
+            root._diskSig = sig
+            root.diskCarouselModel.clear()
+            for (let i = 0; i < count; i++) {
+                const d = SystemData.diskStats.get(i)
+                root.diskCarouselModel.append({ path: d.path, label: d.label, hasAlias: d.hasAlias, usage: d.usage, total: d.total, used: d.used })
+            }
+            return
+        }
+        // Disk list unchanged: refresh usage/used/total roles in place so the
+        // carousel delegates are NOT recreated (avoids the per-second blink).
+        for (let i = 0; i < count; i++) {
+            const d = SystemData.diskStats.get(i)
+            const row = root.diskCarouselModel.get(i)
+            if (row && (row.usage !== d.usage || row.used !== d.used || row.total !== d.total)) {
+                root.diskCarouselModel.set(i, { usage: d.usage, used: d.used, total: d.total })
+            }
+        }
     }
 
     Timer {
@@ -43,6 +58,24 @@ Rectangle {
         running: true
         repeat: true
         onTriggered: root.rebuildDiskModel()
+    }
+
+    // Rebuild the carousel model the instant SystemData (re)populates its disk
+    // list, so cards appear in sync with the layout instead of lagging a timer tick.
+    Connections {
+        target: SystemData
+        function onDiskStatsUpdated() {
+            root.rebuildDiskModel()
+        }
+    }
+
+    // Restore the carousel to the first item whenever the Quick Settings reopens,
+    // otherwise the clicked disk stays widened/active after returning (stuck).
+    Connections {
+        target: GlobalStates
+        function onQuickSettingsOpenChanged() {
+            if (GlobalStates.quickSettingsOpen) diskCarousel.currentIndex = 0
+        }
     }
 
     Component.onCompleted: root.rebuildDiskModel()
@@ -160,7 +193,7 @@ Rectangle {
                                 LiquidShape {
                                     size: 30 * Appearance.effectiveScale
                                     shape: MaterialShape.Shape.ClamShell
-                                    fillLevel: modelData.usage
+                                    fillLevel: modelData ? modelData.usage : 0
                                     iconText: "storage"
                                     iconSize: 13 * Appearance.effectiveScale
                                 }
@@ -175,7 +208,9 @@ Rectangle {
 
                                         StyledText {
                                             Layout.fillWidth: true
-                                            text: modelData.hasAlias ? modelData.label : `"${modelData.label}"`
+                                            text: modelData
+                                                ? (modelData.hasAlias ? modelData.label : `"${modelData.label}"`)
+                                                : ""
                                             font.pixelSize: Appearance.font.pixelSize.smallest
                                             font.weight: Font.DemiBold
                                             color: Appearance.colors.colSubtext
@@ -183,7 +218,7 @@ Rectangle {
                                         }
 
                                         StyledText {
-                                            text: `${Math.round(modelData.usage * 100)}%`
+                                            text: modelData ? `${Math.round(modelData.usage * 100)}%` : ""
                                             font.pixelSize: Appearance.font.pixelSize.smaller
                                             font.weight: Font.DemiBold
                                             color: Appearance.m3colors.m3onSurface
@@ -191,7 +226,7 @@ Rectangle {
                                     }
 
                                     StyledText {
-                                        text: modelData.total > 0
+                                        text: modelData && modelData.total > 0
                                             ? `${Math.round(modelData.used / (1024*1024*1024))}/${Math.round(modelData.total / (1024*1024*1024))} GB`
                                             : "--"
                                         font.pixelSize: Appearance.font.pixelSize.smallest
