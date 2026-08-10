@@ -24,58 +24,6 @@ RowLayout {
     on_DeadlineTriggerChanged: root._recomputeSummary()
     Component.onCompleted: root._recomputeSummary()
     // Build a flat list of all dates this event applies to (expand recurring)
-    readonly property var eventDates: {
-        let dates = [];
-        for (let ev of ScheduleService.events) {
-            if (!ev.date)
-                continue;
-
-            // Once multi-day: every day from date to endDate
-            if (ev.recurrence === "once" && ev.endDate) {
-                let d = new Date(ev.date + "T00:00:00");
-                const end = new Date(ev.endDate + "T00:00:00");
-                for (; d <= end; d.setDate(d.getDate() + 1)) dates.push(root._fmtDate(d))
-                continue;
-            }
-            dates.push(ev.date);
-            const limit = ev.endDate ? new Date(ev.endDate + "T00:00:00") : null;
-            if (ev.recurrence === "daily") {
-                let d = new Date(ev.date);
-                d.setDate(d.getDate() + 1);
-                for (let i = 0; i < 60; i++) {
-                    if (limit && d > limit)
-                        break;
-
-                    dates.push(root._fmtDate(d));
-                    d.setDate(d.getDate() + 1);
-                }
-            } else if (ev.recurrence === "weekly") {
-                let d = new Date(ev.date);
-                d.setDate(d.getDate() + 7);
-                for (let i = 0; i < 8; i++) {
-                    if (limit && d > limit)
-                        break;
-
-                    dates.push(root._fmtDate(d));
-                    d.setDate(d.getDate() + 7);
-                }
-            } else if (ev.recurrence === "monthly") {
-                let d = new Date(ev.date);
-                for (let i = 0; i < 12; i++) {
-                    d.setMonth(d.getMonth() + 1);
-                    if (limit && d > limit)
-                        break;
-
-                    dates.push(root._fmtDate(d));
-                }
-            }
-        }
-        // Add todo deadline dates
-        for (let dl of GlobalStates.todoDeadlines) {
-            dates.push(dl.date);
-        }
-        return dates;
-    }
     // Combined events for popup: schedule + todo deadlines
     readonly property var allEvents: {
         let combined = ScheduleService.events.slice();
@@ -271,7 +219,6 @@ RowLayout {
                     cellSize: root._cellSize
                     cellSpacing: root._cellSpacing
                     sectionSpacing: root._sectionSpacing
-                    eventDates: root.eventDates
                     scheduledEvents: root.allEvents
                 }
 
