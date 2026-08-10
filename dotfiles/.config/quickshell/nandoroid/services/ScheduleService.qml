@@ -42,6 +42,37 @@ Singleton {
         save()
     }
 
+    /**
+     * Returns true if event `ev` occurs on the given `dateStr` (YYYY-MM-DD).
+     * Single source of truth for recurrence matching — used by CalendarWidget,
+     * DashCalendar, and DashSchedule to avoid logic drift.
+     */
+    function eventOccursOn(ev, dateStr) {
+        if (!ev.date) return false
+        // Upper-bound guard: dateStr past endDate → never matches
+        if (ev.endDate && dateStr > ev.endDate) return false
+        // Use T00:00:00 suffix to avoid UTC-vs-local offset when parsing YYYY-MM-DD
+        switch (ev.recurrence) {
+        case "once":
+            // Single-day: exact match. Multi-day (endDate): within [date, endDate].
+            return ev.endDate ? dateStr >= ev.date : ev.date === dateStr
+        case "daily":
+            return dateStr >= ev.date
+        case "weekly": {
+            const evD = new Date(ev.date + "T00:00:00")
+            const chkD = new Date(dateStr + "T00:00:00")
+            return evD.getDay() === chkD.getDay() && chkD >= evD
+        }
+        case "monthly": {
+            const evD = new Date(ev.date + "T00:00:00")
+            const chkD = new Date(dateStr + "T00:00:00")
+            return evD.getDate() === chkD.getDate() && chkD >= evD
+        }
+        default:
+            return false
+        }
+    }
+
     FileView {
         id: scheduleFile
         path: root.storagePath

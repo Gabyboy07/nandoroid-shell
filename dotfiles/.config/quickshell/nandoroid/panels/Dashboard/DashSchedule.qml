@@ -45,38 +45,11 @@ Item {
         return days[d.getDay()] + ", " + d.getDate() + " " + months[d.getMonth()];
     }
     // ── Events for the selected day ──
+    // Recurrence matching delegated to ScheduleService.eventOccursOn — single source of truth.
     readonly property var dayEvents: {
-        let list = [];
         const day = root._dayDate;
-        for (let ev of ScheduleService.events) {
-            const evDate = ev.date;
-            if (!evDate)
-                continue;
-
-            const end = ev.endDate && ev.endDate !== evDate ? ev.endDate : null;
-            if (ev.recurrence === "once" || ev.recurrence === "daily") {
-                if (day >= evDate && (!end || day <= end))
-                    list.push(ev);
-
-            } else if (ev.recurrence === "weekly") {
-                if (day >= evDate) {
-                    const ed = new Date(evDate + "T00:00:00"), dd = new Date(day + "T00:00:00");
-                    if (ed.getDay() === dd.getDay())
-                        list.push(ev);
-
-                }
-            } else if (ev.recurrence === "monthly") {
-                if (day >= evDate) {
-                    const ed = new Date(evDate + "T00:00:00"), dd = new Date(day + "T00:00:00");
-                    if (ed.getDate() === dd.getDate())
-                        list.push(ev);
-
-                }
-            }
-        }
-        list.sort((a, b) => {
-            return (a.time || "00:00").localeCompare(b.time || "00:00");
-        });
+        const list = ScheduleService.events.filter(ev => ScheduleService.eventOccursOn(ev, day));
+        list.sort((a, b) => (a.time || "00:00").localeCompare(b.time || "00:00"));
         return list;
     }
     // Column layout for overlapping events (Google Calendar style).
@@ -180,7 +153,7 @@ Item {
     property string _timePickerTarget: ""
 
     function _nowFrac() {
-        const now = new Date();
+        const now = DateTime.now;
         return (now.getHours() + now.getMinutes() / 60) / 24;
     }
 

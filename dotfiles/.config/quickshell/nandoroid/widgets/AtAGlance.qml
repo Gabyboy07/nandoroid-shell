@@ -25,9 +25,9 @@ Item {
         var dummy = DateTime.currentDate;
         var lang = I18nService.languageCode || "en_US";
         try {
-            return new Date().toLocaleDateString(Qt.locale(lang), "dddd, MMMM d");
+            return DateTime.now.toLocaleDateString(Qt.locale(lang), "dddd, MMMM d");
         } catch (e) {
-            return Qt.formatDate(new Date(), "dddd, MMMM d");
+            return Qt.formatDate(DateTime.now, "dddd, MMMM d");
         }
     }
     
@@ -100,38 +100,15 @@ Item {
         }
     }
 
-    function isInDateRange(event, dateStr) {
-        if (!event.date) return false;
-        if (!event.endDate) return event.date === dateStr;
-        return dateStr >= event.date && dateStr <= event.endDate;
-    }
-
     function updateScheduleInfo() {
-        const now = new Date();
+        // DateTime.now is boundary-aligned to SystemClock; new Date() can lag a
+        // minute right after the trigger (SystemClock fires ±50ms early).
+        const now = DateTime.now;
         const nowDateStr = Qt.formatDate(now, "yyyy-MM-dd");
-        const todayDay = now.getDay();
-        const todayDate = now.getDate();
 
-        let events = ScheduleService.events.filter(event => {
-            if (!event.date) return false;
-
-            if (event.recurrence === "once") {
-                return isInDateRange(event, nowDateStr);
-            }
-
-            if (event.endDate && nowDateStr > event.endDate) return false;
-
-            let matchesRecurrence = false;
-            if (event.recurrence === "daily") matchesRecurrence = true;
-            else if (event.recurrence === "weekly") {
-                const d = new Date(event.date + "T00:00:00");
-                matchesRecurrence = d && d.getDay() === todayDay;
-            } else if (event.recurrence === "monthly") {
-                const d = new Date(event.date + "T00:00:00");
-                matchesRecurrence = d && d.getDate() === todayDate;
-            }
-            return matchesRecurrence && nowDateStr >= event.date;
-        }).sort((a, b) => a.time.localeCompare(b.time));
+        // Recurrence matching delegated to ScheduleService.eventOccursOn — single source of truth.
+        let events = ScheduleService.events.filter(ev => ScheduleService.eventOccursOn(ev, nowDateStr))
+            .sort((a, b) => a.time.localeCompare(b.time));
 
         todayEvents = events;
 

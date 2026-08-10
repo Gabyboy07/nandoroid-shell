@@ -393,6 +393,7 @@ Item {
 
                 // Tab 0: Calendar + Pomodoro
                 Loader {
+                    id: tabCalendarLoader
                     anchors.fill: parent
                     active: root.currentTab === 0
                     visible: root.currentTab === 0
@@ -409,6 +410,13 @@ Item {
                     }
                     
                     sourceComponent: DashCalendar { width: contentArea.width; height: contentArea.height }
+
+                    Connections {
+                        target: tabCalendarLoader.item
+                        function onJumpToSchedule() {
+                            root.currentTab = 1
+                        }
+                    }
                 }
 
                 // Tab 1: Schedule

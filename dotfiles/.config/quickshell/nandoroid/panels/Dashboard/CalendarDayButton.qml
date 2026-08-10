@@ -1,22 +1,24 @@
-import "../../widgets"
 import "../../core"
+import "../../widgets"
 import QtQuick
 import QtQuick.Layouts
 
 RippleButton {
     id: button
+
     property string day
     property int isToday
     property bool bold: false
     property bool isLabel: false
-    property bool hasEvent: false   // show schedule dot
+    property bool hasEvent: false // show schedule dot
+    property real cellSize: Appearance.sizes.calendarCellSize
 
     Layout.fillWidth: false
     Layout.fillHeight: false
-    implicitWidth: Appearance.sizes.calendarCellSize
-    implicitHeight: Appearance.sizes.calendarCellSize
+    implicitWidth: button.cellSize
+    implicitHeight: button.cellSize
     toggled: !isLabel && (isToday == 1)
-    buttonRadius: Appearance.rounding.small
+    buttonRadius: Appearance.rounding.full
     colBackground: "transparent"
     colBackgroundHover: Appearance.colors.colLayer2Hover
 
@@ -28,10 +30,7 @@ RippleButton {
         text: day
         horizontalAlignment: Text.AlignHCenter
         font.weight: (bold || isLabel) ? Font.DemiBold : Font.Normal
-        color: isLabel ? Appearance.m3colors.m3onSurface :
-               (isToday == 1) ? Appearance.m3colors.m3onPrimary :
-               (isToday == 0) ? Appearance.m3colors.m3onSurface :
-               Appearance.colors.colOutlineVariant
+        color: isLabel ? Appearance.m3colors.m3onSurface : (isToday == 1) ? Appearance.m3colors.m3onPrimary : (isToday == 0) ? Appearance.m3colors.m3onSurface : Appearance.colors.colOutlineVariant
     }
 
     // Schedule dot indicator
@@ -40,7 +39,9 @@ RippleButton {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 3 * Appearance.effectiveScale
-        width: 4 * Appearance.effectiveScale; height: 4 * Appearance.effectiveScale; radius: Appearance.rounding.unsharpen
+        width: 4 * Appearance.effectiveScale
+        height: 4 * Appearance.effectiveScale
+        radius: Appearance.rounding.unsharpen
         color: Appearance.colors.colPrimary
         opacity: 0.85
     }
@@ -51,8 +52,11 @@ RippleButton {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 3 * Appearance.effectiveScale
-        width: 4 * Appearance.effectiveScale; height: 4 * Appearance.effectiveScale; radius: Appearance.rounding.unsharpen
+        width: 4 * Appearance.effectiveScale
+        height: 4 * Appearance.effectiveScale
+        radius: Appearance.rounding.unsharpen
         color: Appearance.m3colors.m3onPrimary
         opacity: 0.85
     }
+
 }
