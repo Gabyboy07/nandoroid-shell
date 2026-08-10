@@ -194,13 +194,13 @@ Item {
 
         visible: false
         z: 10
-        width: Math.min(popupCol.implicitWidth + 20 * Appearance.effectiveScale, root.width * 0.7)
-        height: popupCol.implicitHeight + 20 * Appearance.effectiveScale
+        clip: true
         radius: Appearance.rounding.normal
-        color: Appearance.m3colors.m3surfaceContainerHigh
-        border.color: Appearance.colors.colOutlineVariant
-        border.width: Math.max(1, 1 * Appearance.effectiveScale)
-        // Clip to stay within CalendarWidget bounds
+        color: Appearance.colors.colTooltip
+        opacity: visible ? 1 : 0
+        // Grow from zero like the tooltip, clipped to stay within CalendarWidget bounds
+        width: visible ? Math.min(popupCol.implicitWidth + 20 * Appearance.effectiveScale, root.width * 0.7) : 0
+        height: visible ? popupCol.implicitHeight + 20 * Appearance.effectiveScale : 0
         x: Math.min(Math.max(0, _popX), root.width - width)
         y: Math.min(Math.max(0, _popY), root.height - height)
 
@@ -224,7 +224,7 @@ Item {
                 text: root._displayDate(eventPopup.dateStr)
                 font.pixelSize: Appearance.font.pixelSize.smaller
                 font.weight: Font.DemiBold
-                color: Appearance.colors.colSubtext
+                color: Appearance.colors.colOnTooltip
             }
 
             Repeater {
@@ -244,7 +244,7 @@ Item {
                             width: 6 * Appearance.effectiveScale
                             height: 6 * Appearance.effectiveScale
                             radius: width / 2
-                            color: Appearance.colors.colPrimary
+                            color: Appearance.m3colors.m3onPrimary
                             Layout.alignment: Qt.AlignTop
                             Layout.topMargin: 6 * Appearance.effectiveScale
                         }
@@ -254,7 +254,7 @@ Item {
                             text: modelData.title
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.Medium
-                            color: Appearance.colors.colOnLayer1
+                            color: Appearance.colors.colOnTooltip
                             wrapMode: Text.WordWrap
                             maximumLineCount: 2
                             elide: Text.ElideRight
@@ -267,7 +267,7 @@ Item {
                         text: modelData.description || ""
                         visible: Boolean(modelData.description) && String(modelData.description).trim().length > 0
                         font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
+                        color: Functions.ColorUtils.applyAlpha(Appearance.colors.colOnTooltip, 0.75)
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                     }
@@ -288,7 +288,7 @@ Item {
                             return t;
                         }
                         font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
+                        color: Functions.ColorUtils.applyAlpha(Appearance.colors.colOnTooltip, 0.75)
                     }
 
                 }
@@ -299,18 +299,21 @@ Item {
                 visible: eventPopup.events.length === 0
                 text: I18nService.tr("No events")
                 font.pixelSize: Appearance.font.pixelSize.smaller
-                color: Appearance.colors.colSubtext
+                color: Functions.ColorUtils.applyAlpha(Appearance.colors.colOnTooltip, 0.75)
                 Layout.fillWidth: true
             }
 
         }
 
-        // Fade in/out
+        // Grow + fade like the tooltip
+        Behavior on width {
+            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+        }
+        Behavior on height {
+            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+        }
         Behavior on opacity {
-            NumberAnimation {
-                duration: 150
-            }
-
+            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
         }
 
         Behavior on visible {
@@ -477,12 +480,12 @@ Item {
                                 const wasOpenForThisDate = eventPopup.visible && eventPopup.dateStr === dateStr;
                                 closePopup();
                                 if (!wasOpenForThisDate) {
-                                    const pos = mapToItem(root, width / 2, height + 4 * Appearance.effectiveScale);
-                                    eventPopup._popX = pos.x - eventPopup.width / 2;
-                                    eventPopup._popY = pos.y;
                                     eventPopup.dateStr = dateStr;
                                     eventPopup.events = root.getEventsForDate(dateStr);
                                     eventPopup.visible = true;
+                                    const pos = mapToItem(root, width / 2, height + 4 * Appearance.effectiveScale);
+                                    eventPopup._popX = pos.x - eventPopup.width / 2;
+                                    eventPopup._popY = pos.y;
                                 }
                             }
                         }

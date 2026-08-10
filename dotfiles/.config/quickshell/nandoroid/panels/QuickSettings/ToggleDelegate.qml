@@ -282,10 +282,9 @@ RippleButton {
     }
 
     // Tooltip
-    ToolTip {
+    StyledToolTip {
         id: toggleTooltip
-        visible: !root.editMode && (root.hovered || root.realHovered) && (text !== "")
-        delay: 300
+        extraVisibleCondition: !root.editMode && (toggleTooltip.text !== "")
         text: {
             const data = root.toggleData;
             if (!data) return "";
@@ -296,20 +295,6 @@ RippleButton {
                     : data.name;
             }
             return "";
-        }
-        
-        contentItem: StyledText {
-            text: toggleTooltip.text
-            color: Appearance.m3colors.m3onSurface
-            font.pixelSize: Appearance.font.pixelSize.smaller
-            horizontalAlignment: Text.AlignHCenter
-        }
-
-        background: Rectangle {
-            color: Appearance.m3colors.m3surfaceContainerHigh
-            radius: 8 * Appearance.effectiveScale
-            border.color: Appearance.m3colors.m3outlineVariant
-            border.width: 1
         }
     }
 }

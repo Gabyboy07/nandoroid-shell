@@ -9,6 +9,7 @@ import "../../core"
 import "../../core/functions" as Functions
 import "../../services"
 import "../../widgets"
+import "../../widgets"
 
 Item {
     id: root
@@ -725,29 +726,13 @@ Item {
                     }
 
                     // Tooltip
-                    ToolTip {
+                    StyledToolTip {
                         id: scrollWindowTooltip
-                        visible: dragArea.containsMouse && !windowDelegate.dragging && windowDelegate.windowData
-                        delay: 300
-                        padding: 8 * Appearance.effectiveScale
+                        alternativeVisibleCondition: dragArea.containsMouse && !windowDelegate.dragging && windowDelegate.windowData
+                        nowrap: true
                         y: -height - 8 * Appearance.effectiveScale
                         x: (parent.width - width) / 2
                         text: `${windowDelegate.windowData?.title || ""}\n[${windowDelegate.windowData?.class || ""}]${windowDelegate.windowData?.xwayland ? " [XWayland]" : ""}`
-
-                        contentItem: StyledText {
-                            text: scrollWindowTooltip.text
-                            color: Appearance.m3colors.m3onSurface
-                            font.pixelSize: Appearance.font.pixelSize.smaller
-                            horizontalAlignment: Text.AlignHCenter
-                            wrapMode: Text.NoWrap
-                        }
-
-                        background: Rectangle {
-                            color: Appearance.m3colors.m3surfaceContainerHigh
-                            radius: 8 * Appearance.effectiveScale
-                            border.color: Appearance.m3colors.m3outlineVariant
-                            border.width: Math.max(1, 1 * Appearance.effectiveScale)
-                        }
                     }
                 }
             }

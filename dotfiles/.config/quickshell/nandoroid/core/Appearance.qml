@@ -273,6 +273,9 @@ Singleton {
         // Misc
         property color colOutline: m3colors.m3outline
         property color colOutlineVariant: m3colors.m3outlineVariant
+        // Tooltip (Material inverse-surface tokens — populated by matugen, theme-aware)
+        property color colTooltip: m3colors.m3inverseSurface
+        property color colOnTooltip: m3colors.m3inverseOnSurface
         property color colScrim: Functions.ColorUtils.applyAlpha(m3colors.m3scrim, 0.5)
         property color colShadow: m3colors.m3shadow
         // Smart Status Bar (adaptive text color based on wallpaper lightness)

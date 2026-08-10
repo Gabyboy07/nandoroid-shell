@@ -8,6 +8,7 @@ ToolTip {
     id: root
     property bool extraVisibleCondition: true
     property bool alternativeVisibleCondition: false
+    property bool nowrap: false
 
     readonly property bool internalVisibleCondition: (extraVisibleCondition && (
         (parent && (parent.hovered || parent.realHovered)) ||
@@ -15,17 +16,9 @@ ToolTip {
         (parent && parent.parent && parent.parent.parent && (parent.parent.parent.hovered || parent.parent.parent.realHovered))
     )) || alternativeVisibleCondition
     
-    // Minimal padding to match ToggleDelegate
-    padding: 0
-    verticalPadding: 0
-    horizontalPadding: 0
-    
-    background: Rectangle {
-        color: Appearance.m3colors.m3surfaceContainerHigh
-        radius: 8 * Appearance.effectiveScale
-        border.color: Appearance.m3colors.m3outlineVariant
-        border.width: Math.max(1, 1 * Appearance.effectiveScale)
-    }
+    verticalPadding: 5
+    horizontalPadding: 10
+    background: null
     
     font {
         family: Appearance.font.family.main
@@ -34,12 +27,16 @@ ToolTip {
         hintingPreference: Font.PreferNoHinting
     }
 
-    delay: 300
+    delay: 0
     visible: internalVisibleCondition
     
     contentItem: StyledToolTipContent {
         id: contentItem
+        font: root.font
         text: root.text
         shown: root.internalVisibleCondition
+        verticalPadding: root.verticalPadding
+        horizontalPadding: root.horizontalPadding
+        nowrap: root.nowrap
     }
 }
