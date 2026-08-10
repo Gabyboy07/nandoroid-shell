@@ -10,6 +10,7 @@ import "../../services"
 Item {
     id: root
 
+    property bool forceRunningMode: false
     property string inputDigits: ""
     
     // Convert current inputDigits (e.g. "1234" -> 12m 34s) to string "HHh MMm SSs"
@@ -50,7 +51,7 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 16 * Appearance.effectiveScale
-        visible: !TimerService.active && TimerService.remainingMs === TimerService.setSeconds * 1000 && !TimerService.overflowing
+        visible: !TimerService.active && TimerService.remainingMs === TimerService.setSeconds * 1000 && !TimerService.overflowing && !root.forceRunningMode
         
         Item { Layout.fillHeight: true }
 
@@ -118,11 +119,11 @@ Item {
             colBackground: enabled ? Appearance.m3colors.m3primary : Appearance.m3colors.m3surfaceContainerHigh
             
             onClicked: {
-                let secs = parseInputToSeconds();
-                if (secs > 0) {
-                    TimerService.setDuration(secs);
+                let s = root.parseInputToSeconds();
+                if (s > 0) {
+                    TimerService.setDuration(s);
+                    root.forceRunningMode = true;
                     TimerService.start();
-                    root.inputDigits = "";
                 }
             }
 
@@ -140,7 +141,7 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 16 * Appearance.effectiveScale
-        visible: TimerService.active || TimerService.remainingMs !== TimerService.setSeconds * 1000 || TimerService.overflowing
+        visible: TimerService.active || TimerService.remainingMs !== TimerService.setSeconds * 1000 || TimerService.overflowing || root.forceRunningMode
 
         Item { Layout.fillHeight: true }
 
@@ -172,6 +173,29 @@ Item {
                     font.family: Appearance.font.family.numbers
                     font.features: { "tnum": 1 }
                     color: TimerService.isNegative ? Appearance.m3colors.m3error : Appearance.colors.colOnLayer1
+                }
+                
+                RippleButton {
+                    Layout.alignment: Qt.AlignHCenter
+                    implicitWidth: 32 * Appearance.effectiveScale
+                    implicitHeight: 32 * Appearance.effectiveScale
+                    buttonRadius: 16 * Appearance.effectiveScale
+                    colBackground: "transparent"
+                    visible: TimerService.active || TimerService.remainingMs !== TimerService.setSeconds * 1000
+                    
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: "replay"
+                        iconSize: 20 * Appearance.effectiveScale
+                        color: TimerService.isNegative ? Appearance.m3colors.m3error : Appearance.colors.colSubtext
+                    }
+                    
+                    onClicked: {
+                        root.forceRunningMode = true;
+                        TimerService.setDuration(TimerService.setSeconds);
+                        TimerService.pause();
+                    }
+                    StyledToolTip { text: I18nService.tr("Restart") }
                 }
             }
         }
@@ -207,7 +231,10 @@ Item {
                 implicitHeight: 64 * Appearance.effectiveScale
                 buttonRadius: 32 * Appearance.effectiveScale
                 colBackground: Appearance.m3colors.m3surfaceContainerHigh
-                onClicked: TimerService.stop()
+                onClicked: {
+                    root.forceRunningMode = false;
+                    TimerService.stop();
+                }
 
                 MaterialSymbol {
                     anchors.centerIn: parent

@@ -13,6 +13,20 @@ Item {
     property int configMode: 0 // 0: None, 1: Setting Focus, 2: Setting Break
     property string inputDigits: ""
 
+    function formatDuration(totalSeconds) {
+        let h = Math.floor(totalSeconds / 3600);
+        let m = Math.floor((totalSeconds % 3600) / 60);
+        let s = totalSeconds % 60;
+        
+        let parts = [];
+        if (h > 0) parts.push(h + "h");
+        if (m > 0) parts.push(m + "m");
+        if (s > 0) parts.push(s + "s");
+        
+        if (parts.length === 0) return "0s";
+        return parts.join(" ");
+    }
+
     readonly property string inputDisplay: {
         let padded = inputDigits.padStart(6, '0');
         let h = padded.substring(0, 2);
@@ -131,7 +145,7 @@ Item {
                     anchors.centerIn: parent
                     spacing: 4 * Appearance.effectiveScale
                     MaterialSymbol { text: "alarm"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
-                    StyledText { text: Math.floor(PomodoroService.focusTime / 60) + "m"; font.pixelSize: 12 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: root.formatDuration(PomodoroService.focusTime); font.pixelSize: 12 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
                 }
                 StyledToolTip { text: I18nService.tr("Set Focus Time") }
             }
@@ -147,7 +161,7 @@ Item {
                     anchors.centerIn: parent
                     spacing: 4 * Appearance.effectiveScale
                     MaterialSymbol { text: "coffee"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
-                    StyledText { text: Math.floor(PomodoroService.breakTime / 60) + "m"; font.pixelSize: 12 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: root.formatDuration(PomodoroService.breakTime); font.pixelSize: 12 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
                 }
                 StyledToolTip { text: I18nService.tr("Set Break Time") }
             }
@@ -184,21 +198,21 @@ Item {
                 buttonRadius: 32 * Appearance.effectiveScale
                 colBackground: Appearance.m3colors.m3surfaceContainerHigh
                 onClicked: {
-                    if (PomodoroService.active || PomodoroService.elapsedMs > 0) {
+                    if (PomodoroService.active || PomodoroService.elapsedMs > 0 || PomodoroService.remainingTime !== PomodoroService.duration) {
                         PomodoroService.stop();
                     } else {
                         PomodoroService.rotations = 0;
-                        PomodoroService.reset();
+                        PomodoroService.setMode(0);
                     }
                 }
 
                 MaterialSymbol {
                     anchors.centerIn: parent
-                    text: (PomodoroService.active || PomodoroService.elapsedMs > 0) ? "stop" : "refresh"
+                    text: (PomodoroService.active || PomodoroService.elapsedMs > 0 || PomodoroService.remainingTime !== PomodoroService.duration) ? "stop" : "refresh"
                     iconSize: 24 * Appearance.effectiveScale
                     color: Appearance.colors.colOnLayer1
                 }
-                StyledToolTip { text: (PomodoroService.active || PomodoroService.elapsedMs > 0) ? I18nService.tr("Stop") : I18nService.tr("Reset") }
+                StyledToolTip { text: (PomodoroService.active || PomodoroService.elapsedMs > 0 || PomodoroService.remainingTime !== PomodoroService.duration) ? I18nService.tr("Stop") : I18nService.tr("Reset") }
             }
 
             // Pause / Resume
