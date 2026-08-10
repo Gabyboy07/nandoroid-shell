@@ -30,7 +30,7 @@ Singleton {
             return;
         }
         
-        if (translateProc.running) translateProc.terminate();
+        if (translateProc.running) translateProc.running = false;
 
         const s = source || "auto";
         const t = target || "en";
@@ -80,7 +80,7 @@ Singleton {
         onExited: (exitCode, exitStatus) => {
             if (exitCode === 0 && root.currentQuery.length > 0) {
                 root.translatedText = (translateProc.buffer === "\n" ? "" : translateProc.buffer).trim();
-            } else if (exitCode !== 0 && root.currentQuery.length > 0) {
+            } else if (exitCode !== 0 && exitCode !== 15 && exitCode !== 9 && root.currentQuery.length > 0) {
                 console.error("[TranslationService] Process exited with code:", exitCode);
             }
         }

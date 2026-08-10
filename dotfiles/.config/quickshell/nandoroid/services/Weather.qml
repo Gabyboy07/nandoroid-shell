@@ -187,11 +187,11 @@ Singleton {
     }
 
     Component.onDestruction: {
-        readCacheProc.terminate();
-        weatherProc.terminate();
-        ipLocProc.terminate();
-        geocodingProc.terminate();
-        openMeteoProc.terminate();
+        readCacheProc.running = false;
+        weatherProc.running = false;
+        ipLocProc.running = false;
+        geocodingProc.running = false;
+        openMeteoProc.running = false;
     }
 
     Timer {

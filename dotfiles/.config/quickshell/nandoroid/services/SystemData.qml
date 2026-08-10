@@ -589,11 +589,11 @@ Singleton {
     }
 
     Component.onDestruction: {
-        dgopServerProc.terminate();
-        psProc.terminate();
-        checkDgopProc.terminate();
-        tempProc.terminate();
-        gpuProc.terminate();
-        customDiskProc.terminate();
+        dgopServerProc.running = false;
+        psProc.running = false;
+        checkDgopProc.running = false;
+        tempProc.running = false;
+        gpuProc.running = false;
+        customDiskProc.running = false;
     }
 }

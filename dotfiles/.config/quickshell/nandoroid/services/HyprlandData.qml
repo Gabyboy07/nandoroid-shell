@@ -160,10 +160,10 @@ Singleton {
     }
     
     Component.onDestruction: {
-        getClients.terminate();
-        getMonitors.terminate();
-        getWorkspaces.terminate();
-        getActiveWorkspace.terminate();
+        getClients.running = false;
+        getMonitors.running = false;
+        getWorkspaces.running = false;
+        getActiveWorkspace.running = false;
         getActiveWindow.window = null;
     }
 
