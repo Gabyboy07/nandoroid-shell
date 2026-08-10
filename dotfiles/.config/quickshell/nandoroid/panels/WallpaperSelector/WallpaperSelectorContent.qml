@@ -876,13 +876,13 @@ Item {
                                         // Highlight border: selected (live preview) or currently applied wallpaper
                                         Rectangle {
                                             anchors.fill: parent
-                                            border.width: (delegateRoot.isSelected ? 3 : 4) * Appearance.effectiveScale
+                                            border.width: 3 * Appearance.effectiveScale
                                             border.color: Appearance.colors.colPrimary
                                             radius: 10 * Appearance.effectiveScale
                                             color: "transparent"
+                                            antialiasing: true
                                             visible: delegateRoot.isSelected || delegateRoot.isCurrentWallpaper
                                         }
-                                        
                                         // Active wallpaper checkmark badge
                                         Rectangle {
                                             visible: delegateRoot.isCurrentWallpaper && !delegateRoot.isSelected
