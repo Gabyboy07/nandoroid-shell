@@ -9,9 +9,9 @@ import Quickshell
 
 /**
  * Dashboard Tab 4: Translator - Nandoroid Polished Version
- * Features a horizontal "Google Translate" layout (Left: Source, Right: Result).
+ * Features a vertical layout with modern "Google Translate" side-by-side cards.
  */
-RowLayout {
+ColumnLayout {
     id: root
     spacing: 16 * Appearance.effectiveScale
 
@@ -24,7 +24,8 @@ RowLayout {
         if (txt.length > 0) {
             debounceTimer.restart();
         } else if (inputText.text === "") {
-            TranslationService.translatedText = "";
+            TranslationService.translate("", root.srcLang, root.targetLang);
+            TranslationService.detectedLanguage = "";
             debounceTimer.stop();
         }
     }
@@ -36,152 +37,260 @@ RowLayout {
         onTriggered: TranslationService.translate(inputText.text, root.srcLang, root.targetLang)
     }
 
-    // --- Left Section: Source ---
-    Rectangle {
-        Layout.fillHeight: true; Layout.fillWidth: true
-        color: Appearance.colors.colLayer1; radius: Appearance.rounding.large
-        border.width: Math.max(1, 1 * Appearance.effectiveScale); border.color: Functions.ColorUtils.applyAlpha(Appearance.colors.colOnLayer1, 0.05)
+    // --- Top Bar: Language Selectors ---
+    RowLayout {
+        Layout.fillWidth: true
+        spacing: 12 * Appearance.effectiveScale
 
-        ColumnLayout {
-            anchors.fill: parent; anchors.margins: 24 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
+        StyledComboBox {
+            id: srcCombo
+            Layout.fillWidth: true
+            Layout.preferredHeight: 48 * Appearance.effectiveScale
+            colBackground: Appearance.m3colors.m3primaryContainer
+            colText: Appearance.m3colors.m3onPrimaryContainer
+            bgRadius: 24 * Appearance.effectiveScale
+            borderWidth: isOpened ? Math.max(2, 2 * Appearance.effectiveScale) : 0
+            model: (TranslationService.availableLanguages && TranslationService.availableLanguages.length > 0) ? TranslationService.availableLanguages : ["auto", "en", "id", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"]
+            
+            // Custom text to show Auto (detectedLanguage) if applicable
+            text: {
+                if (root.srcLang === "auto") {
+                    if (TranslationService.detectedLanguage !== "" && inputText.text.trim().length > 0) {
+                        return "auto (" + TranslationService.detectedLanguage + ")";
+                    }
+                    return "auto";
+                }
+                return root.srcLang;
+            }
 
-            RowLayout {
-                Layout.fillWidth: true
-                MaterialSymbol { text: "translate"; iconSize: 22 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                StyledText { text: I18nService.tr("Source"); font.pixelSize: Math.round(15 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colOnLayer1 }
-                Item { Layout.fillWidth: true }
+            onAccepted: (value) => {
+                // Remove the " (detected)" part if they somehow submitted it, though accepted usually comes from the dropdown model
+                let realValue = value;
+                if (value.startsWith("auto")) realValue = "auto";
                 
-                StyledComboBox {
-                    id: srcCombo
-                    Layout.preferredWidth: 130 * Appearance.effectiveScale
-                    model: (TranslationService.availableLanguages && TranslationService.availableLanguages.length > 0) ? TranslationService.availableLanguages : ["auto", "en", "id", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"]
-                    text: root.srcLang
-                    onAccepted: (value) => {
-                        root.srcLang = value;
-                        if (Config.ready) Config.options.language.translator.sourceLanguage = value;
-                        root.triggerTranslate();
-                    }
+                root.srcLang = realValue;
+                if (Config.ready) Config.options.language.translator.sourceLanguage = realValue;
+                root.triggerTranslate();
+            }
+        }
+
+        MaterialShapeWrappedMaterialSymbol {
+            id: swapBtn
+            text: "sync_alt"
+            iconSize: 20 * Appearance.effectiveScale
+            color: Appearance.m3colors.m3tertiaryContainer
+            colSymbol: Appearance.m3colors.m3onTertiaryContainer
+            shape: MaterialShape.Shape.Squircle
+            width: 40 * Appearance.effectiveScale
+            height: 40 * Appearance.effectiveScale
+
+            // Disable swap if source is auto and we haven't detected anything yet
+            property bool isSwapEnabled: (root.srcLang !== "auto") || (TranslationService.detectedLanguage !== "" && inputText.text.trim().length > 0)
+            opacity: isSwapEnabled ? 1.0 : 0.4
+            
+            // Add a fun bounce effect when pressed
+            scale: swapMouseArea.pressed ? 0.8 : (swapMouseArea.containsMouse ? 1.05 : 1.0)
+            
+            Behavior on scale {
+                NumberAnimation {
+                    duration: 150
+                    easing.type: Easing.OutBack
                 }
             }
 
-            ScrollView {
-                Layout.fillWidth: true; Layout.fillHeight: true; clip: true
-                TextArea {
-                    id: inputText
-                    placeholderText: I18nService.tr("Type or paste text here...")
-                    placeholderTextColor: Appearance.colors.colSubtext
-                    color: Appearance.colors.colOnLayer1
-                    font.family: Appearance.font.family.main
-                    font.pixelSize: Math.round(16 * Appearance.effectiveScale); wrapMode: Text.Wrap; background: null; selectByMouse: true
-                    onTextChanged: {
-                        if (activeFocus || text === "") root.triggerTranslate();
+            MouseArea {
+                id: swapMouseArea
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: parent.isSwapEnabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                
+                onClicked: {
+                    if (!parent.isSwapEnabled) return;
+
+                    let newSrc = root.targetLang;
+                    let newTarget = root.srcLang;
+
+                    if (root.srcLang === "auto") {
+                        newTarget = TranslationService.detectedLanguage;
                     }
+
+                    if (newTarget === "auto") {
+                        newTarget = "en";
+                    }
+
+                    root.srcLang = newSrc;
+                    root.targetLang = newTarget;
+
+                    if (Config.ready) {
+                        Config.options.language.translator.sourceLanguage = newSrc;
+                        Config.options.language.translator.targetLanguage = newTarget;
+                    }
+
+                    let oldResult = TranslationService.translatedText || "";
+                    if (oldResult.length > 0) {
+                        inputText.text = oldResult;
+                        TranslationService.translatedText = ""; 
+                    }
+
+                    root.triggerTranslate();
                 }
             }
 
-            RowLayout {
-                Layout.fillWidth: true
-                Item { Layout.fillWidth: true }
-                M3IconButton {
-                    id: clearBtn
-                    iconName: "close"; visible: inputText.text.length > 0
-                    onClicked: { inputText.text = ""; TranslationService.translatedText = ""; }
-                    StyledToolTip { text: I18nService.tr("Clear input"); extraVisibleCondition: clearBtn.realHovered }
-                }
-                M3IconButton {
-                    id: pasteBtn
-                    iconName: "content_paste"
-                    onClicked: {
-                        inputText.text = Quickshell.clipboardText;
-                        inputText.forceActiveFocus();
-                        root.triggerTranslate();
-                    }
-                    StyledToolTip { text: I18nService.tr("Paste from clipboard"); extraVisibleCondition: pasteBtn.realHovered }
-                }
+            StyledToolTip {
+                text: I18nService.tr("Swap Languages")
+                extraVisibleCondition: swapMouseArea.containsMouse
+            }
+        }
+
+        StyledComboBox {
+            id: targetCombo
+            Layout.fillWidth: true
+            Layout.preferredHeight: 48 * Appearance.effectiveScale
+            colBackground: Appearance.m3colors.m3primaryContainer
+            colText: Appearance.m3colors.m3onPrimaryContainer
+            bgRadius: 24 * Appearance.effectiveScale
+            borderWidth: isOpened ? Math.max(2, 2 * Appearance.effectiveScale) : 0
+            model: {
+                const base = (TranslationService.availableLanguages && TranslationService.availableLanguages.length > 0) ? TranslationService.availableLanguages : ["en", "id", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"];
+                return base.filter(l => l !== "auto");
+            }
+            text: root.targetLang
+            onAccepted: (value) => {
+                root.targetLang = value;
+                if (Config.ready) Config.options.language.translator.targetLanguage = value;
+                root.triggerTranslate();
             }
         }
     }
 
-    MaterialSymbol { text: "arrow_forward"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colSubtext; opacity: 0.4 }
+    // --- Bottom Section: Cards ---
+    RowLayout {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        spacing: 12 * Appearance.effectiveScale
 
-    // --- Right Section: Result ---
-    Rectangle {
-        Layout.fillHeight: true; Layout.fillWidth: true
-        color: Appearance.colors.colLayer2; radius: Appearance.rounding.large
-        border.width: Math.max(1, 1 * Appearance.effectiveScale); border.color: Functions.ColorUtils.applyAlpha(Appearance.colors.colOnLayer1, 0.05)
+        // --- Left Card (Input) ---
+        Rectangle {
+            Layout.fillHeight: true; Layout.fillWidth: true
+            color: Appearance.m3colors.m3surfaceContainer
+            radius: Appearance.rounding.large * 1.5
+            border.width: 0
 
-        ColumnLayout {
-            anchors.fill: parent; anchors.margins: 24 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 16 * Appearance.effectiveScale
+                spacing: 8 * Appearance.effectiveScale
 
-            RowLayout {
-                Layout.fillWidth: true
-                StyledText { text: I18nService.tr("Translation"); font.pixelSize: Math.round(15 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colPrimary }
-                Item { Layout.fillWidth: true }
-                
-                StyledComboBox {
-                    id: targetCombo
-                    Layout.preferredWidth: 130 * Appearance.effectiveScale
-                    model: {
-                        const base = (TranslationService.availableLanguages && TranslationService.availableLanguages.length > 0) ? TranslationService.availableLanguages : ["en", "id", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"];
-                        return base.filter(l => l !== "auto");
-                    }
-                    text: root.targetLang
-                    onAccepted: (value) => {
-                        root.targetLang = value;
-                        if (Config.ready) Config.options.language.translator.targetLanguage = value;
-                        root.triggerTranslate();
+                ScrollView {
+                    Layout.fillWidth: true; Layout.fillHeight: true; clip: true
+                    TextArea {
+                        id: inputText
+                        placeholderText: I18nService.tr("Type or paste text here...")
+                        placeholderTextColor: Appearance.colors.colSubtext
+                        color: Appearance.colors.colOnLayer1
+                        font.family: Appearance.font.family.main
+                        font.pixelSize: Math.round(18 * Appearance.effectiveScale)
+                        wrapMode: Text.Wrap; background: null; selectByMouse: true
+                        onTextChanged: {
+                            if (activeFocus || text === "") root.triggerTranslate();
+                        }
                     }
                 }
-            }
 
-            ScrollView {
-                Layout.fillWidth: true; Layout.fillHeight: true; clip: true
-                TextArea {
-                    id: resultText
-                    text: TranslationService.translatedText || ""
-                    readOnly: true
-                    placeholderText: TranslationService.isTranslating ? I18nService.tr("Translating...") : I18nService.tr("Translation will appear here...")
-                    placeholderTextColor: Appearance.colors.colSubtext
-                    color: Appearance.colors.colOnLayer2
-                    font.family: Appearance.font.family.main
-                    font.pixelSize: Math.round(18 * Appearance.effectiveScale); font.weight: Font.Medium; wrapMode: Text.Wrap; background: null; selectByMouse: true
-                    
-                    opacity: TranslationService.isTranslating ? 0.6 : 1.0
-                    Behavior on opacity { NumberAnimation { duration: 200 } }
-                }
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                
                 RowLayout {
-                    spacing: 8 * Appearance.effectiveScale
-                    visible: !!TranslationService.isTranslating
+                    Layout.fillWidth: true
                     
-                    MaterialSymbol {
-                        text: "sync"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colPrimary
-                        RotationAnimation on rotation { from: 0; to: 360; duration: 1000; loops: Animation.Infinite; running: parent.visible }
+                    StyledText {
+                        text: inputText.text.length + " " + I18nService.tr("characters")
+                        font.pixelSize: 12 * Appearance.effectiveScale
+                        color: Appearance.colors.colSubtext
                     }
-                    StyledText { text: I18nService.tr("Translating..."); font.pixelSize: Math.round(12 * Appearance.effectiveScale); color: Appearance.colors.colPrimary }
-                }
-                
-                Item { Layout.fillWidth: true }
+                    
+                    Item { Layout.fillWidth: true }
+                    
+                    RippleButton {
+                        id: pasteBtn
+                        implicitWidth: 36 * Appearance.effectiveScale
+                        implicitHeight: 36 * Appearance.effectiveScale
+                        buttonRadius: 18 * Appearance.effectiveScale
+                        colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                        
+                        MaterialSymbol { anchors.centerIn: parent; text: "content_paste"; iconSize: 20 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
+                        
+                        onClicked: {
+                            inputText.text = Quickshell.clipboardText;
+                            inputText.forceActiveFocus();
+                            root.triggerTranslate();
+                        }
+                        StyledToolTip { text: I18nService.tr("Paste from clipboard"); extraVisibleCondition: pasteBtn.realHovered }
+                    }
 
-                M3IconButton {
-                    id: translateBtn
-                    iconName: "translate"
-                    highlighted: true
-                    visible: inputText.text.length > 0
-                    onClicked: TranslationService.translate(inputText.text, root.srcLang, root.targetLang)
-                    StyledToolTip { text: I18nService.tr("Translate now"); extraVisibleCondition: translateBtn.realHovered }
+                    RippleButton {
+                        id: clearBtn
+                        implicitWidth: 36 * Appearance.effectiveScale
+                        implicitHeight: 36 * Appearance.effectiveScale
+                        buttonRadius: 18 * Appearance.effectiveScale
+                        colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                        visible: inputText.text.length > 0
+                        
+                        MaterialSymbol { anchors.centerIn: parent; text: "close"; iconSize: 20 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
+                        
+                        onClicked: { inputText.text = ""; TranslationService.translatedText = ""; TranslationService.detectedLanguage = ""; }
+                        StyledToolTip { text: I18nService.tr("Clear input"); extraVisibleCondition: clearBtn.realHovered }
+                    }
                 }
-                
-                M3IconButton {
-                    id: copyBtn
-                    iconName: "content_copy"
-                    enabled: (TranslationService.translatedText && TranslationService.translatedText.length > 0)
-                    onClicked: Quickshell.clipboardText = TranslationService.translatedText
-                    StyledToolTip { text: I18nService.tr("Copy translation"); extraVisibleCondition: copyBtn.realHovered }
+            }
+        }
+
+        // --- Right Card (Output) ---
+        Rectangle {
+            Layout.fillHeight: true; Layout.fillWidth: true
+            color: Appearance.m3colors.m3surfaceContainer
+            radius: Appearance.rounding.large * 1.5
+            border.width: 0
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 16 * Appearance.effectiveScale
+                spacing: 8 * Appearance.effectiveScale
+
+                ScrollView {
+                    Layout.fillWidth: true; Layout.fillHeight: true; clip: true
+                    TextArea {
+                        id: resultText
+                        text: TranslationService.translatedText || ""
+                        readOnly: true
+                        placeholderText: TranslationService.isTranslating ? I18nService.tr("Translating...") : I18nService.tr("Translation will appear here...")
+                        placeholderTextColor: Appearance.colors.colSubtext
+                        color: Appearance.colors.colOnLayer1
+                        font.family: Appearance.font.family.main
+                        font.pixelSize: Math.round(18 * Appearance.effectiveScale)
+                        wrapMode: Text.Wrap; background: null; selectByMouse: true
+                        
+                        opacity: TranslationService.isTranslating ? 0.6 : 1.0
+                        Behavior on opacity { NumberAnimation { duration: 200 } }
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    Item { Layout.fillWidth: true } // Spacer
+                    
+                    RippleButton {
+                        id: copyBtn
+                        implicitWidth: 36 * Appearance.effectiveScale
+                        implicitHeight: 36 * Appearance.effectiveScale
+                        buttonRadius: 18 * Appearance.effectiveScale
+                        colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                        visible: resultText.text.length > 0
+                        
+                        MaterialSymbol { anchors.centerIn: parent; text: "content_copy"; iconSize: 20 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
+                        
+                        onClicked: {
+                            Quickshell.clipboardText = resultText.text;
+                        }
+                        StyledToolTip { text: I18nService.tr("Copy to clipboard"); extraVisibleCondition: copyBtn.realHovered }
+                    }
                 }
             }
         }

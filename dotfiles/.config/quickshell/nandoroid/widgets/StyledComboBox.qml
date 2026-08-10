@@ -21,6 +21,13 @@ Item {
     property bool isOpened: false
     property bool isFiltering: false // Only filter when user starts typing
     property int maxHeight: 240 * Appearance.effectiveScale
+    
+    // Custom styling properties
+    property color colBackground: Appearance.colors.colLayer1
+    property color colBorder: root.isOpened ? Appearance.colors.colPrimary : Appearance.colors.colOutlineVariant
+    property color colText: Appearance.colors.colOnLayer1
+    property real borderWidth: root.isOpened ? Math.max(2, 2 * Appearance.effectiveScale) : Math.max(1, 1 * Appearance.effectiveScale)
+    property real bgRadius: 12 * Appearance.effectiveScale
 
     property string activeFont: {
         if (root.isOpened && listView.currentIndex >= 0 && listView.currentIndex < root.filteredModel.length) {
@@ -51,10 +58,10 @@ Item {
     Rectangle {
         id: bg
         anchors.fill: parent
-        radius: 12 * Appearance.effectiveScale
-        color: Appearance.colors.colLayer1
-        border.width: root.isOpened ? Math.max(2, 2 * Appearance.effectiveScale) : Math.max(1, 1 * Appearance.effectiveScale)
-        border.color: root.isOpened ? Appearance.colors.colPrimary : Appearance.colors.colOutlineVariant
+        radius: root.bgRadius
+        color: root.colBackground
+        border.width: root.borderWidth
+        border.color: root.colBorder
         
         Behavior on border.color { ColorAnimation { duration: 200 } }
 
@@ -80,8 +87,9 @@ Item {
                 text: root.text
                 font.family: Appearance.font.family.main
                 font.pixelSize: Appearance.font.pixelSize.normal
-                color: Appearance.colors.colOnLayer1
+                color: root.colText
                 verticalAlignment: TextInput.AlignVCenter
+                horizontalAlignment: TextInput.AlignHCenter
                 readOnly: !root.searchable
                 selectByMouse: root.searchable
                 clip: true
@@ -155,9 +163,9 @@ Item {
             }
             
             MaterialSymbol {
-                text: root.isOpened ? "expand_less" : "expand_more"
+                text: root.isOpened ? "keyboard_arrow_up" : "keyboard_arrow_down"
                 iconSize: 20 * Appearance.effectiveScale
-                color: Appearance.colors.colSubtext
+                color: root.colText
                 
                 MouseArea {
                     anchors.fill: parent

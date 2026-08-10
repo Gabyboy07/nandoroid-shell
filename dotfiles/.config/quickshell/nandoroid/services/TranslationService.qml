@@ -14,12 +14,18 @@ Singleton {
     id: root
 
     property string translatedText: ""
+    property string detectedLanguage: ""
     property bool isTranslating: translateProc.running
     property var availableLanguages: ["auto", "en", "id", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"]
+    
+    // Track current active query to prevent race conditions on clear
+    property string currentQuery: ""
 
     function translate(text, source, target) {
         const cleanText = (text || "").trim();
+        root.currentQuery = cleanText;
         if (cleanText.length === 0) {
+            if (translateProc.running) translateProc.running = false;
             root.translatedText = "";
             return;
         }
@@ -29,12 +35,13 @@ Singleton {
         const s = source || "auto";
         const t = target || "en";
 
-        // Use short flags -s and -t as they are more standard across trans versions
-        const cmd = `trans -brief`
-            + ` -s '${Functions.StringUtils.shellSingleQuoteEscape(s)}'`
-            + ` -t '${Functions.StringUtils.shellSingleQuoteEscape(t)}'`
-            + ` '${Functions.StringUtils.shellSingleQuoteEscape(cleanText)}'`;
-        
+        // If source is auto, we also identify the language code and print it first
+        let cmd = "";
+        if (s === "auto") {
+            cmd = `res=$(trans -brief -s 'auto' -t '${Functions.StringUtils.shellSingleQuoteEscape(t)}' '${Functions.StringUtils.shellSingleQuoteEscape(cleanText)}'); code=$(trans -identify -no-ansi '${Functions.StringUtils.shellSingleQuoteEscape(cleanText)}' | awk '/Code/{print $2}'); echo -e "$code\\n$res"`;
+        } else {
+            cmd = `echo -e "${s}\\n$(trans -brief -s '${Functions.StringUtils.shellSingleQuoteEscape(s)}' -t '${Functions.StringUtils.shellSingleQuoteEscape(t)}' '${Functions.StringUtils.shellSingleQuoteEscape(cleanText)}')"`
+        }
 
         translateProc.command = ["bash", "-c", cmd];
         translateProc.buffer = "";
@@ -48,8 +55,19 @@ Singleton {
         running: false
         property string buffer: ""
         stdout: SplitParser {
-            onRead: data => {
-                translateProc.buffer += data;
+            onRead: (line) => {
+                const textLine = line.toString();
+                if (translateProc.buffer === "") {
+                    // First line is the detected/source language code
+                    root.detectedLanguage = textLine.trim();
+                    translateProc.buffer = "\n"; // Mark that we've read the first line
+                } else {
+                    if (translateProc.buffer === "\n") {
+                        translateProc.buffer = textLine; // First line of actual translation
+                    } else {
+                        translateProc.buffer += "\n" + textLine;
+                    }
+                }
             }
         }
         stderr: StdioCollector {
@@ -60,10 +78,9 @@ Singleton {
             }
         }
         onExited: (exitCode, exitStatus) => {
-            if (exitCode === 0) {
-                root.translatedText = translateProc.buffer.trim();
-
-            } else {
+            if (exitCode === 0 && root.currentQuery.length > 0) {
+                root.translatedText = (translateProc.buffer === "\n" ? "" : translateProc.buffer).trim();
+            } else if (exitCode !== 0 && root.currentQuery.length > 0) {
                 console.error("[TranslationService] Process exited with code:", exitCode);
             }
         }
