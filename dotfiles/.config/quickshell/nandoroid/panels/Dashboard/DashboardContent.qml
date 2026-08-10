@@ -226,9 +226,6 @@ Item {
                 bottomLeftRadius: Appearance.rounding.panel
                 bottomRightRadius: Appearance.rounding.panel
 
-                // MD3 Outline Style (Active when not fused with status bar)
-                border.width: root.showShoulders ? 0 : Math.max(1, 1 * Appearance.effectiveScale)
-                border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
 
                 // Close internal tooltips/popups when clicking anywhere inside the panel or its padding
                 TapHandler {

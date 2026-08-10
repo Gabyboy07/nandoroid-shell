@@ -15,7 +15,6 @@ Rectangle {
     color: Appearance.colors.colLayer1
     radius: Appearance.rounding.large
     
-    // MD3 Outline Style
     border.width: 1 * Appearance.effectiveScale
     border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
     

@@ -24,6 +24,11 @@ Item {
     implicitWidth: 340 * Appearance.effectiveScale
     implicitHeight: 48 * Appearance.effectiveScale
 
+    StyledRectangularShadow {
+        target: valueIndicator
+        z: -1
+    }
+
     Rectangle {
         id: valueIndicator
         anchors.fill: parent

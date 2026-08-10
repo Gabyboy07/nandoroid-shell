@@ -4,6 +4,7 @@ import QtQuick.Controls
 import "../../../core"
 import "../../../core/functions" as Functions
 import "../../../services"
+
 import "../../../widgets"
 import ".."
 import Quickshell
@@ -394,13 +395,21 @@ Item {
             root.activeContextPid = -1;
         }
 
-        background: Rectangle {
+        background: Item {
             implicitWidth: 180 * Appearance.effectiveScale
-            color: Appearance.colors.colLayer0
-            opacity: 0.98
-            radius: Appearance.rounding.small
-            border.color: Appearance.colors.colOutlineVariant
-            border.width: Math.max(1, 1 * Appearance.effectiveScale)
+            
+            StyledRectangularShadow {
+                target: bgRect
+                z: -1
+            }
+
+            Rectangle {
+                id: bgRect
+                anchors.fill: parent
+                color: Appearance.colors.colLayer0
+                opacity: 0.98
+                radius: Appearance.rounding.small
+            }
         }
 
         padding: 4 * Appearance.effectiveScale

@@ -83,6 +83,11 @@ Scope {
                     radius: Appearance.rounding.card
                     color: Appearance.m3colors.m3surfaceContainerHigh
 
+                    StyledRectangularShadow {
+                        target: dialog
+                        z: -1
+                    }
+
                     MouseArea {
                         anchors.fill: parent
                         // Prevent click-through to the background scrim

@@ -176,9 +176,15 @@ Item {
 
     // Role 7: Surface container high (Dialog Card Background)
     Rectangle {
+        id: bgRect
         anchors.fill: parent
         radius: Appearance.rounding.card
         color: Appearance.m3colors.m3surfaceContainerHigh
+    }
+
+    StyledRectangularShadow {
+        target: bgRect
+        z: -1
     }
 
     ColumnLayout {

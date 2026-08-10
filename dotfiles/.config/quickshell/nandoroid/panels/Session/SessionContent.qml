@@ -39,15 +39,19 @@ Item {
     readonly property real itemSp: 6 * root.baseScale
     readonly property real contentW: actions.length * baseItemW + activeBonusW + (actions.length - 1) * itemSp
 
+    StyledRectangularShadow {
+        target: sessionBg
+        radius: sessionBg.radius
+
+    }
+
     Rectangle {
+        id: sessionBg
         anchors.centerIn: parent
         width: contentW + 2 * 12 * root.baseScale
         height: itemH
         radius: Appearance.rounding.panel
         color: Appearance.colors.colLayer0
-
-        border.width: Math.max(1, 1 * Appearance.effectiveScale)
-        border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
 
         Carousel {
             id: sessionCarousel

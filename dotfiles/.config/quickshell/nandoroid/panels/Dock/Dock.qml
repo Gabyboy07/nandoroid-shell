@@ -179,9 +179,14 @@ Scope {
                                     bottomRightRadius: (dockWindow.bgStyle === 1) ? height/2 : 0
                                     color: Appearance.colors.colStatusBarSolid; opacity: dockWindow.bgStyle === 0 ? 0 : 1.0; 
                                     
-                                    // MD3 Outline Style
-                                    border.width: dockWindow.bgStyle !== 0 ? Math.max(1, 1 * Appearance.effectiveScale) : 0
-                                    border.color: Functions.ColorUtils.applyAlpha(Appearance.colors.colOnLayer0, 0.12)
+                                }
+
+                                StyledRectangularShadow {
+                                    target: dockVisualRect
+                                    radius: dockVisualRect.radius
+                                    color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
+                                    visible: dockWindow.bgStyle !== 0
+                                    z: -1
                                 }
 
                                 Item {

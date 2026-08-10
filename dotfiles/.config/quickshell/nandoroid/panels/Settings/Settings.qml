@@ -98,6 +98,12 @@ Scope {
             MaterialThemeLoader.reapplyTheme()
         }
 
+        StyledRectangularShadow {
+            target: contentContainer
+            radius: contentContainer.radius
+            color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
+        }
+
         // Main Panel Background
         Rectangle {
             id: contentContainer
@@ -107,8 +113,6 @@ Scope {
             Keys.onEscapePressed: GlobalStates.settingsOpen = false
 
             color: Appearance.colors.colLayer0
-            border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
-            border.width: Math.max(1, 1 * Appearance.effectiveScale)
             radius: 20 * Appearance.effectiveScale
 
             // Trap clicks inside

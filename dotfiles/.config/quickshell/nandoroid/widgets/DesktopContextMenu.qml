@@ -9,7 +9,7 @@ import Qt.labs.folderlistmodel
 import "../core"
 import "../core/functions" as Functions
 import "../services"
-import Qt5Compat.GraphicalEffects
+
 
 /**
  * DesktopContextMenu.qml
@@ -114,8 +114,6 @@ PanelWindow {
         implicitHeight: 160 * Appearance.effectiveScale
         radius: Appearance.rounding.extraLarge
         color: Appearance.colors.colLayer0
-        border.color: Appearance.colors.colOutlineVariant
-        border.width: Math.max(1, 1 * Appearance.effectiveScale)
         
         opacity: (root.visible && !root.isClosing) ? 0.98 : 0
         scale: (root.visible && !root.isClosing) ? 1 : 0.95
@@ -138,6 +136,11 @@ PanelWindow {
         MouseArea {
             anchors.fill: parent
             onPressed: (mouse) => mouse.accepted = true
+        }
+
+        StyledRectangularShadow {
+            target: carouselContainer
+            z: -1
         }
 
         Carousel {
@@ -169,8 +172,6 @@ PanelWindow {
         
         radius: Appearance.rounding.normal
         color: Appearance.colors.colLayer0
-        border.color: Appearance.colors.colOutlineVariant
-        border.width: Math.max(1, 1 * Appearance.effectiveScale)
         
         // Glassmorphism effect
         opacity: (root.visible && !root.isClosing) ? 0.98 : 0
@@ -195,6 +196,11 @@ PanelWindow {
         MouseArea {
             anchors.fill: parent
             onPressed: (mouse) => mouse.accepted = true
+        }
+
+        StyledRectangularShadow {
+            target: menuContainer
+            z: -1
         }
 
         ColumnLayout {

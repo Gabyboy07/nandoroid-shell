@@ -38,6 +38,12 @@ Scope {
             MaterialThemeLoader.reapplyTheme()
         }
 
+        StyledRectangularShadow {
+            target: contentContainer
+            radius: contentContainer.radius
+            color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
+        }
+
         Rectangle {
             id: contentContainer
             anchors.fill: parent
@@ -64,8 +70,6 @@ Scope {
             }
 
             color: Appearance.colors.colLayer0
-            border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.08)
-            border.width: Math.max(1, 1 * Appearance.effectiveScale)
             radius: 20 * Appearance.effectiveScale
 
             TapHandler {}
@@ -149,14 +153,19 @@ Scope {
                     }
                 }
 
+                StyledRectangularShadow {
+                    target: innerContentContainer
+                    radius: innerContentContainer.radius
+                    color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
+                }
+
                 // Main Content Area
                 Rectangle {
+                    id: innerContentContainer
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     color: Appearance.colors.colLayer1
                     radius: 14 * Appearance.effectiveScale
-                    border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.05)
-                    border.width: Math.max(1, 1 * Appearance.effectiveScale)
                     clip: true
 
                     Loader {

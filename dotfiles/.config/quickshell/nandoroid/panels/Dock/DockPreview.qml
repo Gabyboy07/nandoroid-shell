@@ -7,6 +7,7 @@ import "../../core"
 import "../../services"
 import "../../widgets"
 
+
 /**
  * DockPreview.qml
  * A stable, scrollable, and live-updating window preview for the dock.
@@ -70,8 +71,6 @@ PopupWindow {
         
         radius: Appearance.rounding.normal
         color: Appearance.colors.colLayer0
-        border.color: Appearance.colors.colOutlineVariant
-        border.width: Math.max(1, 1 * Appearance.effectiveScale)
         
         opacity: root.visible ? 0.98 : 0
         scale: root.visible ? 1 : 0.95
@@ -86,6 +85,11 @@ PopupWindow {
                 if (hovered) hideTimer.stop();
                 else root.requestHide();
             }
+        }
+
+        StyledRectangularShadow {
+            target: parent
+            z: -1
         }
 
         StyledListView {

@@ -58,6 +58,11 @@ Scope {
                     radius: Appearance.rounding.card
                     color: Appearance.m3colors.m3surfaceContainerHigh
                     
+                    StyledRectangularShadow {
+                        target: dialog
+                        z: -1
+                    }
+
                     ColumnLayout {
                         id: contentCol
                         anchors.fill: parent

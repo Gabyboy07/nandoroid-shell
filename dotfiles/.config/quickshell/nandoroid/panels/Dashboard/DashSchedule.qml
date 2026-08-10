@@ -1048,7 +1048,7 @@ Item {
             StyledRectangularShadow {
                 target: fabButton
                 radius: fabButton.buttonRadius
-                color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
+
             }
 
             RippleButton {

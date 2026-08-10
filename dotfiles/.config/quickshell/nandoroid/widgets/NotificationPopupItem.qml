@@ -4,6 +4,7 @@ import "../core/functions/NotificationUtils.js" as NotificationUtils
 import "../core/functions" as Functions
 import QtQuick
 import QtQuick.Layouts
+
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Notifications
@@ -96,6 +97,12 @@ Item {
         }
     }
 
+    StyledRectangularShadow {
+        target: background
+        opacity: 1 - (Math.abs(background.anchors.leftMargin) / (root.width * 1.2))
+        z: -1
+    }
+
     Rectangle {
         id: background
         anchors.left: parent.left
@@ -106,11 +113,6 @@ Item {
         clip: true
         
         opacity: 1 - (Math.abs(anchors.leftMargin) / (root.width * 1.2))
-
-        // MD3 Outline Style
-        border.width: Math.max(1, 1 * Appearance.effectiveScale)
-        border.color: (notificationObject && notificationObject.isRestartRequired) ? 
-            Functions.ColorUtils.applyAlpha(Appearance.colors.colWarning, 0.12) : Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
 
         anchors.leftMargin: dragManager.dragDiffX
         Behavior on anchors.leftMargin {

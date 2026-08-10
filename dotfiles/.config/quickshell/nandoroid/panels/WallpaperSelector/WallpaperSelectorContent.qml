@@ -206,13 +206,17 @@ Item {
     }
 
     // ── Main UI Frame ──
+    StyledRectangularShadow {
+        target: bgContainer
+        radius: bgContainer.radius
+        color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
+    }
+
     Rectangle {
         id: bgContainer
         anchors.fill: parent
         color: Appearance.colors.colLayer0
         radius: 32 * Appearance.effectiveScale
-        border.width: Math.max(1, 1 * Appearance.effectiveScale)
-        border.color: Appearance.colors.colOutlineVariant
         clip: true
 
         TapHandler {}

@@ -10,11 +10,15 @@ Item {
     implicitHeight: col.implicitHeight + (12 * Appearance.effectiveScale)
 
     Rectangle {
+        id: bgRect
         anchors.fill: parent
         radius: Appearance.rounding.normal
         color: Appearance.colors.colLayer0
-        border.color: Appearance.colors.colOutlineVariant
-        border.width: Math.max(1, 1 * Appearance.effectiveScale)
+    }
+
+    StyledRectangularShadow {
+        target: bgRect
+        z: -1
     }
 
     ColumnLayout {

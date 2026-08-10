@@ -113,10 +113,20 @@ Rectangle {
     height: implicitHeight
     implicitWidth: mainLayout.implicitWidth + 28 * Appearance.effectiveScale
     implicitHeight: mainLayout.implicitHeight + 28 * Appearance.effectiveScale
-    color: Appearance.colors.colLayer0
-    radius: Appearance.rounding.panel
-    border.width: Math.max(1, 1 * Appearance.effectiveScale)
-    border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
+    color: "transparent"
+
+    StyledRectangularShadow {
+        target: scrollingOverviewBg
+        radius: scrollingOverviewBg.radius
+
+    }
+
+    Rectangle {
+        id: scrollingOverviewBg
+        anchors.fill: parent
+        color: Appearance.m3colors.m3surfaceContainerLow
+        radius: Appearance.rounding.panel
+    }
 
     function getWorkspaceAtY(globalY) {
         if (!workspaceFlickable) return -1;

@@ -10,6 +10,7 @@ import "../../core"
 import "../../services"
 import "../../widgets"
 
+
 /**
  * DockContextMenu.qml
  * Optimized for stability with reordering buttons.
@@ -50,14 +51,17 @@ PanelWindow {
         implicitHeight: menuLayout.implicitHeight + 12 * Appearance.effectiveScale
         radius: Appearance.rounding.small
         color: Appearance.colors.colLayer0
-        border.color: Appearance.colors.colOutlineVariant
-        border.width: Math.max(1, 1 * Appearance.effectiveScale)
         opacity: root.visible ? 0.98 : 0
         scale: root.visible ? 1 : 0.95
         visible: opacity > 0
 
         Behavior on opacity { NumberAnimation { duration: root.isClosing ? Appearance.animation.elementMoveExit.duration : Appearance.animation.elementMoveEnter.duration; easing.type: Easing.OutCubic } }
         Behavior on scale { NumberAnimation { duration: root.isClosing ? Appearance.animation.elementMoveExit.duration : Appearance.animation.elementMoveEnter.duration; easing.type: Easing.OutBack } }
+
+        StyledRectangularShadow {
+            target: menuContainer
+            z: -1
+        }
 
         MouseArea { anchors.fill: parent; onPressed: (mouse) => mouse.accepted = true }
 

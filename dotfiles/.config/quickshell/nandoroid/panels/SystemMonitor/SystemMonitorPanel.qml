@@ -36,12 +36,16 @@ Scope {
         implicitHeight: Math.min(820 * Appearance.effectiveScale, Appearance.sizes.screen.height * 0.85)
 
         // Main Panel Background
+        StyledRectangularShadow {
+            target: root
+            radius: root.radius
+            color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
+        }
+
         Rectangle {
             id: root
             anchors.fill: parent
             color: Appearance.colors.colLayer0
-            border.color: Appearance.colors.colLayer1
-            border.width: Math.max(1, 1 * Appearance.effectiveScale)
             clip: true
 
             focus: visible

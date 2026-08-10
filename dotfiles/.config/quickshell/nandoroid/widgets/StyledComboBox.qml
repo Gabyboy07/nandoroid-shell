@@ -201,7 +201,6 @@ Item {
             StyledRectangularShadow {
                 target: popupBgRect
                 radius: popupBgRect.radius
-                color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
             }
 
             Rectangle {

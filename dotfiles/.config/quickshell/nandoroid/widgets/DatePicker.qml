@@ -214,9 +214,15 @@ Item {
     }
 
     Rectangle {
+        id: bgRect
         anchors.fill: parent
         radius: Appearance.rounding.card
         color: Appearance.m3colors.m3surfaceContainerHigh
+    }
+    
+    StyledRectangularShadow {
+        target: bgRect
+        z: -1
     }
 
     ColumnLayout {

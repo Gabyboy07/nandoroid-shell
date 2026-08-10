@@ -85,8 +85,12 @@ Variants {
             height: contentLayout.implicitHeight + 24 * Appearance.effectiveScale
             radius: Appearance.rounding.small
             color: Appearance.colors.colLayer0
-            border.width: Math.max(1, 1 * Appearance.effectiveScale)
-            border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
+            
+            StyledRectangularShadow {
+                target: content
+                z: -1
+                opacity: content.opacity
+            }
 
             opacity: GlobalStates.trayOverflowOpen ? 1 : 0
             scale: GlobalStates.trayOverflowOpen ? 1 : 0.9

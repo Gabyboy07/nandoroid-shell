@@ -17,9 +17,12 @@ Rectangle {
     bottomLeftRadius: 0
     bottomRightRadius: 0
     
-    // MD3 Outline Style
-    border.width: 1 * Appearance.effectiveScale
-    border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
+    StyledRectangularShadow {
+        target: root
+        radius: root.radius
+        color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
+        z: -1
+    }
     
     readonly property var resultsProxy: LauncherSearch.results
     property int selectedIndex: 0
