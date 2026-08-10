@@ -81,6 +81,7 @@ ColumnLayout {
                         anchors.centerIn: parent
                         spacing: 6 * Appearance.effectiveScale
                         MaterialSymbol {
+                            id: scanIcon
                             text: "sync"
                             iconSize: 18 * Appearance.effectiveScale
                             color: Appearance.colors.colOnPrimary
@@ -89,6 +90,7 @@ ColumnLayout {
                                 from: 0; to: 360
                                 duration: 1000
                                 loops: Animation.Infinite
+                                onRunningChanged: if (!running) scanIcon.rotation = 0
                             }
                         }
                         StyledText {

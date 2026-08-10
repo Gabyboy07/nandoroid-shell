@@ -85,6 +85,7 @@ Item {
                         onClicked: Network.rescanWifi()
                         
                         contentItem: MaterialSymbol {
+                            id: refreshIconNetwork
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             text: "refresh"
@@ -98,6 +99,7 @@ Item {
                                 duration: 1000
                                 loops: Animation.Infinite
                                 running: Network.wifiScanning
+                                onRunningChanged: if (!running) refreshIconNetwork.rotation = 0
                             }
                         }
                     }

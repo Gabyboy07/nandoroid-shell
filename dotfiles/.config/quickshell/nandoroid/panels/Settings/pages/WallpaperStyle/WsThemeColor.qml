@@ -161,6 +161,7 @@ ColumnLayout {
                     }
 
                     MaterialSymbol {
+                        id: syncIcon
                         text: "sync"
                         anchors.centerIn: parent
                         visible: previewIterateTimer.running || previewMatugen.running
@@ -172,6 +173,7 @@ ColumnLayout {
                             to: 360
                             duration: 1000
                             running: parent.visible
+                            onRunningChanged: if (!running) syncIcon.rotation = 0
                         }
                     }
                 }

@@ -123,6 +123,7 @@ Item {
             }
         }
         Rectangle {
+            id: githubSpinner
             anchors.centerIn: parent; width: 32 * Appearance.effectiveScale; height: 32 * Appearance.effectiveScale; radius: width / 2
             color: "transparent"
             Rectangle {
@@ -132,6 +133,7 @@ Item {
             RotationAnimation on rotation {
                 from: 0; to: 360; duration: 800
                 loops: Animation.Infinite; running: root.loading
+                onRunningChanged: if (!running) githubSpinner.rotation = 0
             }
         }
     }

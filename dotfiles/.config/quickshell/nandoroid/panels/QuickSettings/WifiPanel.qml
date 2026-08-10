@@ -65,6 +65,7 @@ Rectangle {
                 colBackground: Appearance.colors.colLayer2
                 onClicked: Network.rescanWifi()
                 MaterialSymbol {
+                    id: refreshIconWifi
                     anchors.centerIn: parent
                     text: "refresh"
                     iconSize: 18 * Appearance.effectiveScale
@@ -77,6 +78,7 @@ Rectangle {
                         duration: 1000
                         loops: Animation.Infinite
                         running: Network.wifiScanning
+                        onRunningChanged: if (!running) refreshIconWifi.rotation = 0
                     }
                 }
             }

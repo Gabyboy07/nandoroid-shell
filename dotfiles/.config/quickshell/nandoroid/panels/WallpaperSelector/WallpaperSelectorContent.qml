@@ -761,8 +761,9 @@ Item {
                                 anchors.centerIn: parent
                                 spacing: 12 * Appearance.effectiveScale
                                 MaterialSymbol {
+                                    id: loadMoreIcon
                                     text: "progress_activity"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary
-                                    RotationAnimation on rotation { from: 0; to: 360; duration: 1000; loops: Animation.Infinite; running: parent.visible }
+                                    RotationAnimation on rotation { from: 0; to: 360; duration: 1000; loops: Animation.Infinite; running: parent.visible; onRunningChanged: if (!running) loadMoreIcon.rotation = 0 }
                                 }
                                 StyledText { text: I18nService.tr("Loading more..."); color: Appearance.colors.colSubtext }
                             }
@@ -1033,10 +1034,11 @@ Item {
                         ColumnLayout {
                             anchors.centerIn: parent; visible: grid.count === 0; spacing: 12 * Appearance.effectiveScale
                             MaterialSymbol {
+                                id: mainLoadIcon
                                 visible: (mainSelector.wallhavenMode && WallhavenService.loading) || (mainSelector.naiveMode && NaIveWallpaperService.loading) || (mainSelector.liveMode && WallpaperEngineService.loading)
                                 text: "progress_activity"; iconSize: 32 * Appearance.effectiveScale; color: Appearance.colors.colPrimary
                                 Layout.alignment: Qt.AlignHCenter
-                                RotationAnimation on rotation { from: 0; to: 360; duration: 1000; loops: Animation.Infinite; running: parent.visible }
+                                RotationAnimation on rotation { from: 0; to: 360; duration: 1000; loops: Animation.Infinite; running: parent.visible; onRunningChanged: if (!running) mainLoadIcon.rotation = 0 }
                             }
                             StyledText {
                                 text: {
