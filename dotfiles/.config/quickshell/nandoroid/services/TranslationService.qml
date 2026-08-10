@@ -17,6 +17,7 @@ Singleton {
     property string detectedLanguage: ""
     property bool isTranslating: translateProc.running
     property var availableLanguages: ["auto", "en", "id", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"]
+    property var languageNamesMap: ({})
     
     // Track current active query to prevent race conditions on clear
     property string currentQuery: ""
@@ -86,26 +87,37 @@ Singleton {
         }
     }
 
-    // Ported from ii: Dynamic fetch to expand the list
+    // Dynamic fetch to expand the list and get English names
     Process {
         id: getLangsProc
-        command: ["trans", "-list-codes", "-no-bidi"]
+        command: ["trans", "-list-all", "-no-ansi", "-no-bidi"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
                 const output = this.text.trim();
-
                 if (output.length > 0) {
-                    // Extract codes: trans -list-codes often outputs in columns
-                    // We look for 2-3 letter codes at the start of lines or separated by whitespace
-                    let codes = output.split(/\s+/)
-                        .filter(s => s.length >= 2 && s.length <= 8 && /^[a-z]+(-[A-Z]+)?$/.test(s))
-                        .filter(s => s !== "auto")
-                        .sort();
+                    let lines = output.split('\n');
+                    let codes = [];
+                    let map = {};
                     
+                    const regex = /^([a-z]{2,3}(?:-[A-Za-z]+)?)\s+(.+?)\s{2,}(.+)$/i;
+                    
+                    for (let i = 0; i < lines.length; i++) {
+                        let match = lines[i].match(regex);
+                        if (match && match[1] && match[2]) {
+                            let code = match[1];
+                            let name = match[2].trim();
+                            if (code !== "auto") {
+                                codes.push(code);
+                                map[code] = name;
+                            }
+                        }
+                    }
+                    
+                    codes.sort();
                     if (codes.length > 5) {
+                        root.languageNamesMap = map;
                         root.availableLanguages = ["auto", ...codes];
-
                     }
                 }
             }

@@ -18,6 +18,26 @@ ColumnLayout {
     property string srcLang: (Config.ready && Config.options.language && Config.options.language.translator) ? Config.options.language.translator.sourceLanguage : "auto"
     property string targetLang: (Config.ready && Config.options.language && Config.options.language.translator) ? Config.options.language.translator.targetLanguage : "en"
 
+    function getLanguageName(code) {
+        if (code === "auto") return "Auto Detect";
+        if (TranslationService.languageNamesMap && TranslationService.languageNamesMap[code]) {
+            return TranslationService.languageNamesMap[code];
+        }
+        return code;
+    }
+
+    function getLanguageCode(name) {
+        if (name.startsWith("Auto Detect")) return "auto";
+        if (TranslationService.languageNamesMap) {
+            for (let code in TranslationService.languageNamesMap) {
+                if (TranslationService.languageNamesMap[code] === name) {
+                    return code;
+                }
+            }
+        }
+        return name;
+    }
+
     // Unified trigger logic
     function triggerTranslate() {
         const txt = inputText.text.trim();
@@ -50,23 +70,24 @@ ColumnLayout {
             colText: Appearance.m3colors.m3onPrimaryContainer
             bgRadius: 24 * Appearance.effectiveScale
             borderWidth: isOpened ? Math.max(2, 2 * Appearance.effectiveScale) : 0
-            model: (TranslationService.availableLanguages && TranslationService.availableLanguages.length > 0) ? TranslationService.availableLanguages : ["auto", "en", "id", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"]
+            model: {
+                let langs = (TranslationService.availableLanguages && TranslationService.availableLanguages.length > 0) ? TranslationService.availableLanguages : ["auto", "en", "id", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"];
+                return langs.map(c => root.getLanguageName(c));
+            }
             
             // Custom text to show Auto (detectedLanguage) if applicable
             text: {
                 if (root.srcLang === "auto") {
                     if (TranslationService.detectedLanguage !== "" && inputText.text.trim().length > 0) {
-                        return "auto (" + TranslationService.detectedLanguage + ")";
+                        return "Auto Detect (" + root.getLanguageName(TranslationService.detectedLanguage) + ")";
                     }
-                    return "auto";
+                    return "Auto Detect";
                 }
-                return root.srcLang;
+                return root.getLanguageName(root.srcLang);
             }
 
             onAccepted: (value) => {
-                // Remove the " (detected)" part if they somehow submitted it, though accepted usually comes from the dropdown model
-                let realValue = value;
-                if (value.startsWith("auto")) realValue = "auto";
+                let realValue = root.getLanguageCode(value);
                 
                 root.srcLang = realValue;
                 if (Config.ready) Config.options.language.translator.sourceLanguage = realValue;
@@ -152,12 +173,13 @@ ColumnLayout {
             borderWidth: isOpened ? Math.max(2, 2 * Appearance.effectiveScale) : 0
             model: {
                 const base = (TranslationService.availableLanguages && TranslationService.availableLanguages.length > 0) ? TranslationService.availableLanguages : ["en", "id", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"];
-                return base.filter(l => l !== "auto");
+                return base.filter(l => l !== "auto").map(c => root.getLanguageName(c));
             }
-            text: root.targetLang
+            text: root.getLanguageName(root.targetLang)
             onAccepted: (value) => {
-                root.targetLang = value;
-                if (Config.ready) Config.options.language.translator.targetLanguage = value;
+                let code = root.getLanguageCode(value);
+                root.targetLang = code;
+                if (Config.ready) Config.options.language.translator.targetLanguage = code;
                 root.triggerTranslate();
             }
         }
