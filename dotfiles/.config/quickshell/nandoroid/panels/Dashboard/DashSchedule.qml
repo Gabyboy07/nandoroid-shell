@@ -875,18 +875,55 @@ Item {
 
                                             // Text pinned to the top like Google Calendar
                                             Item {
+                                                property bool isCompact: parent.height <= (root.hourHeight * 1.05)
+                                                property string timeStr: root._displayTime(ev.time) + (ev.endTime && ev.endTime !== ev.time ? " - " + root._displayTime(ev.endTime) : "")
+
                                                 anchors {
-                                                    top: parent.top
-                                                    left: parent.left
-                                                    right: parent.right
-                                                    topMargin: 6 * Appearance.effectiveScale
+                                                    fill: parent
+                                                    topMargin: isCompact ? 0 : (6 * Appearance.effectiveScale)
                                                     leftMargin: 10 * Appearance.effectiveScale
                                                     rightMargin: 8 * Appearance.effectiveScale
                                                 }
 
+                                                RowLayout {
+                                                    visible: parent.isCompact
+                                                    anchors {
+                                                        verticalCenter: parent.verticalCenter
+                                                        left: parent.left
+                                                    }
+                                                    width: Math.min(implicitWidth, parent.width)
+                                                    spacing: 4 * Appearance.effectiveScale
+
+                                                    StyledText {
+                                                        text: ev.title
+                                                        font.pixelSize: Appearance.font.pixelSize.small
+                                                        font.weight: Font.Medium
+                                                        color: ev.focus ? Appearance.m3colors.m3onTertiaryContainer : Appearance.m3colors.m3onSurface
+                                                        elide: Text.ElideRight
+                                                        Layout.fillWidth: true
+                                                    }
+
+                                                    StyledText {
+                                                        visible: parent.parent.timeStr !== ""
+                                                        text: "·"
+                                                        font.pixelSize: Appearance.font.pixelSize.small
+                                                        font.weight: Font.Medium
+                                                        color: ev.focus ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onTertiaryContainer, 0.75) : Appearance.colors.colSubtext
+                                                        Layout.alignment: Qt.AlignVCenter
+                                                    }
+
+                                                    StyledText {
+                                                        visible: parent.parent.timeStr !== ""
+                                                        text: parent.parent.timeStr
+                                                        font.pixelSize: Appearance.font.pixelSize.smallest
+                                                        color: ev.focus ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onTertiaryContainer, 0.75) : Appearance.colors.colSubtext
+                                                        Layout.alignment: Qt.AlignVCenter
+                                                    }
+                                                }
+
                                                 StyledText {
                                                     id: pillTitle
-
+                                                    visible: !parent.isCompact
                                                     text: ev.title
                                                     font.pixelSize: Appearance.font.pixelSize.small
                                                     font.weight: Font.Medium
@@ -894,30 +931,26 @@ Item {
                                                     wrapMode: Text.Wrap
                                                     maximumLineCount: 2
                                                     elide: Text.ElideRight
-
                                                     anchors {
                                                         top: parent.top
                                                         left: parent.left
                                                         right: parent.right
                                                     }
-
                                                 }
 
                                                 StyledText {
-                                                    text: root._displayTime(ev.time) + (ev.endTime && ev.endTime !== ev.time ? " - " + root._displayTime(ev.endTime) : "")
+                                                    visible: !parent.isCompact
+                                                    text: parent.timeStr
                                                     font.pixelSize: Appearance.font.pixelSize.smallest
                                                     color: ev.focus ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onTertiaryContainer, 0.75) : Appearance.colors.colSubtext
                                                     elide: Text.ElideRight
-
                                                     anchors {
                                                         top: pillTitle.bottom
                                                         topMargin: 1 * Appearance.effectiveScale
                                                         left: parent.left
                                                         right: parent.right
                                                     }
-
                                                 }
-
                                             }
 
                                             MouseArea {
