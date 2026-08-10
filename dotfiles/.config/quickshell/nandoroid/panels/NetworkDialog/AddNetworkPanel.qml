@@ -237,40 +237,13 @@ Scope {
                         }
 
                         // Options (Interactive Hidden Toggle)
-                        MouseArea {
-                            id: hiddenToggleArea
+                        StyledCheckbox {
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 32 * Appearance.effectiveScale
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: panelWindow.isHidden = !panelWindow.isHidden
-                            
-                            RowLayout {
-                                anchors.fill: parent
-                                spacing: 8 * Appearance.effectiveScale
-                                
-                                RippleButton {
-                                    implicitWidth: 32 * Appearance.effectiveScale
-                                    implicitHeight: 32 * Appearance.effectiveScale
-                                    buttonRadius: 8 * Appearance.effectiveScale
-                                    colBackground: "transparent"
-                                    onClicked: panelWindow.isHidden = !panelWindow.isHidden
-                                    contentItem: MaterialSymbol {
-                                        horizontalAlignment: Text.AlignHCenter
-                                        verticalAlignment: Text.AlignVCenter
-                                        text: panelWindow.isHidden ? "check_box" : "check_box_outline_blank"
-                                        iconSize: 20 * Appearance.effectiveScale
-                                        color: panelWindow.isHidden ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
-                                    }
-                                }
-                                
-                                StyledText {
-                                    text: I18nService.tr("Hidden network")
-                                    font.pixelSize: Appearance.font.pixelSize.normal
-                                    color: Appearance.colors.colOnLayer1
-                                }
-                                
-                                Item { Layout.fillWidth: true }
-                            }
+                            text: I18nService.tr("Hidden network")
+                            checked: panelWindow.isHidden
+                            onToggled: panelWindow.isHidden = checked
+                            textColor: Appearance.colors.colOnLayer1
+                            font.pixelSize: Appearance.font.pixelSize.normal
                         }
 
                         // Actions

@@ -1,4 +1,5 @@
 ClippedProgressBar ClippedProgressBar.qml
+StyledCheckbox StyledCheckbox.qml
 CustomIcon CustomIcon.qml
 DragManager DragManager.qml
 DashedBorder DashedBorder.qml

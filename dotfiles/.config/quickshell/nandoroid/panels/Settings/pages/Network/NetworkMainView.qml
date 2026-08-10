@@ -261,27 +261,12 @@ import Quickshell
                                                     }
                                                 }
 
-                                                RowLayout {
-                                                    spacing: 8 * Appearance.effectiveScale
-                                                    RippleButton {
-                                                        implicitWidth: 32 * Appearance.effectiveScale
-                                                        implicitHeight: 32 * Appearance.effectiveScale
-                                                        buttonRadius: 8 * Appearance.effectiveScale
-                                                        colBackground: "transparent"
-                                                        onClicked: networkItem.autoconnect = !networkItem.autoconnect
-                                                        contentItem: MaterialSymbol {
-                                                            horizontalAlignment: Text.AlignHCenter
-                                                            verticalAlignment: Text.AlignVCenter
-                                                            text: networkItem.autoconnect ? "check_box" : "check_box_outline_blank"
-                                                            iconSize: 20 * Appearance.effectiveScale
-                                                            color: networkItem.autoconnect ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
-                                                        }
-                                                    }
-                                                    StyledText {
-                                                        text: I18nService.tr("Connect automatically")
-                                                        font.pixelSize: Appearance.font.pixelSize.small
-                                                        color: Appearance.colors.colSubtext
-                                                    }
+                                                StyledCheckbox {
+                                                    text: I18nService.tr("Connect automatically")
+                                                    checked: networkItem.autoconnect
+                                                    onToggled: networkItem.autoconnect = checked
+                                                    textColor: Appearance.colors.colSubtext
+                                                    font.pixelSize: Appearance.font.pixelSize.small
                                                 }
 
                                                 RowLayout {
