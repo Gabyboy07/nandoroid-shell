@@ -25,8 +25,9 @@ ColumnLayout {
                         BluetoothStatus.stopDiscovery();
                         root.stackLevel = 0;
                     }
-                    MaterialSymbol {
-                        anchors.centerIn: parent
+                    contentItem: MaterialSymbol {
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
                         text: "arrow_back"
                         iconSize: 24 * Appearance.effectiveScale
                         color: Appearance.colors.colOnLayer1

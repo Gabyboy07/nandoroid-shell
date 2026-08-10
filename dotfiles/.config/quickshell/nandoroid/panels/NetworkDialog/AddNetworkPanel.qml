@@ -253,6 +253,7 @@ Scope {
                                     implicitHeight: 32 * Appearance.effectiveScale
                                     buttonRadius: 8 * Appearance.effectiveScale
                                     colBackground: "transparent"
+                                    onClicked: panelWindow.isHidden = !panelWindow.isHidden
                                     contentItem: MaterialSymbol {
                                         horizontalAlignment: Text.AlignHCenter
                                         verticalAlignment: Text.AlignVCenter

@@ -171,7 +171,8 @@ import Quickshell
                                                     colBackground: "transparent"
                                                     onClicked: networkItem.expanded = !networkItem.expanded
                                                     contentItem: MaterialSymbol {
-                                                        anchors.centerIn: parent
+                                                        horizontalAlignment: Text.AlignHCenter
+                                                        verticalAlignment: Text.AlignVCenter
                                                         text: "keyboard_arrow_down"
                                                         iconSize: 20 * Appearance.effectiveScale
                                                         color: Appearance.colors.colSubtext
@@ -239,6 +240,8 @@ import Quickshell
                                                             inputRadius: 0
                                                             showActiveBorder: false
                                                             borderInactiveWidth: 0
+                                                            leftMargin: 0
+                                                            rightMargin: 0
                                                         }
 
                                                         RippleButton {
@@ -247,8 +250,9 @@ import Quickshell
                                                             buttonRadius: 16 * Appearance.effectiveScale
                                                             colBackground: "transparent"
                                                             onClicked: networkItem.showPassword = !networkItem.showPassword
-                                                            MaterialSymbol {
-                                                                anchors.centerIn: parent
+                                                            contentItem: MaterialSymbol {
+                                                                horizontalAlignment: Text.AlignHCenter
+                                                                verticalAlignment: Text.AlignVCenter
                                                                 text: networkItem.showPassword ? "visibility_off" : "visibility"
                                                                 iconSize: 20 * Appearance.effectiveScale
                                                                 color: Appearance.colors.colSubtext
@@ -266,7 +270,8 @@ import Quickshell
                                                         colBackground: "transparent"
                                                         onClicked: networkItem.autoconnect = !networkItem.autoconnect
                                                         contentItem: MaterialSymbol {
-                                                            anchors.centerIn: parent
+                                                            horizontalAlignment: Text.AlignHCenter
+                                                            verticalAlignment: Text.AlignVCenter
                                                             text: networkItem.autoconnect ? "check_box" : "check_box_outline_blank"
                                                             iconSize: 20 * Appearance.effectiveScale
                                                             color: networkItem.autoconnect ? Appearance.colors.colPrimary : Appearance.colors.colSubtext

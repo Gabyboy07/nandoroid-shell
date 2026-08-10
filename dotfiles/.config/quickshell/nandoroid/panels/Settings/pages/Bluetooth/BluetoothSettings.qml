@@ -221,7 +221,8 @@ Item {
                                         colBackground: "transparent"
                                         onClicked: deviceItem.expanded = !deviceItem.expanded
                                         contentItem: MaterialSymbol {
-                                            anchors.centerIn: parent
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
                                             text: deviceItem.expanded ? "expand_less" : "expand_more"
                                             iconSize: 20 * Appearance.effectiveScale
                                             color: Appearance.colors.colSubtext

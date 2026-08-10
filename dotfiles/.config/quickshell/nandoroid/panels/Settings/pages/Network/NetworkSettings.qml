@@ -51,7 +51,8 @@ Item {
                     colBackground: Appearance.colors.colLayer1
                     onClicked: root.currentView = "main"
                     contentItem: MaterialSymbol {
-                        anchors.centerIn: parent
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
                         text: "arrow_back"
                         iconSize: 24 * Appearance.effectiveScale
                         color: Appearance.colors.colOnLayer1
@@ -83,8 +84,9 @@ Item {
                         colBackground: Appearance.colors.colLayer1
                         onClicked: Network.rescanWifi()
                         
-                        MaterialSymbol {
-                            anchors.centerIn: parent
+                        contentItem: MaterialSymbol {
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
                             text: "refresh"
                             iconSize: 20 * Appearance.effectiveScale
                             color: Appearance.colors.colOnLayer1
@@ -108,7 +110,8 @@ Item {
                         colBackground: Appearance.colors.colLayer1
                         onClicked: GlobalStates.addNetworkDialogOpen = true
                         contentItem: MaterialSymbol {
-                            anchors.centerIn: parent
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
                             text: "add"
                             iconSize: 20 * Appearance.effectiveScale
                             color: Appearance.colors.colOnLayer1
