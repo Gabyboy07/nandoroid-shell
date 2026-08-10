@@ -453,8 +453,6 @@ Item {
                             day: cell.day.toString()
                             isToday: cell.today
                             hasEvent: {
-                                // Dep on eventDateSet so dots appear as soon as an event is added
-                                const _eds = root.eventDateSet;
                                 if (cell.today === -1)
                                     return false;
 
