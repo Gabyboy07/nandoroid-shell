@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import Quickshell
 import Quickshell.Io
 import "../core"
@@ -70,8 +71,8 @@ Item {
                 // Ensure directory exists
                 Quickshell.execDetached(["mkdir", "-p", root.cacheDir]);
                 
-                // Only grab if we are visible and valid
-                if (width > 0 && height > 0) {
+                // Only grab if we are visible, valid, and attached to a window
+                if (width > 0 && height > 0 && root.Window.window) {
                     grabToImage(res => {
                         res.saveToFile(root.cacheFilePath);
                     });
