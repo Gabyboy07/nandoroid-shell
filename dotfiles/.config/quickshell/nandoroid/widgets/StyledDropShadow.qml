@@ -1,6 +1,6 @@
 import QtQuick
 import Qt5Compat.GraphicalEffects
-
+import "../core/functions" as Functions
 
 DropShadow {
     required property var target

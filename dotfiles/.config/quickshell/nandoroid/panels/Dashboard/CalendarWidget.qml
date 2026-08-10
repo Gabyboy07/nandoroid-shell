@@ -3,6 +3,7 @@ import "../../services"
 import "../../widgets"
 import QtQuick
 import QtQuick.Layouts
+import "../../core/functions" as Functions
 import "calendar_layout.js" as CalendarLayout
 
 Item {
