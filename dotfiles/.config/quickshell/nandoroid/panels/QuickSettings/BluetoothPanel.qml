@@ -19,9 +19,11 @@ Rectangle {
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
 
-    // Block clicks from leaking through to the header
+    // Block clicks and hovers from leaking through to the items below
     MouseArea {
         anchors.fill: parent
+        hoverEnabled: true
+        onWheel: (wheel) => wheel.accepted = true
         onPressed: (mouse) => mouse.accepted = true
     }
 
@@ -65,9 +67,7 @@ Rectangle {
                 colBackground: BluetoothStatus.enabled ? Appearance.colors.colPrimary : Appearance.colors.colLayer2
                 colBackgroundHover: BluetoothStatus.enabled ? Qt.darker(Appearance.colors.colPrimary, 1.12) : Appearance.colors.colLayer2Hover
                 onClicked: {
-                    if (Bluetooth.defaultAdapter) {
-                        Bluetooth.defaultAdapter.enabled = !Bluetooth.defaultAdapter.enabled;
-                    }
+                    BluetoothStatus.toggle();
                 }
                 MaterialSymbol {
                     anchors.centerIn: parent

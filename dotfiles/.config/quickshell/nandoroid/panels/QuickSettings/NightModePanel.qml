@@ -16,9 +16,11 @@ Rectangle {
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
 
-    // Block clicks from leaking through to the header
+    // Block clicks and hovers from leaking through to the items below
     MouseArea {
         anchors.fill: parent
+        hoverEnabled: true
+        onWheel: (wheel) => wheel.accepted = true
         onPressed: (mouse) => mouse.accepted = true
     }
 
