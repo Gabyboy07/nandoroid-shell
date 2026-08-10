@@ -1012,14 +1012,21 @@ Item {
             }
 
             // ── FAB ──
+            StyledRectangularShadow {
+                target: fabButton
+                radius: fabButton.buttonRadius
+                color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
+            }
+
             RippleButton {
+                id: fabButton
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
                 anchors.rightMargin: 14 * Appearance.effectiveScale
                 anchors.bottomMargin: 14 * Appearance.effectiveScale
-                implicitWidth: 48 * Appearance.effectiveScale
-                implicitHeight: 48 * Appearance.effectiveScale
-                buttonRadius: 24 * Appearance.effectiveScale
+                implicitWidth: 56 * Appearance.effectiveScale
+                implicitHeight: 56 * Appearance.effectiveScale
+                buttonRadius: 16 * Appearance.effectiveScale
                 colBackground: Appearance.m3colors.m3primaryContainer
                 colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.9)
                 colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
