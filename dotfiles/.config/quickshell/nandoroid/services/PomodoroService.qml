@@ -1,44 +1,50 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import QtQuick
 
 Singleton {
     id: root
 
     property double startTimestamp: Date.now()
-    property int duration: focusTime
+    
+    property int focusTime: 1500 // 25 min default
+    property int breakTime: 300 // 5 min default
+    property bool autoContinue: true
+    property int rotations: 0
+
+    property int duration: mode === 0 ? focusTime : breakTime
     property int remainingTime: duration
     
     property bool active: false
-    property int mode: 0 // 0: Focus, 1: Short Break, 2: Long Break
-    
-    property int rotations: 0
-    property bool autoContinue: true
-    property int nextBreakMode: 1 // 1: Short, 2: Long
+    property int mode: 0 // 0: Focus, 1: Break
     
     readonly property bool isSessionRunning: active || (remainingTime < duration && remainingTime > 0)
     
-    readonly property int focusTime: 1500 // 25 min
-    readonly property int shortBreakTime: 300 // 5 min
-    readonly property int longBreakTime: 15 * 60
-
     readonly property string timeString: {
-        const mins = Math.floor(remainingTime / 60);
+        const h = Math.floor(remainingTime / 3600);
+        const m = Math.floor((remainingTime % 3600) / 60);
         const secs = remainingTime % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
+        
+        if (h > 0) {
+            return `${h}:${m.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        } else if (m > 0) {
+            return `${m}:${secs.toString().padStart(2, '0')}`;
+        } else {
+            return `${secs}`;
+        }
     }
 
     readonly property string modeName: {
         switch (mode) {
             case 0: return "Focus";
-            case 1: return "Short Break";
-            case 2: return "Long Break";
+            case 1: return "Break";
             default: return "";
         }
     }
 
     property double elapsedMs: 0
-    readonly property real progress: (duration > 0) ? Math.min(1.0, elapsedMs / (duration * 1000)) : 0
+    readonly property real progress: (duration > 0) ? Math.min(1.0, Math.floor(elapsedMs / 1000) / duration) : 0
 
     function start() { 
         if (remainingTime === duration) {
@@ -58,9 +64,7 @@ Singleton {
 
     function reset() {
         active = false;
-        if (mode === 0) duration = focusTime;
-        else if (mode === 1) duration = shortBreakTime;
-        else if (mode === 2) duration = longBreakTime;
+        duration = mode === 0 ? focusTime : breakTime;
         remainingTime = duration;
         startTimestamp = Date.now();
         elapsedMs = 0;
@@ -83,10 +87,10 @@ Singleton {
         // 2. State update & Rotation logic
         const wasFocus = (mode === 0);
         if (wasFocus) {
-            mode = nextBreakMode;
+            mode = 1; // Go to break
         } else {
             rotations++;
-            mode = 0;
+            mode = 0; // Back to focus
         }
         
         // 3. Reset (updates duration, remainingTime, startTimestamp)

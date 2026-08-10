@@ -17,6 +17,8 @@ singleton Session Session.qml
 singleton Weather 1.0 Weather.qml
 singleton LauncherSearch LauncherSearch.qml
 singleton PomodoroService PomodoroService.qml
+singleton StopwatchService StopwatchService.qml
+singleton TimerService TimerService.qml
 singleton SystemData SystemData.qml
 singleton PolkitService PolkitService.qml
 singleton DisplayService DisplayService.qml

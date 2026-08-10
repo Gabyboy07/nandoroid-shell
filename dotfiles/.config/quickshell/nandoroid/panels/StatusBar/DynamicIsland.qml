@@ -19,6 +19,10 @@ Item {
     
     property HyprlandMonitor monitor
     property bool pomodoroActive: PomodoroService.isSessionRunning
+    property bool stopwatchActive: StopwatchService.active
+    property bool timerActive: TimerService.active || TimerService.overflowing
+    
+    readonly property bool clockActive: pomodoroActive || stopwatchActive || timerActive
     property real indicatorWidth: 52 * Appearance.effectiveScale 
     
     width: 0 
@@ -29,6 +33,14 @@ Item {
     readonly property bool isWaterdrop: islandStyle === "waterdrop"
     readonly property bool isM3: islandStyle === "m3"
     property string indicatorStyle: "pill"
+    
+    TextMetrics {
+        id: stopwatchMetrics
+        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+        font.weight: Font.DemiBold
+        font.family: Appearance.font.family.numbers
+        text: "00:00:00.00"
+    }
 
     // Expose the background pill for absolute anchoring
     property alias pill: backgroundPill
@@ -66,7 +78,7 @@ Item {
         if (Notifications.activePopup) return "notification"
         if (ScreenRecord.active) return "recording"
         if ((mediaShowing || GlobalStates.mediaNotchOpen) && MprisController.activePlayer) return "media"
-        if (pomodoroActive) return "pomodoro"
+        if (clockActive) return "clock"
         return "idle"
     }
 
@@ -97,7 +109,7 @@ Item {
         }
         if (islandState === "recording") return 24 * Appearance.effectiveScale
         if (islandState === "media") return mediaLeftNaturalWidth
-        if (islandState === "pomodoro") return pomoModeLabel.implicitWidth + (8 * Appearance.effectiveScale)
+        if (islandState === "clock") return clockModeLabel.implicitWidth + (8 * Appearance.effectiveScale)
         return 0
     }
     
@@ -105,7 +117,10 @@ Item {
         if (islandState === "notification") return notifSummaryLabel.visible ? Math.min(notifSummaryLabel.implicitWidth, root.currentEarMaxWidth - (8 * Appearance.effectiveScale)) + (8 * Appearance.effectiveScale) : 0
         if (islandState === "recording") return recordTimeLabel.implicitWidth + (8 * Appearance.effectiveScale)
         if (islandState === "media") return mediaRightNaturalWidth
-        if (islandState === "pomodoro") return pomoTimeLabel.implicitWidth + (8 * Appearance.effectiveScale)
+        if (islandState === "clock") {
+            let baseW = stopwatchActive ? stopwatchMetrics.advanceWidth : clockTimeLabel.implicitWidth;
+            return baseW + (8 * Appearance.effectiveScale);
+        }
         return 0
     }
 
@@ -239,13 +254,13 @@ Item {
             }
         }
 
-        // Pomodoro - centered
+        // Clock Widgets (Pomodoro/Stopwatch/Timer) - centered
         StyledText {
-            id: pomoModeLabel; anchors.centerIn: parent
-            text: I18nService.tr(PomodoroService.modeName)
+            id: clockModeLabel; anchors.centerIn: parent
+            text: pomodoroActive ? I18nService.tr(PomodoroService.modeName) : (stopwatchActive ? I18nService.tr("Stopwatch") : I18nService.tr("Timer"))
             opacity: parent.width > (20 * Appearance.effectiveScale) ? 1 : 0; Behavior on opacity { NumberAnimation { duration: 200 } }
             font.pixelSize: Math.round(12 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colNotchText
-            visible: islandState === "pomodoro"
+            visible: islandState === "clock"
         }
     }
 
@@ -291,7 +306,7 @@ Item {
             text: Functions.General.formatDuration(ScreenRecord.seconds)
             opacity: parent.width > (10 * Appearance.effectiveScale) ? 1 : 0; Behavior on opacity { NumberAnimation { duration: 200 } }
             font.pixelSize: Math.round(12 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colNotchText
-            font.family: Appearance.font.family.numbers; visible: islandState === "recording"
+            font.family: Appearance.font.family.numbers; font.features: { "tnum": 1 }; visible: islandState === "recording"
         }
 
         StyledText {
@@ -305,11 +320,11 @@ Item {
         }
 
         StyledText {
-            id: pomoTimeLabel; anchors.centerIn: parent
-            text: PomodoroService.timeString
+            id: clockTimeLabel; anchors.centerIn: parent
+            text: pomodoroActive ? PomodoroService.timeString : (stopwatchActive ? StopwatchService.timeString : TimerService.timeString)
             opacity: parent.width > (10 * Appearance.effectiveScale) ? 1 : 0; Behavior on opacity { NumberAnimation { duration: 200 } }
             font.pixelSize: Math.round(12 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colNotchText
-            font.family: Appearance.font.family.numbers; visible: islandState === "pomodoro"
+            font.family: Appearance.font.family.numbers; font.features: { "tnum": 1 }; visible: islandState === "clock"
         }
     }
 
