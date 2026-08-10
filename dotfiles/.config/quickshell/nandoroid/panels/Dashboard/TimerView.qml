@@ -161,6 +161,9 @@ Item {
 
                 StyledText {
                     Layout.alignment: Qt.AlignHCenter
+                    Layout.maximumWidth: 140 * Appearance.effectiveScale
+                    fontSizeMode: Text.HorizontalFit
+                    minimumPixelSize: 20 * Appearance.effectiveScale
                     text: TimerService.timeString
                     font.pixelSize: 48 * Appearance.effectiveScale
                     font.weight: Font.DemiBold
