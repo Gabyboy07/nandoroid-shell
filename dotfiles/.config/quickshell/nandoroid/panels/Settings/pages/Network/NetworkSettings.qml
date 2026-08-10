@@ -106,7 +106,7 @@ Item {
                         implicitHeight: 40 * Appearance.effectiveScale
                         buttonRadius: 20 * Appearance.effectiveScale
                         colBackground: Appearance.colors.colLayer1
-                        onClicked: addNetworkDialog.open()
+                        onClicked: GlobalStates.addNetworkDialogOpen = true
                         contentItem: MaterialSymbol {
                             anchors.centerIn: parent
                             text: "add"
@@ -225,8 +225,4 @@ Item {
             }
         }
     } // End root ColumnLayout
-
-    NetworkAddDialog {
-        id: addNetworkDialog
-    }
 }

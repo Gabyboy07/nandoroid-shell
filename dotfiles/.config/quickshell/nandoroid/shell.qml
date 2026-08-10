@@ -29,6 +29,7 @@ import "panels/FloatingLyrics"
 import "panels/DatePicker"
 import "panels/TimePicker"
 import "panels/Settings"
+import "panels/NetworkDialog"
 
 import QtQuick
 import Quickshell
@@ -143,6 +144,7 @@ ShellRoot {
     PolkitPanel {}
     DatePickerPanel {}
     TimePickerPanel {}
+    AddNetworkPanel {}
 
     IpcHandler {
         target: "launcher"

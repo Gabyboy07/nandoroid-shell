@@ -48,6 +48,7 @@ Singleton {
     property bool dashboardOpen: false
     property bool systemMonitorOpen: false
     property bool regionSelectorOpen: false
+    property bool addNetworkDialogOpen: false
     property bool overviewOpen: false
     property bool datePickerOpen: false
     property string datePickerCurrentDate: ""
