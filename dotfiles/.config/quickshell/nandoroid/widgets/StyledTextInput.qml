@@ -8,7 +8,7 @@ Item {
 
     property alias text: input.text
     property string placeholder: ""
-    property color placeholderColor: Appearance.colors.colSubtext
+    property color placeholderColor: Appearance.m3colors.m3onSurfaceVariant
     property alias font: input.font
     property alias color: input.color
     property alias echoMode: input.echoMode
@@ -73,6 +73,8 @@ Item {
             horizontalAlignment: input.horizontalAlignment
             text: root.placeholder
             color: root.placeholderColor
+            font: input.font
+            opacity: 0.6
             visible: input.text === "" && !input.activeFocus
         }
 
