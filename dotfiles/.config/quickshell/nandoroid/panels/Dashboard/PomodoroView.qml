@@ -30,10 +30,12 @@ Item {
     }
 
     function appendDigit(d) {
-        if (inputDigits.length < 6) {
-            if (inputDigits === "" && (d === "0" || d === "00")) return;
-            inputDigits += d;
-            if (inputDigits.length > 6) inputDigits = inputDigits.substring(inputDigits.length - 6);
+        if (inputDigits.length >= 6) return;
+        if (inputDigits === "" && (d === "0" || d === "00")) return;
+        
+        inputDigits += d;
+        if (inputDigits.length > 6) {
+            inputDigits = inputDigits.substring(0, 6);
         }
     }
 
@@ -296,7 +298,7 @@ Item {
 
         RowLayout {
             Layout.alignment: Qt.AlignHCenter
-            spacing: 16 * Appearance.effectiveScale
+            spacing: 12 * Appearance.effectiveScale
 
             // Cancel
             RippleButton {
