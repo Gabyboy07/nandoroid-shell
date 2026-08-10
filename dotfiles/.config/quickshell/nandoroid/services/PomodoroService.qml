@@ -44,7 +44,7 @@ Singleton {
     }
 
     property double elapsedMs: 0
-    readonly property real progress: (duration > 0) ? Math.min(1.0, Math.floor(elapsedMs / 1000) / duration) : 0
+    readonly property real progress: (duration > 0) ? Math.max(0.0, Math.min(1.0, remainingTime / duration)) : 0
 
     function start() { 
         if (remainingTime === duration) {

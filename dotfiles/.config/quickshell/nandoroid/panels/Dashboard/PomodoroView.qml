@@ -55,53 +55,11 @@ Item {
             implicitWidth: 200 * Appearance.effectiveScale
             implicitHeight: 200 * Appearance.effectiveScale
 
-            Canvas {
-                id: bgRing
+            GappedCircularProgress {
                 anchors.fill: parent
-                onPaint: {
-                    const ctx = getContext("2d");
-                    ctx.clearRect(0, 0, width, height);
-                    const cx = width / 2, cy = height / 2;
-                    const r = Math.min(cx, cy) - 10 * Appearance.effectiveScale;
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-                    ctx.strokeStyle = Appearance.m3colors.m3surfaceVariant;
-                    ctx.lineWidth = 10 * Appearance.effectiveScale;
-                    ctx.lineCap = "round";
-                    ctx.stroke();
-                }
-                Connections {
-                    target: Appearance
-                    function onM3colorsChanged() { bgRing.requestPaint(); }
-                }
-            }
-
-            Canvas {
-                id: arcCanvas
-                anchors.fill: parent
-                readonly property real progress: PomodoroService.progress
-                onProgressChanged: requestPaint()
-                onPaint: {
-                    const ctx = getContext("2d");
-                    ctx.clearRect(0, 0, width, height);
-                    if (progress <= 0) return;
-
-                    const cx = width / 2, cy = height / 2;
-                    const r = Math.min(cx, cy) - 10 * Appearance.effectiveScale;
-                    const start = -Math.PI / 2;
-                    const end = start + progress * Math.PI * 2;
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, r, start, end);
-                    // Focus = primary, Break = tertiary
-                    ctx.strokeStyle = PomodoroService.mode === 0 ? Appearance.m3colors.m3primary : Appearance.m3colors.m3tertiary;
-                    ctx.lineWidth = 10 * Appearance.effectiveScale;
-                    ctx.lineCap = "round";
-                    ctx.stroke();
-                }
-                Connections {
-                    target: Appearance
-                    function onM3colorsChanged() { arcCanvas.requestPaint(); }
-                }
+                progress: PomodoroService.progress
+                colPrimary: PomodoroService.mode === 0 ? Appearance.m3colors.m3primary : Appearance.m3colors.m3tertiary
+                strokeWidth: 10 * Appearance.effectiveScale
             }
 
             ColumnLayout {
@@ -170,6 +128,7 @@ Item {
                     MaterialSymbol { text: "alarm"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
                     StyledText { text: Math.floor(PomodoroService.focusTime / 60) + "m"; font.pixelSize: 12 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
                 }
+                StyledToolTip { text: I18nService.tr("Set Focus Time") }
             }
             
             RippleButton {
@@ -185,6 +144,7 @@ Item {
                     MaterialSymbol { text: "coffee"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
                     StyledText { text: Math.floor(PomodoroService.breakTime / 60) + "m"; font.pixelSize: 12 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
                 }
+                StyledToolTip { text: I18nService.tr("Set Break Time") }
             }
             
             RippleButton {
@@ -200,6 +160,7 @@ Item {
                     iconSize: 16 * Appearance.effectiveScale
                     color: PomodoroService.autoContinue ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer1
                 }
+                StyledToolTip { text: I18nService.tr("Auto-continue") }
             }
         }
 
@@ -232,6 +193,7 @@ Item {
                     iconSize: 24 * Appearance.effectiveScale
                     color: Appearance.colors.colOnLayer1
                 }
+                StyledToolTip { text: (PomodoroService.active || PomodoroService.elapsedMs > 0) ? I18nService.tr("Stop") : I18nService.tr("Reset") }
             }
 
             // Pause / Resume
@@ -255,6 +217,7 @@ Item {
                     iconSize: 24 * Appearance.effectiveScale
                     color: PomodoroService.active ? Appearance.colors.colOnLayer1 : Appearance.m3colors.m3onPrimary
                 }
+                StyledToolTip { text: PomodoroService.active ? I18nService.tr("Pause") : I18nService.tr("Start") }
             }
         }
     }
@@ -345,6 +308,28 @@ Item {
                     iconSize: 20 * Appearance.effectiveScale
                     color: Appearance.colors.colOnLayer1
                 }
+                StyledToolTip { text: I18nService.tr("Cancel") }
+            }
+
+            // Reset to default
+            RippleButton {
+                implicitWidth: 72 * Appearance.effectiveScale
+                implicitHeight: 40 * Appearance.effectiveScale
+                buttonRadius: 20 * Appearance.effectiveScale
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                onClicked: {
+                    if (root.configMode === 1) PomodoroService.focusTime = 1500;
+                    else if (root.configMode === 2) PomodoroService.breakTime = 300;
+                    PomodoroService.reset();
+                    root.configMode = 0;
+                }
+                MaterialSymbol {
+                    anchors.centerIn: parent
+                    text: "restore"
+                    iconSize: 20 * Appearance.effectiveScale
+                    color: Appearance.colors.colOnLayer1
+                }
+                StyledToolTip { text: I18nService.tr("Reset to Default") }
             }
 
             // Save
@@ -352,7 +337,8 @@ Item {
                 implicitWidth: 72 * Appearance.effectiveScale
                 implicitHeight: 40 * Appearance.effectiveScale
                 buttonRadius: 20 * Appearance.effectiveScale
-                colBackground: Appearance.m3colors.m3primary
+                enabled: parseInputToSeconds() > 0
+                colBackground: enabled ? Appearance.m3colors.m3primary : Appearance.m3colors.m3surfaceContainerHigh
                 
                 onClicked: {
                     let secs = parseInputToSeconds();
@@ -361,16 +347,17 @@ Item {
                         else if (root.configMode === 2) PomodoroService.breakTime = secs;
                         
                         PomodoroService.reset();
+                        root.configMode = 0;
                     }
-                    root.configMode = 0;
                 }
 
                 MaterialSymbol {
                     anchors.centerIn: parent
                     text: "check"
                     iconSize: 20 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3onPrimary
+                    color: parent.enabled ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer1
                 }
+                StyledToolTip { text: I18nService.tr("Save") }
             }
         }
     }

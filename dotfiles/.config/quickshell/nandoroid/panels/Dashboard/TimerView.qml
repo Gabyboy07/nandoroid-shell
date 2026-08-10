@@ -112,7 +112,8 @@ Item {
             implicitWidth: 72 * Appearance.effectiveScale
             implicitHeight: 40 * Appearance.effectiveScale
             buttonRadius: 20 * Appearance.effectiveScale
-            colBackground: Appearance.m3colors.m3primary
+            enabled: parseInputToSeconds() > 0
+            colBackground: enabled ? Appearance.m3colors.m3primary : Appearance.m3colors.m3surfaceContainerHigh
             
             onClicked: {
                 let secs = parseInputToSeconds();
@@ -127,8 +128,9 @@ Item {
                 anchors.centerIn: parent
                 text: "play_arrow"
                 iconSize: 24 * Appearance.effectiveScale
-                color: Appearance.m3colors.m3onPrimary
+                color: parent.enabled ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer1
             }
+            StyledToolTip { text: I18nService.tr("Start Timer") }
         }
     }
 
@@ -146,52 +148,11 @@ Item {
             implicitWidth: 200 * Appearance.effectiveScale
             implicitHeight: 200 * Appearance.effectiveScale
 
-            Canvas {
-                id: bgRing
+            GappedCircularProgress {
                 anchors.fill: parent
-                onPaint: {
-                    const ctx = getContext("2d");
-                    ctx.clearRect(0, 0, width, height);
-                    const cx = width / 2, cy = height / 2;
-                    const r = Math.min(cx, cy) - 10 * Appearance.effectiveScale;
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-                    ctx.strokeStyle = Appearance.m3colors.m3surfaceVariant;
-                    ctx.lineWidth = 10 * Appearance.effectiveScale;
-                    ctx.lineCap = "round";
-                    ctx.stroke();
-                }
-                Connections {
-                    target: Appearance
-                    function onM3colorsChanged() { bgRing.requestPaint(); }
-                }
-            }
-
-            Canvas {
-                id: arcCanvas
-                anchors.fill: parent
-                readonly property real progress: TimerService.progress
-                onProgressChanged: requestPaint()
-                onPaint: {
-                    const ctx = getContext("2d");
-                    ctx.clearRect(0, 0, width, height);
-                    if (progress <= 0) return;
-
-                    const cx = width / 2, cy = height / 2;
-                    const r = Math.min(cx, cy) - 10 * Appearance.effectiveScale;
-                    const start = -Math.PI / 2;
-                    const end = start + progress * Math.PI * 2;
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, r, start, end);
-                    ctx.strokeStyle = TimerService.isNegative ? Appearance.m3colors.m3error : Appearance.m3colors.m3primary;
-                    ctx.lineWidth = 10 * Appearance.effectiveScale;
-                    ctx.lineCap = "round";
-                    ctx.stroke();
-                }
-                Connections {
-                    target: Appearance
-                    function onM3colorsChanged() { arcCanvas.requestPaint(); }
-                }
+                progress: TimerService.progress
+                colPrimary: TimerService.isNegative ? Appearance.m3colors.m3error : Appearance.m3colors.m3primary
+                strokeWidth: 10 * Appearance.effectiveScale
             }
 
             ColumnLayout {
@@ -249,6 +210,7 @@ Item {
                     iconSize: 24 * Appearance.effectiveScale
                     color: Appearance.colors.colOnLayer1
                 }
+                StyledToolTip { text: I18nService.tr("Reset") }
             }
 
             // Pause / Resume
@@ -272,6 +234,7 @@ Item {
                     iconSize: 24 * Appearance.effectiveScale
                     color: TimerService.active ? Appearance.colors.colOnLayer1 : Appearance.m3colors.m3onPrimary
                 }
+                StyledToolTip { text: TimerService.active ? I18nService.tr("Pause") : I18nService.tr("Start") }
             }
         }
     }

@@ -112,7 +112,7 @@ Rectangle {
                                 Layout.alignment: Qt.AlignHCenter
                                 text: modelData.name
                                 font.pixelSize: 12 * Appearance.effectiveScale
-                                font.weight: isActive ? Font.DemiBold : Font.Medium
+                                font.weight: Font.Medium
                                 color: isActive ? Appearance.m3colors.m3onSurface : Appearance.m3colors.m3onSurfaceVariant
                             }
                             

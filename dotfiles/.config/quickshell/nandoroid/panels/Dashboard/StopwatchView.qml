@@ -78,6 +78,7 @@ Item {
                     opacity: enabled ? 1 : 0.4
                     onClicked: parent.scroll(-98 * Appearance.effectiveScale) // scroll left
                     MaterialSymbol { anchors.centerIn: parent; text: "chevron_left"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
+                    StyledToolTip { text: I18nService.tr("Scroll Left") }
                 }
 
                 RippleButton {
@@ -89,6 +90,7 @@ Item {
                     opacity: enabled ? 1 : 0.4
                     onClicked: parent.scroll(98 * Appearance.effectiveScale) // scroll right
                     MaterialSymbol { anchors.centerIn: parent; text: "chevron_right"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
+                    StyledToolTip { text: I18nService.tr("Scroll Right") }
                 }
             }
 
@@ -186,27 +188,53 @@ Item {
                 }
             }
 
-            RippleButton {
+            RowLayout {
                 Layout.fillWidth: true
-                implicitHeight: 64 * Appearance.effectiveScale
-                buttonRadius: height / 2
-                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                spacing: 8 * Appearance.effectiveScale
                 visible: StopwatchService.active || StopwatchService.elapsedMs > 0
-                
-                onClicked: {
-                    if (StopwatchService.active) {
-                        StopwatchService.lap();
-                    } else {
+
+                // Reset Button
+                RippleButton {
+                    Layout.fillWidth: true
+                    implicitHeight: 64 * Appearance.effectiveScale
+                    buttonRadius: height / 2
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    
+                    onClicked: {
                         StopwatchService.reset();
+                    }
+
+                    StyledText {
+                        anchors.centerIn: parent
+                        text: I18nService.tr("Reset")
+                        font.pixelSize: 16 * Appearance.effectiveScale
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnLayer1
                     }
                 }
 
-                StyledText {
-                    anchors.centerIn: parent
-                    text: StopwatchService.active ? I18nService.tr("Lap") : I18nService.tr("Reset")
-                    font.pixelSize: 16 * Appearance.effectiveScale
-                    font.weight: Font.Medium
-                    color: Appearance.colors.colOnLayer1
+                // Lap Button
+                RippleButton {
+                    Layout.fillWidth: true
+                    implicitHeight: 64 * Appearance.effectiveScale
+                    buttonRadius: height / 2
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    enabled: StopwatchService.active
+                    opacity: enabled ? 1 : 0.4
+                    
+                    onClicked: {
+                        if (StopwatchService.active) {
+                            StopwatchService.lap();
+                        }
+                    }
+
+                    StyledText {
+                        anchors.centerIn: parent
+                        text: I18nService.tr("Lap")
+                        font.pixelSize: 16 * Appearance.effectiveScale
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnLayer1
+                    }
                 }
             }
         }

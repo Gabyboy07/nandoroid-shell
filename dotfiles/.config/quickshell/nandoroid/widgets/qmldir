@@ -66,4 +66,5 @@ DesktopCurrencyWidget DesktopCurrencyWidget.qml
 DatePicker DatePicker.qml
 TimePicker TimePicker.qml
 StyledTextInput StyledTextInput.qml
+GappedCircularProgress GappedCircularProgress.qml
 
