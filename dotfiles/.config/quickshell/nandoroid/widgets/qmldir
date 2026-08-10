@@ -67,4 +67,4 @@ DatePicker DatePicker.qml
 TimePicker TimePicker.qml
 StyledTextInput StyledTextInput.qml
 GappedCircularProgress GappedCircularProgress.qml
-
+StyledDropShadow StyledDropShadow.qml

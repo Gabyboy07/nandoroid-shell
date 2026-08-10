@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import "../core"
+import "../core/functions" as Functions
 import "."
 
 /**
@@ -23,10 +24,10 @@ Item {
     property int maxHeight: 240 * Appearance.effectiveScale
     
     // Custom styling properties
-    property color colBackground: Appearance.colors.colLayer1
+    property color colBackground: Appearance.m3colors.m3surfaceContainer || Appearance.colors.colLayer1
     property color colBorder: root.isOpened ? Appearance.colors.colPrimary : Appearance.colors.colOutlineVariant
     property color colText: Appearance.colors.colOnLayer1
-    property real borderWidth: root.isOpened ? Math.max(2, 2 * Appearance.effectiveScale) : Math.max(1, 1 * Appearance.effectiveScale)
+    property real borderWidth: root.isOpened ? Math.max(2, 2 * Appearance.effectiveScale) : 0
     property real bgRadius: 12 * Appearance.effectiveScale
 
     property string activeFont: {
@@ -78,7 +79,8 @@ Item {
         
         RowLayout {
             anchors.fill: parent
-            anchors.margins: 12 * Appearance.effectiveScale
+            anchors.leftMargin: 16 * Appearance.effectiveScale
+            anchors.rightMargin: 16 * Appearance.effectiveScale
             spacing: 8 * Appearance.effectiveScale
             
             TextInput {
@@ -89,7 +91,9 @@ Item {
                 font.pixelSize: Appearance.font.pixelSize.normal
                 color: root.colText
                 verticalAlignment: TextInput.AlignVCenter
-                horizontalAlignment: TextInput.AlignHCenter
+                horizontalAlignment: TextInput.AlignLeft
+                leftPadding: 0
+                rightPadding: 0
                 readOnly: !root.searchable
                 selectByMouse: root.searchable
                 clip: true
@@ -113,7 +117,7 @@ Item {
                 onActiveFocusChanged: {
                     if (activeFocus && root.searchable) {
                         root.isOpened = true;
-                        input.selectAll(); // Select all text so typing immediately replaces it
+                        input.selectAll();
                     }
                 }
 
@@ -159,6 +163,8 @@ Item {
                     visible: !parent.text && !parent.activeFocus
                     font: parent.font
                     anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 0
                 }
             }
             
@@ -189,13 +195,22 @@ Item {
         z: 2000
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent | Popup.CloseOnPressOutside
         
-        background: Rectangle {
-            radius: 12 * Appearance.effectiveScale
-            color: Qt.darker(Appearance.colors.colLayer2, 1.05)
-            border.width: Math.max(1, 1 * Appearance.effectiveScale)
-            border.color: Appearance.colors.colOutlineVariant
-            clip: true
+        background: Item {
             visible: root.filteredModel.length > 0
+            
+            StyledRectangularShadow {
+                target: popupBgRect
+                radius: popupBgRect.radius
+                color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
+            }
+
+            Rectangle {
+                id: popupBgRect
+                anchors.fill: parent
+                radius: 12 * Appearance.effectiveScale
+                color: Appearance.m3colors.m3surfaceContainerHigh || Qt.darker(Appearance.colors.colLayer2, 1.05)
+                clip: true
+            }
         }
 
         enter: Transition {
@@ -213,8 +228,8 @@ Item {
             clip: true
             highlightFollowsCurrentItem: true
             highlight: Rectangle {
-                color: Appearance.colors.colLayer2Hover
-                radius: 8 * Appearance.effectiveScale
+                color: Appearance.m3colors.m3secondaryContainer || Appearance.colors.colLayer2Hover
+                radius: 12 * Appearance.effectiveScale
                 z: 0
             }
             
@@ -222,7 +237,7 @@ Item {
                 id: delegateRoot
                 width: listView.width
                 implicitHeight: 40 * Appearance.effectiveScale
-                buttonRadius: 8 * Appearance.effectiveScale
+                buttonRadius: 12 * Appearance.effectiveScale
                 colBackground: "transparent"
                 colBackgroundHover: "transparent" // Use Listview highlight instead
                 colRipple: Appearance.colors.colLayer2Active
@@ -236,11 +251,11 @@ Item {
                 contentItem: StyledText {
                     text: modelData
                     anchors.fill: parent
-                    anchors.leftMargin: 12 * Appearance.effectiveScale
+                    anchors.leftMargin: 16 * Appearance.effectiveScale
                     verticalAlignment: Text.AlignVCenter
-                    color: delegateRoot.isCurrent ? (Appearance.m3colors.m3primary || Appearance.colors.colPrimary) : Appearance.colors.colOnLayer2
+                    color: delegateRoot.isCurrent ? (Appearance.m3colors.m3onSecondaryContainer || Appearance.m3colors.m3primary) : Appearance.colors.colOnLayer2
                     font.family: root.searchable ? text : Appearance.font.family.main
-                    font.weight: delegateRoot.isCurrent ? Font.DemiBold : Font.Normal
+                    font.weight: Font.Normal
                 }
                 
                 onClicked: {
