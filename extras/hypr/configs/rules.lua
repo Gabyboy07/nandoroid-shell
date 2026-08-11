@@ -22,5 +22,6 @@ hl.window_rule({ match = { class = "xdg-desktop-portal-hyprland" },             
 hl.window_rule({ match = { title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, float = 1, pin = 1 })
 
 -- NAnDoroid Panels (Native Floating)
-hl.window_rule({ match = { title = "^(Settings)$" },       float = 1, center = 1 })
-hl.window_rule({ match = { title = "^(System Monitor)$" },  float = 1, center = 1 })
+hl.window_rule({ match = { title = "^(Settings)$" },       float = 1, center = 1, border_size = 0 })
+hl.window_rule({ match = { title = "^(System Monitor)$" },  float = 1, center = 1, border_size = 0 })
+hl.window_rule({ match = { title = "^(Welcome to NAnDoroid)$" }, float = 1, center = 1, border_size = 0 })

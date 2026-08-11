@@ -100,3 +100,8 @@ hl.config({
         "blur off, quickshell:recordingMarker"
     }
 })
+
+-- NAnDoroid Panels (Native Floating)
+hl.window_rule({ match = { title = "^(Settings)$" },       float = 1, center = 1, border_size = 0 })
+hl.window_rule({ match = { title = "^(System Monitor)$" },  float = 1, center = 1, border_size = 0 })
+hl.window_rule({ match = { title = "^(Welcome to NAnDoroid)$" }, float = 1, center = 1, border_size = 0 })
