@@ -793,9 +793,9 @@ Item {
                                 delegate: Rectangle {
                                     required property int index
 
-                                    x: 0
+                                    x: root.gutterWidth
                                     y: index * root.hourHeight
-                                    width: parent.width
+                                    width: parent.width - root.gutterWidth
                                     height: 1
                                     color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.06)
                                 }
