@@ -18,6 +18,95 @@ Rectangle {
         anchors.fill: parent
         spacing: 0
 
+        // ── Top Tab Bar ──
+        Item {
+            Layout.fillWidth: true
+            height: 64 * Appearance.effectiveScale
+
+            // Bottom border for the entire tab bar
+            Rectangle {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                height: 1 * Appearance.effectiveScale
+                color: Appearance.m3colors.m3surfaceVariant
+                opacity: 0.5
+            }
+
+            RowLayout {
+                anchors.fill: parent
+                spacing: 0
+
+                Repeater {
+                    model: [
+                        { name: I18nService.tr("Pomodoro"), icon: "alarm" },
+                        { name: I18nService.tr("Stopwatch"), icon: "timer" },
+                        { name: I18nService.tr("Timer"), icon: "hourglass_bottom" }
+                    ]
+                    
+                    delegate: RippleButton {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        
+                        buttonRadius: 0
+                        topLeftRadius: index === 0 ? Appearance.rounding.normal : 0
+                        topRightRadius: index === 2 ? Appearance.rounding.normal : 0
+                        
+                        colBackground: "transparent"
+                        colBackgroundHover: Appearance.colors.colLayer0Hover
+                        colRipple: Appearance.colors.colLayer0Active
+                        onClicked: root.currentTab = index
+                        
+                        readonly property bool isActive: root.currentTab === index
+
+                        ColumnLayout {
+                            anchors.fill: parent
+                            spacing: 6 * Appearance.effectiveScale
+                            
+                            Item { Layout.fillHeight: true } // spacer
+                            
+                            MaterialSymbol {
+                                Layout.alignment: Qt.AlignHCenter
+                                text: modelData.icon
+                                iconSize: 24 * Appearance.effectiveScale
+                                color: isActive ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurfaceVariant
+                                Behavior on color { ColorAnimation { duration: 200 } }
+                            }
+                            
+                            StyledText {
+                                Layout.alignment: Qt.AlignHCenter
+                                text: modelData.name
+                                font.pixelSize: 12 * Appearance.effectiveScale
+                                font.weight: Font.Medium
+                                color: isActive ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurfaceVariant
+                                Behavior on color { ColorAnimation { duration: 200 } }
+                            }
+                            
+                            Item { Layout.fillHeight: true; Layout.preferredHeight: 4 * Appearance.effectiveScale } // spacer
+                        }
+
+                        // Active Indicator
+                        Rectangle {
+                            anchors.bottom: parent.bottom
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            width: isActive ? 48 * Appearance.effectiveScale : 0
+                            height: 3 * Appearance.effectiveScale
+                            
+                            topLeftRadius: 3 * Appearance.effectiveScale
+                            topRightRadius: 3 * Appearance.effectiveScale
+                            bottomLeftRadius: 0
+                            bottomRightRadius: 0
+                            
+                            color: Appearance.m3colors.m3primary
+                            
+                            Behavior on width { NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.bezierCurve: Appearance.animationCurves.expressiveDefaultSpatial } }
+                        }
+
+                    }
+                }
+            }
+        }
+
         // ── Content Area ──
         Item {
             Layout.fillWidth: true
@@ -42,90 +131,6 @@ Rectangle {
                 active: root.currentTab === 2
                 visible: active
                 sourceComponent: TimerView {}
-            }
-        }
-
-        // ── Bottom Navbar ──
-        Item {
-            Layout.fillWidth: true
-            height: 64 * Appearance.effectiveScale
-
-            Rectangle {
-                anchors.fill: parent
-                color: Appearance.m3colors.m3surfaceContainerHigh
-                radius: Appearance.rounding.normal
-            }
-            
-            Rectangle {
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-                height: Appearance.rounding.normal
-                color: Appearance.m3colors.m3surfaceContainerHigh
-            }
-
-            RowLayout {
-                anchors.fill: parent
-                spacing: 8 * Appearance.effectiveScale
-
-                Repeater {
-                    model: [
-                        { name: I18nService.tr("Pomodoro"), icon: "alarm" },
-                        { name: I18nService.tr("Stopwatch"), icon: "timer" },
-                        { name: I18nService.tr("Timer"), icon: "hourglass_bottom" }
-                    ]
-                    
-                    delegate: Item {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        
-                        readonly property bool isActive: root.currentTab === index
-
-                        // Active pill background
-                        Rectangle {
-                            width: 64 * Appearance.effectiveScale
-                            height: 32 * Appearance.effectiveScale
-                            anchors.top: parent.top
-                            anchors.topMargin: 8 * Appearance.effectiveScale
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            radius: height / 2
-                            color: isActive ? Appearance.m3colors.m3secondaryContainer : "transparent"
-                            
-                            Behavior on color { ColorAnimation { duration: 200 } }
-                        }
-                        
-                        ColumnLayout {
-                            anchors.fill: parent
-                            spacing: 4 * Appearance.effectiveScale
-                            
-                            Item { Layout.fillHeight: true } // spacer
-                            
-                            MaterialSymbol {
-                                Layout.alignment: Qt.AlignHCenter
-                                text: modelData.icon
-                                iconSize: 24 * Appearance.effectiveScale
-                                color: isActive ? Appearance.m3colors.m3onSecondaryContainer : Appearance.m3colors.m3onSurfaceVariant
-                                Behavior on color { ColorAnimation { duration: 200 } }
-                            }
-                            
-                            StyledText {
-                                Layout.alignment: Qt.AlignHCenter
-                                text: modelData.name
-                                font.pixelSize: 12 * Appearance.effectiveScale
-                                font.weight: Font.Medium
-                                color: isActive ? Appearance.m3colors.m3onSurface : Appearance.m3colors.m3onSurfaceVariant
-                            }
-                            
-                            Item { Layout.fillHeight: true } // spacer
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: root.currentTab = index
-                        }
-                    }
-                }
             }
         }
     }
