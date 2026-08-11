@@ -31,6 +31,8 @@ MouseArea {
             if (colorString === "surfaceContainerHigh") return Appearance.m3colors.m3surfaceContainerHigh
             if (colorString === "primaryContainer") return Appearance.m3colors.m3primaryContainer
             if (colorString === "secondaryContainer") return Appearance.m3colors.m3secondaryContainer
+            if (colorString === "tertiaryContainer") return Appearance.m3colors.m3tertiaryContainer || Appearance.m3colors.m3tertiary
+            if (colorString === "errorContainer") return Appearance.m3colors.m3errorContainer || Appearance.colors.colError
             if (colorString === "surfaceContainerLowest") return Appearance.m3colors.m3surfaceContainerLowest
         }
         return "transparent"

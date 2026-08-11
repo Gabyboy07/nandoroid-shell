@@ -140,33 +140,21 @@ Item {
     // ── Date formatting helpers ──
 
     function _displayTime(timeStr) {
-        if (!timeStr) return timeStr
-        const parts = String(timeStr).split(":")
-        if (parts.length < 2) return timeStr
-        const h = parseInt(parts[0], 10)
-        if (isNaN(h)) return timeStr
-        const m = parts[1]
-        const rest = parts.length > 2 ? ":" + parts.slice(2).join(":") : ""
-        const style = Config.ready && Config.options.time ? Config.options.time.timeStyle : "24H"
-        if (style === "24H") return String(h).padStart(2, "0") + ":" + m + rest
-        const upper = style === "12H_PM"
-        const ap = h >= 12 ? (upper ? "PM" : "pm") : (upper ? "AM" : "am")
-        const h12 = h % 12 || 12
-        return String(h12).padStart(2, "0") + ":" + m + rest + " " + ap
+        if (!timeStr) return "";
+        let d = new Date(timeStr);
+        if (isNaN(d)) return timeStr;
+        return Qt.formatTime(d, Config.ready ? Config.timeFormat : "hh:mm");
     }
 
     function _displayDate(dStr) {
-        if (!dStr) return dStr
-        const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
-        const parts = String(dStr).trim().split(/[-/]/).map(Number)
-        if (parts.length < 3 || parts.some(isNaN)) return dStr
-        let y, m, d
-        if (parts[0] > 1000) { y = parts[0]; m = parts[1]; d = parts[2] }
-        else if (style === "MDY") { m = parts[0]; d = parts[1]; y = parts[2] }
-        else { d = parts[0]; m = parts[1]; y = parts[2] }
-        if (!y || !m || !d) return dStr
-        const days = [I18nService.tr("Sun"), I18nService.tr("Mon"), I18nService.tr("Tue"), I18nService.tr("Wed"), I18nService.tr("Thu"), I18nService.tr("Fri"), I18nService.tr("Sat")]
-        return days[new Date(y, m - 1, d).getDay()] + ", " + dStr
+        if (!dStr) return "";
+        let d = new Date(dStr);
+        if (isNaN(d)) return dStr;
+        const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY";
+        let fmt = "ddd, dd/MM/yyyy";
+        if (style === "MDY") fmt = "ddd, MM/dd/yyyy";
+        else if (style === "YMD") fmt = "ddd, yyyy/MM/dd";
+        return Qt.formatDate(d, fmt);
     }
 
     // ── File I/O ──
@@ -230,7 +218,19 @@ Item {
             Layout.fillWidth: true
             implicitHeight: contentCol.implicitHeight + 24 * Appearance.effectiveScale
             radius: Appearance.rounding.normal
-            color: itemMouse.containsMouse ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainer
+            
+            function getNoteColor(c) {
+                if (c === "primary" || c === "primaryContainer") return Appearance.m3colors.m3primaryContainer;
+                if (c === "secondary" || c === "secondaryContainer") return Appearance.m3colors.m3secondaryContainer;
+                if (c === "tertiary" || c === "tertiaryContainer") return Appearance.m3colors.m3tertiaryContainer || Appearance.m3colors.m3tertiary; 
+                if (c === "error" || c === "errorContainer") return Appearance.m3colors.m3errorContainer || Appearance.m3colors.m3error;
+                if (c === "surfaceContainerHigh") return Appearance.m3colors.m3surfaceContainerHigh;
+                if (c === "surfaceContainerLowest") return Appearance.m3colors.m3surfaceContainerLowest;
+                return Appearance.m3colors.m3surfaceContainer;
+            }
+
+            property color baseColor: getNoteColor(modelData.color || "")
+            color: itemMouse.containsMouse ? Functions.ColorUtils.mix(baseColor, Appearance.m3colors.m3onSurface, 0.95) : baseColor
             border.color: Appearance.m3colors.m3outlineVariant
             border.width: 1 * Appearance.effectiveScale
 
@@ -279,7 +279,8 @@ Item {
                             anchors.centerIn: parent
                             text: "keep"
                             iconSize: 18 * Appearance.effectiveScale
-                            color: modelData.pinned ? Appearance.colors.colPrimary : Appearance.colors.colOnLayer1
+                            color: Appearance.m3colors.m3onSurface
+                            fill: modelData.pinned ? 1 : 0
                         }
                     }
                 }
@@ -344,7 +345,7 @@ Item {
                         
                         StyledText {
                             Layout.fillWidth: true
-                            text: modelData.updatedAt ? root._displayDate(modelData.updatedAt.split("T")[0]) : ""
+                            text: modelData.updatedAt ? root._displayDate(modelData.updatedAt) : ""
                             font.pixelSize: Appearance.font.pixelSize.smaller
                             color: Appearance.colors.colSubtext
                         }
@@ -362,7 +363,7 @@ Item {
                                 anchors.centerIn: parent
                                 text: "delete"
                                 iconSize: 14 * Appearance.effectiveScale
-                                color: Appearance.colors.colError
+                                color: Appearance.m3colors.m3onSurface
                             }
                         }
                     }
@@ -373,7 +374,6 @@ Item {
 
     Item {
         anchors.fill: parent
-        anchors.margins: 16 * Appearance.effectiveScale
 
         // ──────────────────────────────────────────────
         //  STEP 1: LIST VIEW
@@ -381,6 +381,7 @@ Item {
         Item {
             id: listView
             anchors.fill: parent
+            anchors.margins: 16 * Appearance.effectiveScale
             visible: root._view === "list"
 
             // ── Item List ──
@@ -497,66 +498,199 @@ Item {
         // ──────────────────────────────────────────────
         //  STEP 2: NOTEPAD EDITOR
         // ──────────────────────────────────────────────
-        ColumnLayout {
+        Rectangle {
             anchors.fill: parent
-            spacing: 8 * Appearance.effectiveScale
             visible: root._view === "notepad"
+            radius: Appearance.rounding.normal
+            clip: true
+            
+            onVisibleChanged: {
+                if (!visible && colorPopup.opened) {
+                    colorPopup.close()
+                }
+            }
+            
+            function getNoteColor(c) {
+                if (c === "primary" || c === "primaryContainer") return Appearance.m3colors.m3primaryContainer;
+                if (c === "secondary" || c === "secondaryContainer") return Appearance.m3colors.m3secondaryContainer;
+                if (c === "tertiary" || c === "tertiaryContainer") return Appearance.m3colors.m3tertiaryContainer || Appearance.m3colors.m3tertiary; 
+                if (c === "error" || c === "errorContainer") return Appearance.m3colors.m3errorContainer || Appearance.m3colors.m3error;
+                if (c === "surfaceContainerHigh") return Appearance.m3colors.m3surfaceContainerHigh;
+                if (c === "surfaceContainerLowest") return Appearance.m3colors.m3surfaceContainerLowest;
+                return "transparent";
+            }
+            
+            color: getNoteColor(root._currentItem() ? root._currentItem().color || "" : "")
 
-            // Top bar: back + title + delete
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 8 * Appearance.effectiveScale
+            ColumnLayout {
+                anchors.fill: parent
+                spacing: 0
 
-                RippleButton {
-                    implicitWidth: 36 * Appearance.effectiveScale
-                    implicitHeight: 36 * Appearance.effectiveScale
-                    buttonRadius: 18 * Appearance.effectiveScale
-                    colBackground: Appearance.colors.colLayer2
-                    onClicked: root.goBack()
-                    MaterialSymbol {
-                        anchors.centerIn: parent
-                        text: "arrow_back"
-                        iconSize: 20 * Appearance.effectiveScale
-                        color: Appearance.m3colors.m3onSurface
+                // Top bar: back + spacer + palette + pin + delete
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 4 * Appearance.effectiveScale
+                    Layout.margins: 16 * Appearance.effectiveScale
+                    Layout.topMargin: 16 * Appearance.effectiveScale
+
+                    RippleButton {
+                        implicitWidth: 40 * Appearance.effectiveScale
+                        implicitHeight: 40 * Appearance.effectiveScale
+                        buttonRadius: 20 * Appearance.effectiveScale
+                        colBackground: "transparent"
+                        onClicked: root.goBack()
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: "arrow_back"
+                            iconSize: 22 * Appearance.effectiveScale
+                            color: Appearance.m3colors.m3onSurface
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true } // Spacer
+
+                    // Pin Button
+                    RippleButton {
+                        implicitWidth: 40 * Appearance.effectiveScale
+                        implicitHeight: 40 * Appearance.effectiveScale
+                        buttonRadius: 12 * Appearance.effectiveScale
+                        colBackground: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
+                        colBackgroundHover: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.16)
+                        onClicked: {
+                            if (root._editingId) {
+                                root.togglePin(root._editingId)
+                            }
+                        }
+                        MaterialSymbol { 
+                            anchors.centerIn: parent; 
+                            text: "keep"; 
+                            iconSize: 22 * Appearance.effectiveScale; 
+                            color: Appearance.m3colors.m3onSurface
+                            fill: (root._currentItem() && root._currentItem().pinned) ? 1 : 0
+                        }
+                    }
+
+                    // Palette Button
+                    RippleButton {
+                        id: paletteBtn
+                        implicitWidth: 40 * Appearance.effectiveScale
+                        implicitHeight: 40 * Appearance.effectiveScale
+                        buttonRadius: colorPopup.opened ? (20 * Appearance.effectiveScale) : (12 * Appearance.effectiveScale)
+                        colBackground: colorPopup.opened ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.24) : Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
+                        colBackgroundHover: colorPopup.opened ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.32) : Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.16)
+                        
+                        Behavior on buttonRadius { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+                        
+                        MaterialSymbol { 
+                            anchors.centerIn: parent; 
+                            text: "palette"; 
+                            iconSize: 22 * Appearance.effectiveScale; 
+                            color: Appearance.m3colors.m3onSurface 
+                            fill: colorPopup.opened ? 1 : 0
+                        }
+                        
+                        property bool _justClosed: false
+                        Timer {
+                            id: blockReopenTimer
+                            interval: 100
+                            onTriggered: paletteBtn._justClosed = false
+                        }
+
+                        onClicked: {
+                            if (colorPopup.opened) {
+                                colorPopup.close()
+                            } else if (!paletteBtn._justClosed) {
+                                colorPopup.open()
+                            }
+                        }
+
+                        Popup {
+                            id: colorPopup
+                            y: paletteBtn.height + 8 * Appearance.effectiveScale
+                            x: -width + paletteBtn.width + 44 * Appearance.effectiveScale
+                            width: colorGrid.implicitWidth + 24 * Appearance.effectiveScale
+                            height: colorGrid.implicitHeight + 24 * Appearance.effectiveScale
+                            
+                            onClosed: {
+                                paletteBtn._justClosed = true
+                                blockReopenTimer.start()
+                            }
+                            
+                            background: Rectangle {
+                                color: Appearance.colors.colLayer0
+                                radius: Appearance.rounding.normal
+                                
+                                StyledRectangularShadow {
+                                    target: parent
+                                    visible: true
+                                    z: -1
+                                }
+                            }
+
+                            GridLayout {
+                                id: colorGrid
+                                anchors.centerIn: parent
+                                columns: 4
+                                rowSpacing: 8 * Appearance.effectiveScale
+                                columnSpacing: 8 * Appearance.effectiveScale
+                                Repeater {
+                                    model: ["", "primaryContainer", "secondaryContainer", "tertiaryContainer", "errorContainer", "surfaceContainerHigh", "surfaceContainerLowest"]
+                                    delegate: ColorPickerButton {
+                                        required property string modelData
+                                        colorString: modelData === "" ? "surface" : modelData 
+                                        isHighlighted: (root._currentItem() ? root._currentItem().color || "" : "") === modelData
+                                        onClicked: {
+                                            let note = root._currentItem();
+                                            if (note) {
+                                                note.color = modelData;
+                                                root._doSave();
+                                                root.items = root.items.slice();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Delete Button
+                    RippleButton {
+                        implicitWidth: 40 * Appearance.effectiveScale
+                        implicitHeight: 40 * Appearance.effectiveScale
+                        buttonRadius: 12 * Appearance.effectiveScale
+                        colBackground: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
+                        colBackgroundHover: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.16)
+                        onClicked: root.deleteCurrent()
+                        MaterialSymbol { anchors.centerIn: parent; text: "delete"; iconSize: 22 * Appearance.effectiveScale; color: Appearance.m3colors.m3onSurface }
                     }
                 }
 
+                // Title Input
                 StyledTextInput {
                     id: noteTitleInput
                     Layout.fillWidth: true
-                    implicitHeight: 40 * Appearance.effectiveScale
-                    inputRadius: Appearance.rounding.small / Appearance.effectiveScale
-                    backgroundColor: Appearance.m3colors.m3surfaceContainer
+                    Layout.margins: 24 * Appearance.effectiveScale
+                    Layout.topMargin: 0
+                    Layout.bottomMargin: 24 * Appearance.effectiveScale
+                    implicitHeight: 48 * Appearance.effectiveScale
+                    backgroundColor: "transparent"
+                    showActiveBorder: false
+                    leftMargin: 0
+                    rightMargin: 0
                     text: ""
-                    placeholder: I18nService.tr("Note title...")
+                    font.weight: Font.Normal
+                    font.pixelSize: Appearance.font.pixelSize.xlarge || 24 * Appearance.effectiveScale
+                    placeholder: I18nService.tr("Title")
                     onTextChanged: saveTimer.restart()
                 }
 
-                RippleButton {
-                    implicitWidth: 40 * Appearance.effectiveScale
-                    implicitHeight: 40 * Appearance.effectiveScale
-                    buttonRadius: 20 * Appearance.effectiveScale
-                    colBackground: Appearance.m3colors.m3surfaceContainer
-                    onClicked: root.deleteCurrent()
-                    MaterialSymbol { anchors.centerIn: parent; text: "delete"; iconSize: 20 * Appearance.effectiveScale; color: Appearance.colors.colError }
-                    StyledToolTip { text: I18nService.tr("Delete") }
-                }
-            }
-
-            // Body editor
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: Appearance.m3colors.m3surfaceContainer
-                radius: Appearance.rounding.normal
-                border.color: bodyArea.activeFocus ? Appearance.colors.colPrimary : "transparent"
-                border.width: 2 * Appearance.effectiveScale
-                clip: true
-
+                // Body editor
                 Flickable {
                     id: bodyFlickable
-                    anchors.fill: parent
-                    anchors.margins: 12 * Appearance.effectiveScale
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.margins: 24 * Appearance.effectiveScale
+                    Layout.topMargin: 0
                     contentHeight: bodyArea.height
                     clip: true
 
@@ -565,7 +699,7 @@ Item {
                         width: bodyFlickable.width
                         height: Math.max(implicitHeight, bodyFlickable.height)
                         font.family: Appearance.font.family.main
-                        font.pixelSize: Appearance.font.pixelSize.normal
+                        font.pixelSize: Appearance.font.pixelSize.large || 16 * Appearance.effectiveScale
                         color: Appearance.colors.colOnLayer1
                         wrapMode: TextEdit.Wrap
                         selectionColor: Appearance.colors.colPrimaryContainer
@@ -585,10 +719,10 @@ Item {
                             anchors.top: parent.top
                             anchors.left: parent.left
                             anchors.right: parent.right
-                            text: I18nService.tr("Start typing your note...")
+                            text: I18nService.tr("Note")
                             color: Appearance.colors.colSubtext
                             visible: !parent.text && !parent.activeFocus
-                            font.pixelSize: Appearance.font.pixelSize.normal
+                            font.pixelSize: Appearance.font.pixelSize.large || 16 * Appearance.effectiveScale
                             wrapMode: Text.Wrap
                         }
                     }

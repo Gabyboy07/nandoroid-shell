@@ -64,6 +64,10 @@ Item {
         selectedTextColor: Appearance.colors.colOnPrimaryContainer
         clip: true
 
+        HoverHandler {
+            cursorShape: Qt.IBeamCursor
+        }
+
         onEditingFinished: root.editingFinished()
         onAccepted: root.accepted()
 
@@ -99,6 +103,7 @@ Item {
 
         MouseArea {
             anchors.fill: parent
+            cursorShape: Qt.IBeamCursor
             property int dragStart: -1
             onPressed: (event) => {
                 const pos = input.mapFromItem(focusGuard.contentItem, event.x, event.y)
