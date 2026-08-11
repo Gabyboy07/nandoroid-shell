@@ -153,12 +153,6 @@ Scope {
                     }
                 }
 
-                StyledRectangularShadow {
-                    target: innerContentContainer
-                    radius: innerContentContainer.radius
-                    color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
-                }
-
                 // Main Content Area
                 Rectangle {
                     id: innerContentContainer
@@ -172,7 +166,7 @@ Scope {
                         id: stepLoader
                         anchors.fill: parent
                         anchors.margins: 16 * Appearance.effectiveScale
-                        
+
                         source: {
                             switch(GlobalStates.onboardingStep) {
                                 case 0: return "pages/IntroStep.qml";
@@ -187,7 +181,7 @@ Scope {
                         }
                     }
                 }
-                
+
                 // Footer Navigation
                 RowLayout {
                     Layout.fillWidth: true
