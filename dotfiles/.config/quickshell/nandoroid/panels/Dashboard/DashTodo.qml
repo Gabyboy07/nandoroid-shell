@@ -18,6 +18,8 @@ Item {
     property string hoveredStatus: ""
     property string hoveredTargetId: ""
     property string draggedTaskId: ""
+    property string topDropTarget: "__top__"
+    property real gapHeight: 48 * Appearance.effectiveScale
     property alias dragOverlay: dragOverlayItem
     readonly property string storagePath: Functions.FileUtils.trimFileProtocol(Directories.home) + "/.cache/nandoroid/todo.json"
     readonly property string oldStoragePath: Functions.FileUtils.trimFileProtocol(Directories.home) + "/.cache/nandoroid/notes.json"
@@ -26,6 +28,10 @@ Item {
     function makeId() {
         root._idCounter++;
         return Date.now().toString(36) + "_" + root._idCounter.toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    function isTopDropZone(status) {
+        return root.hoveredStatus === status && root.hoveredTargetId === root.topDropTarget;
     }
 
     function save() {
@@ -111,7 +117,15 @@ Item {
         task.status = newStatus;
         task.updatedAt = new Date().toISOString();
         root.items.splice(taskIndex, 1);
-        if (targetId && targetId !== "") {
+        if (targetId === root.topDropTarget) {
+            let firstIdx = root.items.findIndex((i) => {
+                return i.status === newStatus;
+            });
+            if (firstIdx === -1)
+                root.items.push(task);
+            else
+                root.items.splice(firstIdx, 0, task);
+        } else if (targetId && targetId !== "") {
             let targetIndex = root.items.findIndex((i) => {
                 return i.id === targetId;
             });
@@ -178,11 +192,18 @@ Item {
             property var pressPos: Qt.point(0, 0)
             property int dragThreshold: 5
             property Item originalParent: null
+            // Slide the first visible card down when the column header is hovered
+            property bool headerGap: {
+                if (!root.isTopDropZone(modelData.status)) return false;
+                const col = root.items.filter(i => i.status === modelData.status);
+                const firstVisible = col.find(i => i.id !== root.draggedTaskId);
+                return firstVisible !== undefined && firstVisible.id === modelData.id;
+            }
 
             Layout.fillWidth: true
             visible: !dragging
             // Auto collapse when dragged, and expand when hovered
-            implicitHeight: dragging ? 0 : (cardRect.implicitHeight + (cardDropArea.dragEntered && delegateRoot.modelData.id !== root.draggedTaskId ? 48 * Appearance.effectiveScale : 0))
+            implicitHeight: dragging ? 0 : (cardRect.implicitHeight + ((cardDropArea.dragEntered && delegateRoot.modelData.id !== root.draggedTaskId) || delegateRoot.headerGap ? root.gapHeight : 0))
 
             DropArea {
                 id: cardDropArea
@@ -198,11 +219,9 @@ Item {
                         root.hoveredStatus = delegateRoot.modelData.status;
                     }
                 }
-                onExited: {
-                    if (root.hoveredTargetId === delegateRoot.modelData.id)
-                        root.hoveredTargetId = "";
-
-                }
+                // hoveredTargetId intentionally NOT cleared here: it is replaced
+                // by the next onEntered / colDrop zone update, so the drop target
+                // survives the DropArea exit events that fire when the drag ends.
 
                 Rectangle {
                     y: 44 * Appearance.effectiveScale
@@ -210,7 +229,7 @@ Item {
                     anchors.right: parent.right
                     height: 4 * Appearance.effectiveScale
                     color: Appearance.m3colors.m3primary
-                    visible: cardDropArea.dragEntered && delegateRoot.modelData.id !== root.draggedTaskId
+                    visible: (cardDropArea.dragEntered && delegateRoot.modelData.id !== root.draggedTaskId) || delegateRoot.headerGap
                     radius: Appearance.rounding.small
                 }
 
@@ -249,6 +268,8 @@ Item {
                     onPressed: (mouse) => {
                         delegateRoot.pressPos = Qt.point(mouse.x, mouse.y);
                         root.draggedTaskId = delegateRoot.modelData.id;
+                        root.hoveredStatus = "";
+                        root.hoveredTargetId = "";
                     }
                     onPositionChanged: (mouse) => {
                         if (!delegateRoot.dragging) {
@@ -307,7 +328,7 @@ Item {
 
                 // Slide down to create a gap when hovered
                 transform: Translate {
-                    y: (cardDropArea.dragEntered && delegateRoot.modelData.id !== root.draggedTaskId) ? 48 * Appearance.effectiveScale : 0
+                    y: ((cardDropArea.dragEntered && delegateRoot.modelData.id !== root.draggedTaskId) || delegateRoot.headerGap) ? root.gapHeight : 0
 
                     Behavior on y {
                         NumberAnimation {
@@ -377,14 +398,47 @@ Item {
 
                     property bool dragEntered: containsDrag
 
+                    // Top zone -> insert at top; bottom zone -> append at bottom.
+                    // Between cards, target the next card below so the drop target
+                    // never collapses to "" mid-column (which flashes the bottom hint).
+                    function updateDropZone(y) {
+                        const firstCard = cardRepeater.itemAt(0);
+                        if (firstCard) {
+                            const firstTop = firstCard.mapToItem(colDrop, 0, 0).y;
+                            if (y < firstTop) {
+                                root.hoveredTargetId = root.topDropTarget;
+                                return;
+                            }
+                        }
+                        for (let i = 0; i < cardRepeater.count; i++) {
+                            const card = cardRepeater.itemAt(i);
+                            if (!card || card.modelData.id === root.draggedTaskId)
+                                continue;
+                            if (y < card.mapToItem(colDrop, 0, 0).y) {
+                                root.hoveredTargetId = card.modelData.id;
+                                return;
+                            }
+                        }
+                        root.hoveredTargetId = "";
+                    }
+
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     keys: ["task"]
-                    onEntered: root.hoveredStatus = modelData.status
-                    onExited: {
+                    onEntered: (drag) => {
+                        root.hoveredStatus = modelData.status;
+                        colDrop.updateDropZone(drag.y);
+                    }
+                    onPositionChanged: (drag) => {
                         if (root.hoveredStatus === modelData.status)
-                            root.hoveredStatus = "";
+                            colDrop.updateDropZone(drag.y);
 
+                    }
+                    onExited: {
+                        if (root.hoveredStatus === modelData.status) {
+                            root.hoveredStatus = "";
+                            root.hoveredTargetId = "";
+                        }
                     }
 
                     Rectangle {
@@ -480,6 +534,8 @@ Item {
                                     spacing: 8 * Appearance.effectiveScale
 
                                     Repeater {
+                                        id: cardRepeater
+
                                         model: root.items.filter((i) => {
                                             return i.status === modelData.status;
                                         })
