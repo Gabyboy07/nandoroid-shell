@@ -180,6 +180,7 @@ Item {
             property Item originalParent: null
 
             Layout.fillWidth: true
+            visible: !dragging
             // Auto collapse when dragged, and expand when hovered
             implicitHeight: dragging ? 0 : (cardRect.implicitHeight + (cardDropArea.dragEntered && delegateRoot.modelData.id !== root.draggedTaskId ? 48 * Appearance.effectiveScale : 0))
 
@@ -204,7 +205,7 @@ Item {
                 }
 
                 Rectangle {
-                    anchors.top: parent.top
+                    y: 44 * Appearance.effectiveScale
                     anchors.left: parent.left
                     anchors.right: parent.right
                     height: 4 * Appearance.effectiveScale
@@ -218,8 +219,6 @@ Item {
             Rectangle {
                 id: cardRect
 
-                // Slide down to create a gap when hovered
-                transform: Translate { y: (cardDropArea.dragEntered && delegateRoot.modelData.id !== root.draggedTaskId) ? 48 * Appearance.effectiveScale : 0; Behavior on y { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } } }
                 width: delegateRoot.width
                 implicitHeight: cardCol.implicitHeight + 24 * Appearance.effectiveScale
                 radius: Appearance.rounding.small
@@ -239,6 +238,11 @@ Item {
                     id: cardDragArea
 
                     anchors.fill: parent
+                    onClicked: {
+                        root._editingId = delegateRoot.modelData.id;
+                        editTaskInput.text = delegateRoot.modelData.content;
+                        editPopup.open();
+                    }
                     cursorShape: delegateRoot.dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
                     drag.target: delegateRoot.dragging ? cardRect : null
                     drag.threshold: 0
@@ -251,12 +255,12 @@ Item {
                             const dx = mouse.x - delegateRoot.pressPos.x;
                             const dy = mouse.y - delegateRoot.pressPos.y;
                             if (Math.sqrt(dx * dx + dy * dy) > delegateRoot.dragThreshold) {
-                                delegateRoot.dragging = true;
                                 delegateRoot.originalParent = cardRect.parent;
                                 const globalPos = cardRect.mapToItem(root.dragOverlay, 0, 0);
                                 cardRect.parent = root.dragOverlay;
                                 cardRect.x = globalPos.x;
                                 cardRect.y = globalPos.y;
+                                delegateRoot.dragging = true;
                             }
                         }
                     }
@@ -288,74 +292,27 @@ Item {
                     anchors.top: parent.top
                     anchors.left: parent.left
                     anchors.right: parent.right
-                    anchors.margins: 12 * Appearance.effectiveScale
-                    spacing: 8 * Appearance.effectiveScale
+                    anchors.margins: 16 * Appearance.effectiveScale
 
-                    RowLayout {
+                    StyledText {
                         Layout.fillWidth: true
-                        spacing: 8 * Appearance.effectiveScale
-
-                        StyledTextInput {
-                            Layout.fillWidth: true
-                            text: delegateRoot.modelData.content
-                            font.family: Appearance.font.family.main
-                            font.pixelSize: Appearance.font.pixelSize.normal
-                            color: Appearance.colors.colOnLayer1
-                            backgroundColor: "transparent"
-                            showActiveBorder: false
-                            leftMargin: 0
-                            rightMargin: 0
-                            onEditingFinished: {
-                                if (text.trim() !== delegateRoot.modelData.content) {
-                                    const newText = text.trim() === "" ? I18nService.tr("New task") : text.trim();
-                                    const item = root.items.find((i) => {
-                                        return i.id === delegateRoot.modelData.id;
-                                    });
-                                    if (item) {
-                                        item.content = newText;
-                                        item.updatedAt = new Date().toISOString();
-                                        root.items = root.items.slice();
-                                        root.save();
-                                    }
-                                }
-                            }
-                        }
-
+                        text: delegateRoot.modelData.content
+                        font.family: Appearance.font.family.main
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        color: Appearance.colors.colOnLayer1
+                        wrapMode: Text.Wrap
                     }
 
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 4 * Appearance.effectiveScale
+                }
 
-                        // spacer
-                        Item {
-                            Layout.fillWidth: true
-                        }
+                // Slide down to create a gap when hovered
+                transform: Translate {
+                    y: (cardDropArea.dragEntered && delegateRoot.modelData.id !== root.draggedTaskId) ? 48 * Appearance.effectiveScale : 0
 
-                        // Delete
-                        RippleButton {
-                            implicitWidth: 24 * Appearance.effectiveScale
-                            implicitHeight: 24 * Appearance.effectiveScale
-                            buttonRadius: 12 * Appearance.effectiveScale
-                            colBackground: "transparent"
-                            onClicked: {
-                                DialogService.requestConfirmation({
-                                    "titleText": I18nService.tr("Delete Task?"),
-                                    "messageText": I18nService.tr("Are you sure you want to delete this task? This action cannot be undone."),
-                                    "iconText": "delete",
-                                    "isDestructive": true
-                                }, () => {
-                                    return root.deleteTask(delegateRoot.modelData.id);
-                                });
-                            }
-
-                            MaterialSymbol {
-                                anchors.centerIn: parent
-                                text: "delete"
-                                iconSize: 14 * Appearance.effectiveScale
-                                color: Appearance.colors.colError
-                            }
-
+                    Behavior on y {
+                        NumberAnimation {
+                            duration: 150
+                            easing.type: Easing.OutCubic
                         }
 
                     }
@@ -416,6 +373,8 @@ Item {
                 }]
 
                 delegate: DropArea {
+                    id: colDrop
+
                     property bool dragEntered: containsDrag
 
                     Layout.fillHeight: true
@@ -431,7 +390,7 @@ Item {
                     Rectangle {
                         anchors.fill: parent
                         radius: Appearance.rounding.normal
-                        color: parent.dragEntered ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainer
+                        color: Appearance.m3colors.m3surfaceContainer
 
                         ColumnLayout {
                             anchors.fill: parent
@@ -527,6 +486,25 @@ Item {
                                         delegate: cardDelegate
                                     }
 
+                                    Rectangle {
+                                        id: bottomHintRect
+
+                                        property int visibleCardsCount: root.items.filter((i) => {
+                                            return i.status === modelData.status && i.id !== root.draggedTaskId;
+                                        }).length
+
+                                        Layout.fillWidth: true
+                                        height: 4 * Appearance.effectiveScale
+                                        color: Appearance.m3colors.m3primary
+                                        visible: colDrop.dragEntered && root.hoveredTargetId === ""
+                                        radius: Appearance.rounding.small
+
+                                        transform: Translate {
+                                            y: bottomHintRect.visibleCardsCount > 0 ? -8 * Appearance.effectiveScale : 0
+                                        }
+
+                                    }
+
                                 }
 
                                 ScrollBar.vertical: StyledScrollBar {
@@ -551,6 +529,223 @@ Item {
 
         anchors.fill: parent
         z: 9999
+    }
+
+    Connections {
+        function onDashboardOpenChanged() {
+            if (!GlobalStates.dashboardOpen)
+                editPopup.close();
+
+        }
+
+        target: GlobalStates
+    }
+
+    Item {
+        id: editPopup
+
+        property string editingId: ""
+
+        function open() {
+            visible = true;
+            editTaskInput.forceActiveFocus();
+        }
+
+        function close() {
+            visible = false;
+        }
+
+        anchors.fill: parent
+        visible: false
+        z: 1000
+
+        MouseArea {
+            // No background color to remove the backdrop effect
+
+            anchors.fill: parent
+            onClicked: editPopup.close()
+        }
+
+        Rectangle {
+            width: Math.min(360 * Appearance.effectiveScale, root.width - 48 * Appearance.effectiveScale)
+            height: Math.min(260 * Appearance.effectiveScale, root.height - 48 * Appearance.effectiveScale)
+            anchors.centerIn: parent
+            radius: 28 * Appearance.effectiveScale // M3 Dialogs have 28dp radius
+            color: Appearance.m3colors.m3surfaceContainerHigh // Standard M3 dialog color
+
+            // Consume clicks inside the modal so they don't pass through to the background MouseArea
+            MouseArea {
+                anchors.fill: parent
+            }
+
+            StyledRectangularShadow {
+                target: parent
+                visible: true
+                z: -1
+            }
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 24 * Appearance.effectiveScale
+                spacing: 16 * Appearance.effectiveScale
+
+                // Header Row
+                RowLayout {
+                    Layout.fillWidth: true
+
+                    StyledText {
+                        text: I18nService.tr("Edit task")
+                        font.pixelSize: Appearance.font.pixelSize.large
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnLayer1
+                        Layout.fillWidth: true
+                    }
+
+                    // Delete Button (Icon)
+                    RippleButton {
+                        implicitWidth: 32 * Appearance.effectiveScale
+                        implicitHeight: 32 * Appearance.effectiveScale
+                        buttonRadius: 16 * Appearance.effectiveScale
+                        colBackground: "transparent"
+                        colBackgroundHover: Functions.ColorUtils.applyAlpha(Appearance.colors.colError, 0.08)
+                        onClicked: {
+                            DialogService.requestConfirmation({
+                                "titleText": I18nService.tr("Delete Task?"),
+                                "messageText": I18nService.tr("Are you sure you want to delete this task? This action cannot be undone."),
+                                "iconText": "delete",
+                                "isDestructive": true
+                            }, () => {
+                                editPopup.close();
+                                return root.deleteTask(root._editingId);
+                            });
+                        }
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: "delete"
+                            iconSize: 18 * Appearance.effectiveScale
+                            color: Appearance.colors.colError
+                        }
+
+                    }
+
+                }
+
+                // M3 Outlined Text Field lookalike
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    color: "transparent"
+                    border.width: editTaskInput.activeFocus ? 2 * Appearance.effectiveScale : 1 * Appearance.effectiveScale
+                    border.color: editTaskInput.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline
+                    radius: 8 * Appearance.effectiveScale
+
+                    StyledFlickable {
+                        id: editTaskFlickable
+
+                        anchors.fill: parent
+                        anchors.margins: 12 * Appearance.effectiveScale
+                        contentHeight: editTaskInput.height
+                        clip: true
+
+                        TextEdit {
+                            id: editTaskInput
+
+                            width: parent.width
+                            font.family: Appearance.font.family.main
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            color: Appearance.colors.colOnLayer1
+                            wrapMode: TextEdit.Wrap
+                            selectionColor: Appearance.colors.colPrimaryContainer
+                            selectedTextColor: Appearance.colors.colOnPrimaryContainer
+                            onCursorRectangleChanged: {
+                                const margin = 8 * Appearance.effectiveScale;
+                                if (cursorRectangle.y < editTaskFlickable.contentY)
+                                    editTaskFlickable.contentY = cursorRectangle.y;
+                                else if (cursorRectangle.y + cursorRectangle.height + margin > editTaskFlickable.contentY + editTaskFlickable.height)
+                                    editTaskFlickable.contentY = cursorRectangle.y + cursorRectangle.height - editTaskFlickable.height + margin;
+                            }
+
+                            HoverHandler {
+                                cursorShape: Qt.IBeamCursor
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                // Bottom Buttons (M3 Text Buttons)
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 8 * Appearance.effectiveScale
+                    spacing: 8 * Appearance.effectiveScale
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+                    // Cancel (Text Button)
+
+                    RippleButton {
+                        implicitWidth: cancelText.width + 24 * Appearance.effectiveScale
+                        implicitHeight: 40 * Appearance.effectiveScale
+                        buttonRadius: 20 * Appearance.effectiveScale
+                        colBackground: "transparent"
+                        colBackgroundHover: Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.08)
+                        onClicked: editPopup.close()
+
+                        StyledText {
+                            id: cancelText
+
+                            anchors.centerIn: parent
+                            text: I18nService.tr("Cancel")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.Medium
+                            color: Appearance.colors.colPrimary
+                        }
+
+                    }
+
+                    // Save (Text Button)
+                    RippleButton {
+                        implicitWidth: saveText.width + 24 * Appearance.effectiveScale
+                        implicitHeight: 40 * Appearance.effectiveScale
+                        buttonRadius: 20 * Appearance.effectiveScale
+                        colBackground: "transparent"
+                        colBackgroundHover: Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.08)
+                        onClicked: {
+                            const newText = editTaskInput.text.trim() === "" ? I18nService.tr("New task") : editTaskInput.text.trim();
+                            const item = root.items.find((i) => {
+                                return i.id === root._editingId;
+                            });
+                            if (item) {
+                                item.content = newText;
+                                item.updatedAt = new Date().toISOString();
+                                root.items = root.items.slice();
+                                root.save();
+                            }
+                            editPopup.close();
+                        }
+
+                        StyledText {
+                            id: saveText
+
+                            anchors.centerIn: parent
+                            text: I18nService.tr("Save")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.Medium
+                            color: Appearance.colors.colPrimary
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
     }
 
 }
