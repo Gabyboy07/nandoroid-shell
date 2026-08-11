@@ -260,22 +260,22 @@ Scope {
                             Item { Layout.fillWidth: true }
                             
                             RippleButton {
+                                implicitHeight: 36 * Appearance.effectiveScale
+                                buttonRadius: Appearance.rounding.full
                                 buttonText: I18nService.tr("Cancel")
-                                Layout.preferredWidth: 100 * Appearance.effectiveScale
-                                Layout.preferredHeight: 40 * Appearance.effectiveScale
-                                buttonRadius: Appearance.rounding.button
                                 colBackground: "transparent"
                                 colBackgroundHover: Appearance.colors.colLayer2Hover
+                                colText: Appearance.colors.colPrimary
                                 onClicked: panelWindow.closeDialog()
                             }
                             
                             RippleButton {
+                                implicitHeight: 36 * Appearance.effectiveScale
+                                buttonRadius: Appearance.rounding.full
                                 buttonText: I18nService.tr("Connect")
-                                Layout.preferredWidth: 100 * Appearance.effectiveScale
-                                Layout.preferredHeight: 40 * Appearance.effectiveScale
-                                buttonRadius: Appearance.rounding.button
-                                colBackground: Appearance.colors.colPrimary
-                                colText: Appearance.colors.colOnPrimary
+                                colBackground: "transparent"
+                                colBackgroundHover: Appearance.colors.colLayer2Hover
+                                colText: Appearance.colors.colPrimary
                                 enabled: ssidInput.text.length > 0
                                 onClicked: {
                                     Network.connectWithPassword(ssidInput.text, hiddenPassInput.text, panelWindow.isHidden);

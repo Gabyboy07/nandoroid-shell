@@ -172,22 +172,22 @@ Scope {
                             Item { Layout.fillWidth: true }
 
                             RippleButton {
-                                Layout.preferredWidth: 100 * Appearance.effectiveScale
-                                Layout.preferredHeight: 40 * Appearance.effectiveScale
-                                buttonRadius: Appearance.rounding.button
+                                implicitHeight: 36 * Appearance.effectiveScale
+                                buttonRadius: Appearance.rounding.full
                                 buttonText: I18nService.tr("Cancel")
                                 colBackground: "transparent"
                                 colBackgroundHover: Appearance.colors.colLayer2Hover
+                                colText: Appearance.colors.colPrimary
                                 onClicked: PolkitService.cancel()
                             }
 
                             RippleButton {
-                                Layout.preferredWidth: 100 * Appearance.effectiveScale
-                                Layout.preferredHeight: 40 * Appearance.effectiveScale
-                                buttonRadius: Appearance.rounding.button
+                                implicitHeight: 36 * Appearance.effectiveScale
+                                buttonRadius: Appearance.rounding.full
                                 buttonText: I18nService.tr("OK")
-                                colBackground: Appearance.colors.colPrimary
-                                colText: Appearance.colors.colOnPrimary
+                                colBackground: "transparent"
+                                colBackgroundHover: Appearance.colors.colLayer2Hover
+                                colText: Appearance.colors.colPrimary
                                 enabled: PolkitService.interactionAvailable
                                 onClicked: PolkitService.submit(passwordInput.text)
                             }
