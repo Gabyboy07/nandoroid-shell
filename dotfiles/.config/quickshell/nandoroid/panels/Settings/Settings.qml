@@ -127,7 +127,7 @@ Scope {
                 Item {
                     id: headerWrapper
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 52 * Appearance.effectiveScale // Reduced from 64
+                    Layout.preferredHeight: 44 * Appearance.effectiveScale
 
                     RowLayout {
                         anchors.fill: parent
@@ -259,6 +259,14 @@ Scope {
                         }
                     }
 
+                    SettingsSubSidebar {
+                        id: subSidebar
+                        Layout.fillHeight: true
+                        
+                        // Let SubSidebar handle sections from SearchRegistry
+                        pageIndex: GlobalStates.settingsPageIndex
+                    }
+
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -347,7 +355,7 @@ Scope {
         { name: "Bluetooth", component: "pages/Bluetooth/BluetoothSettings.qml" },
         { name: "Audio", component: "pages/Audio/AudioSettings.qml" },
         { name: "Display", component: "pages/Display/DisplaySettings.qml" },
-        { name: "Wallpaper & Style", component: "pages/WallpaperStyle/WallpaperStyleSettings.qml" },
+        { name: "Customize", component: "pages/WallpaperStyle/WallpaperStyleSettings.qml" },
         { name: "Widgets", component: "pages/Widgets/WidgetsSettings.qml" },
         { name: "System", component: "pages/System/SystemSettings.qml" },
         { name: "Services", component: "pages/Services/ServicesSettings.qml" },
