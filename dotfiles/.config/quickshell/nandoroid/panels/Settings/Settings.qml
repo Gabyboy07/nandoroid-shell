@@ -5,6 +5,7 @@ import "../../widgets"
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Wayland
 
@@ -113,7 +114,7 @@ Scope {
             Keys.onEscapePressed: GlobalStates.settingsOpen = false
 
             color: Appearance.colors.colLayer0
-            radius: 20 * Appearance.effectiveScale
+            radius: Appearance.rounding.panel
 
             // Trap clicks inside
             TapHandler {}
@@ -127,52 +128,83 @@ Scope {
                 Item {
                     id: headerWrapper
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 44 * Appearance.effectiveScale
+                    Layout.preferredHeight: 72 * Appearance.effectiveScale
 
                     RowLayout {
                         anchors.fill: parent
+                        // Avatar has no padding, visual gap is 20
                         anchors.leftMargin: 20 * Appearance.effectiveScale
-                        anchors.rightMargin: 0
-                        spacing: 20 * Appearance.effectiveScale
+                        // Close button has ~7px internal padding, so 13 + 7 = 20 visual gap
+                        anchors.rightMargin: 13 * Appearance.effectiveScale
+                        spacing: 24 * Appearance.effectiveScale
 
-                        StyledText {
-                            text: I18nService.tr("Settings")
-                            font.pixelSize: Math.round(24 * Appearance.effectiveScale)
-                            font.weight: Font.DemiBold
-                            color: Appearance.colors.colOnLayer0
-                            Layout.preferredWidth: 200 * Appearance.effectiveScale
+                        Item {
                             Layout.alignment: Qt.AlignVCenter
+                            implicitWidth: 36 * Appearance.effectiveScale
+                            implicitHeight: 36 * Appearance.effectiveScale
+
+                            Image {
+                                id: headerAvatar
+                                anchors.fill: parent
+                                source: {
+                                    const profPath = Config.options.profile?.avatarPicture;
+                                    if (profPath && profPath !== "") return "file://" + profPath;
+                                    const cfgPath = Config.options.bar?.avatar_path;
+                                    if (cfgPath && cfgPath !== "") return "file://" + cfgPath;
+                                    if (SystemInfo.userAvatarValid) return "file://" + SystemInfo.userAvatarPath;
+                                    return "";
+                                }
+                                sourceSize: Qt.size(width, height)
+                                fillMode: Image.PreserveAspectCrop
+                                visible: false
+                            }
+
+                            Rectangle {
+                                id: headerAvatarMask
+                                anchors.fill: parent
+                                radius: width / 2
+                                visible: false
+                            }
+
+                            OpacityMask {
+                                anchors.fill: parent
+                                source: headerAvatar
+                                maskSource: headerAvatarMask
+                                visible: headerAvatar.status === Image.Ready
+                            }
+
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                visible: headerAvatar.status !== Image.Ready
+                                text: "person"
+                                iconSize: 22 * Appearance.effectiveScale
+                                color: Appearance.colors.colSubtext
+                            }
                         }
 
-                        Item { Layout.fillWidth: true }
-
-                        // Truly Centered Search pill
+                        // Search pill
                         Rectangle {
-                            Layout.preferredWidth: 360 * Appearance.effectiveScale
-                            Layout.preferredHeight: 44 * Appearance.effectiveScale
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 56 * Appearance.effectiveScale
                             Layout.alignment: Qt.AlignVCenter
-                            radius: 22 * Appearance.effectiveScale
+                            radius: 28 * Appearance.effectiveScale
                             color: Appearance.colors.colLayer1 // Using colLayer1 for search as it sits on colLayer0
                             
                             RowLayout {
                                 anchors.fill: parent
                                 anchors.leftMargin: 16 * Appearance.effectiveScale
                                 spacing: 12 * Appearance.effectiveScale
-                                MaterialSymbol {
-                                    text: "search"
-                                    iconSize: 22 * Appearance.effectiveScale
-                                    color: Appearance.colors.colSubtext
-                                }
                                 StyledTextInput {
                                     id: searchInput
                                     Layout.fillWidth: true
                                     Layout.rightMargin: 16 * Appearance.effectiveScale
                                     inputRadius: 0
+                                    horizontalAlignment: TextInput.AlignHCenter
                                     backgroundColor: "transparent"
                                     borderInactiveWidth: 0
                                     showActiveBorder: false
                                     font.pixelSize: Appearance.font.pixelSize.normal
-                                    placeholder: searchInput.hasNoResults ? I18nService.tr("No results found") : I18nService.tr("Search all settings..")
+                                    placeholder: searchInput.hasNoResults ? I18nService.tr("No results found") : I18nService.tr("Search settings")
                                     placeholderColor: searchInput.hasNoResults ? Appearance.m3colors.m3error : Appearance.colors.colSubtext
                                     leftMargin: 0
                                     rightMargin: 0
@@ -204,40 +236,33 @@ Scope {
                                         }
                                     }
                                 }
+                            }
 
-                                // Search Indicator (X/Y)
-                                StyledText {
-                                    visible: root.searchResults.length > 0 && searchInput.text === root.lastQuery
-                                    text: (root.currentResultIndex + 1) + "/" + root.searchResults.length
-                                    font.pixelSize: Appearance.font.pixelSize.smaller
-                                    color: Appearance.colors.colPrimary
-                                    Layout.alignment: Qt.AlignVCenter
-                                    Layout.rightMargin: 16 * Appearance.effectiveScale
-                                }
+                            // Search Indicator (X/Y) floated on top
+                            StyledText {
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.rightMargin: 16 * Appearance.effectiveScale
+                                visible: root.searchResults.length > 0 && searchInput.text === root.lastQuery
+                                text: (root.currentResultIndex + 1) + "/" + root.searchResults.length
+                                font.pixelSize: Appearance.font.pixelSize.smaller
+                                color: Appearance.colors.colPrimary
                             }
                         }
 
-                        Item { Layout.fillWidth: true }
-
-                        Item {
-                            Layout.preferredWidth: 200 * Appearance.effectiveScale
-                            Layout.fillHeight: true
-
-                            RippleButton {
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                implicitWidth: 36 * Appearance.effectiveScale
-                                implicitHeight: 36 * Appearance.effectiveScale
-                                buttonRadius: 18 * Appearance.effectiveScale
-                                colBackground: "transparent"
-                                onClicked: GlobalStates.settingsOpen = false
-                                
-                                MaterialSymbol {
-                                    anchors.centerIn: parent
-                                    text: "close"
-                                    iconSize: 22 * Appearance.effectiveScale
-                                    color: Appearance.colors.colSubtext
-                                }
+                        RippleButton {
+                            Layout.alignment: Qt.AlignVCenter
+                            implicitWidth: 36 * Appearance.effectiveScale
+                            implicitHeight: 36 * Appearance.effectiveScale
+                            buttonRadius: 18 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            onClicked: GlobalStates.settingsOpen = false
+                            
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "close"
+                                iconSize: 22 * Appearance.effectiveScale
+                                color: Appearance.colors.colSubtext
                             }
                         }
                     }
