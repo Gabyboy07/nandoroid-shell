@@ -82,7 +82,6 @@ if pgrep wf-recorder > /dev/null; then
 else
     filename="Recording_$(date '+%Y-%m-%d-%H-%M-%S').mp4"
     if [[ $FULLSCREEN_FLAG -eq 1 ]]; then
-        notify-send "Starting recording" "$filename" -a 'Recorder' -i media-record -t 3000 & disown
         updatestate true "fullscreen"
         if [[ $SOUND_FLAG -eq 1 ]]; then
             wf-recorder -o "$(getactivemonitor)" --pixel-format yuv420p -f "$filename" --audio="$(getaudiooutput)"
@@ -105,8 +104,6 @@ else
         x="${pos%,*}"
         y="${pos#*,}"
         geometry="${x},${y} ${size}"
-
-        notify-send "Starting recording" "$filename" -a 'Recorder' -i media-record -t 3000 & disown
         updatestate true "$geometry"
         if [[ $SOUND_FLAG -eq 1 ]]; then
             wf-recorder -o "$(getactivemonitor)" --pixel-format yuv420p -f "$filename" --geometry "$geometry" --audio="$(getaudiooutput)"
