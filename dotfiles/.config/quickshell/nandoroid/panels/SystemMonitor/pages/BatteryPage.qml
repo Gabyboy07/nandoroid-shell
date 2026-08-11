@@ -75,7 +75,7 @@ Flickable {
                             text: "•  " + (Battery.isCharging ? I18nService.tr("Charging") : (Battery.chargeState === 4 ? I18nService.tr("Fully Charged") : I18nService.tr("Discharging")))
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.Medium
-                            color: Battery.isCharging ? Appearance.colors.colSuccess : Appearance.colors.colSubtext
+                            color: Battery.isCharging ? Appearance.m3colors.m3success : Appearance.colors.colSubtext
                             Layout.alignment: Qt.AlignVCenter
                         }
                     }
@@ -126,7 +126,7 @@ Flickable {
                                 readonly property color barColor: {
                                     if (Battery.isCritical && !Battery.isCharging) return Appearance.colors.colError;
                                     if (Battery.isLow && !Battery.isCharging) return Appearance.colors.colWarning;
-                                    if (Battery.isCharging) return Appearance.colors.colSuccess;
+                                    if (Battery.isCharging) return Appearance.m3colors.m3success;
                                     return Appearance.colors.colPrimary;
                                 }
                                 color: barColor
