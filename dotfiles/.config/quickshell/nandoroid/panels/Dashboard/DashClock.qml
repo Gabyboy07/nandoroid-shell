@@ -13,6 +13,14 @@ Rectangle {
     clip: true
 
     property int currentTab: 0
+    property var indicatorWidths: [48, 48, 48]
+    
+    onCurrentTabChanged: {
+        if (tabHighlight) {
+            tabHighlight.idx1 = currentTab
+            Qt.callLater(() => { tabHighlight.idx2 = currentTab })
+        }
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -80,30 +88,58 @@ Rectangle {
                                 font.weight: Font.Medium
                                 color: isActive ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurfaceVariant
                                 Behavior on color { ColorAnimation { duration: 200 } }
+                                
+                                onImplicitWidthChanged: {
+                                    if (implicitWidth > 0) {
+                                        let arr = root.indicatorWidths.slice();
+                                        arr[index] = implicitWidth * 0.85;
+                                        root.indicatorWidths = arr;
+                                    }
+                                }
                             }
                             
                             Item { Layout.fillHeight: true; Layout.preferredHeight: 4 * Appearance.effectiveScale } // spacer
                         }
 
-                        // Active Indicator
-                        Rectangle {
-                            anchors.bottom: parent.bottom
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            width: isActive ? 48 * Appearance.effectiveScale : 0
-                            height: 3 * Appearance.effectiveScale
-                            
-                            topLeftRadius: 3 * Appearance.effectiveScale
-                            topRightRadius: 3 * Appearance.effectiveScale
-                            bottomLeftRadius: 0
-                            bottomRightRadius: 0
-                            
-                            color: Appearance.m3colors.m3primary
-                            
-                            Behavior on width { NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.bezierCurve: Appearance.animationCurves.expressiveDefaultSpatial } }
-                        }
-
                     }
                 }
+            }
+
+            // Animated stretch-highlight pill
+            Rectangle {
+                id: tabHighlight
+                anchors.bottom: parent.bottom
+                height: 3 * Appearance.effectiveScale
+                
+                property int idx1: root.currentTab
+                property int idx2: root.currentTab
+                
+                function getLeftForIndex(i) {
+                    let w = root.indicatorWidths[i] || 48;
+                    return (i + 0.5) * (parent.width / 3) - w / 2
+                }
+                function getRightForIndex(i) {
+                    let w = root.indicatorWidths[i] || 48;
+                    return (i + 0.5) * (parent.width / 3) + w / 2
+                }
+                
+                property real animLeft1: getLeftForIndex(idx1)
+                property real animRight1: getRightForIndex(idx1)
+                property real animLeft2: getLeftForIndex(idx2)
+                property real animRight2: getRightForIndex(idx2)
+                
+                x: Math.min(animLeft1, animLeft2)
+                width: Math.max(animRight1, animRight2) - x
+                
+                topLeftRadius: 3 * Appearance.effectiveScale
+                topRightRadius: 3 * Appearance.effectiveScale
+                
+                color: Appearance.m3colors.m3primary
+                
+                Behavior on animLeft1 { NumberAnimation { duration: 300; easing.type: Easing.OutQuart } }
+                Behavior on animRight1 { NumberAnimation { duration: 300; easing.type: Easing.OutQuart } }
+                Behavior on animLeft2 { NumberAnimation { duration: 500; easing.type: Easing.OutQuart } }
+                Behavior on animRight2 { NumberAnimation { duration: 500; easing.type: Easing.OutQuart } }
             }
         }
 
