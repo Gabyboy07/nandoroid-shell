@@ -60,6 +60,11 @@ ColumnLayout {
                     colBackground: Appearance.m3colors.m3surfaceContainerHigh
                     onClicked: pushView( "update")
                     
+                    SearchHandler {
+                        searchString: "Shell Update"
+                        aliases: ["Update", "Perbarui"]
+                    }
+                    
                     RowLayout {
                         anchors.fill: parent
                         anchors.leftMargin: 20 * Appearance.effectiveScale
@@ -96,6 +101,11 @@ ColumnLayout {
                     buttonRadius: 16 * Appearance.effectiveScale
                     colBackground: Appearance.m3colors.m3surfaceContainerHigh
                     onClicked: pushView( "dependency")
+                    
+                    SearchHandler {
+                        searchString: "Dependency Check"
+                        aliases: ["Dependencies"]
+                    }
                     
                     RowLayout {
                         anchors.fill: parent
@@ -250,6 +260,11 @@ ColumnLayout {
                                 GlobalStates.onboardingOpen = true;
                             }
                             
+                            SearchHandler {
+                                searchString: "Onboarding"
+                                aliases: ["Tour", "Guide"]
+                            }
+                            
                             // Explicitly inherit radii from SegmentedWrapper for hover alignment
                             topLeftRadius: onboardingLinkWrapper.rTopLeft
                             topRightRadius: onboardingLinkWrapper.rTopRight
@@ -297,6 +312,11 @@ ColumnLayout {
                                 GlobalStates.settingsOpen = false;
                                 GlobalStates.onboardingStep = 5; // Jump to IPC step
                                 GlobalStates.onboardingOpen = true;
+                            }
+                            
+                            SearchHandler {
+                                searchString: "IPC Guide"
+                                aliases: ["IPC", "API", "Integration"]
                             }
                             
                             // Explicitly inherit radii from SegmentedWrapper for hover alignment
@@ -388,6 +408,11 @@ ColumnLayout {
                             anchors.fill: parent
                             colBackground: "transparent"
                             onClicked: pushView("credits")
+                            
+                            SearchHandler {
+                                searchString: "Special Thanks"
+                                aliases: ["Credits", "Kredit"]
+                            }
                             
                             // Explicitly inherit radii from SegmentedWrapper for hover alignment
                             topLeftRadius: creditsLinkWrapper.rTopLeft

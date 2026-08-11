@@ -47,6 +47,11 @@ Flickable {
             }
         }
 
+        SearchHandler {
+            searchString: "Desktop Clock"
+            aliases: ["Clock"]
+        }
+
         // ── Desktop Clock Settings ──
         WsClock { 
             Layout.fillWidth: true

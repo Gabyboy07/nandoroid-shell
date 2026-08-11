@@ -248,23 +248,58 @@ Scope {
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    spacing: 12 * Appearance.effectiveScale
+                    spacing: 0
 
                     SettingsSidebar {
                         id: sidebar
                         Layout.fillHeight: true
+                        Layout.rightMargin: 12 * Appearance.effectiveScale
                         currentIndex: GlobalStates.settingsPageIndex
                         onPageSelected: (index) => {
                             GlobalStates.settingsPageIndex = index
                         }
                     }
 
-                    SettingsSubSidebar {
-                        id: subSidebar
+                    Item {
+                        id: subSidebarWrapper
                         Layout.fillHeight: true
-                        
-                        // Let SubSidebar handle sections from SearchRegistry
-                        pageIndex: GlobalStates.settingsPageIndex
+                        implicitWidth: subSidebar.hasSections ? (1 + 12 + 160 + 12) * Appearance.effectiveScale : 0
+                        clip: true
+
+                        Behavior on implicitWidth {
+                            SequentialAnimation {
+                                PauseAnimation { duration: subSidebar.hasSections ? 150 : 0 }
+                                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+                            }
+                        }
+
+                        Rectangle {
+                            id: divider
+                            anchors.left: parent.left
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            anchors.topMargin: 16 * Appearance.effectiveScale
+                            anchors.bottomMargin: 16 * Appearance.effectiveScale
+                            width: 1 * Appearance.effectiveScale
+                            color: Appearance.m3colors.m3outlineVariant
+                            opacity: subSidebar.opacity
+                            
+                            Behavior on opacity {
+                                NumberAnimation { duration: 150 }
+                            }
+                        }
+
+                        SettingsSubSidebar {
+                            id: subSidebar
+                            anchors.left: divider.right
+                            anchors.leftMargin: 12 * Appearance.effectiveScale
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            width: 160 * Appearance.effectiveScale
+                            
+                            // Let SubSidebar handle sections from SearchRegistry
+                            pageIndex: GlobalStates.settingsPageIndex
+                        }
                     }
 
                     Rectangle {

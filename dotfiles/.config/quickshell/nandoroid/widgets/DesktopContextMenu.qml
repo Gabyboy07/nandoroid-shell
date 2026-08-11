@@ -283,15 +283,15 @@ PanelWindow {
 
             MenuItem {
                 visible: root.activeConfigObject === null
-                menuText: I18nService.tr("Wallpaper & style")
-                menuIcon: "format_paint"
+                menuText: I18nService.tr("Customize")
+                menuIcon: "palette"
                 
                 HoverHandler {
                     onHoveredChanged: if (hovered) root.openSubmenuComponent = null
                 }
                 
                 onClicked: {
-                    GlobalStates.settingsPageIndex = 4 // Wallpaper & Style
+                    GlobalStates.settingsPageIndex = 4 // Customize
                     SearchRegistry.currentSearch = ""
                     GlobalStates.activateSettings()
                     root.close()

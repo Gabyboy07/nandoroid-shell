@@ -17,7 +17,7 @@ ColumnLayout {
         spacing: 4 * Appearance.effectiveScale
 
         StyledText {
-            text: I18nService.tr("Step 1: Wallpaper & Style")
+            text: I18nService.tr("Step 1: Customize")
             font.pixelSize: Appearance.font.pixelSize.larger
             font.weight: Font.DemiBold
             color: Appearance.colors.colOnLayer1

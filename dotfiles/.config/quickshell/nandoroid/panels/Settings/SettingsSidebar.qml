@@ -19,24 +19,17 @@ Rectangle {
     property int currentIndex: 0
     signal pageSelected(int index)
 
-    Flickable {
+    ColumnLayout {
         anchors.fill: parent
-        contentHeight: mainLayout.implicitHeight + 24 * Appearance.effectiveScale
-        clip: true
-        ScrollBar.vertical: StyledScrollBar {}
+        spacing: 0
 
-        ColumnLayout {
-            id: mainLayout
-            width: parent.width
-            anchors.margins: 12 * Appearance.effectiveScale
-            anchors.topMargin: 24 * Appearance.effectiveScale
-            spacing: 24 * Appearance.effectiveScale
-
-            // Config button (FAB style)
-            RippleButton {
-                Layout.alignment: Qt.AlignHCenter
-                implicitWidth: 56 * Appearance.effectiveScale
-                implicitHeight: 56 * Appearance.effectiveScale
+        // Persistent Config Button
+        RippleButton {
+            Layout.alignment: Qt.AlignHCenter
+            Layout.topMargin: 0
+            Layout.bottomMargin: 24 * Appearance.effectiveScale
+            implicitWidth: 56 * Appearance.effectiveScale
+            implicitHeight: 56 * Appearance.effectiveScale
                 buttonRadius: 16 * Appearance.effectiveScale // Squircle / FAB shape
                 colBackground: Appearance.m3colors.m3primaryContainer
                 colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.9)
@@ -59,9 +52,27 @@ Rectangle {
                 StyledToolTip { text: I18nService.tr("Open config file"); extraVisibleCondition: parent.hovered || parent.realHovered }
             }
 
-            // Navigation Items
+        Item {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            Flickable {
+                id: sidebarFlickable
+                anchors.fill: parent
+                contentHeight: mainLayout.implicitHeight
+                clip: true
+                ScrollBar.vertical: StyledScrollBar {}
+                
+                layer.enabled: true
+                layer.effect: OpacityMask {
+                    maskSource: scrollMask
+                }
+
             ColumnLayout {
-                Layout.fillWidth: true
+                id: mainLayout
+                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
                 spacing: 12 * Appearance.effectiveScale
 
                 Repeater {
@@ -85,6 +96,29 @@ Rectangle {
                         
                         readonly property bool isActive: root.currentIndex === index
                         
+                        onIsActiveChanged: {
+                            if (isActive) {
+                                Qt.callLater(() => {
+                                    if (!sidebarFlickable.contentItem) return;
+                                    let pos = btn.mapToItem(sidebarFlickable.contentItem, 0, 0);
+                                    let itemY = pos.y;
+                                    let itemHeight = btn.height;
+                                    
+                                    let safeTop = sidebarFlickable.contentY + 56 * Appearance.effectiveScale;
+                                    let safeBottom = sidebarFlickable.contentY + sidebarFlickable.height - 56 * Appearance.effectiveScale;
+                                    
+                                    if (itemY < safeTop) {
+                                        sidebarFlickable.contentY = Math.max(0, itemY - 68 * Appearance.effectiveScale);
+                                    } else if (itemY + itemHeight > safeBottom) {
+                                        sidebarFlickable.contentY = Math.min(
+                                            Math.max(0, sidebarFlickable.contentHeight - sidebarFlickable.height), 
+                                            itemY + itemHeight - sidebarFlickable.height + 68 * Appearance.effectiveScale
+                                        );
+                                    }
+                                });
+                            }
+                        }
+                        
                         // Active pill background
                         Rectangle {
                             id: pillBg
@@ -107,7 +141,7 @@ Rectangle {
                             iconSize: 24 * Appearance.effectiveScale
                             color: isActive 
                                 ? Appearance.m3colors.m3onSecondaryContainer 
-                                : Appearance.colors.colOnLayer0
+                                : Appearance.m3colors.m3onSurfaceVariant
                             Behavior on color { ColorAnimation { duration: 200 } }
                         }
                         
@@ -117,10 +151,10 @@ Rectangle {
                             anchors.topMargin: 4 * Appearance.effectiveScale // Close to pill
                             text: modelData.name
                             font.pixelSize: Math.round(12 * Appearance.effectiveScale)
-                            font.weight: isActive ? Font.DemiBold : Font.Medium
+                            font.weight: Font.Medium
                             color: isActive 
                                 ? Appearance.m3colors.m3onSurface
-                                : Appearance.colors.colOnLayer0
+                                : Appearance.m3colors.m3onSurfaceVariant
                             elide: Text.ElideRight
                             Behavior on color { ColorAnimation { duration: 200 } }
                         }
@@ -136,9 +170,42 @@ Rectangle {
                         }
                     }
                 }
-            }
 
-            Item { Layout.fillHeight: true }
+                Item {
+                    Layout.fillWidth: true
+                    implicitHeight: 24 * Appearance.effectiveScale
+                }
+            }
+        }
+
+            // ── Scroll Mask ──
+            LinearGradient {
+                id: scrollMask
+                anchors.fill: sidebarFlickable
+                visible: false
+                start: Qt.point(0, 0)
+                end: Qt.point(0, height)
+                gradient: Gradient {
+                    GradientStop {
+                        position: 0.0
+                        color: sidebarFlickable.atYBeginning ? "white" : "transparent"
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                    }
+                    GradientStop {
+                        position: Math.min(1.0, (56 * Appearance.effectiveScale) / Math.max(1, scrollMask.height))
+                        color: "white"
+                    }
+                    GradientStop {
+                        position: Math.max(0.0, 1.0 - ((56 * Appearance.effectiveScale) / Math.max(1, scrollMask.height)))
+                        color: "white"
+                    }
+                    GradientStop {
+                        position: 1.0
+                        color: sidebarFlickable.atYEnd ? "white" : "transparent"
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                    }
+                }
+            }
         }
     }
 }

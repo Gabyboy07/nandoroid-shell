@@ -325,7 +325,7 @@ Singleton {
                     } else if (summary.includes("schedule") || summary.includes("event") || body.includes("schedule") || body.includes("event")) {
                         GlobalStates.dashboardOpen = true;
                     } else if (summary.includes("wallpaper") || summary.includes("theming") || body.includes("wallpaper") || body.includes("theming")) {
-                        GlobalStates.settingsPageIndex = 4; // Wallpaper & Style
+                        GlobalStates.settingsPageIndex = 4; // Customize
                         GlobalStates.settingsOpen = true;
                     } else if (summary.includes("audio") || summary.includes("sound") || body.includes("audio") || body.includes("sound")) {
                         GlobalStates.settingsPageIndex = 2; // Audio

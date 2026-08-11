@@ -27,10 +27,7 @@ ColumnLayout {
         }
     }
 
-    SearchHandler {
-        searchString: "Avatar"
-        aliases: ["Profile Picture", "User Image", "Avatar Path", "Profile Photo", "Banner Image", "Quick Settings Banner"]
-    }
+
 
     Process {
         id: avatarPickerProc
@@ -72,6 +69,11 @@ ColumnLayout {
     ColumnLayout {
         Layout.fillWidth: true
         spacing: 4 * Appearance.effectiveScale
+
+        SearchHandler {
+            searchString: "Avatar"
+            aliases: ["Profile Picture", "User Image", "Avatar Path", "Profile Photo"]
+        }
 
         RowLayout {
             spacing: 12 * Appearance.effectiveScale
@@ -249,6 +251,11 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.topMargin: 16 * Appearance.effectiveScale
         spacing: 4 * Appearance.effectiveScale
+
+        SearchHandler {
+            searchString: "Banner"
+            aliases: ["Banner Image", "Quick Settings Banner", "Cover"]
+        }
 
         RowLayout {
             spacing: 12 * Appearance.effectiveScale
@@ -482,6 +489,11 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.topMargin: 16 * Appearance.effectiveScale
         spacing: 4 * Appearance.effectiveScale
+
+        SearchHandler {
+            searchString: "Distro Icon"
+            aliases: ["Icon", "Linux", "OS Icon", "Logo"]
+        }
 
         RowLayout {
             spacing: 12 * Appearance.effectiveScale

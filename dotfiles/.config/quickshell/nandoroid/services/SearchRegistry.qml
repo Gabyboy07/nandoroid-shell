@@ -38,23 +38,25 @@ Item {
             { file: "panels/Settings/pages/Audio/AudioSettings.qml", pageIndex: 2 },
             { file: "panels/Settings/pages/Display/DisplaySettings.qml", pageIndex: 3 },
             { file: "panels/Settings/pages/Display/DisplayEyeCare.qml", pageIndex: 3 },
+            { file: "panels/Settings/pages/WallpaperStyle/WsWallpaperCycle.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WallpaperStyleSettings.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WsThemeColor.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WsLauncher.qml", pageIndex: 4 },
+            { file: "panels/Settings/pages/WallpaperStyle/WsDock.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WsOverview.qml", pageIndex: 4 },
-            { file: "panels/Settings/pages/WallpaperStyle/WsOverview.qml", pageIndex: 4 },
+            { file: "panels/Settings/pages/WallpaperStyle/WsCava.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WsLockscreen.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WsOverlay.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WsStatusBar.qml", pageIndex: 4 },
-            { file: "panels/Settings/pages/WallpaperStyle/WsDock.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WsScreenDecor.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WsTypography.qml", pageIndex: 4 },
-            { file: "panels/Settings/pages/WallpaperStyle/WsWallpaperCycle.qml", pageIndex: 4 },
-            { file: "panels/Settings/pages/WallpaperStyle/WsLauncherIcons.qml", pageIndex: 4 },
-            { file: "panels/Settings/pages/WallpaperStyle/WsCava.qml", pageIndex: 4 },
             // Widgets Page components (pageIndex: 5)
             { file: "panels/Settings/pages/Widgets/WidgetsSettings.qml", pageIndex: 5 },
+            { file: "panels/Settings/pages/WallpaperStyle/WsClock.qml", pageIndex: 5 },
             { file: "panels/Settings/pages/Widgets/WsAtAGlance.qml", pageIndex: 5 },
+            { file: "panels/Settings/pages/Widgets/WsDesktopMedia.qml", pageIndex: 5 },
+            { file: "panels/Settings/pages/Widgets/WsSystemMonitor.qml", pageIndex: 5 },
+            { file: "panels/Settings/pages/Widgets/WsWeather.qml", pageIndex: 5 },
             { file: "panels/Settings/pages/Widgets/WsCurrency.qml", pageIndex: 5 },
             // System Page components (pageIndex: 6)
             { file: "panels/Settings/pages/System/SystemSettings.qml", pageIndex: 6 },
@@ -71,6 +73,7 @@ Item {
             { file: "panels/Settings/pages/Services/ServicesSearch.qml", pageIndex: 7 },
             { file: "panels/Settings/pages/Services/ServicesNetwork.qml", pageIndex: 7 },
             { file: "panels/Settings/pages/Services/ServicesMedia.qml", pageIndex: 7 },
+            { file: "panels/Settings/pages/Services/ServicesLyrics.qml", pageIndex: 7 },
             { file: "panels/Settings/pages/Services/ServicesGitHub.qml", pageIndex: 7 },
             // Profile Page components (pageIndex: 8)
             { file: "panels/Settings/pages/Profile/ProfileSettings.qml", pageIndex: 8 },
@@ -79,10 +82,10 @@ Item {
             { file: "panels/Settings/pages/Profile/PrPresets.qml", pageIndex: 8 },
             // About Page components (pageIndex: 9)
             { file: "panels/Settings/pages/About/AboutSettings.qml", pageIndex: 9 },
-            { file: "panels/Settings/pages/About/AboutCredits.qml", pageIndex: 9 },
-            { file: "panels/Settings/pages/About/AboutDependency.qml", pageIndex: 9 },
+            { file: "panels/Settings/pages/About/AboutMainView.qml", pageIndex: 9 },
             { file: "panels/Settings/pages/About/AboutUpdate.qml", pageIndex: 9 },
-            { file: "panels/Settings/pages/About/AboutMainView.qml", pageIndex: 9 }
+            { file: "panels/Settings/pages/About/AboutDependency.qml", pageIndex: 9 },
+            { file: "panels/Settings/pages/About/AboutCredits.qml", pageIndex: 9 }
         ])
     }
 
@@ -164,7 +167,7 @@ Item {
     }
 
     function getPageName(index) {
-        const names = ["Network", "Bluetooth", "Audio", "Display", "Wallpaper & Style", "Widgets", "System", "Services", "Profile", "About"]
+        const names = ["Network", "Bluetooth", "Audio", "Display", "Customize", "Widgets", "System", "Services", "Profile", "About"]
         return names[index] || "Unknown"
     }
 

@@ -17,14 +17,17 @@ Rectangle {
     property int pageIndex: 0
     property var sections: []
     // Only show if there are sections (more than 1 to be useful)
-    implicitWidth: sections && sections.length > 1 ? 160 * Appearance.effectiveScale : 0
-    visible: sections && sections.length > 1
+    property bool hasSections: false
     color: "transparent"
     clip: true
-
-    Behavior on implicitWidth {
-        NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+    
+    // Width animation and layout visibility is now handled by subSidebarWrapper in Settings.qml
+    
+    Behavior on opacity {
+        NumberAnimation { duration: 150 }
     }
+    
+    opacity: hasSections ? 1 : 0
 
     function refreshSections() {
         if (SearchRegistry.isIndexing) return;
@@ -57,7 +60,12 @@ Rectangle {
             filtered = filtered.filter(s => s.matchedString !== pageName);
         }
         
-        root.sections = filtered;
+        if (filtered.length > 1) {
+            root.sections = filtered;
+            root.hasSections = true;
+        } else {
+            root.hasSections = false;
+        }
     }
 
     Connections {

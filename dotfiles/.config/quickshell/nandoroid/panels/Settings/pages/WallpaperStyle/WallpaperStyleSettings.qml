@@ -283,7 +283,7 @@ Flickable {
             spacing: 4 * Appearance.effectiveScale
             visible: !root.isOnboarding
             StyledText {
-                text: I18nService.tr("Wallpaper & Style")
+                text: I18nService.tr("Customize")
                 font.pixelSize: Appearance.font.pixelSize.huge
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
@@ -356,6 +356,11 @@ Flickable {
                     }
                 }
             }
+        }
+
+        SearchHandler {
+            searchString: "Wallpaper"
+            aliases: ["Background"]
         }
 
         // ── Wallpaper Previews ──
