@@ -171,7 +171,7 @@ PanelWindow {
         implicitHeight: menuLayout.implicitHeight + (12 * Appearance.effectiveScale)
         
         radius: Appearance.rounding.normal
-        color: Appearance.colors.colLayer0
+        color: "transparent"
         
         // Glassmorphism effect
         opacity: (root.visible && !root.isClosing) ? 0.98 : 0
@@ -311,26 +311,44 @@ PanelWindow {
     }
 
     // Helper component for menu items
-    component MenuItem : RippleButton {
+    component MenuItem : SegmentedWrapper {
         id: itemRoot
         property string menuText: ""
         property string menuIcon: ""
         property string rightIcon: ""
         
         Layout.fillWidth: true
-        Layout.preferredHeight: Appearance.sizes.contextMenuItemHeight
+        Layout.preferredHeight: Appearance.sizes.contextMenuItemHeight + (12 * Appearance.effectiveScale)
         
-        buttonRadius: Appearance.rounding.small
-        colBackground: "transparent"
+        orientation: Qt.Vertical
+        maxRadius: Appearance.rounding.normal
+        smallRadius: Appearance.rounding.verysmall
         
-        // Define padding for the content
-        leftPadding: 12 * Appearance.effectiveScale
-        rightPadding: 12 * Appearance.effectiveScale
+        color: Appearance.colors.colLayer0
         
-        // Explicitly calculate implicit width to ensure parent layout sizes correctly
-        implicitWidth: leftPadding + rightPadding + contentRow.implicitWidth
+        signal clicked()
         
-        contentItem: RowLayout {
+        content: RippleButton {
+            anchors.fill: parent
+            
+            buttonRadius: 0
+            topLeftRadius: itemRoot.rTopLeft
+            topRightRadius: itemRoot.rTopRight
+            bottomLeftRadius: itemRoot.rBottomLeft
+            bottomRightRadius: itemRoot.rBottomRight
+            
+            colBackground: "transparent"
+            
+            onClicked: itemRoot.clicked()
+            
+            // Define padding for the content
+            leftPadding: 12 * Appearance.effectiveScale
+            rightPadding: 12 * Appearance.effectiveScale
+            
+            // Explicitly calculate implicit width to ensure parent layout sizes correctly
+            implicitWidth: leftPadding + rightPadding + contentRow.implicitWidth
+            
+            contentItem: RowLayout {
             id: contentRow
             spacing: 12 * Appearance.effectiveScale
             
@@ -356,6 +374,7 @@ PanelWindow {
             }
         }
     }
+}
 
     Loader {
         id: submenuLoader
