@@ -14,6 +14,12 @@ Rectangle {
 
     property int currentTab: 0
     property var indicatorWidths: [48, 48, 48]
+    readonly property var tabModel: [
+        { name: I18nService.tr("Pomodoro"), icon: "alarm" },
+        { name: I18nService.tr("Stopwatch"), icon: "timer" },
+        { name: I18nService.tr("Timer"), icon: "hourglass_bottom" }
+    ]
+    readonly property int tabCount: root.tabModel.length
     
     onCurrentTabChanged: {
         if (tabHighlight) {
@@ -46,11 +52,7 @@ Rectangle {
                 spacing: 0
 
                 Repeater {
-                    model: [
-                        { name: I18nService.tr("Pomodoro"), icon: "alarm" },
-                        { name: I18nService.tr("Stopwatch"), icon: "timer" },
-                        { name: I18nService.tr("Timer"), icon: "hourglass_bottom" }
-                    ]
+                    model: root.tabModel
                     
                     delegate: RippleButton {
                         Layout.fillWidth: true
@@ -116,11 +118,11 @@ Rectangle {
                 
                 function getLeftForIndex(i) {
                     let w = root.indicatorWidths[i] || 48;
-                    return (i + 0.5) * (parent.width / 3) - w / 2
+                    return (i + 0.5) * (parent.width / root.tabCount) - w / 2
                 }
                 function getRightForIndex(i) {
                     let w = root.indicatorWidths[i] || 48;
-                    return (i + 0.5) * (parent.width / 3) + w / 2
+                    return (i + 0.5) * (parent.width / root.tabCount) + w / 2
                 }
                 
                 property real animLeft1: getLeftForIndex(idx1)

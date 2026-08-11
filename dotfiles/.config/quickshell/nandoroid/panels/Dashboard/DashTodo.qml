@@ -15,10 +15,14 @@ Item {
     property var items: [] // List of Kanban cards
     property string _editingId: ""
 
-    readonly property string storagePath: Directories.home.replace("file://", "") + "/.cache/nandoroid/todo.json"
-    readonly property string oldStoragePath: Directories.home.replace("file://", "") + "/.cache/nandoroid/notes.json"
+    readonly property string storagePath: Functions.FileUtils.trimFileProtocol(Directories.home) + "/.cache/nandoroid/todo.json"
+    readonly property string oldStoragePath: Functions.FileUtils.trimFileProtocol(Directories.home) + "/.cache/nandoroid/notes.json"
 
-    function makeId() { return Date.now().toString(36) + Math.random().toString(36).substr(2,5) }
+    property int _idCounter: 0
+    function makeId() {
+        root._idCounter++
+        return Date.now().toString(36) + "_" + root._idCounter.toString(36) + Math.random().toString(36).substr(2,5)
+    }
 
     function save() {
         const clean = root.items.map(i => {
@@ -55,7 +59,7 @@ Item {
                     }
                 }
             } catch(e) {
-                console.log("Error loading todo.json: ", e)
+                console.warn("Error loading todo.json: ", e)
                 _runMigration() // Fallback to migration if invalid/empty
             }
         }

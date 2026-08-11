@@ -49,7 +49,7 @@ Singleton {
         Quickshell.execDetached(["mkdir", "-p", `${shellConfig}`])
         Quickshell.execDetached(["mkdir", "-p", `${presetsPath}`])
         Quickshell.execDetached(["mkdir", "-p", `${screenshotTemp}`])
-        Quickshell.execDetached(["mkdir", "-p", `${cache.toString().substring(7)}/nandoroid`])
+        Quickshell.execDetached(["mkdir", "-p", `${Functions.FileUtils.trimFileProtocol(cache)}/nandoroid`])
         
         // Ensure matugen output dir exists
         const matugenFile = generatedMaterialThemePath;
@@ -60,6 +60,6 @@ Singleton {
         Quickshell.execDetached(["mkdir", "-p", `${Functions.FileUtils.trimFileProtocol(state)}/quickshell`])
         Quickshell.execDetached(["touch", `${Functions.FileUtils.trimFileProtocol(state)}/quickshell/nandoroid_states.json`])
         Quickshell.execDetached(["touch", "/tmp/nandoroid_cava.conf"])
-        Quickshell.execDetached(["touch", `${cache.toString().substring(7)}/nandoroid/todo.json`])
+        Quickshell.execDetached(["touch", `${Functions.FileUtils.trimFileProtocol(cache)}/nandoroid/todo.json`])
     }
 }

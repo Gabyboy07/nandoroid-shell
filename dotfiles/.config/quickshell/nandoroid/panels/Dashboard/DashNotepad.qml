@@ -13,20 +13,19 @@ Item {
 
     // ── Properties ──
     property var items: []
-    property string _view: "list" // "list" | "notepad" | "todo"
+    property string _view: "list" // "list" | "notepad"
     property string _editingId: ""
 
-    readonly property string storagePath: Directories.home.replace("file://", "") + "/.cache/nandoroid/notes.json"
+    readonly property string storagePath: Functions.FileUtils.trimFileProtocol(Directories.home) + "/.cache/nandoroid/notes.json"
 
     function _currentItem() {
         return items.find(i => i.id === _editingId)
     }
 
-    function makeId() { return Date.now().toString(36) + Math.random().toString(36).substr(2,5) }
-
-    function stripHtml(html) {
-        if (!html) return "";
-        return html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+    property int _idCounter: 0
+    function makeId() {
+        root._idCounter++
+        return Date.now().toString(36) + "_" + root._idCounter.toString(36) + Math.random().toString(36).substr(2,5)
     }
 
     function save() {
@@ -59,13 +58,10 @@ Item {
         _editingId = id
         const item = _currentItem()
         if (!item) return
-        _view = item.type
-        if (item.type === "notepad") {
-            noteTitleInput.text = item.title
-            bodyArea.text = item.body
-        } else if (item.type === "todo") {
-            todoTitleInput.text = item.title
-        }
+        if (item.type !== "notepad") return
+        _view = "notepad"
+        noteTitleInput.text = item.title
+        bodyArea.text = item.body
     }
 
     function newNotepad() {
@@ -73,13 +69,6 @@ Item {
         root.items = [n].concat(root.items)
         save()
         openItem(n.id)
-    }
-
-    function newTodo() {
-        const t = { type: "todo", id: makeId(), title: I18nService.tr("Untitled"), tasks: [], color: "", updatedAt: new Date().toISOString() }
-        root.items = [t].concat(root.items)
-        save()
-        openItem(t.id)
     }
 
     function deleteCurrent() {
@@ -171,9 +160,12 @@ Item {
                         if (typeof i.pinned === "undefined") i.pinned = false
                         return i
                     })
+                    parsed = parsed.filter(i => i.type === "notepad")
                     root.items = parsed
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.warn("DashNotepad: failed to parse notes.json: ", e)
+            }
         }
     }
 
@@ -295,42 +287,6 @@ Item {
                     wrapMode: Text.Wrap
                     maximumLineCount: 8
                     elide: Text.ElideRight
-                }
-
-                // Preview for todo
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 4 * Appearance.effectiveScale
-                    visible: modelData.type === "todo"
-
-                    Repeater {
-                        model: modelData.type === "todo" ? (modelData.tasks ? modelData.tasks.slice(0, 5) : []) : []
-                        delegate: RowLayout {
-                            required property var modelData
-                            Layout.fillWidth: true
-                            spacing: 6 * Appearance.effectiveScale
-                            MaterialSymbol {
-                                text: modelData.done ? "check_box" : "check_box_outline_blank"
-                                iconSize: 14 * Appearance.effectiveScale
-                                color: modelData.done ? Appearance.colors.colSubtext : Appearance.colors.colOnLayer1
-                            }
-                            StyledText {
-                                Layout.fillWidth: true
-                                text: modelData.content
-                                font.pixelSize: Appearance.font.pixelSize.small
-                                color: modelData.done ? Appearance.colors.colSubtext : Appearance.colors.colOnLayer1
-                                font.strikeout: modelData.done
-                                elide: Text.ElideRight
-                            }
-                        }
-                    }
-                    StyledText {
-                        Layout.fillWidth: true
-                        visible: modelData.type === "todo" && modelData.tasks && modelData.tasks.length > 5
-                        text: I18nService.tr("+ %1 more").arg(modelData.tasks ? modelData.tasks.length - 5 : 0)
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
-                    }
                 }
 
                 // Footer (Date & Delete)
