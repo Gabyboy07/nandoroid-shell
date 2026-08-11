@@ -382,9 +382,6 @@ Item {
     Item {
         anchors.fill: parent
 
-        // ──────────────────────────────────────────────
-        //  STEP 1: LIST VIEW
-        // ──────────────────────────────────────────────
         Item {
             id: listView
             anchors.fill: parent
@@ -502,9 +499,6 @@ Item {
             }
         }
 
-        // ──────────────────────────────────────────────
-        //  STEP 2: NOTEPAD EDITOR
-        // ──────────────────────────────────────────────
         Rectangle {
             anchors.fill: parent
             visible: root._view === "notepad"
