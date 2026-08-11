@@ -1,6 +1,7 @@
 import "../../core"
 import "../../widgets"
 import "../../services"
+import "../../core/functions" as Functions
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -38,7 +39,6 @@ Item {
             return c
         })
         notesFile.setText(JSON.stringify(clean, null, 2))
-        GlobalStates.updateTodoDeadlines(root.items)
     }
 
     function _flushSave() {
@@ -69,7 +69,7 @@ Item {
     }
 
     function newNotepad() {
-        const n = { type: "notepad", id: makeId(), title: I18nService.tr("Untitled"), body: "", color: "", updatedAt: new Date().toISOString() }
+        const n = { type: "notepad", id: makeId(), title: I18nService.tr("Untitled"), body: "", color: "", pinned: false, updatedAt: new Date().toISOString() }
         root.items = [n].concat(root.items)
         save()
         openItem(n.id)
@@ -94,66 +94,50 @@ Item {
         save()
     }
 
-    // ── Todo task helpers ──
-    function addTask() {
-        const item = _currentItem()
-        if (!item || item.type !== "todo") return
-        item.tasks.push({ id: makeId(), content: "", done: false, deadline: null, deadlineTime: null })
-        _refreshAndSave()
+    function togglePin(itemId) {
+        const item = items.find(i => i.id === itemId)
+        if (item) {
+            item.pinned = !item.pinned
+            save()
+            items = items.slice()
+        }
     }
 
-    function removeTask(taskId) {
-        const item = _currentItem()
-        if (!item || item.type !== "todo") return
-        item.tasks = item.tasks.filter(t => t.id !== taskId)
-        _refreshAndSave()
+    function _distributeMasonry(itemsArray, numCols, targetIndex) {
+        if (numCols <= 0) numCols = 1;
+        var colHeights = [];
+        var colItems = [];
+        for (var c = 0; c < numCols; c++) {
+            colHeights.push(0);
+            colItems.push([]);
+        }
+        
+        for (var i = 0; i < itemsArray.length; i++) {
+            var itm = itemsArray[i];
+            var shortestCol = 0;
+            var minH = colHeights[0];
+            for (var j = 1; j < numCols; j++) {
+                if (colHeights[j] < minH) {
+                    minH = colHeights[j];
+                    shortestCol = j;
+                }
+            }
+            colItems[shortestCol].push(itm);
+            
+            var estH = 80;
+            if (itm.title) estH += 24 + Math.floor(itm.title.length / 25) * 24;
+            if (itm.body) {
+                var lines = itm.body.split('\n');
+                var lc = 0;
+                for (var k = 0; k < lines.length; k++) lc += 1 + Math.floor(lines[k].length / 35);
+                estH += Math.min(8, lc) * 18;
+            }
+            colHeights[shortestCol] += estH;
+        }
+        return colItems[targetIndex];
     }
 
-    function toggleTask(taskId) {
-        const item = _currentItem()
-        if (!item || item.type !== "todo") return
-        const t = item.tasks.find(t => t.id === taskId)
-        if (t) { t.done = !t.done; _refreshAndSave() }
-    }
-
-    function updateTaskContent(taskId, content) {
-        const item = _currentItem()
-        if (!item || item.type !== "todo") return
-        const t = item.tasks.find(t => t.id === taskId)
-        if (t) { t.content = content; save() }
-    }
-
-    function setTaskDeadline(taskId, date, time) {
-        const item = _currentItem()
-        if (!item || item.type !== "todo") return
-        const t = item.tasks.find(t => t.id === taskId)
-        if (t) { t.deadline = GlobalStates.toCanonicalDateStr(date) || null; t.deadlineTime = time || null; _refreshAndSave() }
-    }
-
-    function _refreshAndSave() {
-        root.items = root.items.slice()
-        save()
-    }
-
-    // ── Deadline helpers ──
-    function _isDeadlineNear(deadline) {
-        if (!deadline) return false
-        const parts = deadline.split("-")
-        if (parts.length !== 3) return false
-        const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 23, 59, 59)
-        const now = new Date()
-        return d.getTime() - now.getTime() < 86400000 && d.getTime() > now.getTime()
-    }
-
-    function _isDeadlineOverdue(deadline, deadlineTime) {
-        if (!deadline) return false
-        const parts = deadline.split("-")
-        if (parts.length !== 3) return false
-        const timePart = deadlineTime || "23:59"
-        const timeParts = timePart.split(":")
-        const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), parseInt(timeParts[0]) || 23, parseInt(timeParts[1]) || 59, 59)
-        return d.getTime() < new Date().getTime()
-    }
+    // ── Date formatting helpers ──
 
     function _displayTime(timeStr) {
         if (!timeStr) return timeStr
@@ -185,24 +169,6 @@ Item {
         return days[new Date(y, m - 1, d).getDay()] + ", " + dStr
     }
 
-    function _formatDeadline(deadline, deadlineTime) {
-        if (!deadline) return ""
-        const parts = deadline.split(/[-/]/)
-        if (parts.length !== 3) return deadline
-        const style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
-        let display = ""
-        if (parts[0].length === 4) {
-            // YYYY-MM-DD input
-            if (style === "YMD") display = parts[0] + "/" + parts[1] + "/" + parts[2]
-            else if (style === "MDY") display = parts[1] + "/" + parts[2]
-            else display = parts[2] + "/" + parts[1]
-        } else {
-            display = deadline
-        }
-        if (deadlineTime) display += " " + root._displayTime(deadlineTime)
-        return display
-    }
-
     // ── File I/O ──
     FileView {
         id: notesFile
@@ -214,11 +180,10 @@ Item {
                 if (Array.isArray(parsed)) {
                     parsed = parsed.map(i => {
                         if (!i.type) { i.type = "notepad"; i.color = "" }
-                        if (i.type === "todo" && !i.tasks) i.tasks = []
+                        if (typeof i.pinned === "undefined") i.pinned = false
                         return i
                     })
                     root.items = parsed
-                    GlobalStates.updateTodoDeadlines(parsed)
                 }
             } catch(e) {}
         }
@@ -236,8 +201,6 @@ Item {
         if (item.type === "notepad") {
             item.title = noteTitleInput.text
             item.body = bodyArea.text
-        } else if (item.type === "todo") {
-            item.title = todoTitleInput.text
         }
         item.updatedAt = now
 
@@ -257,90 +220,157 @@ Item {
         onTriggered: _doSave()
     }
 
-    // ── Task content debounce timer ──
-    property string _pendingTaskId: ""
-    property string _pendingTaskContent: ""
-
-    Timer {
-        id: taskDebounceTimer
-        interval: 400
-        repeat: false
-        onTriggered: {
-            if (root._pendingTaskId) {
-                root.updateTaskContent(root._pendingTaskId, root._pendingTaskContent)
-                root._pendingTaskId = ""
-                root._pendingTaskContent = ""
-            }
-        }
-    }
-
-    function _defaultDeadlineDate() {
-        let now = new Date()
-        let y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate()
-        const ys = String(y).padStart(4, '0')
-        const ms = String(m).padStart(2, '0')
-        const ds = String(d).padStart(2, '0')
-        let style = Config.ready && Config.options.time ? (Config.options.time.dateStyle ?? "DMY") : "DMY"
-        if (style === "YMD") return ys + "/" + ms + "/" + ds
-        if (style === "MDY") return ms + "/" + ds + "/" + ys
-        return ds + "/" + ms + "/" + ys
-    }
-
-    function _defaultDeadlineTime() {
-        const now = new Date()
-        let nextH = (now.getHours() + 1) % 24
-        return String(nextH).padStart(2, '0') + ":00"
-    }
-
-    function openTaskDatePicker(taskId, currentDate) {
-        GlobalStates.datePickerCurrentDate = currentDate || root._defaultDeadlineDate()
-        GlobalStates.datePickerOnSelected = function(dateStr) {
-            const item = root._currentItem()
-            if (item && item.type === "todo") {
-                const t = item.tasks.find(t => t.id === taskId)
-                if (t) {
-                    t._tmpDate = dateStr
-                    t._editingDeadline = true
-                    root.items = root.items.slice()
-                }
-            }
-        }
-        GlobalStates.datePickerOnCancelled = function() {}
-        GlobalStates.datePickerOpen = true
-    }
-
-    function openTaskTimePicker(taskId, currentTime) {
-        const item = root._currentItem()
-        let activeTime = currentTime
-        if (item && item.type === "todo") {
-            const t = item.tasks.find(t => t.id === taskId)
-            if (t) {
-                activeTime = t._tmpTime || t.deadlineTime || currentTime
-            }
-        }
-
-        GlobalStates.openTimePicker(
-            activeTime || root._defaultDeadlineTime(),
-            function(timeStr) {
-                const curItem = root._currentItem()
-                if (curItem && curItem.type === "todo") {
-                    const t = curItem.tasks.find(t => t.id === taskId)
-                    if (t) {
-                        t._tmpTime = timeStr
-                        t.deadlineTime = timeStr
-                        t._editingDeadline = true
-                        root.items = root.items.slice()
-                    }
-                }
-            },
-            function() {},
-            Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : false
-        )
-    }
-
     // ══════════════════════════════════════════════════
     //  UI
     // ══════════════════════════════════════════════════
+    Component {
+        id: noteDelegateComponent
+        Rectangle {
+            required property var modelData
+            Layout.fillWidth: true
+            implicitHeight: contentCol.implicitHeight + 24 * Appearance.effectiveScale
+            radius: Appearance.rounding.normal
+            color: itemMouse.containsMouse ? Appearance.m3colors.m3surfaceContainerHigh : Appearance.m3colors.m3surfaceContainer
+            border.color: Appearance.m3colors.m3outlineVariant
+            border.width: 1 * Appearance.effectiveScale
+
+            MouseArea {
+                id: itemMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.openItem(modelData.id)
+            }
+
+            ColumnLayout {
+                id: contentCol
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: 12 * Appearance.effectiveScale
+                spacing: 8 * Appearance.effectiveScale
+
+                // Title & Pin
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8 * Appearance.effectiveScale
+                    
+                    StyledText {
+                        Layout.fillWidth: true
+                        text: modelData.title || I18nService.tr("Untitled")
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnLayer1
+                        wrapMode: Text.Wrap
+                        visible: text.length > 0
+                    }
+                    
+                    RippleButton {
+                        id: pinBtn
+                        implicitWidth: 28 * Appearance.effectiveScale
+                        implicitHeight: 28 * Appearance.effectiveScale
+                        Layout.alignment: Qt.AlignTop
+                        buttonRadius: 14 * Appearance.effectiveScale
+                        colBackground: "transparent"
+                        opacity: itemMouse.containsMouse || pinBtn.realHovered || delBtn.realHovered || modelData.pinned ? 1 : 0
+                        Behavior on opacity { NumberAnimation { duration: 150 } }
+                        onClicked: root.togglePin(modelData.id)
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: "keep"
+                            iconSize: 18 * Appearance.effectiveScale
+                            color: modelData.pinned ? Appearance.colors.colPrimary : Appearance.colors.colOnLayer1
+                        }
+                    }
+                }
+
+                // Body preview for notepad
+                StyledText {
+                    Layout.fillWidth: true
+                    visible: modelData.type === "notepad"
+                    text: (modelData.body || "").trim()
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    color: Appearance.colors.colOnLayer1
+                    wrapMode: Text.Wrap
+                    maximumLineCount: 8
+                    elide: Text.ElideRight
+                }
+
+                // Preview for todo
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 4 * Appearance.effectiveScale
+                    visible: modelData.type === "todo"
+
+                    Repeater {
+                        model: modelData.type === "todo" ? (modelData.tasks ? modelData.tasks.slice(0, 5) : []) : []
+                        delegate: RowLayout {
+                            required property var modelData
+                            Layout.fillWidth: true
+                            spacing: 6 * Appearance.effectiveScale
+                            MaterialSymbol {
+                                text: modelData.done ? "check_box" : "check_box_outline_blank"
+                                iconSize: 14 * Appearance.effectiveScale
+                                color: modelData.done ? Appearance.colors.colSubtext : Appearance.colors.colOnLayer1
+                            }
+                            StyledText {
+                                Layout.fillWidth: true
+                                text: modelData.content
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                color: modelData.done ? Appearance.colors.colSubtext : Appearance.colors.colOnLayer1
+                                font.strikeout: modelData.done
+                                elide: Text.ElideRight
+                            }
+                        }
+                    }
+                    StyledText {
+                        Layout.fillWidth: true
+                        visible: modelData.type === "todo" && modelData.tasks && modelData.tasks.length > 5
+                        text: I18nService.tr("+ %1 more").arg(modelData.tasks ? modelData.tasks.length - 5 : 0)
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        color: Appearance.colors.colSubtext
+                    }
+                }
+
+                // Footer (Date & Delete)
+                Item {
+                    Layout.fillWidth: true
+                    implicitHeight: footerLayout.implicitHeight
+                    Layout.topMargin: 4 * Appearance.effectiveScale
+                    
+                    RowLayout {
+                        id: footerLayout
+                        anchors.fill: parent
+                        
+                        StyledText {
+                            Layout.fillWidth: true
+                            text: modelData.updatedAt ? root._displayDate(modelData.updatedAt.split("T")[0]) : ""
+                            font.pixelSize: Appearance.font.pixelSize.smaller
+                            color: Appearance.colors.colSubtext
+                        }
+                        
+                        RippleButton {
+                            id: delBtn
+                            implicitWidth: 24 * Appearance.effectiveScale
+                            implicitHeight: 24 * Appearance.effectiveScale
+                            buttonRadius: 12 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            onClicked: root.deleteItem(modelData.id)
+                            opacity: itemMouse.containsMouse || pinBtn.realHovered || delBtn.realHovered ? 1 : 0
+                            Behavior on opacity { NumberAnimation { duration: 150 } }
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "delete"
+                                iconSize: 14 * Appearance.effectiveScale
+                                color: Appearance.colors.colError
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Item {
         anchors.fill: parent
         anchors.margins: 16 * Appearance.effectiveScale
@@ -348,169 +378,118 @@ Item {
         // ──────────────────────────────────────────────
         //  STEP 1: LIST VIEW
         // ──────────────────────────────────────────────
-        ColumnLayout {
+        Item {
             id: listView
             anchors.fill: parent
-            spacing: 12 * Appearance.effectiveScale
             visible: root._view === "list"
 
-            // ── Add Buttons ──
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 12 * Appearance.effectiveScale
-
-                RippleButton {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 44 * Appearance.effectiveScale
-                    buttonRadius: 22 * Appearance.effectiveScale
-                    colBackground: Appearance.colors.colPrimary
-                    onClicked: root.newNotepad()
-                    RowLayout {
-                        anchors.centerIn: parent; spacing: 6 * Appearance.effectiveScale
-                        MaterialSymbol { text: "edit_note"; iconSize: 20 * Appearance.effectiveScale; color: Appearance.colors.colOnPrimary }
-                        StyledText { text: I18nService.tr("Add Notepad"); color: Appearance.colors.colOnPrimary; font.weight: Font.Medium }
-                    }
-                }
-
-                RippleButton {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 44 * Appearance.effectiveScale
-                    buttonRadius: 22 * Appearance.effectiveScale
-                    colBackground: Appearance.colors.colSecondary
-                    onClicked: root.newTodo()
-                    RowLayout {
-                        anchors.centerIn: parent; spacing: 6 * Appearance.effectiveScale
-                        MaterialSymbol { text: "checklist"; iconSize: 20 * Appearance.effectiveScale; color: Appearance.colors.colOnSecondary }
-                        StyledText { text: I18nService.tr("Add Todo"); color: Appearance.colors.colOnSecondary; font.weight: Font.Medium }
-                    }
-                }
-            }
-
             // ── Item List ──
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: Appearance.m3colors.m3surfaceContainer
-                radius: Appearance.rounding.normal
+            Flickable {
+                id: itemList
+                anchors.fill: parent
+                contentHeight: contentCol.implicitHeight
+                bottomMargin: 80 * Appearance.effectiveScale
                 clip: true
 
-                ListView {
-                    id: itemList
-                    anchors.fill: parent
-                    anchors.margins: 6 * Appearance.effectiveScale
-                    spacing: 2 * Appearance.effectiveScale
-                    model: root.items.slice().sort((a, b) =>
-                        new Date(b.updatedAt) - new Date(a.updatedAt))
+                property int columnsCount: Math.max(2, Math.floor(width / (220 * Appearance.effectiveScale)))
+                
+                property var pinnedItems: root.items.filter(i => i.pinned === true && i.type === "notepad").sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+                property var otherItems: root.items.filter(i => i.pinned !== true && i.type === "notepad").sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
 
-                    delegate: Item {
-                        required property var modelData
-                        width: itemList.width
-                        height: 56 * Appearance.effectiveScale
+                ColumnLayout {
+                    id: contentCol
+                    width: itemList.width
+                    spacing: 24 * Appearance.effectiveScale
+                    
+                    // Pinned Section
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 12 * Appearance.effectiveScale
+                        visible: itemList.pinnedItems.length > 0
 
-                        readonly property bool isHovered: itemMouse.containsMouse
-
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: Appearance.rounding.small
-                            color: isHovered ? Appearance.m3colors.m3surfaceContainerHigh : "transparent"
-                        }
-
-                        MouseArea {
-                            id: itemMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: root.openItem(modelData.id)
+                        StyledText {
+                            text: I18nService.tr("Pinned")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.Medium
+                            color: Appearance.colors.colSubtext
+                            Layout.leftMargin: 8 * Appearance.effectiveScale
                         }
 
                         RowLayout {
-                            anchors.fill: parent
-                            anchors.leftMargin: 10 * Appearance.effectiveScale
-                            anchors.rightMargin: 10 * Appearance.effectiveScale
-                            spacing: 10 * Appearance.effectiveScale
-
-                            // Type icon
-                            Rectangle {
-                                implicitWidth: 28 * Appearance.effectiveScale
-                                implicitHeight: 28 * Appearance.effectiveScale
-                                radius: 14 * Appearance.effectiveScale
-                                color: modelData.type === "todo"
-                                    ? Appearance.colors.colSecondaryContainer
-                                    : Appearance.colors.colPrimaryContainer
-                                MaterialSymbol {
-                                    anchors.centerIn: parent
-                                    text: modelData.type === "todo" ? "checklist" : "edit_note"
-                                    iconSize: 16 * Appearance.effectiveScale
-                                    color: modelData.type === "todo"
-                                        ? Appearance.colors.colOnSecondaryContainer
-                                        : Appearance.colors.colOnPrimaryContainer
-                                }
-                            }
-
-                            // Title + preview
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 2 * Appearance.effectiveScale
-
-                                StyledText {
+                            Layout.fillWidth: true
+                            spacing: 12 * Appearance.effectiveScale
+                            Repeater {
+                                model: itemList.columnsCount
+                                delegate: ColumnLayout {
+                                    Layout.alignment: Qt.AlignTop
                                     Layout.fillWidth: true
-                                    text: modelData.title || I18nService.tr("Untitled")
-                                    font.pixelSize: Appearance.font.pixelSize.normal
-                                    font.weight: Font.Medium
-                                    color: Appearance.colors.colOnLayer1
-                                    elide: Text.ElideRight
+                                    spacing: 12 * Appearance.effectiveScale
+                                    Repeater {
+                                        model: root._distributeMasonry(itemList.pinnedItems, itemList.columnsCount, index)
+                                        delegate: noteDelegateComponent
+                                    }
                                 }
-
-                                StyledText {
-                                    Layout.fillWidth: true
-                                    text: modelData.type === "todo"
-                                        ? (modelData.tasks
-                                            ? modelData.tasks.filter(i => i.done).length + "/" + modelData.tasks.length + " " + I18nService.tr("done")
-                                            : "0/0 " + I18nService.tr("done"))
-                                        : root.stripHtml(modelData.body).split("\n")[0] || I18nService.tr("Empty notepad")
-                                    font.pixelSize: Appearance.font.pixelSize.smaller
-                                    color: Appearance.colors.colSubtext
-                                    elide: Text.ElideRight
-                                }
-                            }
-
-                            // Type badge
-                            Rectangle {
-                                implicitWidth: badgeText.implicitWidth + 12 * Appearance.effectiveScale
-                                implicitHeight: 20 * Appearance.effectiveScale
-                                radius: 10 * Appearance.effectiveScale
-                                color: modelData.type === "todo"
-                                    ? Appearance.colors.colTertiaryContainer
-                                    : Appearance.colors.colSecondaryContainer
-                                StyledText {
-                                    id: badgeText
-                                    anchors.centerIn: parent
-                                    text: modelData.type === "todo" ? I18nService.tr("Todo") : I18nService.tr("Note")
-                                    font.pixelSize: Appearance.font.pixelSize.smaller
-                                    font.weight: Font.Medium
-                                    color: modelData.type === "todo"
-                                        ? Appearance.colors.colOnTertiaryContainer
-                                        : Appearance.colors.colOnSecondaryContainer
-                                }
-                            }
-
-                            // Delete button
-                            RippleButton {
-                                implicitWidth: 28 * Appearance.effectiveScale
-                                implicitHeight: 28 * Appearance.effectiveScale
-                                buttonRadius: 14 * Appearance.effectiveScale
-                                colBackground: "transparent"
-                                onClicked: root.deleteItem(modelData.id)
-                                MaterialSymbol {
-                                    anchors.centerIn: parent
-                                    text: "delete"
-                                    iconSize: 16 * Appearance.effectiveScale
-                                    color: Appearance.colors.colError
-                                }
-                                StyledToolTip { text: I18nService.tr("Delete") }
                             }
                         }
                     }
+
+                    // Others Section
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 12 * Appearance.effectiveScale
+                        visible: itemList.otherItems.length > 0
+
+                        StyledText {
+                            text: I18nService.tr("Others")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.Medium
+                            color: Appearance.colors.colSubtext
+                            Layout.leftMargin: 8 * Appearance.effectiveScale
+                            visible: itemList.pinnedItems.length > 0 // Only show title if pinned exists
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 12 * Appearance.effectiveScale
+                            Repeater {
+                                model: itemList.columnsCount
+                                delegate: ColumnLayout {
+                                    Layout.alignment: Qt.AlignTop
+                                    Layout.fillWidth: true
+                                    spacing: 12 * Appearance.effectiveScale
+                                    Repeater {
+                                        model: root._distributeMasonry(itemList.otherItems, itemList.columnsCount, index)
+                                        delegate: noteDelegateComponent
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                ScrollBar.vertical: StyledScrollBar {}
+            }
+
+            // ── FAB ──
+            RippleButton {
+                id: fabButton
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.rightMargin: 14 * Appearance.effectiveScale
+                anchors.bottomMargin: 14 * Appearance.effectiveScale
+                implicitWidth: 56 * Appearance.effectiveScale
+                implicitHeight: 56 * Appearance.effectiveScale
+                buttonRadius: 16 * Appearance.effectiveScale
+                colBackground: Appearance.m3colors.m3primaryContainer
+                colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.9)
+                colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
+                onClicked: root.newNotepad()
+
+                MaterialSymbol {
+                    anchors.centerIn: parent
+                    text: "add"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.m3colors.m3onPrimaryContainer
                 }
             }
         }
@@ -619,321 +598,5 @@ Item {
             }
         }
 
-        // ──────────────────────────────────────────────
-        //  STEP 2: TODO EDITOR
-        // ──────────────────────────────────────────────
-        ColumnLayout {
-            anchors.fill: parent
-            spacing: 8 * Appearance.effectiveScale
-            visible: root._view === "todo"
-
-            // Top bar: back + title + delete
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 8 * Appearance.effectiveScale
-
-                RippleButton {
-                    implicitWidth: 36 * Appearance.effectiveScale
-                    implicitHeight: 36 * Appearance.effectiveScale
-                    buttonRadius: 18 * Appearance.effectiveScale
-                    colBackground: Appearance.colors.colLayer2
-                    onClicked: root.goBack()
-                    MaterialSymbol {
-                        anchors.centerIn: parent
-                        text: "arrow_back"
-                        iconSize: 20 * Appearance.effectiveScale
-                        color: Appearance.m3colors.m3onSurface
-                    }
-                }
-
-                StyledTextInput {
-                    id: todoTitleInput
-                    Layout.fillWidth: true
-                    implicitHeight: 40 * Appearance.effectiveScale
-                    inputRadius: Appearance.rounding.small / Appearance.effectiveScale
-                    backgroundColor: Appearance.m3colors.m3surfaceContainer
-                    text: ""
-                    placeholder: I18nService.tr("Todo list title...")
-                    onTextChanged: saveTimer.restart()
-                }
-
-                RippleButton {
-                    implicitWidth: 40 * Appearance.effectiveScale
-                    implicitHeight: 40 * Appearance.effectiveScale
-                    buttonRadius: 20 * Appearance.effectiveScale
-                    colBackground: Appearance.m3colors.m3surfaceContainer
-                    onClicked: root.deleteCurrent()
-                    MaterialSymbol { anchors.centerIn: parent; text: "delete"; iconSize: 20 * Appearance.effectiveScale; color: Appearance.colors.colError }
-                    StyledToolTip { text: I18nService.tr("Delete") }
-                }
-            }
-
-            // Add task button
-            RippleButton {
-                Layout.fillWidth: true
-                implicitHeight: 40 * Appearance.effectiveScale
-                buttonRadius: 20 * Appearance.effectiveScale
-                colBackground: Appearance.colors.colSecondary
-                onClicked: root.addTask()
-                RowLayout {
-                    anchors.centerIn: parent; spacing: 6 * Appearance.effectiveScale
-                    MaterialSymbol { text: "add"; iconSize: 18 * Appearance.effectiveScale; color: Appearance.colors.colOnSecondary }
-                    StyledText { text: I18nService.tr("Add item"); color: Appearance.colors.colOnSecondary; font.weight: Font.Medium }
-                }
-            }
-
-            // Task list
-            ListView {
-                id: taskListView
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                spacing: 4 * Appearance.effectiveScale
-                model: {
-                    const item = root._currentItem()
-                    return item && item.type === "todo" ? item.tasks.slice() : []
-                }
-                clip: true
-
-                delegate: Item {
-                    id: taskDelegate
-                    required property var modelData
-                    required property int index
-                    width: taskListView.width
-                    height: _editingDeadline
-                        ? _mainRow.height + _dlEditor.height + 24 * Appearance.effectiveScale
-                        : _mainRow.height + 8 * Appearance.effectiveScale
-
-                    property bool _editingDeadline: Boolean(modelData && modelData._editingDeadline)
-
-                    on_EditingDeadlineChanged: {
-                        if (modelData) modelData._editingDeadline = _editingDeadline
-                    }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: Appearance.rounding.small
-                        color: Appearance.m3colors.m3surfaceContainer
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 4 * Appearance.effectiveScale
-                            spacing: 4 * Appearance.effectiveScale
-
-                            // Main row
-                            RowLayout {
-                                id: _mainRow
-                                Layout.fillWidth: true
-                                spacing: 8 * Appearance.effectiveScale
-
-                                // Checkbox
-                                RippleButton {
-                                    implicitWidth: 28 * Appearance.effectiveScale
-                                    implicitHeight: 28 * Appearance.effectiveScale
-                                    buttonRadius: 14 * Appearance.effectiveScale
-                                    colBackground: modelData.done
-                                        ? Appearance.colors.colPrimary
-                                        : Appearance.m3colors.m3surfaceContainerHigh
-                                    onClicked: root.toggleTask(modelData.id)
-                                    MaterialSymbol {
-                                        anchors.centerIn: parent
-                                        text: modelData.done ? "check" : ""
-                                        iconSize: 18 * Appearance.effectiveScale
-                                        color: Appearance.colors.colOnPrimary
-                                    }
-                                }
-
-                                // Content input
-                                StyledTextInput {
-                                    Layout.fillWidth: true
-                                    implicitHeight: 32 * Appearance.effectiveScale
-                                    inputRadius: Appearance.rounding.small / Appearance.effectiveScale
-                                    backgroundColor: "transparent"
-                                    text: modelData.content
-                                    placeholder: I18nService.tr("Task...")
-                                    font.strikeout: modelData.done
-                                    opacity: modelData.done ? 0.5 : 1.0
-                                    onTextChanged: {
-                                        taskDebounceTimer.restart()
-                                        root._pendingTaskId = modelData.id
-                                        root._pendingTaskContent = text
-                                    }
-                                }
-
-                                // Deadline badge (when set)
-                                RippleButton {
-                                    implicitWidth: dlText.implicitWidth + 16 * Appearance.effectiveScale
-                                    implicitHeight: 28 * Appearance.effectiveScale
-                                    buttonRadius: 14 * Appearance.effectiveScale
-                                    visible: modelData.deadline !== null && modelData.deadline !== ""
-                                    colBackground: root._isDeadlineOverdue(modelData.deadline, modelData.deadlineTime)
-                                        ? Appearance.colors.colErrorContainer
-                                        : (root._isDeadlineNear(modelData.deadline)
-                                            ? Appearance.m3colors.m3tertiaryContainer
-                                            : Appearance.m3colors.m3surfaceContainerHigh)
-                                    onClicked: {
-                                        modelData._tmpDate = modelData.deadline || root._defaultDeadlineDate()
-                                        modelData._tmpTime = modelData.deadlineTime || root._defaultDeadlineTime()
-                                        modelData._editingDeadline = true
-                                        taskDelegate._editingDeadline = true
-                                    }
-                                    StyledText {
-                                        id: dlText
-                                        anchors.centerIn: parent
-                                        text: root._formatDeadline(modelData.deadline, modelData.deadlineTime)
-                                        font.pixelSize: Appearance.font.pixelSize.smaller
-                                        color: root._isDeadlineOverdue(modelData.deadline, modelData.deadlineTime)
-                                            ? Appearance.colors.colOnErrorContainer
-                                            : (root._isDeadlineNear(modelData.deadline)
-                                                ? Appearance.colors.colOnTertiaryContainer
-                                                : Appearance.colors.colOnLayer1)
-                                    }
-                                }
-
-                                // Add deadline button (when none set)
-                                RippleButton {
-                                    implicitWidth: 28 * Appearance.effectiveScale
-                                    implicitHeight: 28 * Appearance.effectiveScale
-                                    buttonRadius: 14 * Appearance.effectiveScale
-                                    visible: modelData.deadline === null || modelData.deadline === ""
-                                    colBackground: "transparent"
-                                    onClicked: {
-                                        modelData._tmpDate = root._defaultDeadlineDate()
-                                        modelData._tmpTime = root._defaultDeadlineTime()
-                                        modelData._editingDeadline = true
-                                        taskDelegate._editingDeadline = true
-                                    }
-                                    MaterialSymbol {
-                                        anchors.centerIn: parent
-                                        text: "calendar_today"
-                                        iconSize: 16 * Appearance.effectiveScale
-                                        color: Appearance.colors.colSubtext
-                                    }
-                                    StyledToolTip { text: I18nService.tr("Add deadline") }
-                                }
-
-                                // Delete task
-                                RippleButton {
-                                    implicitWidth: 28 * Appearance.effectiveScale
-                                    implicitHeight: 28 * Appearance.effectiveScale
-                                    buttonRadius: 14 * Appearance.effectiveScale
-                                    colBackground: "transparent"
-                                    onClicked: root.removeTask(modelData.id)
-                                    MaterialSymbol {
-                                        anchors.centerIn: parent
-                                        text: "close"
-                                        iconSize: 16 * Appearance.effectiveScale
-                                        color: Appearance.colors.colError
-                                    }
-                                }
-                            }
-
-                            // Deadline editor row
-                            RowLayout {
-                                id: _dlEditor
-                                Layout.fillWidth: true
-                                Layout.leftMargin: 36 * Appearance.effectiveScale
-                                spacing: 6 * Appearance.effectiveScale
-                                visible: _editingDeadline
-
-                                // Date field
-                                RippleButton {
-                                    Layout.fillWidth: true
-                                    implicitHeight: 34 * Appearance.effectiveScale
-                                    buttonRadius: Appearance.rounding.small
-                                    colBackground: "transparent"
-                                    colBackgroundHover: "transparent"
-                                    colText: "transparent"
-                                    onClicked: root.openTaskDatePicker(modelData.id, modelData._tmpDate || modelData.deadline)
-                                    StyledText {
-                                        anchors.left: parent.left
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        anchors.leftMargin: 6 * Appearance.effectiveScale
-                                        text: root._displayDate(modelData._tmpDate || modelData.deadline || root._defaultDeadlineDate())
-                                        font.pixelSize: Appearance.font.pixelSize.small
-                                        color: Appearance.colors.colOnLayer1
-                                        horizontalAlignment: Text.AlignLeft
-                                    }
-                                }
-
-                                // Time field
-                                RippleButton {
-                                    Layout.fillWidth: true
-                                    implicitHeight: 34 * Appearance.effectiveScale
-                                    buttonRadius: Appearance.rounding.small
-                                    colBackground: "transparent"
-                                    colBackgroundHover: "transparent"
-                                    colText: "transparent"
-                                    onClicked: root.openTaskTimePicker(modelData.id, modelData._tmpTime || modelData.deadlineTime)
-                                    StyledText {
-                                        anchors.right: parent.right
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        anchors.rightMargin: 6 * Appearance.effectiveScale
-                                        text: root._displayTime(modelData._tmpTime || modelData.deadlineTime || root._defaultDeadlineTime())
-                                        font.pixelSize: Appearance.font.pixelSize.small
-                                        color: Appearance.colors.colOnLayer1
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                }
-
-                                // Apply
-                                RippleButton {
-                                    implicitWidth: 30 * Appearance.effectiveScale
-                                    implicitHeight: 30 * Appearance.effectiveScale
-                                    buttonRadius: 15 * Appearance.effectiveScale
-                                    colBackground: Appearance.colors.colPrimary
-                                    onClicked: {
-                                        root.setTaskDeadline(modelData.id, modelData._tmpDate || modelData.deadline, modelData._tmpTime || modelData.deadlineTime)
-                                        modelData._editingDeadline = false
-                                        taskDelegate._editingDeadline = false
-                                    }
-                                    MaterialSymbol {
-                                        anchors.centerIn: parent
-                                        text: "check"
-                                        iconSize: 16 * Appearance.effectiveScale
-                                        color: Appearance.colors.colOnPrimary
-                                    }
-                                }
-
-                                // Delete deadline
-                                RippleButton {
-                                    implicitWidth: 30 * Appearance.effectiveScale
-                                    implicitHeight: 30 * Appearance.effectiveScale
-                                    buttonRadius: 15 * Appearance.effectiveScale
-                                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
-                                    visible: modelData.deadline !== null && modelData.deadline !== ""
-                                    onClicked: {
-                                        root.setTaskDeadline(modelData.id, "", "")
-                                        taskDelegate._editingDeadline = false
-                                    }
-                                    MaterialSymbol {
-                                        anchors.centerIn: parent
-                                        text: "delete"
-                                        iconSize: 16 * Appearance.effectiveScale
-                                        color: Appearance.colors.colError
-                                    }
-                                }
-
-                                // Cancel
-                                RippleButton {
-                                    implicitWidth: 30 * Appearance.effectiveScale
-                                    implicitHeight: 30 * Appearance.effectiveScale
-                                    buttonRadius: 15 * Appearance.effectiveScale
-                                    colBackground: "transparent"
-                                    onClicked: taskDelegate._editingDeadline = false
-                                    MaterialSymbol {
-                                        anchors.centerIn: parent
-                                        text: "undo"
-                                        iconSize: 16 * Appearance.effectiveScale
-                                        color: Appearance.colors.colSubtext
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                ScrollBar.vertical: StyledScrollBar {}
-            }
-        }
     }
 }

@@ -60,5 +60,6 @@ Singleton {
         Quickshell.execDetached(["mkdir", "-p", `${Functions.FileUtils.trimFileProtocol(state)}/quickshell`])
         Quickshell.execDetached(["touch", `${Functions.FileUtils.trimFileProtocol(state)}/quickshell/nandoroid_states.json`])
         Quickshell.execDetached(["touch", "/tmp/nandoroid_cava.conf"])
+        Quickshell.execDetached(["touch", `${cache.toString().substring(7)}/nandoroid/todo.json`])
     }
 }
