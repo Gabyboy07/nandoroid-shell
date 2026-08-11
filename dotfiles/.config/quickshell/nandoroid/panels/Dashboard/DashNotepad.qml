@@ -356,7 +356,14 @@ Item {
                             implicitHeight: 24 * Appearance.effectiveScale
                             buttonRadius: 12 * Appearance.effectiveScale
                             colBackground: "transparent"
-                            onClicked: root.deleteItem(modelData.id)
+                            onClicked: {
+                                DialogService.requestConfirmation({
+                                    titleText: I18nService.tr("Delete Note?"),
+                                    messageText: I18nService.tr("Are you sure you want to delete this note? This action cannot be undone."),
+                                    iconText: "delete",
+                                    isDestructive: true
+                                }, () => root.deleteItem(modelData.id))
+                            }
                             opacity: itemMouse.containsMouse || pinBtn.realHovered || delBtn.realHovered ? 1 : 0
                             Behavior on opacity { NumberAnimation { duration: 150 } }
                             MaterialSymbol {
@@ -660,7 +667,14 @@ Item {
                         buttonRadius: 12 * Appearance.effectiveScale
                         colBackground: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
                         colBackgroundHover: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.16)
-                        onClicked: root.deleteCurrent()
+                        onClicked: {
+                            DialogService.requestConfirmation({
+                                titleText: I18nService.tr("Delete Note?"),
+                                messageText: I18nService.tr("Are you sure you want to delete this note? This action cannot be undone."),
+                                iconText: "delete",
+                                isDestructive: true
+                            }, () => root.deleteCurrent())
+                        }
                         MaterialSymbol { anchors.centerIn: parent; text: "delete"; iconSize: 22 * Appearance.effectiveScale; color: Appearance.m3colors.m3onSurface }
                     }
                 }

@@ -20,6 +20,7 @@ import "panels/Session"
 import "panels/Launcher"
 import "panels/SystemMonitor"
 import "panels/Polkit"
+import "panels/Dialog"
 import "panels/RegionSelector"
 import "panels/ScreenCorners"
 import "panels/Overview"
@@ -145,6 +146,7 @@ ShellRoot {
     DatePickerPanel {}
     TimePickerPanel {}
     AddNetworkPanel {}
+    DialogPanel {}
 
     IpcHandler {
         target: "launcher"

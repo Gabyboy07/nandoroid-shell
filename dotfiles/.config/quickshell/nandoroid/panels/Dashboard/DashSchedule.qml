@@ -1164,7 +1164,14 @@ Item {
                     implicitHeight: 36 * Appearance.effectiveScale
                     buttonRadius: 18 * Appearance.effectiveScale
                     colBackground: Appearance.m3colors.m3surfaceContainer
-                    onClicked: root.deleteEditingEvent()
+                    onClicked: {
+                        DialogService.requestConfirmation({
+                            titleText: I18nService.tr("Delete Event?"),
+                            messageText: I18nService.tr("Are you sure you want to delete this event? This action cannot be undone."),
+                            iconText: "delete",
+                            isDestructive: true
+                        }, () => root.deleteEditingEvent())
+                    }
 
                     MaterialSymbol {
                         anchors.centerIn: parent
@@ -1466,5 +1473,4 @@ Item {
         }
 
     }
-
 }

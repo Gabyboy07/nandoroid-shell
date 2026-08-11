@@ -221,7 +221,14 @@ Item {
                         implicitHeight: 24 * Appearance.effectiveScale
                         buttonRadius: 12 * Appearance.effectiveScale
                         colBackground: "transparent"
-                        onClicked: root.deleteTask(modelData.id)
+                        onClicked: {
+                            DialogService.requestConfirmation({
+                                titleText: I18nService.tr("Delete Task?"),
+                                messageText: I18nService.tr("Are you sure you want to delete this task? This action cannot be undone."),
+                                iconText: "delete",
+                                isDestructive: true
+                            }, () => root.deleteTask(modelData.id))
+                        }
                         MaterialSymbol {
                             anchors.centerIn: parent
                             text: "delete"

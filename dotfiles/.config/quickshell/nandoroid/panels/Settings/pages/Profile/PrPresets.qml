@@ -249,8 +249,15 @@ ColumnLayout {
                                     colBackground: "transparent"
                                     colBackgroundHover: Appearance.colors.colLayer2Hover
                                     onClicked: {
-                                        deleteProc.command = ["bash", Directories.presetsScriptPath, "--remove", fileBaseName]
-                                        deleteProc.running = true
+                                        DialogService.requestConfirmation({
+                                            titleText: I18nService.tr("Delete Preset?"),
+                                            messageText: I18nService.tr("Are you sure you want to delete this preset? This action cannot be undone."),
+                                            iconText: "delete",
+                                            isDestructive: true
+                                        }, () => {
+                                            deleteProc.command = ["bash", Directories.presetsScriptPath, "--remove", fileBaseName];
+                                            deleteProc.running = true;
+                                        });
                                     }
                                     contentItem: StyledText {
                                         text: I18nService.tr("Delete")
