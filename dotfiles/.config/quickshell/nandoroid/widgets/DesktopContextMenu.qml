@@ -198,11 +198,6 @@ PanelWindow {
             onPressed: (mouse) => mouse.accepted = true
         }
 
-        StyledRectangularShadow {
-            target: menuContainer
-            z: -1
-        }
-
         ColumnLayout {
             id: menuLayout
             anchors.fill: parent
@@ -320,15 +315,20 @@ PanelWindow {
         Layout.fillWidth: true
         Layout.preferredHeight: Appearance.sizes.contextMenuItemHeight + (12 * Appearance.effectiveScale)
         
+        // Expose implicitWidth so the parent layout can calculate dynamic width correctly
+        implicitWidth: contentButton.implicitWidth
+        
         orientation: Qt.Vertical
         maxRadius: Appearance.rounding.normal
         smallRadius: Appearance.rounding.verysmall
         
         color: Appearance.colors.colLayer0
+        hasShadow: true
         
         signal clicked()
         
         content: RippleButton {
+            id: contentButton
             anchors.fill: parent
             
             buttonRadius: 0

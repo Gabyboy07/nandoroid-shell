@@ -27,6 +27,7 @@ Item {
     
     // ── Style Properties ──
     property color color: "transparent"
+    property bool hasShadow: false
     property var maxRadius: undefined
     property real fullRadius: maxRadius !== undefined ? maxRadius : (implicitHeight > 0 ? implicitHeight / 2 : 20 * Appearance.effectiveScale)
     property real smallRadius: Appearance.rounding.unsharpenmore || (6 * Appearance.effectiveScale)
@@ -151,6 +152,12 @@ Item {
         Behavior on topRightRadius { animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(null) }
         Behavior on bottomLeftRadius { animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(null) }
         Behavior on bottomRightRadius { animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(null) }
+    }
+
+    StyledRectangularShadow {
+        target: root
+        visible: root.hasShadow
+        z: -1
     }
 
     // ── Main Layout Container (With Clipping) ──
