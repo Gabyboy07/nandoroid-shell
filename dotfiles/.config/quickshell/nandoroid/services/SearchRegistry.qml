@@ -75,17 +75,17 @@ Item {
             { file: "panels/Settings/pages/Services/ServicesMedia.qml", pageIndex: 7 },
             { file: "panels/Settings/pages/Services/ServicesLyrics.qml", pageIndex: 7 },
             // { file: "panels/Settings/pages/Services/ServicesGitHub.qml", pageIndex: 7 },
-            // Profile Page components (pageIndex: 8)
-            { file: "panels/Settings/pages/Profile/ProfileSettings.qml", pageIndex: 8 },
-            { file: "panels/Settings/pages/Profile/PrAvatar.qml", pageIndex: 8 },
-            { file: "panels/Settings/pages/Profile/PrIdentity.qml", pageIndex: 8 },
-            { file: "panels/Settings/pages/Profile/PrPresets.qml", pageIndex: 8 },
-            // About Page components (pageIndex: 9)
-            { file: "panels/Settings/pages/About/AboutSettings.qml", pageIndex: 9 },
-            { file: "panels/Settings/pages/About/AboutMainView.qml", pageIndex: 9 },
-            { file: "panels/Settings/pages/About/AboutUpdate.qml", pageIndex: 9 },
-            { file: "panels/Settings/pages/About/AboutDependency.qml", pageIndex: 9 },
-            { file: "panels/Settings/pages/About/AboutCredits.qml", pageIndex: 9 }
+            // About Page components (pageIndex: 8)
+            { file: "panels/Settings/pages/About/AboutSettings.qml", pageIndex: 8 },
+            { file: "panels/Settings/pages/About/AboutMainView.qml", pageIndex: 8 },
+            { file: "panels/Settings/pages/About/AboutUpdate.qml", pageIndex: 8 },
+            { file: "panels/Settings/pages/About/AboutDependency.qml", pageIndex: 8 },
+            { file: "panels/Settings/pages/About/AboutCredits.qml", pageIndex: 8 },
+            // Profile Page components (pageIndex: 9)
+            { file: "panels/Settings/pages/Profile/ProfileSettings.qml", pageIndex: 9 },
+            { file: "panels/Settings/pages/Profile/PrAvatar.qml", pageIndex: 9 },
+            { file: "panels/Settings/pages/Profile/PrIdentity.qml", pageIndex: 9 },
+            { file: "panels/Settings/pages/Profile/PrPresets.qml", pageIndex: 9 }
         ])
     }
 

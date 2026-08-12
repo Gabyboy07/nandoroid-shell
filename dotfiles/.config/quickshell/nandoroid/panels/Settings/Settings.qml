@@ -136,10 +136,13 @@ Scope {
                         anchors.rightMargin: 16 * Appearance.effectiveScale
                         spacing: 8 * Appearance.effectiveScale
 
-                        Item {
+                        RippleButton {
                             Layout.alignment: Qt.AlignVCenter
                             implicitWidth: 48 * Appearance.effectiveScale
                             implicitHeight: 48 * Appearance.effectiveScale
+                            buttonRadius: 24 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            onClicked: GlobalStates.settingsPageIndex = 9
 
                             Image {
                                 id: headerAvatar
@@ -461,7 +464,7 @@ Scope {
         { name: "Widgets", component: "pages/Widgets/WidgetsSettings.qml" },
         { name: "System", component: "pages/System/SystemSettings.qml" },
         { name: "Services", component: "pages/Services/ServicesSettings.qml" },
-        { name: "Profile", component: "pages/Profile/ProfileSettings.qml" },
-        { name: "About", component: "pages/About/AboutSettings.qml" }
+        { name: "About", component: "pages/About/AboutSettings.qml" },
+        { name: "Profile", component: "pages/Profile/ProfileSettings.qml" }
     ]
 }

@@ -33,7 +33,6 @@ StyledNavigationRail {
         { name: I18nService.tr("Widgets"), icon: "widgets" },
         { name: I18nService.tr("System"), icon: "settings_applications" },
         { name: I18nService.tr("Services"), icon: "cloud" },
-        { name: I18nService.tr("Profile"), icon: "person" },
         { name: I18nService.tr("About"), icon: "info" }
     ]
     

@@ -319,7 +319,7 @@ Singleton {
                 // ── NANDOROID INTERNAL ROUTING ──
                 if (appName === "nandoroid") {
                     if (summary.includes("update") || body.includes("update")) {
-                        GlobalStates.settingsPageIndex = 9; // About page
+                        GlobalStates.settingsPageIndex = 8; // About page
                         GlobalStates.settingsAboutView = "update"; // Directly to Update sub-page
                         GlobalStates.settingsOpen = true;
                     } else if (summary.includes("schedule") || summary.includes("event") || body.includes("schedule") || body.includes("event")) {

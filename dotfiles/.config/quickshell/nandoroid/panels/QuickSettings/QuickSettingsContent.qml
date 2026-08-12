@@ -412,7 +412,7 @@ Item {
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
                                 root.close()
-                                GlobalStates.settingsPageIndex = 8
+                                GlobalStates.settingsPageIndex = 9
                                 GlobalStates.activateSettings()
                             }
                         }
@@ -635,7 +635,7 @@ Item {
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: {
                                     root.close()
-                                    GlobalStates.settingsPageIndex = 8
+                                    GlobalStates.settingsPageIndex = 9
                                     GlobalStates.activateSettings()
                                 }
                             }

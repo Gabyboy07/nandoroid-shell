@@ -31,7 +31,7 @@ StyledNavigationRail {
             compact: !root.expanded
             onClicked: {
                 GlobalStates.systemMonitorOpen = false
-                GlobalStates.settingsPageIndex = 8
+                GlobalStates.settingsPageIndex = 9
                 GlobalStates.activateSettings()
             }
         }
