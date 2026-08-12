@@ -39,6 +39,7 @@ singleton SmartAutomation SmartAutomation.qml
 singleton TranslationService TranslationService.qml
 singleton WallhavenService WallhavenService.qml
 singleton WallpaperEngineService WallpaperEngineService.qml
+singleton MpvpaperService MpvpaperService.qml
 singleton NaIveWallpaperService NaIveWallpaperService.qml
 singleton SysCheckService SysCheckService.qml
 singleton I18nService 1.0 I18nService.qml

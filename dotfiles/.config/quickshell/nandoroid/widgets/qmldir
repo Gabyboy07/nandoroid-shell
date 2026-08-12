@@ -70,5 +70,6 @@ StyledTextInput StyledTextInput.qml
 GappedCircularProgress GappedCircularProgress.qml
 StyledDropShadow StyledDropShadow.qml
 StyledTabBar StyledTabBar.qml
+VideoThumbnail VideoThumbnail.qml
 StyledNavigationRail 1.0 StyledNavigationRail.qml
 StyledBadge StyledBadge.qml

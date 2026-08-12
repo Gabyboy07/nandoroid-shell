@@ -22,23 +22,11 @@ Singleton {
         Notifications.silent = root.active
         
         if (root.active) {
-            // --- 1. HANDLE WALLPAPER (OPTIMIZATION) ---
-            const livePath = Config.options.appearance.background.liveWallpaperPath;
-            if (WallpaperEngineService.isRunning || (livePath && livePath !== "")) {
-                // Store the current live wallpaper path for persistence
-                Config.options.gameModeState.previousLiveWallpaperPath = livePath;
-                
-                // 1. Stop the process
-                WallpaperEngineService.stopInternal();
-                
-                // 2. Clear path in Config so Background.qml displays static wallpaper
-                Config.options.appearance.background.liveWallpaperPath = "";
-                
-                // 3. Check and apply high quality screenshot ONLY IF we were in live mode
-                if (livePath && livePath !== "") {
-                    screenshotCheckProc.running = true;
-                }
-            }
+            // --- 1. PAUSE LIVE WALLPAPER (keeps frozen frame, near-zero GPU) ---
+            // Do NOT stop the process: the paused frame stays visible as a static
+            // wallpaper, so there is no wallpaper transition and nothing to restore.
+            pauseEnforceTimer.start();
+            root.tryPauseWallpaper();
 
             // --- 2. HANDLE HYPRLAND (PERFORMANCE) ---
             // Store current layout to restore it later
@@ -101,14 +89,10 @@ Singleton {
             }
 
         } else {
-            // --- 1. REVERT WALLPAPER ---
-            if (Config.options.gameModeState.previousLiveWallpaperPath !== "") {
-                // Restore live wallpaper path to Config
-                Config.options.appearance.background.liveWallpaperPath = Config.options.gameModeState.previousLiveWallpaperPath;
-                
-                // Restart live wallpaper
-                WallpaperEngineService.applyInternal(Config.options.gameModeState.previousLiveWallpaperPath);
-            }
+            // --- 1. RESUME LIVE WALLPAPER ---
+            // We only paused it on entry, so a simple resume brings it back.
+            pauseEnforceTimer.stop();
+            root.resumeWallpaper();
 
             // --- 2. REVERT HYPRLAND ---
             // Cleanup from persistence file BEFORE reload
@@ -136,7 +120,6 @@ Singleton {
                 }
                 
                 // Clear state after restoration
-                Config.options.gameModeState.previousLiveWallpaperPath = "";
                 Config.options.gameModeState.previousLayout = "";
                 
                 timer.destroy();
@@ -145,47 +128,36 @@ Singleton {
         }
     }
 
-    // Helper component to check screenshot file existence
-    Process {
-        id: screenshotCheckProc
-        command: ["test", "-s", WallpaperEngineService.screenshotPath]
-        onExited: (code) => {
-            const livePath = Config.options.gameModeState.previousLiveWallpaperPath;
-            if (code === 0 && livePath && livePath !== "") {
-                // File exists and we were using a live wallpaper, use it!
-                Wallpapers.select(WallpaperEngineService.screenshotPath);
-            }
-        }
+    function tryPauseWallpaper() {
+        // Pause whichever backend is currently running. Both pause() methods are
+        // no-ops if the backend is not running or already paused.
+        MpvpaperService.pause();
+        WallpaperEngineService.pause();
     }
 
-    // Specialized check for startup to handle missing /tmp files after restart
-    Process {
-        id: startupWallpaperCheck
-        command: ["test", "-s", WallpaperEngineService.screenshotPath]
-        onExited: (code) => {
-            const livePath = Config.options.gameModeState.previousLiveWallpaperPath;
-            if (code === 0 && livePath && livePath !== "") {
-                // Screenshot exists and we should be in WE mode (via persistence)
-                Wallpapers.select(WallpaperEngineService.screenshotPath);
-            } else {
-                // Either no screenshot or we weren't in WE mode.
-                // If livePath is empty, it means we chose a static wallpaper before.
-                if (livePath && livePath !== "") {
-                    recoveryTimer.start();
-                }
-            }
-        }
+    function resumeWallpaper() {
+        MpvpaperService.resume();
+        WallpaperEngineService.resume();
     }
 
+    // When a live wallpaper (re)starts while game mode is active, make sure it
+    // stays paused so the shown frame is static.
     Timer {
-        id: recoveryTimer
-        interval: 1000 // Delay to ensure Wallpaper service has loaded favorites
-        repeat: false
+        id: pauseEnforceTimer
+        interval: 1000
+        repeat: true
         onTriggered: {
-            if (!Wallpapers.selectRandomFavorite()) {
-                const fallback = Config.options.appearance.background.autoCycleDirectory || (Directories.home + "/Pictures/Wallpapers");
-                Wallpapers.selectRandomFromDirectory(fallback);
-            }
+            // Ignore while an apply is in flight; the service's own apply flow
+            // will not run (processes are being launched) and finishes itself.
+            if (MpvpaperService.isApplying || WallpaperEngineService.isApplying) return;
+            root.tryPauseWallpaper();
+        }
+    }
+
+    function runStartupCheck() {
+        if (root.active) {
+            pauseEnforceTimer.start();
+            root.tryPauseWallpaper();
         }
     }
 
@@ -200,7 +172,7 @@ Singleton {
         onExited: (code) => {
             root.active = (code === 0)
             if (root.active && Config.ready) {
-                startupWallpaperCheck.running = true;
+                root.runStartupCheck();
             }
         }
     }
@@ -210,7 +182,7 @@ Singleton {
         target: Config
         function onReadyChanged() {
             if (Config.ready && root.active) {
-                startupWallpaperCheck.running = true;
+                root.runStartupCheck();
             }
         }
     }

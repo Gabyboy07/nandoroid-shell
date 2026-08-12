@@ -138,6 +138,7 @@ property JsonObject background: JsonObject {
                 property string matugenThemeFile: ""
                 property string matugenSource: "desktop"
                 property string liveWallpaperPath: ""
+                property string liveWallpaperBackend: "" // "wallpaperengine" | "mpvpaper" | ""
                 property bool autoCycleEnabled: false
                 property string autoCycleDirectory: Directories.home + "/Pictures/Wallpapers"
                 property int autoCycleInterval: 30 
@@ -601,6 +602,15 @@ property JsonObject background: JsonObject {
                 property bool noPbo: false
             }
 
+            // --- Video Wallpaper (mpvpaper) ---
+            property JsonObject mpvpaper: JsonObject {
+                property int volume: 15
+                property bool mute: false
+                property bool autoPause: true
+                property string scaling: "fill" // fill->panscan 1.0, fit->panscan 0.0
+                property real speed: 1.0
+            }
+
             // --- Interactions ---
             property JsonObject interactions: JsonObject {
                 property JsonObject desktop: JsonObject {
@@ -610,7 +620,6 @@ property JsonObject background: JsonObject {
 
             // --- Game Mode State ---
             property JsonObject gameModeState: JsonObject {
-                property string previousLiveWallpaperPath: ""
                 property string previousLayout: ""
             }
         }

@@ -52,9 +52,12 @@ PanelWindow {
                 return Config.options.appearance.background.wallpaperPath;
             }
 
-            // If picking for desktop, check for Wallpaper Engine
+            // If picking for desktop, check active live wallpaper screenshot/frame
             if (WallpaperEngineService.active && WallpaperEngineService.screenshotPath !== "") {
                 return "file://" + WallpaperEngineService.screenshotPath + "?v=" + WallpaperEngineService.screenshotVersion;
+            }
+            if (MpvpaperService.active && MpvpaperService.framePath !== "") {
+                return "file://" + MpvpaperService.framePath + "?v=" + MpvpaperService.frameVersion;
             }
 
             return Config.options.appearance.background.wallpaperPath;

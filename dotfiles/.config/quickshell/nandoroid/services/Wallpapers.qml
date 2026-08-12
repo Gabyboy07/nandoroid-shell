@@ -240,6 +240,10 @@ Singleton {
             return WallpaperEngineService.screenshotPath;
         }
         
+        if (MpvpaperService.active) {
+            return MpvpaperService.framePath;
+        }
+        
         return Config.options.appearance.background.wallpaperPath;
     }
 
@@ -273,6 +277,11 @@ Singleton {
 
     function select(path) {
         const cleanPath = path.toString().startsWith("file://") ? path.toString().substring(7) : path.toString()
+        
+        // Stop any active live wallpaper backend so the static image takes over
+        WallpaperEngineService.stop();
+        MpvpaperService.stop();
+        
         Config.options.appearance.background.wallpaperPath = "file://" + cleanPath
         
         // Sync to lockscreen if separate wallpapers are disabled

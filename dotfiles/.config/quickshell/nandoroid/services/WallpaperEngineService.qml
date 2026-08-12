@@ -15,7 +15,7 @@ Singleton {
     property bool isInstalled: false
     property bool isApplying: false 
     
-    readonly property bool active: (Config.ready && Config.options.appearance.background.liveWallpaperPath !== "") || isRunning
+    readonly property bool active: (Config.ready && Config.options.appearance.background.liveWallpaperPath !== "" && Config.options.appearance.background.liveWallpaperBackend !== "mpvpaper") || isRunning
     
     property var activeProperties: ({}) 
     property var savedConfigs: ({})
@@ -128,6 +128,9 @@ Singleton {
     function checkInitialApply() {
         if (Config.ready) {
             const lastPath = Config.options.appearance.background.liveWallpaperPath;
+            const backend = Config.options.appearance.background.liveWallpaperBackend;
+            // Only resume if this backend is in control; mpvpaper handles its own videos.
+            if (backend === "mpvpaper") return;
             if (lastPath && lastPath !== "") {
                 let parts = lastPath.split('/');
                 let id = parts[parts.length - 1];
@@ -246,6 +249,7 @@ print(json.dumps(props))
         
         if (Config.ready) {
             Config.options.appearance.background.liveWallpaperPath = cleanPath;
+            Config.options.appearance.background.liveWallpaperBackend = "wallpaperengine";
             if (previewPath !== "") Config.options.appearance.background.wallpaperPath = previewPath;
         }
         applyInternal(cleanPath);
@@ -492,7 +496,6 @@ print(json.dumps(wallpapers))
         stopInternal();
         if (Config.ready) {
             Config.options.appearance.background.liveWallpaperPath = "";
-            Config.options.gameModeState.previousLiveWallpaperPath = "";
         }
     }
 
@@ -527,7 +530,7 @@ print(json.dumps(wallpapers))
     }
 
     function updatePauseState() {
-        if (root.isApplying || !root.autoPause || !root.isRunning || !HyprlandData.activeWorkspace) return;
+        if (GameMode.active || root.isApplying || !root.autoPause || !root.isRunning || !HyprlandData.activeWorkspace) return;
         const currentWsId = HyprlandData.activeWorkspace.id;
         const shellClasses = ["Quickshell", "nandoroid-settings", "nandoroid-monitor", "wayland-dashboard", "waybar", "ags", "fuzzel", "linux-wallpaperengine"];
         const realWindows = HyprlandData.windowList.filter(win => {

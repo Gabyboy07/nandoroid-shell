@@ -43,9 +43,11 @@ Singleton {
             "    name=$(echo \"$item\" | jq -r '.name'); " +
             "    cmd=$(echo \"$item\" | jq -r '.command'); " +
             "    desc=$(echo \"$item\" | jq -r '.description // \"\"'); " +
+            "    dep=$(echo \"$item\" | jq -r '.deprecated // false'); " +
+            "    replacement=$(echo \"$item\" | jq -r '.replacement // \"\"'); " +
             "    installed=false; " +
             "    if command -v \"$cmd\" >/dev/null 2>&1 || [ -f \"$cmd\" ]; then installed=true; fi; " +
-            "    echo \"$name|$desc|$installed|$cat\"; " +
+            "    echo \"$name|$desc|$installed|$cat|$dep|$replacement\"; " +
             "  done; " +
             "done"
         ]
@@ -68,6 +70,8 @@ Singleton {
                     
                     const isInstalled = parts[2] === "true";
                     const category = parts[3];
+                    const isDeprecated = parts.length > 4 && parts[4] === "true";
+                    const replacement = parts.length > 5 ? parts[5] : "";
                     
                     // Only count missing in core, services, and fonts as critical
                     if (!isInstalled && (category === "core" || category === "services" || category === "fonts")) {
@@ -78,7 +82,9 @@ Singleton {
                         name: parts[0],
                         description: parts[1],
                         installed: isInstalled,
-                        category: category
+                        category: category,
+                        deprecated: isDeprecated,
+                        replacement: replacement
                     });
                 });
                 

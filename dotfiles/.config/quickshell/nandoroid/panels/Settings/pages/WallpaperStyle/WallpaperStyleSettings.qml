@@ -205,6 +205,8 @@ Flickable {
             
             if (WallpaperEngineService.active) {
                 path = WallpaperEngineService.screenshotPath;
+            } else if (MpvpaperService.active) {
+                path = MpvpaperService.framePath;
             }
             
             if (!path) {
@@ -348,6 +350,8 @@ Flickable {
                                     let targetPath = Config.options.appearance.background.wallpaperPath;
                                     if (WallpaperEngineService.active) {
                                         targetPath = "file://" + WallpaperEngineService.screenshotPath;
+                                    } else if (MpvpaperService.active) {
+                                        targetPath = "file://" + MpvpaperService.framePath;
                                     }
                                     Wallpapers.selectForLockscreen(targetPath, false)
                                 }
@@ -377,6 +381,7 @@ Flickable {
                     title: I18nService.tr("Desktop wallpaper")
                     source: {
                         if (WallpaperEngineService.active) return "file://" + WallpaperEngineService.screenshotPath + "?v=" + WallpaperEngineService.screenshotVersion;
+                        if (MpvpaperService.active) return MpvpaperService.livePreviewSource();
                         return (Config.ready && Config.options.appearance && Config.options.appearance.background) ? Config.options.appearance.background.wallpaperPath : "";
                     }
                     showCheckmark: false
@@ -395,6 +400,7 @@ Flickable {
                         if (!Config.ready || !Config.options.lock) return "";
                         if (!Config.options.lock.useSeparateWallpaper) {
                             if (WallpaperEngineService.active) return "file://" + WallpaperEngineService.screenshotPath + "?v=" + WallpaperEngineService.screenshotVersion;
+                            if (MpvpaperService.active) return MpvpaperService.livePreviewSource();
                             return (Config.options.appearance && Config.options.appearance.background ? Config.options.appearance.background.wallpaperPath : "");
                         }
                         return Config.options.lock.wallpaperPath;

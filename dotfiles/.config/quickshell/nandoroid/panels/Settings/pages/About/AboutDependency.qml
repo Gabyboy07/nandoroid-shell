@@ -209,6 +209,16 @@ ColumnLayout {
                                         color: Appearance.colors.colSubtext
                                         elide: Text.ElideRight
                                     }
+                                    StyledText {
+                                        visible: modelData.deprecated
+                                        Layout.fillWidth: true
+                                        text: modelData.replacement !== ""
+                                            ? I18nService.tr("Deprecated — use %1 instead").replace("%1", modelData.replacement)
+                                            : I18nService.tr("Deprecated — no longer maintained")
+                                        font.pixelSize: Appearance.font.pixelSize.smallest
+                                        color: Appearance.colors.colError
+                                        elide: Text.ElideRight
+                                    }
                                 }
 
                                 StyledText {

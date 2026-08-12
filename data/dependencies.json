@@ -51,7 +51,9 @@
     { "name": "noto-fonts-cjk", "command": "fc-list", "description": "CJK Font (Japanese, Chinese, Korean)" }
   ],
   "livewallpaper": [
-    { "name": "linux-wallpaperengine-git", "command": "linux-wallpaperengine", "description": "Steam Wallpaper Engine support" }
+    { "name": "mpvpaper", "command": "mpvpaper", "description": "Video wallpaper support (mpv)" },
+    { "name": "socat", "command": "socat", "description": "mpv IPC control for video wallpapers" },
+    { "name": "linux-wallpaperengine-git", "command": "linux-wallpaperengine", "description": "Steam Wallpaper Engine support", "deprecated": true, "replacement": "mpvpaper" }
   ],
   "optional": [
     { "name": "kitty", "command": "kitty", "description": "Terminal emulator" },

@@ -43,7 +43,7 @@ Variants {
             anchors.fill: parent
             color: Appearance.colors.colLayer0
             z: -1
-            visible: !WallpaperEngineService.active
+            visible: !WallpaperEngineService.active && !MpvpaperService.active
         }
 
         readonly property string desktopPath: (Config.ready && Config.options.appearance && Config.options.appearance.background && Config.options.appearance.background.wallpaperPath) ? Config.options.appearance.background.wallpaperPath : ""
@@ -97,7 +97,7 @@ Variants {
             id: staticWallpaperContainer
             anchors.fill: parent
             z: 1
-            opacity: WallpaperEngineService.active ? 0 : 1
+            opacity: WallpaperEngineService.active || MpvpaperService.active ? 0 : 1
             visible: opacity > 0
             
             Image {
