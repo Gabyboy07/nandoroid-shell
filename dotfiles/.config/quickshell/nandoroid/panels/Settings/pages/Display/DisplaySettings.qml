@@ -345,8 +345,8 @@ Item {
                                     text: index === 0 ? "Main" : "" + (index + 1)
                                     Layout.alignment: Qt.AlignCenter
                                     horizontalAlignment: Text.AlignHCenter
-                                    font.pixelSize: Math.round(10 * Appearance.effectiveScale)
-                                    font.weight: Font.Black
+                                    font.pixelSize: Appearance.font.pixelSize.small
+                                    font.weight: Font.Medium
                                     color: root.currentMonitorIndex === index ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSurface
                                     visible: monRect.height > 25 * Appearance.effectiveScale
                                 }
