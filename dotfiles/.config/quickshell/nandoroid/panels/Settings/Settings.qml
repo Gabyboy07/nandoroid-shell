@@ -182,22 +182,46 @@ Scope {
 
                         // Search pill
                         Rectangle {
+                            id: searchPill
                             Layout.fillWidth: true
                             Layout.preferredHeight: 56 * Appearance.effectiveScale
                             Layout.alignment: Qt.AlignVCenter
                             radius: height / 2
                             color: Appearance.colors.colLayer1 // Using colLayer1 for search as it sits on colLayer0
                             
+                            readonly property bool isActive: searchInput.input.activeFocus || searchInput.text.length > 0
+
                             RowLayout {
                                 anchors.fill: parent
-                                anchors.leftMargin: 16 * Appearance.effectiveScale
-                                spacing: 12 * Appearance.effectiveScale
+                                anchors.leftMargin: searchPill.isActive ? (4 * Appearance.effectiveScale) : (16 * Appearance.effectiveScale)
+                                anchors.rightMargin: searchPill.isActive ? (4 * Appearance.effectiveScale) : (16 * Appearance.effectiveScale)
+                                spacing: searchPill.isActive ? (4 * Appearance.effectiveScale) : (12 * Appearance.effectiveScale)
+
+                                // Back Button (<)
+                                RippleButton {
+                                    visible: searchPill.isActive
+                                    implicitWidth: 48 * Appearance.effectiveScale
+                                    implicitHeight: 48 * Appearance.effectiveScale
+                                    buttonRadius: 24 * Appearance.effectiveScale
+                                    colBackground: "transparent"
+                                    onClicked: {
+                                        searchInput.text = ""
+                                        searchInput.focus = false
+                                    }
+                                    
+                                    MaterialSymbol {
+                                        anchors.centerIn: parent
+                                        text: "chevron_left"
+                                        iconSize: 24 * Appearance.effectiveScale
+                                        color: Appearance.colors.colOnLayer1
+                                    }
+                                }
+
                                 StyledTextInput {
                                     id: searchInput
                                     Layout.fillWidth: true
-                                    Layout.rightMargin: 16 * Appearance.effectiveScale
                                     inputRadius: 0
-                                    horizontalAlignment: TextInput.AlignHCenter
+                                    horizontalAlignment: searchPill.isActive ? TextInput.AlignLeft : TextInput.AlignHCenter
                                     backgroundColor: "transparent"
                                     borderInactiveWidth: 0
                                     showActiveBorder: false
@@ -234,17 +258,34 @@ Scope {
                                         }
                                     }
                                 }
-                            }
 
-                            // Search Indicator (X/Y) floated on top
-                            StyledText {
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.rightMargin: 16 * Appearance.effectiveScale
-                                visible: root.searchResults.length > 0 && searchInput.text === root.lastQuery
-                                text: (root.currentResultIndex + 1) + "/" + root.searchResults.length
-                                font.pixelSize: Appearance.font.pixelSize.smaller
-                                color: Appearance.colors.colPrimary
+                                // Search Indicator (X/Y)
+                                StyledText {
+                                    visible: root.searchResults.length > 0 && searchInput.text === root.lastQuery
+                                    text: (root.currentResultIndex + 1) + "/" + root.searchResults.length
+                                    font.pixelSize: Appearance.font.pixelSize.smaller
+                                    color: Appearance.colors.colPrimary
+                                }
+
+                                // Clear Button (X)
+                                RippleButton {
+                                    visible: searchPill.isActive && searchInput.text.length > 0
+                                    implicitWidth: 40 * Appearance.effectiveScale
+                                    implicitHeight: 40 * Appearance.effectiveScale
+                                    buttonRadius: 20 * Appearance.effectiveScale
+                                    colBackground: "transparent"
+                                    onClicked: {
+                                        searchInput.text = ""
+                                        searchInput.forceActiveFocus()
+                                    }
+                                    
+                                    MaterialSymbol {
+                                        anchors.centerIn: parent
+                                        text: "close"
+                                        iconSize: 24 * Appearance.effectiveScale
+                                        color: Appearance.colors.colOnLayer1
+                                    }
+                                }
                             }
                         }
 

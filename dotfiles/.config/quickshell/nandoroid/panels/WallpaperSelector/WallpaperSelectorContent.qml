@@ -329,54 +329,101 @@ Item {
 
                     // Header Search Pill
                     Rectangle {
+                        id: searchPill
                         Layout.fillWidth: true
                         Layout.preferredHeight: 56 * Appearance.effectiveScale
                         radius: 28 * Appearance.effectiveScale
                         color: Appearance.colors.colLayer1
                         Layout.alignment: Qt.AlignVCenter
                         
-                        // Centered Text Input
-                        StyledTextInput {
-                            id: headerSearch
-                            anchors.fill: parent
-                            // Reserve 120px symmetric margins so text is perfectly centered relative to the Rectangle
-                            anchors.leftMargin: 120 * Appearance.effectiveScale
-                            anchors.rightMargin: 120 * Appearance.effectiveScale
-                            horizontalAlignment: TextInput.AlignHCenter
-                            inputRadius: 0
-                            backgroundColor: "transparent"
-                            borderInactiveWidth: 0
-                            showActiveBorder: false
-                            placeholder: mainSelector.wallhavenMode ? I18nService.tr("Search Wallhaven") : (mainSelector.naiveMode ? I18nService.tr("Search NA-ive Walls") : I18nService.tr("Search wallpapers"))
-                            leftMargin: 0
-                            rightMargin: 0
-                            font.pixelSize: Appearance.font.pixelSize.normal
-                            
-                            onTextChanged: {
-                                if (mainSelector._switchingMode) return;
-                                
-                                if (mainSelector.wallhavenMode) mainSelector.wallhavenSearch = text;
-                                else if (mainSelector.naiveMode) mainSelector.naiveSearch = text;
-                                else if (mainSelector.liveMode) mainSelector.liveSearch = text;
-                                else mainSelector.localSearch = text;
+                        readonly property bool isActive: headerSearch.input.activeFocus || headerSearch.text.length > 0
 
-                                if (mainSelector.liveMode) {
-                                    WallpaperEngineService.searchQuery = text;
-                                } else if (!mainSelector.wallhavenMode && !mainSelector.naiveMode) {
-                                    Wallpapers.searchQuery = text
-                                } else if (text === "" && mainSelector.wallhavenMode) {
-                                    WallhavenService.search("");
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: searchPill.isActive ? (4 * Appearance.effectiveScale) : (16 * Appearance.effectiveScale)
+                            anchors.rightMargin: searchPill.isActive ? (4 * Appearance.effectiveScale) : (16 * Appearance.effectiveScale)
+                            spacing: searchPill.isActive ? (4 * Appearance.effectiveScale) : (12 * Appearance.effectiveScale)
+
+                            // Back Button (<)
+                            RippleButton {
+                                visible: searchPill.isActive
+                                implicitWidth: 48 * Appearance.effectiveScale
+                                implicitHeight: 48 * Appearance.effectiveScale
+                                buttonRadius: 24 * Appearance.effectiveScale
+                                colBackground: "transparent"
+                                onClicked: {
+                                    headerSearch.text = ""
+                                    headerSearch.focus = false
+                                }
+                                
+                                MaterialSymbol {
+                                    anchors.centerIn: parent
+                                    text: "chevron_left"
+                                    iconSize: 24 * Appearance.effectiveScale
+                                    color: Appearance.colors.colOnLayer1
                                 }
                             }
-                            
-                            onAccepted: {
-                                if (mainSelector.wallhavenMode) {
-                                    if (text.startsWith("wallhaven-")) {
-                                        const id = text.substring(10).trim();
-                                        WallhavenService.search(id, true);
-                                    } else {
-                                        WallhavenService.search(text);
+
+                            // Centered Text Input
+                            StyledTextInput {
+                                id: headerSearch
+                                Layout.fillWidth: true
+                                horizontalAlignment: searchPill.isActive ? TextInput.AlignLeft : TextInput.AlignHCenter
+                                inputRadius: 0
+                                backgroundColor: "transparent"
+                                borderInactiveWidth: 0
+                                showActiveBorder: false
+                                placeholder: mainSelector.wallhavenMode ? I18nService.tr("Search Wallhaven") : (mainSelector.naiveMode ? I18nService.tr("Search NA-ive Walls") : I18nService.tr("Search wallpapers"))
+                                leftMargin: 0
+                                rightMargin: 0
+                                font.pixelSize: Appearance.font.pixelSize.normal
+                                
+                                onTextChanged: {
+                                    if (mainSelector._switchingMode) return;
+                                    
+                                    if (mainSelector.wallhavenMode) mainSelector.wallhavenSearch = text;
+                                    else if (mainSelector.naiveMode) mainSelector.naiveSearch = text;
+                                    else if (mainSelector.liveMode) mainSelector.liveSearch = text;
+                                    else mainSelector.localSearch = text;
+
+                                    if (mainSelector.liveMode) {
+                                        WallpaperEngineService.searchQuery = text;
+                                    } else if (!mainSelector.wallhavenMode && !mainSelector.naiveMode) {
+                                        Wallpapers.searchQuery = text
+                                    } else if (text === "" && mainSelector.wallhavenMode) {
+                                        WallhavenService.search("");
                                     }
+                                }
+                                
+                                onAccepted: {
+                                    if (mainSelector.wallhavenMode) {
+                                        if (text.startsWith("wallhaven-")) {
+                                            const id = text.substring(10).trim();
+                                            WallhavenService.search(id, true);
+                                        } else {
+                                            WallhavenService.search(text);
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Clear Button (X)
+                            RippleButton {
+                                visible: searchPill.isActive && headerSearch.text.length > 0
+                                implicitWidth: 48 * Appearance.effectiveScale
+                                implicitHeight: 48 * Appearance.effectiveScale
+                                buttonRadius: 24 * Appearance.effectiveScale
+                                colBackground: "transparent"
+                                onClicked: {
+                                    headerSearch.text = ""
+                                    headerSearch.forceActiveFocus()
+                                }
+                                
+                                MaterialSymbol {
+                                    anchors.centerIn: parent
+                                    text: "close"
+                                    iconSize: 24 * Appearance.effectiveScale
+                                    color: Appearance.colors.colOnLayer1
                                 }
                             }
                         }
