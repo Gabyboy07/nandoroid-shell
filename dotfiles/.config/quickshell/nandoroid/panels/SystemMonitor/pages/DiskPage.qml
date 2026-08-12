@@ -22,6 +22,7 @@ Item {
             id: contentColumn
             anchors.left: parent.left
             anchors.right: parent.right
+            anchors.top: parent.top
             anchors.margins: 20 * Appearance.effectiveScale
             spacing: 20 * Appearance.effectiveScale
 

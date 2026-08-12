@@ -1,0 +1,157 @@
+import QtQuick
+import QtQuick.Layouts
+import Quickshell
+import "../core"
+import "../core/functions" as Functions
+
+Item {
+    id: root
+
+    property int currentTab: 0
+    property var tabModel: []
+    property bool showIcon: true
+    property bool iconOnTop: true
+    property real cornerRadius: Appearance.rounding.normal
+    property var indicatorWidths: []
+
+    // Fired when a tab is clicked
+    signal tabClicked(int index)
+
+    readonly property int tabCount: root.tabModel.length
+
+    Layout.fillWidth: true
+    height: (showIcon && iconOnTop ? 64 : 48) * Appearance.effectiveScale
+
+    onCurrentTabChanged: {
+        if (tabHighlight) {
+            tabHighlight.idx1 = currentTab
+            Qt.callLater(() => { tabHighlight.idx2 = currentTab })
+        }
+    }
+
+    Component.onCompleted: {
+        // Initialize indicator widths to 48
+        let widths = []
+        for (let i = 0; i < tabModel.length; i++) {
+            widths.push(48)
+        }
+        indicatorWidths = widths
+    }
+
+    // Bottom border for the entire tab bar
+    Rectangle {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: 1 * Appearance.effectiveScale
+        color: Appearance.m3colors.m3surfaceVariant
+        opacity: 0.5
+    }
+
+    RowLayout {
+        anchors.fill: parent
+        spacing: 0
+
+        Repeater {
+            model: root.tabModel
+            
+            delegate: RippleButton {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                
+                buttonRadius: 0
+                topLeftRadius: index === 0 ? root.cornerRadius : 0
+                topRightRadius: index === root.tabCount - 1 ? root.cornerRadius : 0
+                
+                colBackground: "transparent"
+                colBackgroundHover: Appearance.colors.colLayer0Hover
+                colRipple: Appearance.colors.colLayer0Active
+                onClicked: {
+                    root.currentTab = index;
+                    root.tabClicked(index);
+                }
+                
+                readonly property bool isActive: root.currentTab === index
+
+                // Container for icon and text
+                Item {
+                    anchors.fill: parent
+                    
+                    GridLayout {
+                        anchors.centerIn: parent
+                        columns: root.iconOnTop ? 1 : 2
+                        rowSpacing: root.showIcon && root.iconOnTop ? 6 * Appearance.effectiveScale : 0
+                        columnSpacing: root.showIcon && !root.iconOnTop ? 8 * Appearance.effectiveScale : 0
+                        
+                        MaterialSymbol {
+                            visible: root.showIcon
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                            text: modelData.icon ? modelData.icon : ""
+                            iconSize: (root.iconOnTop ? 24 : 18) * Appearance.effectiveScale
+                            color: isActive ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurfaceVariant
+                            Behavior on color { ColorAnimation { duration: 200 } }
+                        }
+                        
+                        StyledText {
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                            text: modelData.name
+                            font.pixelSize: (root.showIcon && root.iconOnTop ? 12 : 14) * Appearance.effectiveScale
+                            font.weight: Font.Medium
+                            color: isActive ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurfaceVariant
+                            Behavior on color { ColorAnimation { duration: 200 } }
+                            
+                            onImplicitWidthChanged: {
+                                if (implicitWidth > 0) {
+                                    let arr = root.indicatorWidths.slice();
+                                    // if icon is inline, total width is wider
+                                    let extraWidth = (root.showIcon && !root.iconOnTop) ? (18 + 8) * Appearance.effectiveScale : 0;
+                                    arr[index] = implicitWidth * (root.showIcon && root.iconOnTop ? 0.85 : 1.0) + extraWidth;
+                                    root.indicatorWidths = arr;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Animated stretch-highlight pill
+    Rectangle {
+        id: tabHighlight
+        anchors.bottom: parent.bottom
+        height: 3 * Appearance.effectiveScale
+        
+        property int idx1: root.currentTab
+        property int idx2: root.currentTab
+        
+        function getLeftForIndex(i) {
+            if (root.tabCount === 0 || root.indicatorWidths.length <= i) return 0;
+            let w = root.indicatorWidths[i] || 48;
+            return (i + 0.5) * (parent.width / root.tabCount) - w / 2
+        }
+        function getRightForIndex(i) {
+            if (root.tabCount === 0 || root.indicatorWidths.length <= i) return 0;
+            let w = root.indicatorWidths[i] || 48;
+            return (i + 0.5) * (parent.width / root.tabCount) + w / 2
+        }
+        
+        property real animLeft1: getLeftForIndex(idx1)
+        property real animRight1: getRightForIndex(idx1)
+        property real animLeft2: getLeftForIndex(idx2)
+        property real animRight2: getRightForIndex(idx2)
+        
+        x: Math.min(animLeft1, animLeft2)
+        width: Math.max(animRight1, animRight2) - x
+        
+        topLeftRadius: 3 * Appearance.effectiveScale
+        topRightRadius: 3 * Appearance.effectiveScale
+        
+        color: Appearance.m3colors.m3primary
+        
+        Behavior on animLeft1 { NumberAnimation { duration: 300; easing.type: Easing.OutQuart } }
+        Behavior on animRight1 { NumberAnimation { duration: 300; easing.type: Easing.OutQuart } }
+        Behavior on animLeft2 { NumberAnimation { duration: 500; easing.type: Easing.OutQuart } }
+        Behavior on animRight2 { NumberAnimation { duration: 500; easing.type: Easing.OutQuart } }
+    }
+}

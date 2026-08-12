@@ -69,3 +69,4 @@ TimePicker TimePicker.qml
 StyledTextInput StyledTextInput.qml
 GappedCircularProgress GappedCircularProgress.qml
 StyledDropShadow StyledDropShadow.qml
+StyledTabBar StyledTabBar.qml
