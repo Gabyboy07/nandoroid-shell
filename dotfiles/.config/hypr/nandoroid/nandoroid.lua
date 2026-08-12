@@ -45,7 +45,7 @@ hl.bind("SUPER + Super_L", hl.dsp.exec_cmd(nandoroid .. " spotlight toggle"), { 
 
 hl.bind("SUPER + Space", hl.dsp.exec_cmd(nandoroid .. " launcher toggle"))
 hl.bind("SUPER + V", hl.dsp.exec_cmd(nandoroid .. " spotlight toggle clipboard"))
-hl.bind("CTRL + SUPER + T", hl.dsp.exec_cmd(nandoroid .. " quickwallpaper toggle"))
+hl.bind("CTRL + SUPER + T", hl.dsp.exec_cmd(nandoroid .. " wallpaper toggle"))
 hl.bind("SUPER + A", hl.dsp.exec_cmd(nandoroid .. " notifications toggle"))
 hl.bind("SUPER + N", hl.dsp.exec_cmd(nandoroid .. " quicksettings toggle"))
 hl.bind("SUPER + G", hl.dsp.exec_cmd(nandoroid .. " quickactions toggle"))

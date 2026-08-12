@@ -58,6 +58,9 @@ ColumnLayout {
         { name: "Toggle Dashboard", target: "dashboard", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call dashboard toggle" },
         { name: "Toggle Quick Actions", target: "quickactions", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call quickactions toggle" },
         { name: "Toggle Settings Window", target: "settings", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call settings toggle" },
+        { name: "Toggle Wallpaper Selector", target: "wallpaper", method: "toggle", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call wallpaper toggle" },
+        { name: "Select Desktop Wallpaper", target: "wallpaper", method: "openDesktop", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call wallpaper openDesktop" },
+        { name: "Select Lockscreen Wallpaper", target: "wallpaper", method: "openLock", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call wallpaper openLock" },
         { name: "Lock Screen", target: "lock", method: "lock", category: "Sidebar & Panels", cmd: "quickshell -c nandoroid ipc call lock lock" },
 
         { name: "Take Region Screenshot", target: "region", method: "screenshot", category: "Region Tools", cmd: "quickshell -c nandoroid ipc call region screenshot" },

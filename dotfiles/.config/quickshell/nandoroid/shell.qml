@@ -110,6 +110,10 @@ ShellRoot {
             GlobalStates.wallpaperSelectorTarget = "lock";
             GlobalStates.wallpaperSelectorOpen = true;
         }
+
+        function toggle() {
+            GlobalStates.wallpaperSelectorOpen = !GlobalStates.wallpaperSelectorOpen;
+        }
     }
 
     // ── Phase 7: OSD ──

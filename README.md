@@ -202,6 +202,7 @@ Control specific system services.
 | **Pomodoro Reset**   | `pomodoro`   | `reset`       | `qs -c nandoroid ipc call pomodoro reset`        |
 | **Wallpaper (Home)** | `wallpaper`  | `openDesktop` | `qs -c nandoroid ipc call wallpaper openDesktop` |
 | **Wallpaper (Lock)** | `wallpaper`  | `openLock`    | `qs -c nandoroid ipc call wallpaper openLock`    |
+| **Wallpaper (Toggle)**| `wallpaper`  | `toggle`      | `qs -c nandoroid ipc call wallpaper toggle`      |
 | **Change Avatar**    | `spotlight`  | `browse_avatar`| `qs -c nandoroid ipc call spotlight browse_avatar`|
 
 ### Global Shortcuts (Native Quickshell)
