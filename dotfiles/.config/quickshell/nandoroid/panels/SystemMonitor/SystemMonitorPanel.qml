@@ -42,14 +42,17 @@ Scope {
             color: Functions.ColorUtils.applyAlpha(Appearance.colors.colShadow, 0.2)
         }
 
-        Rectangle {
-            id: root
-            anchors.fill: parent
-            color: Appearance.colors.colLayer0
-            clip: true
+            Rectangle {
+                id: root
+                anchors.fill: parent
+                color: Appearance.colors.colLayer0
+                radius: Appearance.rounding.panel
+                clip: true
 
-            focus: visible
-            Keys.onEscapePressed: GlobalStates.systemMonitorOpen = false
+                property bool sidebarExpanded: true
+
+                focus: visible
+                Keys.onEscapePressed: GlobalStates.systemMonitorOpen = false
 
             // Stop click propagation to backdrop
             MouseArea {
@@ -85,12 +88,20 @@ Scope {
                         anchors.rightMargin: 12 * Appearance.effectiveScale
                         spacing: 20 * Appearance.effectiveScale
 
-                        StyledText {
-                            text: I18nService.tr("System Monitor")
-                            font.pixelSize: Math.round(24 * Appearance.effectiveScale)
-                            font.weight: Font.DemiBold
-                            color: Appearance.colors.colOnLayer0
+                        RippleButton {
                             Layout.alignment: Qt.AlignVCenter
+                            implicitWidth: 36 * Appearance.effectiveScale
+                            implicitHeight: 36 * Appearance.effectiveScale
+                            buttonRadius: 18 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            onClicked: root.sidebarExpanded = !root.sidebarExpanded
+                            
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: root.sidebarExpanded ? "menu_open" : "menu"
+                                iconSize: 22 * Appearance.effectiveScale
+                                color: Appearance.colors.colOnLayer0
+                            }
                         }
 
                         Item { Layout.fillWidth: true } // Spacer
@@ -120,141 +131,8 @@ Scope {
                     spacing: 12 * Appearance.effectiveScale
                     
                     // Side Navigation (Matching SettingsSidebar style)
-                    Rectangle {
-                        id: sidebar
-                        Layout.fillHeight: true
-                        Layout.preferredWidth: 220 * Appearance.effectiveScale
-                        Layout.fillWidth: false
-                        color: Appearance.colors.colLayer0
-                        radius: 20 * Appearance.effectiveScale
-                        
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 12 * Appearance.effectiveScale
-                            spacing: 16 * Appearance.effectiveScale
-                            
-                            // Navigation Items
-                            Item {
-                                id: navItemsWrapper
-                                Layout.fillWidth: true
-                                implicitHeight: navItemsColumn.implicitHeight
-
-                                // Animated stretch-highlight pill (Ambxst style)
-                                Rectangle {
-                                    id: tabHighlight
-                                    x: 0
-                                    width: parent.width
-                                    radius: 16 * Appearance.effectiveScale
-                                    color: Appearance.colors.colPrimaryContainer
-
-                                    property int idx1: GlobalStates.systemMonitorIndex
-                                    property int idx2: GlobalStates.systemMonitorIndex
-
-                                    function getYForStackIndex(stackIdx) {
-                                        let visualIdx = 0
-                                        if (stackIdx === 0) visualIdx = 0
-                                        else if (stackIdx === 1) visualIdx = 1
-                                        else if (stackIdx === 2) visualIdx = Battery.available ? 2 : 1
-                                        return visualIdx * (48 * Appearance.effectiveScale + 8 * Appearance.effectiveScale)
-                                    }
-
-                                    property real targetY1: getYForStackIndex(idx1)
-                                    property real targetY2: getYForStackIndex(idx2)
-                                    property real animY1: targetY1
-                                    property real animY2: targetY2
-
-                                    y: Math.min(animY1, animY2)
-                                    height: Math.abs(animY2 - animY1) + (48 * Appearance.effectiveScale)
-
-                                    Behavior on animY1 {
-                                        NumberAnimation { duration: 120; easing.type: Easing.OutSine }
-                                    }
-                                    Behavior on animY2 {
-                                        NumberAnimation { duration: 380; easing.type: Easing.OutCubic }
-                                    }
-
-                                    onTargetY1Changed: animY1 = targetY1
-                                    onTargetY2Changed: animY2 = targetY2
-
-                                    onIdx1Changed: { targetY1 = getYForStackIndex(idx1) }
-                                    onIdx2Changed: { targetY2 = getYForStackIndex(idx2) }
-                                }
-
-                                Connections {
-                                    target: GlobalStates
-                                    function onSystemMonitorIndexChanged() {
-                                        tabHighlight.idx1 = GlobalStates.systemMonitorIndex
-                                        Qt.callLater(() => { tabHighlight.idx2 = GlobalStates.systemMonitorIndex })
-                                    }
-                                }
-
-                                ColumnLayout {
-                                    id: navItemsColumn
-                                    anchors.fill: parent
-                                    spacing: 8 * Appearance.effectiveScale
-                                    
-                                    Repeater {
-                                        model: [
-                                            { name: I18nService.tr("Performance"), icon: "monitoring", stackIndex: 0 },
-                                            { name: I18nService.tr("Battery"), icon: "battery_charging_full", stackIndex: 1, visible: Battery.available },
-                                            { name: I18nService.tr("Processes"), icon: "list", stackIndex: 2 }
-                                        ]
-                                        
-                                        delegate: RippleButton {
-                                            visible: modelData.visible !== false
-                                            Layout.fillWidth: true
-                                            implicitHeight: visible ? 48 * Appearance.effectiveScale : 0
-                                            buttonRadius: 16 * Appearance.effectiveScale
-                                            colBackground: "transparent"
-                                            colBackgroundHover: GlobalStates.systemMonitorIndex === modelData.stackIndex 
-                                                ? "transparent" 
-                                                : Appearance.colors.colLayer0Hover
-                                            
-                                            onClicked: GlobalStates.systemMonitorIndex = modelData.stackIndex
-                                            
-                                            RowLayout {
-                                                anchors.fill: parent
-                                                anchors.leftMargin: 16 * Appearance.effectiveScale
-                                                spacing: 16 * Appearance.effectiveScale
-                                                Layout.alignment: Qt.AlignLeft
-                                                
-                                                MaterialSymbol {
-                                                    text: modelData.icon
-                                                    iconSize: 24 * Appearance.effectiveScale
-                                                    color: GlobalStates.systemMonitorIndex === modelData.stackIndex 
-                                                        ? Appearance.colors.colOnPrimaryContainer 
-                                                        : Appearance.colors.colSubtext
-                                                }
-                                                
-                                                StyledText {
-                                                    text: modelData.name
-                                                    font.pixelSize: Math.round(14 * Appearance.effectiveScale)
-                                                    font.weight: GlobalStates.systemMonitorIndex === modelData.stackIndex ? Font.Medium : Font.Normal
-                                                    color: GlobalStates.systemMonitorIndex === modelData.stackIndex 
-                                                        ? Appearance.colors.colOnPrimaryContainer 
-                                                        : Appearance.colors.colOnLayer0
-                                                    Layout.fillWidth: true
-                                                    horizontalAlignment: Text.AlignLeft
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            Item { Layout.fillHeight: true }
-                            
-                            // Bottom Profile info (Using universal widget)
-                            UserProfile {
-                                compact: false
-                                Layout.fillWidth: true
-                                onClicked: {
-                                    GlobalStates.systemMonitorOpen = false
-                                    GlobalStates.settingsPageIndex = 8
-                                    GlobalStates.activateSettings()
-                                }
-                            }
-                        }
+                    SystemMonitorSidebar {
+                        expanded: root.sidebarExpanded
                     }
                 
                 // Main Content Area
