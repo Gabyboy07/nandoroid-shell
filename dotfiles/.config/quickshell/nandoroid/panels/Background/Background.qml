@@ -37,18 +37,40 @@ Variants {
         // Window level transparency is ALWAYS ON for stability.
         color: "transparent"
 
-        // Base background color (only visible when live wallpaper is OFF)
+        // Base guard color: M3 surface (dark, not pure #000) behind the lockscreen
+        // wallpaper while it loads; M3 surface on the desktop otherwise.
         Rectangle {
             id: baseColor
             anchors.fill: parent
             color: Appearance.colors.colLayer0
             z: -1
-            visible: !WallpaperEngineService.active && !MpvpaperService.active
+            visible: GlobalStates.screenLocked || (!WallpaperEngineService.active && !MpvpaperService.active)
         }
 
         readonly property string desktopPath: (Config.ready && Config.options.appearance && Config.options.appearance.background && Config.options.appearance.background.wallpaperPath) ? Config.options.appearance.background.wallpaperPath : ""
         readonly property string lockPath: Config.options.lock.useSeparateWallpaper && Config.options.lock.wallpaperPath ? Config.options.lock.wallpaperPath : ""
-        property string currentPath: GlobalStates.screenLocked && lockPath ? lockPath : desktopPath
+        readonly property bool liveActive: WallpaperEngineService.active || MpvpaperService.active
+        // Static representation of the active live wallpaper (extracted frame / screenshot)
+        readonly property string liveFallbackPath: {
+            if (WallpaperEngineService.active) {
+                const ws = WallpaperEngineService.screenshotPath;
+                if (ws && ws !== "") return "file://" + ws + "?v=" + WallpaperEngineService.screenshotVersion;
+            }
+            if (MpvpaperService.active) {
+                const fp = MpvpaperService.framePath;
+                if (fp && fp !== "") return "file://" + fp + "?v=" + MpvpaperService.frameVersion;
+            }
+            return "";
+        }
+        // While locked, fall back to a static representation so the lockscreen
+        // wallpaper stays visible (live video layers are hidden behind the lock).
+        property string currentPath: {
+            if (GlobalStates.screenLocked) {
+                if (lockPath !== "") return lockPath;
+                if (liveActive && liveFallbackPath !== "") return liveFallbackPath;
+            }
+            return desktopPath;
+        }
         
         property var shaderList: ["circlePit", "circleSelect", "magic", "Doom", "Peel", "transition", "pixelate", "stripes"]
         property string currentShader: "pixelate"
@@ -68,9 +90,24 @@ Variants {
             var effectivePrev = wallpaper.source.toString().replace("file://", "");
             if (effectivePrev === currentPath.replace("file://", "")) return;
 
+            // On lock with a live wallpaper active, always start the transition
+            // from the extracted live frame (what was actually on screen), never
+            // from the stale static wallpaper. If the target is the same frame,
+            // there is nothing to animate — just swap it in over the black guard.
+            var fromSource = wallpaper.source;
+            if (GlobalStates.screenLocked && liveActive && liveFallbackPath !== "") {
+                fromSource = liveFallbackPath;
+                if (fromSource.replace("file://", "") === currentPath.replace("file://", "")) {
+                    previousWallpaper.source = "";
+                    wallpaper.source = currentPath;
+                    bgRoot.transitionProgress = 1.0;
+                    return;
+                }
+            }
+
             // Assign previous source DIRECTLY (not via binding) so the image
             // is available when the shader starts rendering on next frame
-            previousWallpaper.source = wallpaper.source;
+            previousWallpaper.source = fromSource;
             wallpaper.source = currentPath;
             currentShader = shaderList[Math.floor(Math.random() * shaderList.length)];
 
@@ -97,7 +134,7 @@ Variants {
             id: staticWallpaperContainer
             anchors.fill: parent
             z: 1
-            opacity: WallpaperEngineService.active || MpvpaperService.active ? 0 : 1
+            opacity: bgRoot.liveActive && !GlobalStates.screenLocked ? 0 : 1
             visible: opacity > 0
             
             Image {
