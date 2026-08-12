@@ -88,7 +88,7 @@ Item {
                     text: I18nService.tr("Processes")
                     font.pixelSize: Appearance.font.pixelSize.huge
                     font.weight: Font.DemiBold
-                    color: Appearance.colors.colOnLayer1
+                    color: Appearance.m3colors.m3onSurface
                 }
                 StyledText {
                     text: root.searchQuery.trim() !== "" 
