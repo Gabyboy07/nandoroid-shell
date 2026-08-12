@@ -32,37 +32,37 @@ Singleton {
     }
 
     readonly property var quickCommands: [
-        { name: "Lock Screen", subtitle: "Session Action", id: "cmd-lock", icon: "lock", isPlugin: true, category: "Command", emoji: "", execute: () => { Session.lock(); root.closeAll(); } },
-        { name: "Reboot System", subtitle: "Session Action", id: "cmd-reboot", icon: "restart_alt", isPlugin: true, category: "Command", emoji: "", execute: () => { Session.reboot(); root.closeAll(); } },
-        { name: "Power Off", subtitle: "Session Action", id: "cmd-poweroff", icon: "power_settings_new", isPlugin: true, category: "Command", emoji: "", execute: () => { Session.poweroff(); root.closeAll(); } },
-        { name: "Log Out", subtitle: "Exit Hyprland", id: "cmd-logout", icon: "logout", isPlugin: true, category: "Command", emoji: "", execute: () => { Session.logout(); root.closeAll(); } },
-        { name: "Suspend", subtitle: "Session Action", id: "cmd-suspend", icon: "bedtime", isPlugin: true, category: "Command", emoji: "", execute: () => { Session.suspend(); root.closeAll(); } },
-        { name: "Hibernate", subtitle: "Session Action", id: "cmd-hibernate", icon: "save", isPlugin: true, category: "Command", emoji: "", execute: () => { Session.hibernate(); root.closeAll(); } },
-        { name: "Open Dashboard", subtitle: "Shell Interface", id: "cmd-dashboard", icon: "dashboard", isPlugin: true, category: "Command", emoji: "", execute: () => { GlobalStates.dashboardOpen = true; root.closeAll(); } },
-        { name: "Open Settings", subtitle: "Shell Interface", id: "cmd-settings", icon: "settings", isPlugin: true, category: "Command", emoji: "", execute: () => { GlobalStates.settingsOpen = true; root.closeAll(); } },
-        { name: "System Monitor", subtitle: "Shell Interface", id: "cmd-monitor", icon: "monitoring", isPlugin: true, category: "Command", emoji: "", execute: () => { GlobalStates.systemMonitorOpen = true; root.closeAll(); } },
-        { name: "Workspace Overview", subtitle: "Shell Interface", id: "cmd-overview", icon: "grid_view", isPlugin: true, category: "Command", emoji: "", execute: () => { GlobalStates.overviewOpen = true; root.closeAll(); } },
-        { name: "Customize", subtitle: "Shell Interface", id: "cmd-wallpaper", icon: "palette", isPlugin: true, category: "Command", emoji: "", execute: () => { GlobalStates.settingsPageIndex = 4; GlobalStates.settingsOpen = true; root.closeAll(); } },
-        { name: "Bluetooth Settings", subtitle: "Shell Interface", id: "cmd-bluetooth", icon: "bluetooth", isPlugin: true, category: "Command", emoji: "", execute: () => { GlobalStates.settingsPageIndex = 1; GlobalStates.settingsOpen = true; root.closeAll(); } },
-        { name: "Network Settings", subtitle: "Shell Interface", id: "cmd-network", icon: "wifi", isPlugin: true, category: "Command", emoji: "", execute: () => { GlobalStates.settingsPageIndex = 0; GlobalStates.settingsOpen = true; root.closeAll(); } },
-        { name: "Quick Actions", subtitle: "Tools Menu", id: "cmd-tools", icon: "construction", isPlugin: true, category: "Command", emoji: "", execute: () => { GlobalStates.quickActionsOpen = true; root.closeAll(); } },
-        { name: "Edit Config", subtitle: "Configuration File", id: "cmd-edit-config", icon: "edit_note", isPlugin: true, category: "Command", emoji: "", execute: () => { Quickshell.execDetached(["xdg-open", Directories.home.replace("file://", "") + "/.config/nandoroid/config.json"]); root.closeAll(); } },
-        { name: "Clear All Clipboard", subtitle: "Clipboard Action", id: "cmd-clip-wipe", icon: "delete_sweep", isPlugin: true, category: "Command", emoji: "", execute: () => { Quickshell.execDetached(["cliphist", "wipe"]); root.closeAll(); } },
-        { name: "Clear Old Clipboard", subtitle: "Keep 100 newest", id: "cmd-clip-clear-old", icon: "mop", isPlugin: true, category: "Command", emoji: "", execute: () => { Quickshell.execDetached(["sh", "-c", "cliphist list | tail -n +101 | cliphist delete"]); root.closeAll(); } },
-        { name: "Clear New Clipboard", subtitle: "Clear last 10 entries", id: "cmd-clip-clear-new", icon: "history", isPlugin: true, category: "Command", emoji: "", execute: () => { Quickshell.execDetached(["sh", "-c", "cliphist list | head -n 10 | cliphist delete"]); root.closeAll(); } },
-        { name: "Restart Shell", subtitle: "Maintenance (Fast)", id: "cmd-shell-restart", icon: "refresh", isPlugin: true, category: "Command", emoji: "", execute: () => { Quickshell.execDetached([Directories.home.replace("file://", "") + "/.config/quickshell/nandoroid/scripts/restartshell.sh"]); root.closeAll(); } },
-        { name: "Restart Shell (Fix Tray)", subtitle: "Maintenance (Deep)", id: "cmd-shell-restart-fix", icon: "build", isPlugin: true, category: "Command", emoji: "", execute: () => { Quickshell.execDetached([Directories.home.replace("file://", "") + "/.config/quickshell/nandoroid/scripts/restart_fix.sh"]); root.closeAll(); } }
+        { name: "Lock Screen", subtitle: "Session Action", id: "cmd-lock", icon: "lock", isPlugin: true, emoji: "", execute: () => { Session.lock(); root.closeAll(); } },
+        { name: "Reboot System", subtitle: "Session Action", id: "cmd-reboot", icon: "restart_alt", isPlugin: true, emoji: "", execute: () => { Session.reboot(); root.closeAll(); } },
+        { name: "Power Off", subtitle: "Session Action", id: "cmd-poweroff", icon: "power_settings_new", isPlugin: true, emoji: "", execute: () => { Session.poweroff(); root.closeAll(); } },
+        { name: "Log Out", subtitle: "Exit Hyprland", id: "cmd-logout", icon: "logout", isPlugin: true, emoji: "", execute: () => { Session.logout(); root.closeAll(); } },
+        { name: "Suspend", subtitle: "Session Action", id: "cmd-suspend", icon: "bedtime", isPlugin: true, emoji: "", execute: () => { Session.suspend(); root.closeAll(); } },
+        { name: "Hibernate", subtitle: "Session Action", id: "cmd-hibernate", icon: "save", isPlugin: true, emoji: "", execute: () => { Session.hibernate(); root.closeAll(); } },
+        { name: "Open Dashboard", subtitle: "Shell Interface", id: "cmd-dashboard", icon: "dashboard", isPlugin: true, emoji: "", execute: () => { GlobalStates.dashboardOpen = true; root.closeAll(); } },
+        { name: "Open Settings", subtitle: "Shell Interface", id: "cmd-settings", icon: "settings", isPlugin: true, emoji: "", execute: () => { GlobalStates.settingsOpen = true; root.closeAll(); } },
+        { name: "System Monitor", subtitle: "Shell Interface", id: "cmd-monitor", icon: "monitoring", isPlugin: true, emoji: "", execute: () => { GlobalStates.systemMonitorOpen = true; root.closeAll(); } },
+        { name: "Workspace Overview", subtitle: "Shell Interface", id: "cmd-overview", icon: "grid_view", isPlugin: true, emoji: "", execute: () => { GlobalStates.overviewOpen = true; root.closeAll(); } },
+        { name: "Customize", subtitle: "Shell Interface", id: "cmd-wallpaper", icon: "palette", isPlugin: true, emoji: "", execute: () => { GlobalStates.settingsPageIndex = 4; GlobalStates.settingsOpen = true; root.closeAll(); } },
+        { name: "Bluetooth Settings", subtitle: "Shell Interface", id: "cmd-bluetooth", icon: "bluetooth", isPlugin: true, emoji: "", execute: () => { GlobalStates.settingsPageIndex = 1; GlobalStates.settingsOpen = true; root.closeAll(); } },
+        { name: "Network Settings", subtitle: "Shell Interface", id: "cmd-network", icon: "wifi", isPlugin: true, emoji: "", execute: () => { GlobalStates.settingsPageIndex = 0; GlobalStates.settingsOpen = true; root.closeAll(); } },
+        { name: "Quick Actions", subtitle: "Tools Menu", id: "cmd-tools", icon: "construction", isPlugin: true, emoji: "", execute: () => { GlobalStates.quickActionsOpen = true; root.closeAll(); } },
+        { name: "Edit Config", subtitle: "Configuration File", id: "cmd-edit-config", icon: "edit_note", isPlugin: true, emoji: "", execute: () => { Quickshell.execDetached(["xdg-open", Directories.home.replace("file://", "") + "/.config/nandoroid/config.json"]); root.closeAll(); } },
+        { name: "Clear All Clipboard", subtitle: "Clipboard Action", id: "cmd-clip-wipe", icon: "delete_sweep", isPlugin: true, emoji: "", execute: () => { Quickshell.execDetached(["cliphist", "wipe"]); root.closeAll(); } },
+        { name: "Clear Old Clipboard", subtitle: "Keep 100 newest", id: "cmd-clip-clear-old", icon: "mop", isPlugin: true, emoji: "", execute: () => { Quickshell.execDetached(["sh", "-c", "cliphist list | tail -n +101 | cliphist delete"]); root.closeAll(); } },
+        { name: "Clear New Clipboard", subtitle: "Clear last 10 entries", id: "cmd-clip-clear-new", icon: "history", isPlugin: true, emoji: "", execute: () => { Quickshell.execDetached(["sh", "-c", "cliphist list | head -n 10 | cliphist delete"]); root.closeAll(); } },
+        { name: "Restart Shell", subtitle: "Maintenance (Fast)", id: "cmd-shell-restart", icon: "refresh", isPlugin: true, emoji: "", execute: () => { Quickshell.execDetached([Directories.home.replace("file://", "") + "/.config/quickshell/nandoroid/scripts/restartshell.sh"]); root.closeAll(); } },
+        { name: "Restart Shell (Fix Tray)", subtitle: "Maintenance (Deep)", id: "cmd-shell-restart-fix", icon: "build", isPlugin: true, emoji: "", execute: () => { Quickshell.execDetached([Directories.home.replace("file://", "") + "/.config/quickshell/nandoroid/scripts/restart_fix.sh"]); root.closeAll(); } }
     ]
 
     readonly property var quickTools: [
-        { name: "Screen Snip", subtitle: "Tool", id: "tool-snip", icon: "content_cut", isPlugin: true, category: "Tool", emoji: "", execute: () => { RegionService.screenshot(); root.closeAll(); } },
-        { name: "Color Picker", subtitle: "Tool", id: "tool-picker", icon: "colorize", isPlugin: true, category: "Tool", emoji: "", execute: () => { Quickshell.execDetached(["hyprpicker", "-a"]); root.closeAll(); } },
-        { name: "OCR", subtitle: "Tool", id: "tool-ocr", icon: "text_snippet", isPlugin: true, category: "Tool", emoji: "", execute: () => { RegionService.ocr(); root.closeAll(); } },
-        { name: "QR Scanner", subtitle: "Tool", id: "tool-qr", icon: "qr_code_scanner", isPlugin: true, category: "Tool", emoji: "", execute: () => { RegionService.qrcode(); root.closeAll(); } },
-        { name: "Lens Search", subtitle: "Tool", id: "tool-lens", icon: "image_search", isPlugin: true, category: "Tool", emoji: "", execute: () => { RegionService.search(); root.closeAll(); } },
-        { name: "Screen Record", subtitle: "Tool", id: "tool-record", icon: "videocam", isPlugin: true, category: "Tool", emoji: "", execute: () => { RegionService.record(); root.closeAll(); } },
-        { name: "Record w/ Sound", subtitle: "Tool", id: "tool-record-sound", icon: "mic", isPlugin: true, category: "Tool", emoji: "", execute: () => { RegionService.recordWithSound(); root.closeAll(); } },
-        { name: "Record Fullscreen", subtitle: "Tool", id: "tool-record-full", icon: "fullscreen", isPlugin: true, category: "Tool", emoji: "", execute: () => { RegionService.recordFullscreenWithSound(); root.closeAll(); } }
+        { name: "Screen Snip", subtitle: "Tool", id: "tool-snip", icon: "content_cut", isPlugin: true, emoji: "", execute: () => { RegionService.screenshot(); root.closeAll(); } },
+        { name: "Color Picker", subtitle: "Tool", id: "tool-picker", icon: "colorize", isPlugin: true, emoji: "", execute: () => { Quickshell.execDetached(["hyprpicker", "-a"]); root.closeAll(); } },
+        { name: "OCR", subtitle: "Tool", id: "tool-ocr", icon: "text_snippet", isPlugin: true, emoji: "", execute: () => { RegionService.ocr(); root.closeAll(); } },
+        { name: "QR Scanner", subtitle: "Tool", id: "tool-qr", icon: "qr_code_scanner", isPlugin: true, emoji: "", execute: () => { RegionService.qrcode(); root.closeAll(); } },
+        { name: "Lens Search", subtitle: "Tool", id: "tool-lens", icon: "image_search", isPlugin: true, emoji: "", execute: () => { RegionService.search(); root.closeAll(); } },
+        { name: "Screen Record", subtitle: "Tool", id: "tool-record", icon: "videocam", isPlugin: true, emoji: "", execute: () => { RegionService.record(); root.closeAll(); } },
+        { name: "Record w/ Sound", subtitle: "Tool", id: "tool-record-sound", icon: "mic", isPlugin: true, emoji: "", execute: () => { RegionService.recordWithSound(); root.closeAll(); } },
+        { name: "Record Fullscreen", subtitle: "Tool", id: "tool-record-full", icon: "fullscreen", isPlugin: true, emoji: "", execute: () => { RegionService.recordFullscreenWithSound(); root.closeAll(); } }
     ]
 
     readonly property var matugenSchemes: [
@@ -114,7 +114,7 @@ Singleton {
                 out.push({
                     name: fn,
                     subtitle: FileUtils.shortenHomePath(fp),
-                    id: "wall-" + fp, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
+                    id: "wall-" + fp, icon: "wallpaper", isPlugin: true, emoji: "",
                     isImage: true, imagePath: FileUtils.trimFileProtocol(fp),
                     execute: () => apply(fp)
                 });
@@ -139,7 +139,7 @@ Singleton {
                     out.push({
                         name: fn,
                         subtitle: FileUtils.shortenHomePath(fp),
-                        id: "wall-dir-" + fp, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
+                        id: "wall-dir-" + fp, icon: "wallpaper", isPlugin: true, emoji: "",
                         isImage: true, imagePath: FileUtils.trimFileProtocol(fp),
                         execute: () => apply(fp)
                     });
@@ -150,7 +150,7 @@ Singleton {
             out.push({
                 name: I18nService.tr("Apply %1").replace("%1", FileUtils.fileNameForPath(resolved)),
                 subtitle: FileUtils.shortenHomePath(resolved),
-                id: "wall-path-" + resolved, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
+                id: "wall-path-" + resolved, icon: "wallpaper", isPlugin: true, emoji: "",
                 isImage: true, imagePath: FileUtils.trimFileProtocol(resolved),
                 execute: () => apply(resolved)
             });
@@ -190,7 +190,7 @@ Singleton {
             out.push({
                 name: c.name,
                 subtitle: FileUtils.shortenHomePath(c.path),
-                id: "wall-" + c.path, icon: "wallpaper", isPlugin: true, category: "Command", emoji: "",
+                id: "wall-" + c.path, icon: "wallpaper", isPlugin: true, emoji: "",
                 isImage: true, imagePath: FileUtils.trimFileProtocol(c.path),
                 execute: () => apply(c.path)
             });
@@ -199,7 +199,7 @@ Singleton {
             out.push({
                 name: I18nService.tr("No matching wallpaper"),
                 subtitle: I18nService.tr('No image named "%1" in %2').replace("%1", arg).replace("%2", FileUtils.shortenHomePath(wallHome)),
-                id: "wall-none", icon: "search_off", isPlugin: true, category: "Command", emoji: "", execute: () => {}
+                id: "wall-none", icon: "search_off", isPlugin: true, emoji: "", execute: () => {}
             });
         }
         return out;
@@ -217,7 +217,7 @@ Singleton {
             out.push({
                 name: "No matching scheme",
                 subtitle: 'Try "' + Config.options.search.settingsPrefix + 'color content" or "' + Config.options.search.settingsPrefix + 'color tonal spot"',
-                id: "color-none", icon: "palette", isPlugin: true, category: "Command", emoji: "", execute: () => {}
+                id: "color-none", icon: "palette", isPlugin: true, emoji: "", execute: () => {}
             });
             return out;
         }
@@ -226,7 +226,7 @@ Singleton {
             out.push({
                 name: s.name,
                 subtitle: (isCurrent ? "Current scheme · " : "") + s.id,
-                id: "color-" + s.id, icon: "palette", isPlugin: true, category: "Command", emoji: "",
+                id: "color-" + s.id, icon: "palette", isPlugin: true, emoji: "",
                 execute: () => { Wallpapers.applyScheme(s.id); root.closeAll(); }
             });
         }
@@ -266,7 +266,6 @@ Singleton {
                         id: "file-" + path,
                         icon: "insert_drive_file",
                         isPlugin: true,
-                        category: "File",
                         emoji: "",
                         execute: () => { 
                             Quickshell.execDetached(["xdg-open", path]); 
@@ -681,7 +680,7 @@ Singleton {
                 results.push({
                     name: "Math Result",
                     subtitle: mathExpr + " = " + (mathProc.result || "..."),
-                    id: "math-result", icon: "calculate", isPlugin: true, category: "Command", emoji: "",
+                    id: "math-result", icon: "calculate", isPlugin: true, emoji: "",
                     execute: () => { Quickshell.clipboardText = mathProc.result; root.closeAll(); }
                 });
             }
@@ -689,7 +688,7 @@ Singleton {
             const webQuery = strippedQuery.slice(Config.options.search.webPrefix.length).trim();
             if (webQuery.length > 0) {
                 results.push({
-                    name: "Search Web", subtitle: webQuery, id: "web-search", icon: "public", isPlugin: true, category: "Command", emoji: "",
+                    name: "Search Web", subtitle: webQuery, id: "web-search", icon: "public", isPlugin: true, emoji: "",
                     execute: () => { Qt.openUrlExternally("https://www.google.com/search?q=" + encodeURIComponent(webQuery)); root.closeAll(); }
                 });
             }
@@ -723,7 +722,7 @@ Singleton {
                     clipResults.push({
                         name: entryObj.isImage ? "Clipboard Image" : "Clipboard Entry",
                         subtitle: cleanName, rawValue: entry, id: "clip-" + entryObj.id, icon: entryObj.isImage ? "image" : "content_paste",
-                        isPlugin: true, isImage: entryObj.isImage, imagePath: thumbPath, category: "Command", emoji: "",
+                        isPlugin: true, isImage: entryObj.isImage, imagePath: thumbPath, emoji: "",
                         execute: () => {
                             Quickshell.execDetached(["sh", "-c", "cliphist decode \"$1\" | wl-copy", "sh", entryObj.id]);
                             root.closeAll();
@@ -795,13 +794,13 @@ Singleton {
                 results.push(...root.buildColorCommandResults(settingsQuery.slice("color".length).trim()));
             } else if (settingsQuery.length === 0) {
                 results.push({
-                    name: I18nService.tr("Set Desktop Wallpaper"), subtitle: I18nService.tr('Type "%1dwall <name or path>"').replace("%1", Config.options.search.settingsPrefix), id: "wall-hint", icon: "wallpaper", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "dwall "; }
+                    name: I18nService.tr("Set Desktop Wallpaper"), subtitle: I18nService.tr('Type "%1dwall <name or path>"').replace("%1", Config.options.search.settingsPrefix), id: "wall-hint", icon: "wallpaper", isPlugin: true, emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "dwall "; }
                 });
                 results.push({
-                    name: I18nService.tr("Set Lock Screen Wallpaper"), subtitle: I18nService.tr('Type "%1lwall <name or path>"').replace("%1", Config.options.search.settingsPrefix), id: "lwall-hint", icon: "lock", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "lwall "; }
+                    name: I18nService.tr("Set Lock Screen Wallpaper"), subtitle: I18nService.tr('Type "%1lwall <name or path>"').replace("%1", Config.options.search.settingsPrefix), id: "lwall-hint", icon: "lock", isPlugin: true, emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "lwall "; }
                 });
                 results.push({
-                    name: I18nService.tr("Set Color Scheme"), subtitle: I18nService.tr('Type "%1color <scheme>"').replace("%1", Config.options.search.settingsPrefix), id: "color-hint", icon: "palette", isPlugin: true, category: "Settings", emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "color "; }
+                    name: I18nService.tr("Set Color Scheme"), subtitle: I18nService.tr('Type "%1color <scheme>"').replace("%1", Config.options.search.settingsPrefix), id: "color-hint", icon: "palette", isPlugin: true, emoji: "", keepOpen: true, execute: () => { root.query = Config.options.search.settingsPrefix + "color "; }
                 });
                 const allSettings = SearchRegistry.getAllResults();
                 for (const res of allSettings) {
@@ -811,7 +810,6 @@ Singleton {
                         id: "settings-all-" + res.pageIndex + "-" + res.matchedString,
                         icon: "settings",
                         isPlugin: true,
-                        category: "Settings",
                         emoji: "",
                         execute: () => {
                             SearchRegistry.pendingJump = { pageIndex: res.pageIndex, query: res.matchedString };
@@ -829,7 +827,6 @@ Singleton {
                         id: "settings-" + res.pageIndex + "-" + res.matchedString,
                         icon: "settings",
                         isPlugin: true,
-                        category: "Settings",
                         emoji: "",
                         execute: () => {
                             SearchRegistry.pendingJump = { pageIndex: res.pageIndex, query: res.matchedString };
@@ -840,7 +837,7 @@ Singleton {
                 }
                 if (settingsResults.length === 0) {
                     results.push({
-                        name: "No settings found", subtitle: "Try a different search term", id: "settings-none", icon: "search_off", isPlugin: true, category: "Settings", emoji: "", execute: () => {}
+                        name: "No settings found", subtitle: "Try a different search term", id: "settings-none", icon: "search_off", isPlugin: true, emoji: "", execute: () => {}
                     });
                 }
             }
@@ -857,7 +854,7 @@ Singleton {
             results.push(...fileResults);
             if (fileSearchProc.results.length === 0 && strippedQuery.length > 1) {
                  results.push({
-                    name: "Searching Files...", subtitle: "Please wait", id: "file-searching", icon: "search", isPlugin: true, category: "Command", emoji: "", execute: () => {}
+                    name: "Searching Files...", subtitle: "Please wait", id: "file-searching", icon: "search", isPlugin: true, emoji: "", execute: () => {}
                 });
             }
         }

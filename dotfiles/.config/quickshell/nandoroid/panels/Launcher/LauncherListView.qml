@@ -118,8 +118,6 @@ RippleButton {
             }
         }
 
-
-
         MaterialSymbol {
             Layout.alignment: Qt.AlignVCenter
             text: "star"
