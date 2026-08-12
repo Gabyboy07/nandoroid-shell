@@ -253,7 +253,7 @@ ColumnLayout {
                     Row {
                         Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
                         Repeater {
-                            model: ["primary", "secondary", "tertiary", "error", "surface", "onSurface"]
+                            model: ["primary", "secondary", "tertiary", "error", "surface", "onSurface", "onLayer1"]
                             delegate: ColorPickerButton {
                                 required property string modelData
                                 colorString: modelData
@@ -291,7 +291,7 @@ ColumnLayout {
                     Row {
                         Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
                         Repeater {
-                            model: ["primary", "secondary", "tertiary", "surface", "onSurface", "onLayer1"]
+                            model: ["primary", "secondary", "tertiary", "error", "surface", "onSurface", "onLayer1"]
                             delegate: ColorPickerButton {
                                 required property string modelData
                                 colorString: modelData
@@ -329,7 +329,7 @@ ColumnLayout {
                     Row {
                         Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
                         Repeater {
-                            model: ["primary", "secondary", "tertiary", "surface", "onSurface", "onLayer1"]
+                            model: ["primary", "secondary", "tertiary", "error", "surface", "onSurface", "onLayer1"]
                             delegate: ColorPickerButton {
                                 required property string modelData
                                 colorString: modelData
