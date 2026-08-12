@@ -531,6 +531,7 @@ Item {
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 contentHeight: cardListCol.implicitHeight
+                                bottomMargin: 64 * Appearance.effectiveScale
                                 clip: true
 
                                 ColumnLayout {
