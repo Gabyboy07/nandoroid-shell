@@ -7,6 +7,7 @@ import "../services"
  */
 Item {
     id: root
+    visible: false
     
     // The canonical string this handler responds to
     property string searchString: ""
