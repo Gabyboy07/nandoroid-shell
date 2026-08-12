@@ -498,14 +498,20 @@ Item {
                                         buttonRadius: 8 * Appearance.effectiveScale
                                         colBackground: Appearance.colors.colPrimary
                                         onClicked: {
+                                            const newId = root.makeId();
                                             const t = {
-                                                "id": root.makeId(),
+                                                "id": newId,
                                                 "content": I18nService.tr("New task"),
                                                 "status": modelData.status,
                                                 "updatedAt": new Date().toISOString()
                                             };
                                             root.items = [t].concat(root.items);
                                             root.save();
+                                            
+                                            // Auto-open popup for editing
+                                            root._editingId = newId;
+                                            editTaskInput.text = t.content;
+                                            editPopup.open();
                                         }
 
                                         MaterialSymbol {
@@ -605,6 +611,7 @@ Item {
         function open() {
             visible = true;
             editTaskInput.forceActiveFocus();
+            editTaskInput.selectAll();
         }
 
         function close() {
