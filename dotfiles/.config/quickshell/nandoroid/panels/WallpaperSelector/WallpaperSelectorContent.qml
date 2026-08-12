@@ -230,26 +230,26 @@ Item {
             Item {
                 id: headerItem
                 Layout.fillWidth: true
-                Layout.preferredHeight: 72 * Appearance.effectiveScale
+                Layout.preferredHeight: 64 * Appearance.effectiveScale
                 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 20 * Appearance.effectiveScale
-                    anchors.rightMargin: 13 * Appearance.effectiveScale
-                    spacing: 24 * Appearance.effectiveScale
+                    anchors.leftMargin: 16 * Appearance.effectiveScale
+                    anchors.rightMargin: 16 * Appearance.effectiveScale
+                    spacing: 8 * Appearance.effectiveScale
 
                     RippleButton {
                         Layout.alignment: Qt.AlignVCenter
-                        implicitWidth: 36 * Appearance.effectiveScale
-                        implicitHeight: 36 * Appearance.effectiveScale
-                        buttonRadius: 18 * Appearance.effectiveScale
+                        implicitWidth: 48 * Appearance.effectiveScale
+                        implicitHeight: 48 * Appearance.effectiveScale
+                        buttonRadius: 24 * Appearance.effectiveScale
                         colBackground: "transparent"
                         onClicked: sidebar.expanded = !sidebar.expanded
                         
                         MaterialSymbol {
                             anchors.centerIn: parent
                             text: sidebar.expanded ? "menu_open" : "menu"
-                            iconSize: 22 * Appearance.effectiveScale
+                            iconSize: 24 * Appearance.effectiveScale
                             color: Appearance.colors.colOnLayer0
                         }
                     }
@@ -307,131 +307,129 @@ Item {
                                 }
                             }
                         }
-
-                        // Right action buttons inside the search pill
-                        Row {
-                            anchors.right: parent.right
-                            anchors.rightMargin: 6 * Appearance.effectiveScale
-                            anchors.verticalCenter: parent.verticalCenter
-                            spacing: 0
-
-                            // Sorting Button
-                            Item {
-                                id: sortBtnContainer
-                                width: 44 * Appearance.effectiveScale
-                                height: 44 * Appearance.effectiveScale
-                                visible: !mainSelector.wallhavenMode && !mainSelector.naiveMode && !mainSelector.liveMode
-        
-                                RippleButton {
-                                    id: sortBtn
-                                    anchors.fill: parent
-                                    buttonRadius: 22 * Appearance.effectiveScale 
-                                    colBackground: "transparent"
-                                    onClicked: sortPopup.visible = !sortPopup.visible
-                                    
-                                    MaterialShapeWrappedMaterialSymbol {
-                                        anchors.centerIn: parent
-                                        implicitSize: 42 * Appearance.effectiveScale
-                                        shapeString: "Sunny"
-                                        color: Appearance.colors.colSecondary
-                                        colSymbol: Appearance.colors.colOnSecondary
-                                        text: "sort_by_alpha"
-                                        iconSize: 20 * Appearance.effectiveScale
-                                        rotation: sortPopup.visible ? 45 : 0
-                                    }
-                                    StyledToolTip { text: I18nService.tr("Sort Options") }
-                                }
-                            }
-        
-                            // Random Wallpaper Button
-                            Item {
-                                id: randBtnContainer
-                                width: 44 * Appearance.effectiveScale
-                                height: 44 * Appearance.effectiveScale
-                                visible: !mainSelector.wallhavenMode && !mainSelector.naiveMode && !mainSelector.liveMode
-        
-                                RippleButton {
-                                    id: randBtn
-                                    anchors.fill: parent
-                                    buttonRadius: 22 * Appearance.effectiveScale
-                                    colBackground: "transparent"
-                                    onClicked: {
-                                        if (mainSelector.favMode) {
-                                            if (Wallpapers.selectRandomFavorite())
-                                                mainSelector.close();
-                                        } else if (Wallpapers.directory) {
-                                            var d = Wallpapers.directory.toString();
-                                            if (d.startsWith("file://")) d = d.substring(7);
-                                            randProc.command = ["bash", "-c", `find "${d}" -maxdepth 1 -type f \\( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.avif" \\) | shuf -n 1`];
-                                            randProc.running = true;
-                                        }
-                                    }
-        
-                                    Process {
-                                        id: randProc
-                                        command: ["true"]
-                                        running: false
-                                        stdout: StdioCollector { id: randOut }
-                                        onExited: {
-                                            var result = randOut.text.trim();
-                                            if (result) {
-                                                Wallpapers.select(result);
-                                                mainSelector.close();
-                                            }
-                                        }
-                                    }
-        
-                                    MaterialShapeWrappedMaterialSymbol {
-                                        anchors.centerIn: parent
-                                        implicitSize: 42 * Appearance.effectiveScale
-                                        shapeString: "Pentagon"
-                                        color: Appearance.colors.colTertiary
-                                        colSymbol: Appearance.colors.colOnTertiary
-                                        text: "shuffle"
-                                        iconSize: 20 * Appearance.effectiveScale
-                                    }
-                                    StyledToolTip { text: I18nService.tr("Random Wallpaper") }
-                                }
-                            }
-        
-                            // Global Wallpaper Engine Settings Button
-                            Item {
-                                id: weSettingsBtnContainer
-                                width: 44 * Appearance.effectiveScale
-                                height: 44 * Appearance.effectiveScale
-                                visible: mainSelector.liveMode
-        
-                                RippleButton {
-                                    id: weSettingsBtn
-                                    anchors.fill: parent
-                                    buttonRadius: 22 * Appearance.effectiveScale 
-                                    colBackground: "transparent"
-                                    onClicked: weSettingsPopup.visible = !weSettingsPopup.visible
-                                    
-                                    MaterialShapeWrappedMaterialSymbol {
-                                        anchors.centerIn: parent
-                                        implicitSize: 42 * Appearance.effectiveScale
-                                        shapeString: "Sunny"
-                                        color: Appearance.colors.colSecondary
-                                        colSymbol: Appearance.colors.colOnSecondary
-                                        text: "settings"
-                                        iconSize: 20 * Appearance.effectiveScale
-                                        rotation: weSettingsPopup.visible ? 45 : 0
-                                    }
-                                    StyledToolTip { text: I18nService.tr("Global Engine Settings") }
-                                }
-                            }
-                        }
                     }
 
-                    RippleButton {
+                    // Right action buttons outside the search pill
+                    Row {
                         Layout.alignment: Qt.AlignVCenter
-                        implicitWidth: 36 * Appearance.effectiveScale
-                        implicitHeight: 36 * Appearance.effectiveScale
-                        buttonRadius: 18 * Appearance.effectiveScale
-                        colBackground: "transparent"
-                        onClicked: mainSelector.close()
-                        MaterialSymbol { anchors.centerIn: parent; text: "close"; iconSize: 22 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
+                        spacing: 0 // M3 groups trailing icons tightly, padding is built into the 48x48 size
+
+                        // Sorting Button
+                        Item {
+                            id: sortBtnContainer
+                            width: 48 * Appearance.effectiveScale
+                            height: 48 * Appearance.effectiveScale
+                            visible: !mainSelector.wallhavenMode && !mainSelector.naiveMode && !mainSelector.liveMode
+    
+                            RippleButton {
+                                id: sortBtn
+                                anchors.fill: parent
+                                buttonRadius: 24 * Appearance.effectiveScale 
+                                colBackground: "transparent"
+                                onClicked: sortPopup.visible = !sortPopup.visible
+                                
+                                MaterialShapeWrappedMaterialSymbol {
+                                    anchors.centerIn: parent
+                                    implicitSize: 42 * Appearance.effectiveScale
+                                    shapeString: "Sunny"
+                                    color: Appearance.colors.colSecondary
+                                    colSymbol: Appearance.colors.colOnSecondary
+                                    text: "sort_by_alpha"
+                                    iconSize: 20 * Appearance.effectiveScale
+                                    rotation: sortPopup.visible ? 45 : 0
+                                }
+                                StyledToolTip { text: I18nService.tr("Sort Options") }
+                            }
+                        }
+    
+                        // Random Wallpaper Button
+                        Item {
+                            id: randBtnContainer
+                            width: 48 * Appearance.effectiveScale
+                            height: 48 * Appearance.effectiveScale
+                            visible: !mainSelector.wallhavenMode && !mainSelector.naiveMode && !mainSelector.liveMode
+    
+                            RippleButton {
+                                id: randBtn
+                                anchors.fill: parent
+                                buttonRadius: 24 * Appearance.effectiveScale
+                                colBackground: "transparent"
+                                onClicked: {
+                                    if (mainSelector.favMode) {
+                                        if (Wallpapers.selectRandomFavorite())
+                                            mainSelector.close();
+                                    } else if (Wallpapers.directory) {
+                                        var d = Wallpapers.directory.toString();
+                                        if (d.startsWith("file://")) d = d.substring(7);
+                                        randProc.command = ["bash", "-c", `find "${d}" -maxdepth 1 -type f \\( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.avif" \\) | shuf -n 1`];
+                                        randProc.running = true;
+                                    }
+                                }
+    
+                                Process {
+                                    id: randProc
+                                    command: ["true"]
+                                    running: false
+                                    stdout: StdioCollector { id: randOut }
+                                    onExited: {
+                                        var result = randOut.text.trim();
+                                        if (result) {
+                                            Wallpapers.select(result);
+                                            mainSelector.close();
+                                        }
+                                    }
+                                }
+    
+                                MaterialShapeWrappedMaterialSymbol {
+                                    anchors.centerIn: parent
+                                    implicitSize: 42 * Appearance.effectiveScale
+                                    shapeString: "Pentagon"
+                                    color: Appearance.colors.colTertiary
+                                    colSymbol: Appearance.colors.colOnTertiary
+                                    text: "shuffle"
+                                    iconSize: 20 * Appearance.effectiveScale
+                                }
+                                StyledToolTip { text: I18nService.tr("Random Wallpaper") }
+                            }
+                        }
+    
+                        // Global Wallpaper Engine Settings Button
+                        Item {
+                            id: weSettingsBtnContainer
+                            width: 48 * Appearance.effectiveScale
+                            height: 48 * Appearance.effectiveScale
+                            visible: mainSelector.liveMode
+    
+                            RippleButton {
+                                id: weSettingsBtn
+                                anchors.fill: parent
+                                buttonRadius: 24 * Appearance.effectiveScale 
+                                colBackground: "transparent"
+                                onClicked: weSettingsPopup.visible = !weSettingsPopup.visible
+                                
+                                MaterialShapeWrappedMaterialSymbol {
+                                    anchors.centerIn: parent
+                                    implicitSize: 42 * Appearance.effectiveScale
+                                    shapeString: "Sunny"
+                                    color: Appearance.colors.colSecondary
+                                    colSymbol: Appearance.colors.colOnSecondary
+                                    text: "settings"
+                                    iconSize: 20 * Appearance.effectiveScale
+                                    rotation: weSettingsPopup.visible ? 45 : 0
+                                }
+                                StyledToolTip { text: I18nService.tr("Global Engine Settings") }
+                            }
+                        }
+                        // Close Button
+                        RippleButton {
+                            Layout.alignment: Qt.AlignVCenter
+                            implicitWidth: 48 * Appearance.effectiveScale
+                            implicitHeight: 48 * Appearance.effectiveScale
+                            buttonRadius: 24 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            onClicked: mainSelector.close()
+                            MaterialSymbol { anchors.centerIn: parent; text: "close"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
+                        }
                     }
                 }
             }
@@ -566,7 +564,7 @@ Item {
                                         iconSize: 22 * Appearance.effectiveScale
                                         color: Appearance.m3colors.m3onPrimaryContainer
                                     }
-                                    StyledToolTip { text: "Target: " + GlobalStates.wallpaperSelectorTarget; extraVisibleCondition: parent.hovered }
+                                    StyledToolTip { text: I18nService.tr("Target: %1").replace("%1", GlobalStates.wallpaperSelectorTarget); extraVisibleCondition: parent.hovered }
                                 }
                             }
                         }

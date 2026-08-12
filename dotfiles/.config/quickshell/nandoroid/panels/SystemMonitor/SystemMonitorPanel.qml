@@ -80,44 +80,51 @@ Scope {
                 Item {
                     id: headerWrapper
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 52 * Appearance.effectiveScale // Reduced from 64
+                    Layout.preferredHeight: 64 * Appearance.effectiveScale
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 20 * Appearance.effectiveScale
-                        anchors.rightMargin: 12 * Appearance.effectiveScale
-                        spacing: 20 * Appearance.effectiveScale
+                        anchors.leftMargin: 16 * Appearance.effectiveScale
+                        anchors.rightMargin: 16 * Appearance.effectiveScale
+                        spacing: 8 * Appearance.effectiveScale
 
                         RippleButton {
                             Layout.alignment: Qt.AlignVCenter
-                            implicitWidth: 36 * Appearance.effectiveScale
-                            implicitHeight: 36 * Appearance.effectiveScale
-                            buttonRadius: 18 * Appearance.effectiveScale
+                            implicitWidth: 48 * Appearance.effectiveScale
+                            implicitHeight: 48 * Appearance.effectiveScale
+                            buttonRadius: 24 * Appearance.effectiveScale
                             colBackground: "transparent"
                             onClicked: root.sidebarExpanded = !root.sidebarExpanded
                             
                             MaterialSymbol {
                                 anchors.centerIn: parent
                                 text: root.sidebarExpanded ? "menu_open" : "menu"
-                                iconSize: 22 * Appearance.effectiveScale
+                                iconSize: 24 * Appearance.effectiveScale
                                 color: Appearance.colors.colOnLayer0
                             }
                         }
 
-                        Item { Layout.fillWidth: true } // Spacer
+                        StyledText {
+                            Layout.fillWidth: true
+                            text: I18nService.tr("System Monitor")
+                            font.pixelSize: Appearance.font.pixelSize.large
+                            font.weight: Font.Medium
+                            horizontalAlignment: Text.AlignHCenter
+                            color: Appearance.colors.colOnLayer0
+                        }
 
                         RippleButton {
                             Layout.alignment: Qt.AlignVCenter
-                            implicitWidth: 36 * Appearance.effectiveScale
-                            implicitHeight: 36 * Appearance.effectiveScale
-                            buttonRadius: 18 * Appearance.effectiveScale
+                            implicitWidth: 48 * Appearance.effectiveScale
+                            implicitHeight: 48 * Appearance.effectiveScale
+                            buttonRadius: 24 * Appearance.effectiveScale
                             colBackground: "transparent"
                             onClicked: GlobalStates.systemMonitorOpen = false
                             
                             MaterialSymbol {
                                 anchors.centerIn: parent
                                 text: "close"
-                                iconSize: 22 * Appearance.effectiveScale
+                                iconSize: 24 * Appearance.effectiveScale
                                 color: Appearance.colors.colSubtext
                             }
                         }

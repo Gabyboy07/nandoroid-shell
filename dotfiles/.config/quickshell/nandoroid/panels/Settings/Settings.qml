@@ -124,24 +124,22 @@ Scope {
                 anchors.margins: 12 * Appearance.effectiveScale
                 spacing: 12 * Appearance.effectiveScale
 
-                // ── Global Header ──
+                // ── Header ──
                 Item {
-                    id: headerWrapper
+                    id: headerItem
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 72 * Appearance.effectiveScale
+                    Layout.preferredHeight: 64 * Appearance.effectiveScale
 
                     RowLayout {
                         anchors.fill: parent
-                        // Avatar has no padding, visual gap is 20
-                        anchors.leftMargin: 20 * Appearance.effectiveScale
-                        // Close button has ~7px internal padding, so 13 + 7 = 20 visual gap
-                        anchors.rightMargin: 13 * Appearance.effectiveScale
-                        spacing: 24 * Appearance.effectiveScale
+                        anchors.leftMargin: 16 * Appearance.effectiveScale
+                        anchors.rightMargin: 16 * Appearance.effectiveScale
+                        spacing: 8 * Appearance.effectiveScale
 
                         Item {
                             Layout.alignment: Qt.AlignVCenter
-                            implicitWidth: 36 * Appearance.effectiveScale
-                            implicitHeight: 36 * Appearance.effectiveScale
+                            implicitWidth: 48 * Appearance.effectiveScale
+                            implicitHeight: 48 * Appearance.effectiveScale
 
                             Image {
                                 id: headerAvatar
@@ -177,7 +175,7 @@ Scope {
                                 anchors.centerIn: parent
                                 visible: headerAvatar.status !== Image.Ready
                                 text: "person"
-                                iconSize: 22 * Appearance.effectiveScale
+                                iconSize: 24 * Appearance.effectiveScale
                                 color: Appearance.colors.colSubtext
                             }
                         }
@@ -187,7 +185,7 @@ Scope {
                             Layout.fillWidth: true
                             Layout.preferredHeight: 56 * Appearance.effectiveScale
                             Layout.alignment: Qt.AlignVCenter
-                            radius: 28 * Appearance.effectiveScale
+                            radius: height / 2
                             color: Appearance.colors.colLayer1 // Using colLayer1 for search as it sits on colLayer0
                             
                             RowLayout {
@@ -252,16 +250,16 @@ Scope {
 
                         RippleButton {
                             Layout.alignment: Qt.AlignVCenter
-                            implicitWidth: 36 * Appearance.effectiveScale
-                            implicitHeight: 36 * Appearance.effectiveScale
-                            buttonRadius: 18 * Appearance.effectiveScale
+                            implicitWidth: 48 * Appearance.effectiveScale
+                            implicitHeight: 48 * Appearance.effectiveScale
+                            buttonRadius: 24 * Appearance.effectiveScale
                             colBackground: "transparent"
                             onClicked: GlobalStates.settingsOpen = false
                             
                             MaterialSymbol {
                                 anchors.centerIn: parent
                                 text: "close"
-                                iconSize: 22 * Appearance.effectiveScale
+                                iconSize: 24 * Appearance.effectiveScale
                                 color: Appearance.colors.colSubtext
                             }
                         }
