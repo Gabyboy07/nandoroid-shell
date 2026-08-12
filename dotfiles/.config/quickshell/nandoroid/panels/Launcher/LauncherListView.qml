@@ -118,14 +118,7 @@ RippleButton {
             }
         }
 
-        StyledText {
-            Layout.alignment: Qt.AlignVCenter
-            text: (result && result.category) ? I18nService.tr(result.category) : (result && result.isPlugin ? I18nService.tr("Command") : I18nService.tr("Application"))
-            visible: !(result && result.isImage)
-            font.pixelSize: Math.round(11 * Appearance.effectiveScale)
-            color: root.selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurfaceVariant
-            opacity: 0.5
-        }
+
 
         MaterialSymbol {
             Layout.alignment: Qt.AlignVCenter
