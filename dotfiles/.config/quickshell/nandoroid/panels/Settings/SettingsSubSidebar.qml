@@ -101,6 +101,7 @@ Rectangle {
                 
                 onClicked: {
                     // Trigger the search handler to scroll to it
+                    SearchRegistry.currentSearch = "";
                     SearchRegistry.currentSearch = modelData.matchedString;
                 }
 
