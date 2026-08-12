@@ -1400,38 +1400,30 @@ Item {
                     color: Appearance.colors.colSubtext
                 }
 
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 6 * Appearance.effectiveScale
+                Row {
+                    spacing: 2 * Appearance.effectiveScale
 
                     Repeater {
                         model: ["once", "daily", "weekly", "monthly"]
 
-                        delegate: RippleButton {
+                        delegate: SegmentedButton {
                             required property string modelData
                             readonly property bool _hidden: root._multiDayDiff > 0 && modelData !== "once"
 
-                            Layout.fillWidth: true
-                            opacity: _hidden ? 0 : 1
-                            enabled: !_hidden
+                            visible: !_hidden
                             implicitHeight: 32 * Appearance.effectiveScale
-                            buttonRadius: 16 * Appearance.effectiveScale
-                            colBackground: root.formRecurrence === modelData ? Appearance.colors.colPrimary : Appearance.m3colors.m3surfaceContainer
-                            colBackgroundHover: root.formRecurrence === modelData ? Appearance.colors.colPrimary : Appearance.colors.colLayer2
+                            checked: root.formRecurrence === modelData
+                            buttonText: root._recurrenceLabel(modelData)
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            leftPadding: 16 * Appearance.effectiveScale
+                            rightPadding: 16 * Appearance.effectiveScale
+
                             onClicked: {
                                 root.formRecurrence = modelData;
                                 if (root._editingId)
                                     autoSaveTimer.restart();
 
                             }
-
-                            StyledText {
-                                anchors.centerIn: parent
-                                text: root._recurrenceLabel(modelData)
-                                font.pixelSize: Appearance.font.pixelSize.small
-                                color: root.formRecurrence === modelData ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer1
-                            }
-
                         }
 
                     }
