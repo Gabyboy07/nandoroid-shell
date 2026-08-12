@@ -39,14 +39,15 @@ StyledNavigationRail {
     
     topComponent: Component {
         Item {
-            implicitHeight: 56 * Appearance.effectiveScale
+            // Give extra height below the FAB to increase the gap to the rail items.
+            // FAB is 56px. Adding 24px extra space + 16px from layout spacing = 40px total gap.
+            implicitHeight: (56 + 24) * Appearance.effectiveScale
             implicitWidth: 56 * Appearance.effectiveScale
             Layout.alignment: Qt.AlignHCenter
-            Layout.topMargin: 0
-            Layout.bottomMargin: 8 * Appearance.effectiveScale
 
             RippleButton {
-                anchors.centerIn: parent
+                anchors.top: parent.top
+                anchors.horizontalCenter: parent.horizontalCenter
                 implicitWidth: 56 * Appearance.effectiveScale
                 implicitHeight: 56 * Appearance.effectiveScale
                 buttonRadius: 16 * Appearance.effectiveScale // Squircle / FAB shape
