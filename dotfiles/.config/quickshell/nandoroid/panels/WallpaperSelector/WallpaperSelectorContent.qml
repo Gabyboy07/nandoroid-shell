@@ -238,19 +238,54 @@ Item {
                     anchors.rightMargin: 16 * Appearance.effectiveScale
                     spacing: 8 * Appearance.effectiveScale
 
-                    RippleButton {
+                    // Left actions grouped tightly to match right side
+                    Row {
                         Layout.alignment: Qt.AlignVCenter
-                        implicitWidth: 48 * Appearance.effectiveScale
-                        implicitHeight: 48 * Appearance.effectiveScale
-                        buttonRadius: 24 * Appearance.effectiveScale
-                        colBackground: "transparent"
-                        onClicked: sidebar.expanded = !sidebar.expanded
-                        
-                        MaterialSymbol {
-                            anchors.centerIn: parent
-                            text: sidebar.expanded ? "menu_open" : "menu"
-                            iconSize: 24 * Appearance.effectiveScale
-                            color: Appearance.colors.colOnLayer0
+                        spacing: 0
+                        RippleButton {
+                            width: 48 * Appearance.effectiveScale
+                            height: 48 * Appearance.effectiveScale
+                            buttonRadius: 24 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            onClicked: sidebar.expanded = !sidebar.expanded
+                            
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: sidebar.expanded ? "menu_open" : "menu"
+                                iconSize: 24 * Appearance.effectiveScale
+                                color: Appearance.colors.colOnLayer0
+                            }
+                        }
+
+                        // Target Selector (Header)
+                        RippleButton {
+                            id: targetSelectorBtn
+                            height: 48 * Appearance.effectiveScale
+                            width: targetRow.implicitWidth + 24 * Appearance.effectiveScale
+                            buttonRadius: 24 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            onClicked: targetPopup.visible = !targetPopup.visible
+                            
+                            RowLayout {
+                                id: targetRow
+                                anchors.centerIn: parent
+                                spacing: 8 * Appearance.effectiveScale
+                                
+                                StyledText {
+                                    text: GlobalStates.wallpaperSelectorTarget === "desktop" ? "Desktop" : "Lockscreen"
+                                    font.pixelSize: Appearance.font.pixelSize.large
+                                    font.weight: Font.Medium
+                                    color: Appearance.colors.colOnLayer0
+                                }
+                                
+                                MaterialSymbol {
+                                    text: "expand_more"
+                                    iconSize: 20 * Appearance.effectiveScale
+                                    color: Appearance.colors.colOnLayer0
+                                    rotation: targetPopup.visible ? 180 : 0
+                                    Behavior on rotation { NumberAnimation { duration: 200 } }
+                                }
+                            }
                         }
                     }
 
@@ -515,57 +550,6 @@ Item {
                                 current.splice(idx, 1);
                                 Config.options.appearance.background.customFolders = current;
                                 mainSelector.refreshCustomFolders();
-                            }
-                        }
-                    }
-                    
-                    bottomComponent: Component {
-                        Item {
-                            // Give extra height above the FAB when compact to increase the gap to the rail items.
-                            // FAB is 56px. Adding 24px extra space + 16px from layout spacing = 40px total gap.
-                            implicitHeight: sidebar.expanded ? 48 * Appearance.effectiveScale : 80 * Appearance.effectiveScale
-                            implicitWidth: sidebar.width
-                            
-                            Row {
-                                anchors.bottom: parent.bottom
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                width: parent.width - 24 * Appearance.effectiveScale
-                                height: sidebar.expanded ? 48 * Appearance.effectiveScale : 56 * Appearance.effectiveScale
-                                spacing: 4 * Appearance.effectiveScale
-                                
-                                SegmentedButton {
-                                    width: (parent.width - (4 * Appearance.effectiveScale)) / 2; height: parent.height
-                                    buttonText: "Desktop"; isHighlighted: GlobalStates.wallpaperSelectorTarget === "desktop"
-                                    colInactive: Appearance.colors.colLayer2; colActive: Appearance.m3colors.m3primary
-                                    onClicked: GlobalStates.wallpaperSelectorTarget = "desktop"
-                                    visible: sidebar.expanded
-                                }
-                                SegmentedButton {
-                                    width: (parent.width - (4 * Appearance.effectiveScale)) / 2; height: parent.height
-                                    buttonText: "Lock"; isHighlighted: GlobalStates.wallpaperSelectorTarget === "lock"
-                                    colInactive: Appearance.colors.colLayer2; colActive: Appearance.m3colors.m3primary
-                                    onClicked: GlobalStates.wallpaperSelectorTarget = "lock"
-                                    visible: sidebar.expanded
-                                }
-                                
-                                RippleButton {
-                                    visible: !sidebar.expanded
-                                    width: 56 * Appearance.effectiveScale
-                                    height: 56 * Appearance.effectiveScale
-                                    buttonRadius: 16 * Appearance.effectiveScale
-                                    colBackground: Appearance.m3colors.m3primaryContainer
-                                    colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.9)
-                                    colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
-                                    onClicked: GlobalStates.wallpaperSelectorTarget = GlobalStates.wallpaperSelectorTarget === "desktop" ? "lock" : "desktop"
-                                    
-                                    MaterialSymbol {
-                                        anchors.centerIn: parent
-                                        text: GlobalStates.wallpaperSelectorTarget === "desktop" ? "desktop_windows" : "lock"
-                                        iconSize: 22 * Appearance.effectiveScale
-                                        color: Appearance.m3colors.m3onPrimaryContainer
-                                    }
-                                    StyledToolTip { text: I18nService.tr("Target: %1").replace("%1", GlobalStates.wallpaperSelectorTarget); extraVisibleCondition: parent.hovered }
-                                }
                             }
                         }
                     }
@@ -1158,6 +1142,86 @@ Item {
                             color: Appearance.colors.colSubtext
                             font.pixelSize: Appearance.font.pixelSize.small
                             Layout.alignment: Qt.AlignHCenter
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- Target Selector Popup ---
+        MouseArea {
+            anchors.fill: parent
+            visible: targetPopup.visible
+            z: 99
+            onPressed: targetPopup.visible = false
+        }
+
+        StyledRectangularShadow {
+            target: targetPopup
+            radius: targetPopup.radius
+            visible: targetPopup.visible
+            z: 99
+        }
+
+        Rectangle {
+            id: targetPopup
+            visible: false
+            z: 100
+            width: 180 * Appearance.effectiveScale
+            height: targetCol.implicitHeight + (16 * Appearance.effectiveScale)
+            
+            x: {
+                let _ = visible;
+                let _w = bgContainer.width;
+                let p = targetSelectorBtn.mapToItem(bgContainer, 0, 0);
+                return p.x;
+            }
+            y: {
+                let _ = visible;
+                let _h = bgContainer.height;
+                let p = targetSelectorBtn.mapToItem(bgContainer, 0, 0);
+                return p.y + targetSelectorBtn.height + (8 * Appearance.effectiveScale);
+            }
+
+            color: Appearance.m3colors.m3surfaceContainerHigh
+            radius: 12 * Appearance.effectiveScale
+            
+            ColumnLayout {
+                id: targetCol
+                anchors.fill: parent
+                anchors.margins: 8 * Appearance.effectiveScale
+                spacing: 4 * Appearance.effectiveScale
+                
+                Repeater {
+                    model: [
+                        { id: "desktop", name: "Desktop", icon: "desktop_windows" },
+                        { id: "lock", name: "Lockscreen", icon: "lock" }
+                    ]
+                    delegate: RippleButton {
+                        Layout.fillWidth: true
+                        implicitHeight: 36 * Appearance.effectiveScale
+                        buttonRadius: 8 * Appearance.effectiveScale
+                        toggled: GlobalStates.wallpaperSelectorTarget === modelData.id
+                        colBackground: "transparent"
+                        colBackgroundToggled: Appearance.m3colors.m3primaryContainer
+                        
+                        onClicked: {
+                            GlobalStates.wallpaperSelectorTarget = modelData.id;
+                            targetPopup.visible = false;
+                        }
+                        
+                        RowLayout {
+                            anchors.fill: parent; anchors.leftMargin: 12 * Appearance.effectiveScale; spacing: 12 * Appearance.effectiveScale
+                            MaterialSymbol { 
+                                text: modelData.icon; iconSize: 18 * Appearance.effectiveScale
+                                color: parent.parent.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
+                            }
+                            StyledText { 
+                                text: modelData.name; Layout.fillWidth: true; 
+                                font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                                font.weight: parent.parent.toggled ? Font.DemiBold : Font.Normal
+                                color: parent.parent.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
+                            }
                         }
                     }
                 }
