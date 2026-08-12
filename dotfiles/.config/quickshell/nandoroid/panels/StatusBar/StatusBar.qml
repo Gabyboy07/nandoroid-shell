@@ -28,6 +28,11 @@ Scope {
             screen: modelData
             exclusionMode: ExclusionMode.Ignore
 
+            // Hide entirely while locked: the lock screen has its own status bar,
+            // and a transparent live-wallpaper backdrop would otherwise let this
+            // bar show through during an overlay-layered session lock.
+            visible: !GlobalStates.screenLocked
+
             Component.onCompleted: GlobalFocusGrab.addPersistent(barWindow)
             Component.onDestruction: GlobalFocusGrab.removePersistent(barWindow)
             
