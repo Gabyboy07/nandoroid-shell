@@ -285,13 +285,16 @@ Scope {
 
                     Item {
                         id: subSidebarWrapper
+                        
+                        readonly property bool shouldShow: subSidebar.hasSections && settingsWindow.width >= 850 * Appearance.effectiveScale
+
                         Layout.fillHeight: true
-                        implicitWidth: subSidebar.hasSections ? (1 + 12 + 160 + 12) * Appearance.effectiveScale : 0
+                        implicitWidth: shouldShow ? (1 + 12 + 160 + 12) * Appearance.effectiveScale : 0
                         clip: true
 
                         Behavior on implicitWidth {
                             SequentialAnimation {
-                                PauseAnimation { duration: subSidebar.hasSections ? 150 : 0 }
+                                PauseAnimation { duration: subSidebarWrapper.shouldShow ? 150 : 0 }
                                 NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
                             }
                         }
@@ -305,7 +308,7 @@ Scope {
                             anchors.bottomMargin: 16 * Appearance.effectiveScale
                             width: 1 * Appearance.effectiveScale
                             color: Appearance.m3colors.m3outlineVariant
-                            opacity: subSidebar.opacity
+                            opacity: subSidebarWrapper.shouldShow ? 1 : 0
                             
                             Behavior on opacity {
                                 NumberAnimation { duration: 150 }
