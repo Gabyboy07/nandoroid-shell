@@ -305,23 +305,12 @@ MouseArea {
                         fill: 1
                         color: lockStatusBarContainer.contentColor
                     }
-                    Rectangle {
+                    StyledBadge {
                         anchors.top: parent.top
-                        anchors.right: parent.right
-                        anchors.topMargin: -2 * Appearance.effectiveScale
-                        anchors.rightMargin: -2 * Appearance.effectiveScale
-                        width: Math.max(12 * Appearance.effectiveScale, badgeTextLeft.implicitWidth + 4 * Appearance.effectiveScale)
-                        height: 12 * Appearance.effectiveScale
-                        radius: 6 * Appearance.effectiveScale
-                        color: lockBellIconLeft.color
-                        StyledText {
-                            id: badgeTextLeft
-                            anchors.centerIn: parent
-                            text: Notifications.unread > 99 ? "99+" : Notifications.unread.toString()
-                            font.pixelSize: Math.round(8 * Appearance.effectiveScale)
-                            font.weight: Font.DemiBold
-                            color: Functions.ColorUtils.getContrastingTextColor(lockBellIconLeft.color)
-                        }
+                        anchors.left: parent.right
+                        anchors.topMargin: -4 * Appearance.effectiveScale
+                        anchors.leftMargin: -12 * Appearance.effectiveScale
+                        count: Notifications.unread
                     }
                 }
 
@@ -401,23 +390,12 @@ MouseArea {
                         fill: 1
                         color: lockStatusBarContainer.contentColor
                     }
-                    Rectangle {
+                    StyledBadge {
                         anchors.top: parent.top
-                        anchors.right: parent.right
-                        anchors.topMargin: -2 * Appearance.effectiveScale
-                        anchors.rightMargin: -2 * Appearance.effectiveScale
-                        width: Math.max(12 * Appearance.effectiveScale, badgeText.implicitWidth + 4 * Appearance.effectiveScale)
-                        height: 12 * Appearance.effectiveScale
-                        radius: 6 * Appearance.effectiveScale
-                        color: lockBellIcon.color
-                        StyledText {
-                            id: badgeText
-                            anchors.centerIn: parent
-                            text: Notifications.unread > 99 ? "99+" : Notifications.unread.toString()
-                            font.pixelSize: Math.round(8 * Appearance.effectiveScale)
-                            font.weight: Font.DemiBold
-                            color: Functions.ColorUtils.getContrastingTextColor(lockBellIcon.color)
-                        }
+                        anchors.left: parent.right
+                        anchors.topMargin: -4 * Appearance.effectiveScale
+                        anchors.leftMargin: -12 * Appearance.effectiveScale
+                        count: Notifications.unread
                     }
                 }
 
@@ -517,25 +495,12 @@ MouseArea {
                                 color: lockM3NotifLeftWrapper.contentColor
                             }
 
-                            Rectangle {
-                                visible: Notifications.unread > 0
+                            StyledBadge {
                                 anchors.top: parent.top
-                                anchors.right: parent.right
-                                anchors.topMargin: -2 * Appearance.effectiveScale
-                                anchors.rightMargin: -2 * Appearance.effectiveScale
-                                width: Math.max(12 * Appearance.effectiveScale, lockM3BadgeTextLeft.implicitWidth + 4 * Appearance.effectiveScale)
-                                height: 12 * Appearance.effectiveScale
-                                radius: 6 * Appearance.effectiveScale
-                                color: lockM3NotifLeftWrapper.contentColor
-
-                                StyledText {
-                                    id: lockM3BadgeTextLeft
-                                    anchors.centerIn: parent
-                                    text: Notifications.unread > 99 ? "99+" : Notifications.unread.toString()
-                                    font.pixelSize: Math.round(8 * Appearance.effectiveScale)
-                                    font.weight: Font.DemiBold
-                                    color: lockM3NotifLeftWrapper.m3Color
-                                }
+                                anchors.left: parent.right
+                                anchors.topMargin: -4 * Appearance.effectiveScale
+                                anchors.leftMargin: -12 * Appearance.effectiveScale
+                                count: Notifications.unread
                             }
                         }
                     }
@@ -709,24 +674,12 @@ MouseArea {
                                 color: lockM3SystemWrapper.contentColor
                             }
 
-                            Rectangle {
+                            StyledBadge {
                                 anchors.top: parent.top
-                                anchors.right: parent.right
-                                anchors.topMargin: -2 * Appearance.effectiveScale
-                                anchors.rightMargin: -2 * Appearance.effectiveScale
-                                width: Math.max(12 * Appearance.effectiveScale, lockM3BadgeText.implicitWidth + 4 * Appearance.effectiveScale)
-                                height: 12 * Appearance.effectiveScale
-                                radius: 6 * Appearance.effectiveScale
-                                color: lockM3SystemWrapper.contentColor
-
-                                StyledText {
-                                    id: lockM3BadgeText
-                                    anchors.centerIn: parent
-                                    text: Notifications.unread > 99 ? "99+" : Notifications.unread.toString()
-                                    font.pixelSize: Math.round(8 * Appearance.effectiveScale)
-                                    font.weight: Font.DemiBold
-                                    color: lockM3SystemWrapper.m3Color
-                                }
+                                anchors.left: parent.right
+                                anchors.topMargin: -4 * Appearance.effectiveScale
+                                anchors.leftMargin: -12 * Appearance.effectiveScale
+                                count: Notifications.unread
                             }
                         }
 

@@ -96,15 +96,13 @@ DockButton {
                 visible: Config.ready && Config.options.dock.monochromeIcons
             }
 
-            Rectangle {
+            StyledBadge {
                 id: badge
-                anchors { top: parent.top; right: parent.right; topMargin: -4 * Appearance.effectiveScale; rightMargin: -4 * Appearance.effectiveScale }
-                width: 16 * Appearance.effectiveScale; height: 16 * Appearance.effectiveScale; radius: 8 * Appearance.effectiveScale
-                color: Appearance.colors.colError
+                anchors { top: parent.top; left: parent.right; topMargin: -4 * Appearance.effectiveScale; leftMargin: -12 * Appearance.effectiveScale }
                 visible: appToplevel && notifCount > 0
                 z: 10
                 readonly property int notifCount: appToplevel ? Notifications.getCountForApp(appToplevel.appId) : 0
-                StyledText { anchors.centerIn: parent; text: parent.notifCount > 9 ? "!" : parent.notifCount; font.pixelSize: Math.round(10 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: "white" }
+                count: notifCount
                 scale: visible ? 1 : 0
                 Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
             }

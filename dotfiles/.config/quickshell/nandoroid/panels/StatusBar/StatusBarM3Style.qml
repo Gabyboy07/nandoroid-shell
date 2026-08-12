@@ -192,25 +192,13 @@ Item {
                     color: leftDistroWrapper.contentColor
                 }
 
-                Rectangle {
-                    visible: (Config.ready && Config.options.notifications) ? Config.options.notifications.counterStyle === "counter" : false
+                StyledBadge {
+                    visible: Notifications.unread > 0 && ((Config.ready && Config.options.notifications) ? Config.options.notifications.counterStyle === "counter" : false)
                     anchors.top: parent.top
-                    anchors.right: parent.right
-                    anchors.topMargin: -2 * Appearance.effectiveScale
-                    anchors.rightMargin: -2 * Appearance.effectiveScale
-                    width: Math.max(12 * Appearance.effectiveScale, badgeText.implicitWidth + 4 * Appearance.effectiveScale)
-                    height: 12 * Appearance.effectiveScale
-                    radius: 6 * Appearance.effectiveScale
-                    color: leftDistroWrapper.contentColor
-
-                    StyledText {
-                        id: badgeText
-                        anchors.centerIn: parent
-                        text: Notifications.unread > 99 ? "99+" : Notifications.unread.toString()
-                        font.pixelSize: Math.round(8 * Appearance.effectiveScale)
-                        font.weight: Font.DemiBold
-                        color: leftDistroWrapper.m3Color
-                    }
+                    anchors.left: parent.right
+                    anchors.topMargin: -4 * Appearance.effectiveScale
+                    anchors.leftMargin: -12 * Appearance.effectiveScale
+                    count: Notifications.unread
                 }
             }
         }
@@ -266,25 +254,13 @@ Item {
                 color: rightQuickSettingsWrapper.m3ContentColor
             }
 
-            Rectangle {
-                visible: (Config.ready && Config.options.notifications ? Config.options.notifications.counterStyle : "counter") === "counter"
+            StyledBadge {
+                visible: Notifications.unread > 0 && ((Config.ready && Config.options.notifications ? Config.options.notifications.counterStyle : "counter") === "counter")
                 anchors.top: parent.top
-                anchors.right: parent.right
-                anchors.topMargin: -2 * Appearance.effectiveScale
-                anchors.rightMargin: -2 * Appearance.effectiveScale
-                width: Math.max(12 * Appearance.effectiveScale, badgeTextRight.implicitWidth + 4 * Appearance.effectiveScale)
-                height: 12 * Appearance.effectiveScale
-                radius: 6 * Appearance.effectiveScale
-                color: rightQuickSettingsWrapper.m3ContentColor
-
-                StyledText {
-                    id: badgeTextRight
-                    anchors.centerIn: parent
-                    text: Notifications.unread > 99 ? "99+" : Notifications.unread.toString()
-                    font.pixelSize: Math.round(8 * Appearance.effectiveScale)
-                    font.weight: Font.DemiBold
-                    color: rightQuickSettingsWrapper.m3Color
-                }
+                anchors.left: parent.right
+                anchors.topMargin: -4 * Appearance.effectiveScale
+                anchors.leftMargin: -12 * Appearance.effectiveScale
+                count: Notifications.unread
             }
         }
 
