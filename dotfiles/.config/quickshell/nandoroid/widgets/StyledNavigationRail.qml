@@ -14,6 +14,7 @@ Rectangle {
     property var model: []
     property int currentIndex: 0
     signal itemClicked(int index)
+    signal rightActionClicked(int index)
     
     // Layout and modes
     property bool expandable: true
@@ -60,6 +61,7 @@ Rectangle {
         Loader {
             Layout.fillWidth: true
             active: root.topComponent !== null
+            visible: active
             sourceComponent: root.topComponent
         }
         
@@ -90,15 +92,25 @@ Rectangle {
                         delegate: MouseArea {
                             id: navBtn
                             visible: modelData.visible !== false
+                            
+                            readonly property bool isItemEnabled: modelData.enabled !== false
+                            opacity: isItemEnabled ? 1.0 : 0.4
+                            
                             Layout.fillWidth: true
                             implicitHeight: root.expanded ? 56 * Appearance.effectiveScale : 64 * Appearance.effectiveScale
                             hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
+                            cursorShape: isItemEnabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                             
                             // Emit either stackIndex if available, or just index
                             onClicked: {
+                                if (!isItemEnabled) return;
                                 let targetIndex = (modelData.stackIndex !== undefined) ? modelData.stackIndex : index;
                                 root.itemClicked(targetIndex);
+                            }
+                            
+                            StyledToolTip {
+                                text: modelData.tooltip || modelData.name
+                                alternativeVisibleCondition: navBtn.containsMouse && (!root.expanded || (modelData.tooltip !== undefined && modelData.tooltip !== ""))
                             }
                             
                             readonly property bool isActive: root.currentIndex === ((modelData.stackIndex !== undefined) ? modelData.stackIndex : index)
@@ -137,7 +149,7 @@ Rectangle {
                                 height: root.expanded ? 56 * Appearance.effectiveScale : 32 * Appearance.effectiveScale
                                 radius: 100 // Pill shape
                                 
-                                color: isActive ? Appearance.m3colors.m3secondaryContainer : (navBtn.containsMouse ? Appearance.colors.colLayer0Hover : "transparent")
+                                color: isActive ? Appearance.m3colors.m3secondaryContainer : ((navBtn.containsMouse && isItemEnabled) ? Appearance.colors.colLayer0Hover : "transparent")
                                 
                                 Behavior on color { ColorAnimation { duration: 150 } }
                                 Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
@@ -176,6 +188,31 @@ Rectangle {
                                 Behavior on color { ColorAnimation { duration: 150 } }
                                 Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                                 Behavior on y { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                            }
+                            
+                            RippleButton {
+                                visible: root.expanded && modelData.rightActionIcon !== undefined
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.right: parent.right
+                                anchors.rightMargin: 12 * Appearance.effectiveScale
+                                implicitWidth: 32 * Appearance.effectiveScale
+                                implicitHeight: 32 * Appearance.effectiveScale
+                                buttonRadius: 16 * Appearance.effectiveScale
+                                colBackground: "transparent"
+                                colBackgroundHover: Appearance.colors.colLayer1Hover
+                                colRipple: Appearance.colors.colLayer2
+                                
+                                onClicked: {
+                                    let targetIndex = (modelData.stackIndex !== undefined) ? modelData.stackIndex : index;
+                                    root.rightActionClicked(targetIndex);
+                                }
+                                
+                                MaterialSymbol {
+                                    anchors.centerIn: parent
+                                    text: modelData.rightActionIcon || ""
+                                    iconSize: 20 * Appearance.effectiveScale
+                                    color: Appearance.m3colors.m3onSurfaceVariant
+                                }
                             }
                         }
                     }
@@ -221,6 +258,7 @@ Rectangle {
         Loader {
             Layout.fillWidth: true
             active: root.bottomComponent !== null
+            visible: active
             sourceComponent: root.bottomComponent
         }
     }
