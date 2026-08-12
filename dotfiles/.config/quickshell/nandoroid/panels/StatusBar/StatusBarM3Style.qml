@@ -451,7 +451,7 @@ Item {
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: parent.width * 0.35
+        width: parent.width / 3
         cursorShape: Qt.PointingHandCursor
         preventStealing: true
         propagateComposedEvents: true
@@ -479,7 +479,7 @@ Item {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: parent.width * 0.35
+        width: parent.width / 3
         cursorShape: Qt.PointingHandCursor
         preventStealing: true
         propagateComposedEvents: true
@@ -507,7 +507,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: parent.width * 0.30
+        width: parent.width / 3
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: {

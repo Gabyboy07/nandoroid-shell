@@ -337,12 +337,12 @@ Item {
     }
 
 
-    // Left 35% of the screen clicks open Notifications
+    // Left 1/3 of the screen clicks open Notifications
     FocusedScrollMouseArea {
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: parent.width * 0.35
+        width: parent.width / 3
         cursorShape: Qt.PointingHandCursor
         preventStealing: true
         propagateComposedEvents: true
@@ -367,12 +367,12 @@ Item {
         }
     }
 
-    // Right 35% of the screen clicks open Quick Settings
+    // Right 1/3 of the screen clicks open Quick Settings
     FocusedScrollMouseArea {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: parent.width * 0.35
+        width: parent.width / 3
         cursorShape: Qt.PointingHandCursor
         preventStealing: true
         propagateComposedEvents: true
@@ -397,12 +397,12 @@ Item {
         }
     }
 
-    // Middle 30% of the screen clicks open Dashboard
+    // Middle 1/3 of the screen clicks open Dashboard
     MouseArea {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: parent.width * 0.30
+        width: parent.width / 3
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: {
