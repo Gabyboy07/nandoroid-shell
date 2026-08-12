@@ -74,7 +74,7 @@ Item {
             { file: "panels/Settings/pages/Services/ServicesNetwork.qml", pageIndex: 7 },
             { file: "panels/Settings/pages/Services/ServicesMedia.qml", pageIndex: 7 },
             { file: "panels/Settings/pages/Services/ServicesLyrics.qml", pageIndex: 7 },
-            { file: "panels/Settings/pages/Services/ServicesGitHub.qml", pageIndex: 7 },
+            // { file: "panels/Settings/pages/Services/ServicesGitHub.qml", pageIndex: 7 },
             // Profile Page components (pageIndex: 8)
             { file: "panels/Settings/pages/Profile/ProfileSettings.qml", pageIndex: 8 },
             { file: "panels/Settings/pages/Profile/PrAvatar.qml", pageIndex: 8 },

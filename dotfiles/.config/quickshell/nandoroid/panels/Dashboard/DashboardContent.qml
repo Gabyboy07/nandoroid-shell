@@ -13,7 +13,8 @@ import Qt5Compat.GraphicalEffects
  *   0: Calendar + Pomodoro (horizontal)
  *   1: Schedule / Calendar Maker
  *   2: Notepad
- *   3: GitHub Profile Tracker
+ *   3: Todo / Kanban
+ *   4: Translator
  */
 Item {
     id: root
@@ -35,7 +36,7 @@ Item {
         Qt.callLater(() => { tabHighlight.idx2 = currentTab })
         GlobalStates.closeSubPopups()
     }
-    readonly property int tabCount: 6
+    readonly property int tabCount: 5
     readonly property int tabButtonSize: 44 * Appearance.effectiveScale
     readonly property int tabStripWidth: tabButtonSize + 16 * Appearance.effectiveScale // button + side padding
 
@@ -336,8 +337,7 @@ Item {
                             { icon: "event_note",       tooltip: I18nService.tr("Schedule") },
                             { icon: "edit_note",        tooltip: I18nService.tr("Notepad") },
                             { icon: "view_kanban",      tooltip: I18nService.tr("Kanban Board") },
-                            { icon: "translate",        tooltip: I18nService.tr("Translator") },
-                            { icon: "code",             tooltip: I18nService.tr("GitHub") }
+                            { icon: "translate",        tooltip: I18nService.tr("Translator") }
                         ]
                         delegate: Item {
                             required property int index
@@ -469,18 +469,6 @@ Item {
                     sourceComponent: DashTranslation { width: contentArea.width; height: contentArea.height }
                 }
 
-                // Tab 5: GitHub  (fetches data when selected because Loader recreates it)
-                Loader {
-                    anchors.fill: parent
-                    active: true
-                    visible: root.currentTab === 5
-                    opacity: visible ? 1 : 0
-                    transform: Translate { y: root.currentTab === 5 ? 0 : (root.currentTab > 5 ? -12 * Appearance.effectiveScale : 12 * Appearance.effectiveScale)
-                        Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutQuart } }
-                    }
-                    Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.OutQuart } }
-                    sourceComponent: DashGitHub { width: contentArea.width; height: contentArea.height }
-                }
             } // End contentArea
                 } // End mainLayout
             } // End panelBg

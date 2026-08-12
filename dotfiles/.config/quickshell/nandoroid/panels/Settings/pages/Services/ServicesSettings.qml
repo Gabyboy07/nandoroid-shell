@@ -66,6 +66,6 @@ Flickable {
         ServicesLyrics { Layout.fillWidth: true }
 
         // ── GitHub Section ──
-        ServicesGitHub { Layout.fillWidth: true }
+        // ServicesGitHub { Layout.fillWidth: true }
     }
 }
