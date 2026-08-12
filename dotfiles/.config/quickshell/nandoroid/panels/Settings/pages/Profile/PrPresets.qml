@@ -308,6 +308,8 @@ ColumnLayout {
         folder: "file://" + Directories.presetsPath
         showDirs: false
         nameFilters: ["*.json"]
+        sortField: FolderListModel.Time
+        sortReversed: false
     }
 
     Timer {
