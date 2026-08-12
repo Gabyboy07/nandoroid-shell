@@ -44,7 +44,7 @@ Variants {
             anchors.fill: parent
             color: Appearance.colors.colLayer0
             z: -1
-            visible: GlobalStates.screenLocked || (!WallpaperEngineService.active && !MpvpaperService.active)
+            visible: !bgRoot.liveActive || (GlobalStates.screenLocked && lockPath !== "")
         }
 
         readonly property string desktopPath: (Config.ready && Config.options.appearance && Config.options.appearance.background && Config.options.appearance.background.wallpaperPath) ? Config.options.appearance.background.wallpaperPath : ""
@@ -62,12 +62,10 @@ Variants {
             }
             return "";
         }
-        // While locked, fall back to a static representation so the lockscreen
-        // wallpaper stays visible (live video layers are hidden behind the lock).
+        // While locked, fall back to desktopPath if no separate lock wallpaper is defined.
         property string currentPath: {
-            if (GlobalStates.screenLocked) {
-                if (lockPath !== "") return lockPath;
-                if (liveActive && liveFallbackPath !== "") return liveFallbackPath;
+            if (GlobalStates.screenLocked && lockPath !== "") {
+                return lockPath;
             }
             return desktopPath;
         }
@@ -134,7 +132,7 @@ Variants {
             id: staticWallpaperContainer
             anchors.fill: parent
             z: 1
-            opacity: bgRoot.liveActive && !GlobalStates.screenLocked ? 0 : 1
+            opacity: bgRoot.liveActive && !(GlobalStates.screenLocked && lockPath !== "") ? 0 : 1
             visible: opacity > 0
             
             Image {
