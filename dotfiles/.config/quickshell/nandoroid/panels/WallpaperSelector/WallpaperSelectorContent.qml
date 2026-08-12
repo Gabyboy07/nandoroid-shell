@@ -79,6 +79,10 @@ Item {
     // Sorting state
     property string sortMode: "name_asc" // name_asc, name_desc
     
+    // Lockscreen sync state (single source of truth: Config.options.lock.useSeparateWallpaper)
+    readonly property bool lockSyncEnabled: Config.ready ? (Config.options.lock ? !Config.options.lock.useSeparateWallpaper : false) : false
+    readonly property bool lockSelectionDisabled: GlobalStates.wallpaperSelectorTarget === "lock" && mainSelector.lockSyncEnabled
+    
     // Internal lock to prevent recursion during switching
     property bool _switchingMode: false
 
@@ -195,6 +199,9 @@ Item {
         mainSelector.closed()
     }
     function selectWallpaper(path) {
+        // Lockscreen wallpaper selection is disabled while it is synced to the desktop wallpaper
+        if (mainSelector.lockSelectionDisabled) return;
+
         // Stop live wallpaper backends if switching to static on desktop
         if (GlobalStates.wallpaperSelectorTarget === "desktop") {
             WallpaperEngineService.stop();
@@ -622,16 +629,94 @@ Item {
                         ]
                     }
 
+                    // Lockscreen sync setting row (contextual — shown only for the Lockscreen target)
+                    Rectangle {
+                        id: lockscreenSyncRow
+                        visible: GlobalStates.wallpaperSelectorTarget === "lock"
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.leftMargin: 16 * Appearance.effectiveScale
+                        anchors.rightMargin: 16 * Appearance.effectiveScale
+                        anchors.topMargin: 12 * Appearance.effectiveScale
+                        height: lockscreenSyncBody.implicitHeight + (24 * Appearance.effectiveScale)
+                        radius: 18 * Appearance.effectiveScale
+                        color: Appearance.m3colors.m3surfaceContainerHigh
+
+                        RowLayout {
+                            id: lockscreenSyncBody
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.leftMargin: 16 * Appearance.effectiveScale
+                            anchors.rightMargin: 12 * Appearance.effectiveScale
+                            spacing: 16 * Appearance.effectiveScale
+
+                            MaterialSymbol {
+                                text: "link"
+                                iconSize: 22 * Appearance.effectiveScale
+                                color: Appearance.colors.colPrimary
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2 * Appearance.effectiveScale
+
+                                StyledText {
+                                    text: I18nService.tr("Use desktop wallpaper")
+                                    font.pixelSize: Appearance.font.pixelSize.normal
+                                    font.weight: Font.Medium
+                                    color: Appearance.colors.colOnLayer1
+                                    Layout.fillWidth: true
+                                }
+
+                                StyledText {
+                                    text: mainSelector.lockSyncEnabled
+                                        ? I18nService.tr("The current desktop wallpaper will be used for the lockscreen")
+                                        : I18nService.tr("Choose a different wallpaper for the lockscreen")
+                                    font.pixelSize: Appearance.font.pixelSize.smallest
+                                    color: Appearance.colors.colSubtext
+                                    Layout.fillWidth: true
+                                    wrapMode: Text.WordWrap
+                                }
+                            }
+
+                            AndroidToggle {
+                                id: lockscreenSyncToggle
+                                Layout.alignment: Qt.AlignVCenter
+                                checked: Config.ready && (Config.options.lock ? !Config.options.lock.useSeparateWallpaper : false)
+                                onToggled: {
+                                    if (Config.ready && Config.options.lock) {
+                                        const current = Config.options.lock.useSeparateWallpaper
+                                        Config.options.lock.useSeparateWallpaper = !current
+                                        if (current) { // Was true (separate), now false (synced)
+                                            // Sync to the desktop wallpaper (live backends use their captured frame)
+                                            let targetPath = Config.options.appearance.background.wallpaperPath;
+                                            if (WallpaperEngineService.active) {
+                                                targetPath = "file://" + WallpaperEngineService.screenshotPath;
+                                            } else if (MpvpaperService.active) {
+                                                targetPath = "file://" + MpvpaperService.framePath;
+                                            }
+                                            Wallpapers.selectForLockscreen(targetPath, false)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     GridView {
                         id: grid
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
-                        anchors.top: backendTabs.visible ? backendTabs.bottom : parent.top
-                        anchors.topMargin: backendTabs.visible ? 10 * Appearance.effectiveScale : 20 * Appearance.effectiveScale
+                        anchors.top: lockscreenSyncRow.visible ? lockscreenSyncRow.bottom : (backendTabs.visible ? backendTabs.bottom : parent.top)
+                        anchors.topMargin: lockscreenSyncRow.visible ? 12 * Appearance.effectiveScale : (backendTabs.visible ? 10 * Appearance.effectiveScale : 20 * Appearance.effectiveScale)
                         anchors.leftMargin: 20 * Appearance.effectiveScale
                         anchors.rightMargin: 20 * Appearance.effectiveScale
                         anchors.bottomMargin: 20 * Appearance.effectiveScale
+                        opacity: mainSelector.lockSelectionDisabled ? 0.6 : 1
+                        Behavior on opacity { NumberAnimation { duration: 200 } }
                         cellWidth: width / (mainSelector.showDetails ? 3 : 4)
                         cellHeight: cellWidth * 9/16 + (40 * Appearance.effectiveScale)
                         clip: true; interactive: true
@@ -722,6 +807,7 @@ Item {
                             readonly property bool inFavMode: delegateRoot.selector.favMode
                             readonly property bool inLiveMode: delegateRoot.selector.liveMode
                             readonly property bool inVideoMode: delegateRoot.selector.inVideoMode
+                            readonly property bool gridLocked: delegateRoot.selector.lockSelectionDisabled
                             
                             readonly property string currentFilePath: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) ? (model.full || "") : (delegateRoot.inFavMode ? (model.filePath || "") : (delegateRoot.inLiveMode ? (model.folder || "") : (filePath || "")))
                             readonly property string currentFileName: delegateRoot.inWallhavenMode ? ("wallhaven-" + (model.id || "")) : (delegateRoot.inNaiveMode ? model.filename : (delegateRoot.inFavMode ? (model.fileName || "") : (delegateRoot.inLiveMode ? (model.title || "") : (fileName || ""))))
@@ -836,14 +922,14 @@ Item {
                                         }
                                         
                                         Rectangle {
-                                            anchors.fill: parent; color: Appearance.colors.colPrimary; opacity: (mArea.containsMouse || imgHover.hovered) ? 0.15 : 0
+                                            anchors.fill: parent; color: Appearance.colors.colPrimary; opacity: (mArea.containsMouse || imgHover.hovered) && !delegateRoot.gridLocked ? 0.15 : 0
                                             Behavior on opacity { NumberAnimation { duration: 200 } }
                                         }
                                         
                                         MouseArea {
                                             id: mArea; anchors.fill: parent; hoverEnabled: true
                                             // Arrow cursor in online modes as requested
-                                            cursorShape: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) ? Qt.ArrowCursor : Qt.PointingHandCursor
+                                            cursorShape: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode || delegateRoot.gridLocked) ? Qt.ArrowCursor : Qt.PointingHandCursor
                                             onClicked: {
                                                 if (delegateRoot.inLiveMode) {
                                                     delegateRoot.selector.selectedWallpaper = {
@@ -855,7 +941,8 @@ Item {
                                                     };
                                                 } else if (!delegateRoot.inWallhavenMode && !delegateRoot.inNaiveMode) {
                                                     if (currentFilePath !== "") {
-                                                        delegateRoot.selector.selectWallpaper("file://" + currentFilePath)
+                                                        if (!delegateRoot.gridLocked)
+                                                            delegateRoot.selector.selectWallpaper("file://" + currentFilePath)
                                                     }
                                                 }
                                             }
@@ -917,12 +1004,14 @@ Item {
                                             RippleButton {
                                                 id: downloadApplyBtn
                                                 visible: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) && (model.full || "") !== ""
+                                                enabled: !delegateRoot.gridLocked
                                                 implicitWidth: 36 * Appearance.effectiveScale; implicitHeight: 36 * Appearance.effectiveScale; buttonRadius: 18 * Appearance.effectiveScale; colBackground: "transparent"
                                                 MaterialSymbol {
                                                     anchors.centerIn: parent; text: "wallpaper"; iconSize: 20 * Appearance.effectiveScale; color: "white"
-                                                    fill: parent.hovered ? 1 : 0
+                                                    fill: (parent.enabled && parent.hovered) ? 1 : 0
                                                 }
                                                 onClicked: {
+                                                    if (delegateRoot.gridLocked) return;
                                                     if (delegateRoot.inWallhavenMode) {
                                                         WallhavenService.download(model.full, model.id, model.file_type, true);
                                                     } else {
