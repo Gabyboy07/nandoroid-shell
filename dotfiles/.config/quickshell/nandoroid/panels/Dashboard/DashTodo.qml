@@ -239,7 +239,7 @@ Item {
                 id: cardRect
 
                 width: delegateRoot.width
-                implicitHeight: cardCol.implicitHeight + 24 * Appearance.effectiveScale
+                implicitHeight: cardCol.implicitHeight + 32 * Appearance.effectiveScale
                 radius: Appearance.rounding.small
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 // Highlight while dragging
