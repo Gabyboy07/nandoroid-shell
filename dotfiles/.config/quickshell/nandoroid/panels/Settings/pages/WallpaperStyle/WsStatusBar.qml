@@ -584,9 +584,9 @@ ColumnLayout {
                                         readonly property var status: rootColumn.getModuleStatus(getLeftModules(), index)
                                         readonly property bool hasWarning: status.isConflict || status.isOverflow
 
-                                        implicitWidth: modRow.implicitWidth + (16 * Appearance.effectiveScale)
+                                        implicitWidth: modRow.implicitWidth + (24 * Appearance.effectiveScale)
                                         implicitHeight: 32 * Appearance.effectiveScale
-                                        radius: 16 * Appearance.effectiveScale
+                                        radius: 8 * Appearance.effectiveScale
                                         color: hasWarning ? Appearance.m3colors.m3errorContainer : Appearance.m3colors.m3secondaryContainer
 
                                         MouseArea {
@@ -604,7 +604,7 @@ ColumnLayout {
                                         RowLayout {
                                             id: modRow
                                             anchors.centerIn: parent
-                                            spacing: 6 * Appearance.effectiveScale
+                                            spacing: 8 * Appearance.effectiveScale
 
                                             MaterialSymbol {
                                                 visible: hasWarning
@@ -700,16 +700,15 @@ ColumnLayout {
                                         model: getAvailableForCluster()
                                         delegate: Rectangle {
                                             required property var modelData
-                                            implicitWidth: addRow.implicitWidth + (12 * Appearance.effectiveScale)
-                                            implicitHeight: 28 * Appearance.effectiveScale
-                                            radius: 14 * Appearance.effectiveScale
+                                            implicitWidth: addRow.implicitWidth + (24 * Appearance.effectiveScale)
+                                            implicitHeight: 32 * Appearance.effectiveScale
+                                            radius: 8 * Appearance.effectiveScale
                                             color: Appearance.m3colors.m3surfaceContainerLow
 
                                             RowLayout {
                                                 id: addRow
                                                 anchors.centerIn: parent
-                                                spacing: 4 * Appearance.effectiveScale
-                                                MaterialSymbol { text: modelData.icon; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                                                spacing: 8 * Appearance.effectiveScale
                                                 StyledText { text: modelData.name; font.pixelSize: Appearance.font.pixelSize.smallest; color: Appearance.colors.colOnLayer1 }
                                             }
 
@@ -778,10 +777,10 @@ ColumnLayout {
                                         readonly property var status: rootColumn.getModuleStatus(getRightModules(), index)
                                         readonly property bool hasWarning: status.isConflict || status.isOverflow
 
-                                        implicitWidth: modRowRight.implicitWidth + (16 * Appearance.effectiveScale)
+                                        implicitWidth: modRowRight.implicitWidth + (24 * Appearance.effectiveScale)
                                         implicitHeight: 32 * Appearance.effectiveScale
-                                        radius: 16 * Appearance.effectiveScale
-                                        color: hasWarning ? Appearance.m3colors.m3errorContainer : Appearance.m3colors.m3tertiaryContainer
+                                        radius: 8 * Appearance.effectiveScale
+                                        color: hasWarning ? Appearance.m3colors.m3errorContainer : Appearance.m3colors.m3secondaryContainer
 
                                         MouseArea {
                                             id: pillHoverAreaRight
@@ -798,7 +797,7 @@ ColumnLayout {
                                         RowLayout {
                                             id: modRowRight
                                             anchors.centerIn: parent
-                                            spacing: 6 * Appearance.effectiveScale
+                                            spacing: 8 * Appearance.effectiveScale
 
                                             MaterialSymbol {
                                                 visible: hasWarning
@@ -809,7 +808,7 @@ ColumnLayout {
 
                                             StyledText {
                                                 text: getModuleName(modelData) + status.labelSuffix
-                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onTertiaryContainer
+                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
                                                 font.pixelSize: Appearance.font.pixelSize.smaller
                                                 font.weight: Font.Medium
                                             }
@@ -819,7 +818,7 @@ ColumnLayout {
                                                 visible: index > 0
                                                 text: "arrow_back"
                                                 iconSize: 14 * Appearance.effectiveScale
-                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onTertiaryContainer
+                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
                                                 MouseArea {
                                                     anchors.fill: parent
                                                     onClicked: {
@@ -837,7 +836,7 @@ ColumnLayout {
                                                 visible: index < (getRightModules().length - 1)
                                                 text: "arrow_forward"
                                                 iconSize: 14 * Appearance.effectiveScale
-                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onTertiaryContainer
+                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
                                                 MouseArea {
                                                     anchors.fill: parent
                                                     onClicked: {
@@ -854,7 +853,7 @@ ColumnLayout {
                                             MaterialSymbol {
                                                 text: "close"
                                                 iconSize: 14 * Appearance.effectiveScale
-                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onTertiaryContainer
+                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
                                                 MouseArea {
                                                     anchors.fill: parent
                                                     onClicked: {
@@ -888,16 +887,15 @@ ColumnLayout {
                                         model: getAvailableForCluster()
                                         delegate: Rectangle {
                                             required property var modelData
-                                            implicitWidth: addRowRight.implicitWidth + (12 * Appearance.effectiveScale)
-                                            implicitHeight: 28 * Appearance.effectiveScale
-                                            radius: 14 * Appearance.effectiveScale
+                                            implicitWidth: addRowRight.implicitWidth + (24 * Appearance.effectiveScale)
+                                            implicitHeight: 32 * Appearance.effectiveScale
+                                            radius: 8 * Appearance.effectiveScale
                                             color: Appearance.m3colors.m3surfaceContainerLow
 
                                             RowLayout {
                                                 id: addRowRight
                                                 anchors.centerIn: parent
-                                                spacing: 4 * Appearance.effectiveScale
-                                                MaterialSymbol { text: modelData.icon; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                                                spacing: 8 * Appearance.effectiveScale
                                                 StyledText { text: modelData.name; font.pixelSize: Appearance.font.pixelSize.smallest; color: Appearance.colors.colOnLayer1 }
                                             }
 
