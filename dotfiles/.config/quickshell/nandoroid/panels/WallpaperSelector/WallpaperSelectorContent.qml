@@ -1811,6 +1811,14 @@ Item {
                 }
             }
         }
+        MouseArea {
+            id: mpvSettingsOverlay
+            anchors.fill: parent
+            visible: mpvSettingsPopup.visible
+            z: 99
+            onPressed: mpvSettingsPopup.visible = false
+        }
+
 
         StyledRectangularShadow {
             target: mpvSettingsPopup
