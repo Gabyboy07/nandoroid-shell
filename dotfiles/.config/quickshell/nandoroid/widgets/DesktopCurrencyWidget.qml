@@ -2,7 +2,6 @@ import "../core"
 import "../services"
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls
 import Qt5Compat.GraphicalEffects
 import "."
 
@@ -437,17 +436,17 @@ Item {
                         color: Appearance.m3colors.m3onSurface
                         Layout.preferredWidth: 32 * Appearance.effectiveScale
                     }
-                    TextField {
+                    StyledTextInput {
                         id: baseInput
                         Layout.fillWidth: true
                         Layout.preferredHeight: 24 * Appearance.effectiveScale
                         font.pixelSize: Appearance.font.pixelSize.smallest
-                        placeholderText: CurrencyService.baseCurrency
+                        text: CurrencyService.baseCurrency
+                        placeholder: CurrencyService.baseCurrency
                         color: Appearance.m3colors.m3onSurface
-                        background: Rectangle {
-                            color: Appearance.m3colors.darkmode ? "#1E2A38" : "#E8EFF8"
-                            radius: 6 * Appearance.effectiveScale
-                        }
+                        inputRadius: 6
+                        leftMargin: 8
+                        rightMargin: 8
                         onAccepted: {
                             if (Config.ready && text.trim() !== "") {
                                 Config.options.appearance.currencyWidget.baseCurrency = text.toUpperCase().trim();
@@ -461,18 +460,18 @@ Item {
                     Layout.fillWidth: true
                     spacing: 8 * Appearance.effectiveScale
 
-                    TextField {
+                    StyledTextInput {
                         id: quote1Input
                         Layout.fillWidth: true
                         Layout.preferredWidth: 50 * Appearance.effectiveScale
                         Layout.preferredHeight: 24 * Appearance.effectiveScale
                         font.pixelSize: Appearance.font.pixelSize.smallest
-                        placeholderText: "Q1: " + CurrencyService.quote1
+                        text: CurrencyService.quote1
+                        placeholder: "Q1: " + CurrencyService.quote1
                         color: Appearance.m3colors.m3onSurface
-                        background: Rectangle {
-                            color: Appearance.m3colors.darkmode ? "#1E2A38" : "#E8EFF8"
-                            radius: 6 * Appearance.effectiveScale
-                        }
+                        inputRadius: 6
+                        leftMargin: 8
+                        rightMargin: 8
                         onAccepted: {
                             if (Config.ready && text.trim() !== "") {
                                 Config.options.appearance.currencyWidget.quote1 = text.toUpperCase().trim();
@@ -480,18 +479,18 @@ Item {
                         }
                     }
 
-                    TextField {
+                    StyledTextInput {
                         id: quote2Input
                         Layout.fillWidth: true
                         Layout.preferredWidth: 50 * Appearance.effectiveScale
                         Layout.preferredHeight: 24 * Appearance.effectiveScale
                         font.pixelSize: Appearance.font.pixelSize.smallest
-                        placeholderText: "Q2: " + CurrencyService.quote2
+                        text: CurrencyService.quote2
+                        placeholder: "Q2: " + CurrencyService.quote2
                         color: Appearance.m3colors.m3onSurface
-                        background: Rectangle {
-                            color: Appearance.m3colors.darkmode ? "#1E2A38" : "#E8EFF8"
-                            radius: 6 * Appearance.effectiveScale
-                        }
+                        inputRadius: 6
+                        leftMargin: 8
+                        rightMargin: 8
                         onAccepted: {
                             if (Config.ready && text.trim() !== "") {
                                 Config.options.appearance.currencyWidget.quote2 = text.toUpperCase().trim();
@@ -505,18 +504,18 @@ Item {
                     Layout.fillWidth: true
                     spacing: 8 * Appearance.effectiveScale
 
-                    TextField {
+                    StyledTextInput {
                         id: quote3Input
                         Layout.fillWidth: true
                         Layout.preferredWidth: 50 * Appearance.effectiveScale
                         Layout.preferredHeight: 24 * Appearance.effectiveScale
                         font.pixelSize: Appearance.font.pixelSize.smallest
-                        placeholderText: "Q3: " + CurrencyService.quote3
+                        text: CurrencyService.quote3
+                        placeholder: "Q3: " + CurrencyService.quote3
                         color: Appearance.m3colors.m3onSurface
-                        background: Rectangle {
-                            color: Appearance.m3colors.darkmode ? "#1E2A38" : "#E8EFF8"
-                            radius: 6 * Appearance.effectiveScale
-                        }
+                        inputRadius: 6
+                        leftMargin: 8
+                        rightMargin: 8
                         onAccepted: {
                             if (Config.ready && text.trim() !== "") {
                                 Config.options.appearance.currencyWidget.quote3 = text.toUpperCase().trim();
@@ -524,18 +523,18 @@ Item {
                         }
                     }
 
-                    TextField {
+                    StyledTextInput {
                         id: quote4Input
                         Layout.fillWidth: true
                         Layout.preferredWidth: 50 * Appearance.effectiveScale
                         Layout.preferredHeight: 24 * Appearance.effectiveScale
                         font.pixelSize: Appearance.font.pixelSize.smallest
-                        placeholderText: "Q4: " + CurrencyService.quote4
+                        text: CurrencyService.quote4
+                        placeholder: "Q4: " + CurrencyService.quote4
                         color: Appearance.m3colors.m3onSurface
-                        background: Rectangle {
-                            color: Appearance.m3colors.darkmode ? "#1E2A38" : "#E8EFF8"
-                            radius: 6 * Appearance.effectiveScale
-                        }
+                        inputRadius: 6
+                        leftMargin: 8
+                        rightMargin: 8
                         onAccepted: {
                             if (Config.ready && text.trim() !== "") {
                                 Config.options.appearance.currencyWidget.quote4 = text.toUpperCase().trim();
