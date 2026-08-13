@@ -336,13 +336,6 @@ Scope {
                         implicitWidth: shouldShow ? (1 + 12 + 160 + 12) * Appearance.effectiveScale : 0
                         clip: true
 
-                        Behavior on implicitWidth {
-                            SequentialAnimation {
-                                PauseAnimation { duration: subSidebarWrapper.shouldShow ? 150 : 0 }
-                                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
-                            }
-                        }
-
                         Rectangle {
                             id: divider
                             anchors.left: parent.left
@@ -392,7 +385,6 @@ Scope {
                                     id: pageLoader
                                     required property var modelData
                                     required property int index
-                                    asynchronous: true
                                     active: GlobalStates.settingsPageIndex === index || item !== null
                                     anchors.fill: parent
                                     anchors.bottomMargin: 24 * Appearance.effectiveScale

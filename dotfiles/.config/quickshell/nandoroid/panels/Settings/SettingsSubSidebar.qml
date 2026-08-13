@@ -29,6 +29,14 @@ Rectangle {
     
     opacity: hasSections ? 1 : 0
 
+    transform: Translate {
+        id: subSidebarSlide
+        x: root.hasSections ? 0 : (-24 * Appearance.effectiveScale)
+        Behavior on x {
+            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+        }
+    }
+
     function refreshSections() {
         if (SearchRegistry.isIndexing) return;
         
