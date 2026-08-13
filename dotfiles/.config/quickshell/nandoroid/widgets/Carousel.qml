@@ -295,6 +295,9 @@ Item {
                     onExited: if (root.hoveredIndex === itemRoot.index)
                                 root.hoveredIndex = -1
                     onClicked: {
+                        // Ignore clicks outside visible carousel area (tail leak fix)
+                        var clickX = mapToItem(root, mouseX, 0).x
+                        if (clickX < 0 || clickX >= root.width) return
                         root.currentIndex = itemRoot.index
                         root.wallpaperSelected(itemRoot.modelData)
                         root.itemSelected(itemRoot.index)

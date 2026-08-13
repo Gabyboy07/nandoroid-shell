@@ -98,7 +98,7 @@ PanelWindow {
 
     Rectangle {
         id: carouselContainer
-        visible: root.activeConfigObject === null && opacity > 0
+        visible: root.activeConfigObject === null && !(Config.options?.appearance?.background?.liveWallpaperPath ?? "") && opacity > 0
         
         // Dynamically position above or below based on available space
         property real preferredY: root.targetY - height - 8 * Appearance.effectiveScale
@@ -462,6 +462,7 @@ PanelWindow {
         root.activeWidgetName = widgetName
         root.activeWidgetSearchKeyword = widgetSearchKeyword
         hideTimer.stop();
+        wallpaperCarousel.currentIndex = 0;
         
         // Ensure enter animation parameters
         root.currentAnimDuration = Appearance.animation.elementMoveEnter.duration;
