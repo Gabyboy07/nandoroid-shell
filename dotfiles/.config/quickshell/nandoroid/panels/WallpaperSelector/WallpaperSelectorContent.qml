@@ -44,6 +44,27 @@ Item {
         function onCustomFoldersChanged() { mainSelector.refreshCustomFolders(); }
     }
 
+    // NA-ive collection is fully local after fetch, so search = local filename filter
+    ListModel {
+        id: naiveFilteredModel
+        function refresh() {
+            clear();
+            const q = mainSelector.naiveSearch.trim().toLowerCase();
+            for (let i = 0; i < NaIveWallpaperService.results.count; i++) {
+                const item = NaIveWallpaperService.results.get(i);
+                if (q === "" || (item.filename || "").toLowerCase().indexOf(q) !== -1)
+                    append(item);
+            }
+        }
+    }
+
+    onNaiveSearchChanged: naiveFilteredModel.refresh()
+
+    Connections {
+        target: NaIveWallpaperService
+        function onFetchFinished() { naiveFilteredModel.refresh(); }
+    }
+
     // Responsive sizing
     width: Math.min(1380 * Appearance.effectiveScale, (parent ? parent.width : 1500) * 0.95)
     height: Math.min(840 * Appearance.effectiveScale, (parent ? parent.height : 900) * 0.85)
@@ -57,8 +78,10 @@ Item {
     signal closed()
     
     property bool favMode: false
-    property bool wallhavenMode: false
-    property bool naiveMode: false
+    property bool onlineMode: false
+    property int onlineProviderIndex: 0 // 0 = Wallhaven, 1 = NA-ive
+    readonly property bool wallhavenMode: mainSelector.onlineMode && mainSelector.onlineProviderIndex === 0
+    readonly property bool naiveMode: mainSelector.onlineMode && mainSelector.onlineProviderIndex === 1
     property bool liveMode: false
 
     // Live wallpaper backend tab: 0 = mpvpaper (Video), 1 = Wallpaper Engine
@@ -115,14 +138,14 @@ Item {
         _switchingMode = true;
         
         // Save current search state
-        if (wallhavenMode) wallhavenSearch = headerSearch.text;
-        else if (naiveMode) naiveSearch = headerSearch.text;
-        else if (liveMode) liveSearch = headerSearch.text;
+        if (onlineMode) {
+            if (onlineProviderIndex === 0) wallhavenSearch = headerSearch.text;
+            else naiveSearch = headerSearch.text;
+        } else if (liveMode) liveSearch = headerSearch.text;
         else localSearch = headerSearch.text;
         
         // Update modes
-        wallhavenMode = (mode === "wallhaven");
-        naiveMode = (mode === "naive");
+        onlineMode = (mode === "online");
         favMode = (mode === "fav");
         liveMode = (mode === "live");
         
@@ -130,13 +153,16 @@ Item {
         selectedWallpaper = null;
         
         // Restore search state
-        if (wallhavenMode) {
-            headerSearch.text = wallhavenSearch;
-            // If empty, fetch defaults
-            if (headerSearch.text === "") WallhavenService.search("");
-        } else if (naiveMode) {
-            headerSearch.text = naiveSearch;
-            NaIveWallpaperService.fetch();
+        if (onlineMode) {
+            if (onlineProviderIndex === 0) {
+                headerSearch.text = wallhavenSearch;
+                // If empty, fetch defaults
+                if (headerSearch.text === "") WallhavenService.search("");
+            } else {
+                headerSearch.text = naiveSearch;
+                NaIveWallpaperService.fetch();
+                naiveFilteredModel.refresh();
+            }
         } else if (liveMode) {
             // Resolve to an available backend
             if (liveBackendIndex === 0 && !MpvpaperService.isInstalled) liveBackendIndex = 1;
@@ -156,6 +182,30 @@ Item {
             }
         }
         
+        applySorting();
+        _switchingMode = false;
+    }
+
+    function switchOnlineProvider(index) {
+        if (onlineMode && index === onlineProviderIndex) return;
+        _switchingMode = true;
+        // Save current search state of the active provider
+        if (onlineMode) {
+            if (onlineProviderIndex === 0) wallhavenSearch = headerSearch.text;
+            else naiveSearch = headerSearch.text;
+        }
+        onlineProviderIndex = index;
+        onlineMode = true;
+        selectedWallpaper = null;
+        // Restore + fetch for the new provider
+        if (onlineProviderIndex === 0) {
+            headerSearch.text = wallhavenSearch;
+            if (headerSearch.text === "") WallhavenService.search("");
+        } else {
+            headerSearch.text = naiveSearch;
+            NaIveWallpaperService.fetch();
+            naiveFilteredModel.refresh();
+        }
         applySorting();
         _switchingMode = false;
     }
@@ -196,6 +246,7 @@ Item {
         liveSearch = "";
         WallhavenService.results.clear();
         NaIveWallpaperService.results.clear();
+        naiveFilteredModel.clear();
         mainSelector.closed()
     }
     function selectWallpaper(path) {
@@ -588,8 +639,7 @@ Item {
                         else if (GlobalStates.wallpaperSelectorTarget !== "desktop") liveTooltip = I18nService.tr("Live wallpapers only supported on desktop");
                         
                         m.push({ name: I18nService.tr("Live Wallpaper"), icon: "movie", id: "live", enabled: liveEnabled, tooltip: liveTooltip });
-                        m.push({ name: I18nService.tr("Wallhaven"), icon: "travel_explore", id: "wallhaven", tooltip: I18nService.tr("Search and download from Wallhaven.cc") });
-                        m.push({ name: I18nService.tr("NA-ive Walls"), icon: "collections", id: "naive", tooltip: I18nService.tr("Browse the curated NA-ive wallpaper collection") });
+                        m.push({ name: I18nService.tr("Online Wallpaper"), icon: "public", id: "online", tooltip: I18nService.tr("Browse Wallhaven and NA-ive Walls") });
                         m.push({ name: I18nService.tr("Favourites"), icon: "favorite", id: "fav", tooltip: I18nService.tr("View your favorite wallpapers") });
                         
                         m.push({ name: "Home", icon: "home", id: "local", path: Directories.home, tooltip: I18nService.tr("Browse wallpapers in %1").replace("%1", "Home") });
@@ -609,12 +659,11 @@ Item {
                     
                     currentIndex: {
                         if (mainSelector.liveMode) return 0;
-                        if (mainSelector.wallhavenMode) return 1;
-                        if (mainSelector.naiveMode) return 2;
-                        if (mainSelector.favMode) return 3;
+                        if (mainSelector.onlineMode) return 1;
+                        if (mainSelector.favMode) return 2;
                         
                         let targetPath = mainSelector.normalizePath(Wallpapers.directory);
-                        for (let i = 4; i < model.length - 1; i++) {
+                        for (let i = 3; i < model.length - 1; i++) {
                             if (model[i].id === "local" && mainSelector.normalizePath(model[i].path) === targetPath) {
                                 return i;
                             }
@@ -625,8 +674,7 @@ Item {
                     onItemClicked: (index) => {
                         let item = model[index];
                         if (item.id === "live") mainSelector.switchMode("live");
-                        else if (item.id === "wallhaven") mainSelector.switchMode("wallhaven");
-                        else if (item.id === "naive") mainSelector.switchMode("naive");
+                        else if (item.id === "online") mainSelector.switchMode("online");
                         else if (item.id === "fav") mainSelector.switchMode("fav");
                         else if (item.id === "local") {
                             mainSelector.switchMode("local");
@@ -662,9 +710,6 @@ Item {
                     StyledTabBar {
                         id: backendTabs
                         anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
-                        anchors.leftMargin: 16 * Appearance.effectiveScale
-                        anchors.rightMargin: 16 * Appearance.effectiveScale
-                        anchors.topMargin: 10 * Appearance.effectiveScale
                         visible: mainSelector.liveMode && mainSelector.showBackendTabs
                         showIcon: true
                         iconOnTop: true
@@ -676,13 +721,28 @@ Item {
                         ]
                     }
 
+                    // Online provider switcher (Wallhaven / NA-ive)
+                    StyledTabBar {
+                        id: onlineTabs
+                        anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+                        visible: mainSelector.onlineMode
+                        showIcon: true
+                        iconOnTop: true
+                        currentTab: mainSelector.onlineProviderIndex
+                        onTabClicked: (index) => mainSelector.switchOnlineProvider(index)
+                        tabModel: [
+                            { name: I18nService.tr("Wallhaven"), icon: "travel_explore" },
+                            { name: I18nService.tr("NA-ive Walls"), icon: "collections" }
+                        ]
+                    }
+
                     // Lockscreen sync setting row (contextual — shown only for the Lockscreen target)
                     Rectangle {
                         id: lockscreenSyncRow
                         visible: GlobalStates.wallpaperSelectorTarget === "lock"
                         anchors.left: parent.left
                         anchors.right: parent.right
-                        anchors.top: parent.top
+                        anchors.top: backendTabs.visible ? backendTabs.bottom : (onlineTabs.visible ? onlineTabs.bottom : parent.top)
                         anchors.leftMargin: 16 * Appearance.effectiveScale
                         anchors.rightMargin: 16 * Appearance.effectiveScale
                         anchors.topMargin: 12 * Appearance.effectiveScale
@@ -757,8 +817,8 @@ Item {
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
-                        anchors.top: lockscreenSyncRow.visible ? lockscreenSyncRow.bottom : (backendTabs.visible ? backendTabs.bottom : parent.top)
-                        anchors.topMargin: lockscreenSyncRow.visible ? 12 * Appearance.effectiveScale : (backendTabs.visible ? 10 * Appearance.effectiveScale : 20 * Appearance.effectiveScale)
+                        anchors.top: lockscreenSyncRow.visible ? lockscreenSyncRow.bottom : (backendTabs.visible ? backendTabs.bottom : (onlineTabs.visible ? onlineTabs.bottom : parent.top))
+                        anchors.topMargin: lockscreenSyncRow.visible ? 12 * Appearance.effectiveScale : (backendTabs.visible ? 10 * Appearance.effectiveScale : (onlineTabs.visible ? 10 * Appearance.effectiveScale : 20 * Appearance.effectiveScale))
                         anchors.leftMargin: 20 * Appearance.effectiveScale
                         anchors.rightMargin: 20 * Appearance.effectiveScale
                         anchors.bottomMargin: 20 * Appearance.effectiveScale
@@ -773,7 +833,7 @@ Item {
                         
                         model: {
                             if (mainSelector.wallhavenMode) return WallhavenService.results;
-                            if (mainSelector.naiveMode) return NaIveWallpaperService.results;
+                            if (mainSelector.naiveMode) return naiveFilteredModel;
                             if (mainSelector.favMode) return favModel;
                             if (mainSelector.liveMode) return mainSelector.liveBackendIndex === 0 ? MpvpaperService.results : WallpaperEngineService.results;
                             return Wallpapers.folderModel;
@@ -1008,7 +1068,7 @@ Item {
                                                 }
                                                 onClicked: {
                                                     let s = delegateRoot.selector;
-                                                    s.switchMode("wallhaven");
+                                                    s.switchOnlineProvider(0);
                                                     s.searchFilter = "wallhaven-" + delegateRoot.wallhavenId;
                                                     WallhavenService.search(delegateRoot.wallhavenId, true);
                                                 }
