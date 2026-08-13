@@ -1,4 +1,5 @@
 import "../../../../core"
+import "../../../../core/functions" as Functions
 import "../../../../services"
 import "../../../../widgets"
 import "."
@@ -17,6 +18,14 @@ ColumnLayout {
     // ── Global Module Pool & Layout Manager (on root for guaranteed scope) ────────────
     property bool leftMenuOpened: false
     property bool rightMenuOpened: false
+    property string draggedModuleId: ""
+    property string draggedSide: ""
+    property string dropSide: ""
+    property int dropIndex: -1
+    property var lastDragScene: Qt.point(0, 0)
+    readonly property bool leftDropActive: draggedModuleId !== "" && dropSide === "left" && dropIndex >= 0
+    readonly property bool rightDropActive: draggedModuleId !== "" && dropSide === "right" && dropIndex >= 0
+    property alias dragOverlay: dragOverlayItem
     readonly property bool isCenteredMode: Config.ready && Config.options.statusBar && (Config.options.statusBar.layoutStyle === "centered") && ((Config.options.statusBar.moduleStyle ?? "base") !== "m3")
     readonly property int maxClusterPoints: isCenteredMode ? 4 : 5
     readonly property int poolMaxModules: 5
@@ -155,6 +164,274 @@ ColumnLayout {
 
     function toggleLeftMenu() { leftMenuOpened = !leftMenuOpened; }
     function toggleRightMenu() { rightMenuOpened = !rightMenuOpened; }
+
+    function getClusterModules(side) {
+        return side === "left" ? getLeftModules() : getRightModules();
+    }
+
+    function moveModule(moduleId, side, direction) {
+        var list = getClusterModules(side);
+        var idx = list.indexOf(moduleId);
+        var target = idx + direction;
+        if (target < 0 || target >= list.length) return;
+        var temp = list[idx];
+        list[idx] = list[target];
+        list[target] = temp;
+        if (side === "left") Config.options.statusBar.leftModules = list;
+        else Config.options.statusBar.rightModules = list;
+    }
+
+    function removeModule(moduleId, side) {
+        var list = getClusterModules(side).filter(function(m) { return m !== moduleId; });
+        if (side === "left") Config.options.statusBar.leftModules = list;
+        else Config.options.statusBar.rightModules = list;
+    }
+
+    // end4-style: drop target found by nearest pill center (2D-safe), no layout shift
+    function getDropIndex(side, modId, scenePos) {
+        var repeater = side === "left" ? leftRepeater : rightRepeater
+        var count = repeater.count
+        if (count === 0) return 0
+        var bestIdx = -1
+        var bestDist = Infinity
+        for (var i = 0; i < count; i++) {
+            var child = repeater.itemAt(i)
+            if (!child || child.modId === modId) continue
+            var c = child.mapToItem(null, child.width / 2, child.height / 2)
+            var d = Math.hypot(scenePos.x - c.x, scenePos.y - c.y)
+            if (d < bestDist) { bestDist = d; bestIdx = i }
+        }
+        if (bestIdx < 0) return count
+        var bestChild = repeater.itemAt(bestIdx)
+        var bc = bestChild.mapToItem(null, bestChild.width / 2, bestChild.height / 2)
+        return scenePos.x < bc.x ? bestIdx : bestIdx + 1
+    }
+
+    function containsPoint(item, scenePos) {
+        var tl = item.mapToItem(null, 0, 0)
+        return scenePos.x >= tl.x && scenePos.x <= tl.x + item.width &&
+               scenePos.y >= tl.y && scenePos.y <= tl.y + item.height
+    }
+
+    function sideUnderPoint(scenePos) {
+        if (containsPoint(leftClusterArea, scenePos)) return "left"
+        if (containsPoint(rightClusterArea, scenePos)) return "right"
+        return ""
+    }
+
+    function updateDropTargetFromScene(modId, scenePos) {
+        var side = sideUnderPoint(scenePos)
+        if (side === "") {
+            if (dropSide !== "") { dropSide = ""; dropIndex = -1 }
+            return
+        }
+        var idx = getDropIndex(side, modId, scenePos)
+        dropIndex = idx
+        dropSide = side
+    }
+
+    function indicatorPos(side, index) {
+        var repeater = side === "left" ? leftRepeater : rightRepeater
+        var count = repeater.count
+        var before = true
+        var ref = null
+        if (count > 0) {
+            if (index < count) {
+                ref = repeater.itemAt(index)
+            } else {
+                ref = repeater.itemAt(count - 1)
+                before = false
+            }
+        }
+        if (!ref) return Qt.point(0, 0)
+        var x = before ? ref.x - 4 : ref.x + ref.width + 4
+        return Qt.point(x, ref.y + ref.height / 2)
+    }
+
+    function commitDrop(moduleId, sourceSide, targetSide, dropIndexArg) {
+        if (!moduleId || targetSide === "") return;
+        var newSource = getClusterModules(sourceSide).filter(function(m) { return m !== moduleId; });
+        var targetList = targetSide === sourceSide
+            ? newSource
+            : getClusterModules(targetSide).filter(function(m) { return m !== moduleId; });
+        var idx = dropIndexArg;
+        if (targetSide === sourceSide) {
+            var origIdx = getClusterModules(sourceSide).indexOf(moduleId);
+            if (idx > origIdx) idx -= 1;
+        }
+        if (idx < 0) idx = 0;
+        if (idx > targetList.length) idx = targetList.length;
+        targetList.splice(idx, 0, moduleId);
+
+        if (sourceSide === "left") Config.options.statusBar.leftModules = newSource;
+        else Config.options.statusBar.rightModules = newSource;
+        if (targetSide === "left") Config.options.statusBar.leftModules = targetList;
+        else Config.options.statusBar.rightModules = targetList;
+
+        if (moduleId === "clock") Config.options.statusBar.centerModule = "none";
+    }
+
+    // ── Drag & Drop Overlay (zero-size, top-most, doesn't affect layout) ──
+    Item {
+        id: dragOverlayItem
+        z: 9999
+        width: 0
+        height: 0
+    }
+
+    // ── Draggable module pill (shared by left & right clusters) ──
+    Component {
+        id: modulePill
+
+        Item {
+            id: pillRoot
+
+            required property var modelData
+            required property int index
+
+            readonly property string modId: modelData.id
+            readonly property string side: modelData.side
+            readonly property var status: rootColumn.getModuleStatus(rootColumn.getClusterModules(side), index)
+            readonly property bool hasWarning: status.isConflict || status.isOverflow
+
+            property bool dragging: false
+            property var pressPos: Qt.point(0, 0)
+            property int dragThreshold: 5
+            property Item originalParent: null
+
+            readonly property real pillWidth: modRow.implicitWidth + (24 * Appearance.effectiveScale)
+
+            implicitWidth: pillWidth
+            height: 32 * Appearance.effectiveScale
+            implicitHeight: height
+
+            Rectangle {
+                id: pillRect
+
+                width: pillRoot.pillWidth
+                height: pillRoot.height
+                implicitWidth: pillRoot.pillWidth
+                implicitHeight: 32 * Appearance.effectiveScale
+                radius: 8 * Appearance.effectiveScale
+                color: pillRoot.hasWarning ? Appearance.m3colors.m3errorContainer : Appearance.m3colors.m3secondaryContainer
+                scale: pillRoot.dragging ? 1.02 : 1
+                opacity: pillRoot.dragging ? 0.9 : 1
+
+                Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+
+                MouseArea {
+                    id: pillDragArea
+
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: pillRoot.dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+                    drag.target: pillRoot.dragging ? pillRect : null
+                    drag.threshold: 0
+                    onPressed: (mouse) => {
+                        pillRoot.pressPos = Qt.point(mouse.x, mouse.y)
+                    }
+                    onPositionChanged: (mouse) => {
+                        if (!pillRoot.dragging && pressed) {
+                            const dx = mouse.x - pillRoot.pressPos.x
+                            const dy = mouse.y - pillRoot.pressPos.y
+                            if (Math.sqrt(dx * dx + dy * dy) > pillRoot.dragThreshold) {
+                                pillRoot.originalParent = pillRect.parent
+                                const globalPos = pillRect.mapToItem(rootColumn.dragOverlay, 0, 0)
+                                pillRect.parent = rootColumn.dragOverlay
+                                pillRect.x = globalPos.x
+                                pillRect.y = globalPos.y
+                                pillRoot.dragging = true
+                                rootColumn.draggedModuleId = pillRoot.modId
+                                rootColumn.draggedSide = pillRoot.side
+                                rootColumn.dropSide = ""
+                                rootColumn.dropIndex = -1
+                            }
+                        }
+                        if (pillRoot.dragging) {
+                            rootColumn.lastDragScene = pillRect.mapToItem(null, mouse.x, mouse.y)
+                            rootColumn.updateDropTargetFromScene(pillRoot.modId, rootColumn.lastDragScene)
+                        }
+                    }
+                    onReleased: {
+                        if (pillRoot.dragging) {
+                            rootColumn.updateDropTargetFromScene(pillRoot.modId, rootColumn.lastDragScene)
+                            const commitId = pillRoot.modId
+                            const commitSide = pillRoot.side
+                            const targetSide = rootColumn.dropSide
+                            const targetIndex = rootColumn.dropIndex
+                            pillRoot.dragging = false
+                            rootColumn.draggedModuleId = ""
+                            rootColumn.draggedSide = ""
+                            rootColumn.dropSide = ""
+                            rootColumn.dropIndex = -1
+                            if (pillRect) {
+                                pillRect.parent = pillRoot.originalParent
+                                pillRect.x = 0
+                                pillRect.y = 0
+                            }
+                            rootColumn.commitDrop(commitId, commitSide, targetSide, targetIndex)
+                        } else {
+                            rootColumn.draggedModuleId = ""
+                            rootColumn.draggedSide = ""
+                            rootColumn.dropSide = ""
+                            rootColumn.dropIndex = -1
+                        }
+                    }
+                    onCanceled: {
+                        pillRoot.dragging = false
+                        rootColumn.draggedModuleId = ""
+                        rootColumn.draggedSide = ""
+                        rootColumn.dropSide = ""
+                        rootColumn.dropIndex = -1
+                        if (pillRect) {
+                            pillRect.parent = pillRoot.originalParent
+                            pillRect.x = 0
+                            pillRect.y = 0
+                        }
+                    }
+                }
+
+                StyledToolTip {
+                    text: pillRoot.status.tooltipText
+                    alternativeVisibleCondition: pillRoot.hasWarning && pillDragArea.containsMouse
+                }
+
+                RowLayout {
+                    id: modRow
+
+                    anchors.centerIn: parent
+                    spacing: 8 * Appearance.effectiveScale
+
+                    MaterialSymbol {
+                        visible: pillRoot.hasWarning
+                        text: "warning"
+                        iconSize: 14 * Appearance.effectiveScale
+                        color: pillRoot.hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
+                    }
+
+                    StyledText {
+                        text: rootColumn.getModuleName(pillRoot.modId) + pillRoot.status.labelSuffix
+                        color: pillRoot.hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        font.weight: Font.Medium
+                    }
+
+                    // Remove
+                    MaterialSymbol {
+                        text: "close"
+                        iconSize: 14 * Appearance.effectiveScale
+                        color: pillRoot.hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: rootColumn.removeModule(pillRoot.modId, pillRoot.side)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     SearchHandler { 
         searchString: "Status Bar"
@@ -549,133 +826,107 @@ ColumnLayout {
                                 MaterialSymbol { text: "align_horizontal_left"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                                 StyledText { text: I18nService.tr("Left Cluster Modules") + " (" + getClusterPoints(getLeftModules()) + "/" + maxClusterPoints + ")"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
                                 
-                                // Add Module Dropdown Button
-                                Rectangle {
-                                    implicitWidth: 28 * Appearance.effectiveScale
-                                    implicitHeight: 28 * Appearance.effectiveScale
-                                    radius: 14 * Appearance.effectiveScale
-                                    color: Appearance.m3colors.m3primary
+                                // Add Module Dropdown Button (M3 FAB: rounded-square, full-circle when open, tertiary)
+                                Item {
+                                    id: leftFabHost
+                                    Layout.alignment: Qt.AlignVCenter
+                                    implicitWidth: 40 * Appearance.effectiveScale
+                                    implicitHeight: 40 * Appearance.effectiveScale
                                     visible: getAvailableForCluster().length > 0 && getLeftModules().length < poolMaxModules
 
-                                    MaterialSymbol {
-                                        anchors.centerIn: parent
-                                        text: leftMenuOpened ? "close" : "add"
-                                        iconSize: 18 * Appearance.effectiveScale
-                                        color: Appearance.m3colors.m3onPrimary
-                                    }
-                                    MouseArea {
+                                    RippleButton {
+                                        id: leftFabButton
                                         anchors.fill: parent
+                                        buttonRadius: leftMenuOpened ? height / 2 : 12 * Appearance.effectiveScale
+                                        colBackground: Appearance.m3colors.m3tertiaryContainer
+                                        colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3tertiaryContainer, Appearance.m3colors.m3onTertiaryContainer, 0.9)
+                                        colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onTertiaryContainer, 0.15)
                                         onClicked: leftMenuOpened = !leftMenuOpened
+
+                                        MaterialSymbol {
+                                            anchors.centerIn: parent
+                                            text: leftMenuOpened ? "close" : "add"
+                                            iconSize: 22 * Appearance.effectiveScale
+                                            color: Appearance.m3colors.m3onTertiaryContainer
+                                        }
                                     }
                                 }
                             }
 
-                            // Active List Flow
-                            Flow {
+                            // Active List Flow (drag & drop reorder)
+                            Item {
+                                id: leftClusterArea
                                 Layout.fillWidth: true
-                                spacing: 6 * Appearance.effectiveScale
+                                implicitHeight: leftClusterFlow.implicitHeight
 
-                                Repeater {
-                                    model: getLeftModules()
-                                    delegate: Rectangle {
-                                        required property string modelData
-                                        required property int index
+                                // end4-style drop indicator: slides to the insertion point,
+                                // pills stay still (no 2D reflow mess).
+                                Rectangle {
+                                    id: leftDropIndicator
+                                    z: 5
+                                    width: 3 * Appearance.effectiveScale
+                                    implicitHeight: 32 * Appearance.effectiveScale
+                                    radius: 2 * Appearance.effectiveScale
+                                    color: Appearance.colors.colPrimary
+                                    visible: rootColumn.leftDropActive
+                                    property bool settling: false
 
-                                        readonly property var status: rootColumn.getModuleStatus(getLeftModules(), index)
-                                        readonly property bool hasWarning: status.isConflict || status.isOverflow
+                                    Behavior on x {
+                                        enabled: !leftDropIndicator.settling
+                                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                                    }
+                                    Behavior on y {
+                                        enabled: !leftDropIndicator.settling
+                                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                                    }
 
-                                        implicitWidth: modRow.implicitWidth + (24 * Appearance.effectiveScale)
-                                        implicitHeight: 32 * Appearance.effectiveScale
-                                        radius: 8 * Appearance.effectiveScale
-                                        color: hasWarning ? Appearance.m3colors.m3errorContainer : Appearance.m3colors.m3secondaryContainer
-
-                                        MouseArea {
-                                            id: pillHoverAreaLeft
-                                            anchors.fill: parent
-                                            hoverEnabled: true
-                                            acceptedButtons: Qt.NoButton
-                                        }
-
-                                        StyledToolTip {
-                                            text: status.tooltipText
-                                            alternativeVisibleCondition: hasWarning && pillHoverAreaLeft.containsMouse
-                                        }
-
-                                        RowLayout {
-                                            id: modRow
-                                            anchors.centerIn: parent
-                                            spacing: 8 * Appearance.effectiveScale
-
-                                            MaterialSymbol {
-                                                visible: hasWarning
-                                                text: "warning"
-                                                iconSize: 14 * Appearance.effectiveScale
-                                                color: Appearance.m3colors.m3onErrorContainer
-                                            }
-
-                                            StyledText {
-                                                text: getModuleName(modelData) + status.labelSuffix
-                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
-                                                font.pixelSize: Appearance.font.pixelSize.smaller
-                                                font.weight: Font.Medium
-                                            }
-
-                                            // Move Left
-                                            MaterialSymbol {
-                                                visible: index > 0
-                                                text: "arrow_back"
-                                                iconSize: 14 * Appearance.effectiveScale
-                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
-                                                MouseArea {
-                                                    anchors.fill: parent
-                                                    onClicked: {
-                                                        let list = getLeftModules();
-                                                        let realIdx = list.indexOf(modelData);
-                                                        if (realIdx > 0) {
-                                                            let temp = list[realIdx];
-                                                            list[realIdx] = list[realIdx - 1];
-                                                            list[realIdx - 1] = temp;
-                                                            Config.options.statusBar.leftModules = list;
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                            // Move Right
-                                            MaterialSymbol {
-                                                visible: index < (getLeftModules().length - 1)
-                                                text: "arrow_forward"
-                                                iconSize: 14 * Appearance.effectiveScale
-                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
-                                                MouseArea {
-                                                    anchors.fill: parent
-                                                    onClicked: {
-                                                        let list = getLeftModules();
-                                                        let realIdx = list.indexOf(modelData);
-                                                        if (realIdx < list.length - 1) {
-                                                            let temp = list[realIdx];
-                                                            list[realIdx] = list[realIdx + 1];
-                                                            list[realIdx + 1] = temp;
-                                                            Config.options.statusBar.leftModules = list;
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                            // Remove
-                                            MaterialSymbol {
-                                                text: "close"
-                                                iconSize: 14 * Appearance.effectiveScale
-                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
-                                                MouseArea {
-                                                    anchors.fill: parent
-                                                    onClicked: {
-                                                        let list = getLeftModules().filter(m => m !== modelData);
-                                                        Config.options.statusBar.leftModules = list;
-                                                    }
-                                                }
+                                    Connections {
+                                        target: rootColumn
+                                        function onLeftDropActiveChanged() {
+                                            if (rootColumn.leftDropActive) {
+                                                leftDropIndicator.settling = true
+                                                leftDropIndicator.x = rootColumn.indicatorPos("left", rootColumn.dropIndex).x
+                                                leftDropIndicator.y = rootColumn.indicatorPos("left", rootColumn.dropIndex).y - leftDropIndicator.height / 2
+                                                leftDropIndicator.settling = false
                                             }
                                         }
+                                        function onDropIndexChanged() {
+                                            if (rootColumn.leftDropActive && !leftDropIndicator.settling) {
+                                                leftDropIndicator.x = rootColumn.indicatorPos("left", rootColumn.dropIndex).x
+                                                leftDropIndicator.y = rootColumn.indicatorPos("left", rootColumn.dropIndex).y - leftDropIndicator.height / 2
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        anchors.top: parent.top
+                                        anchors.topMargin: -4 * Appearance.effectiveScale
+                                        width: 8 * Appearance.effectiveScale
+                                        height: 8 * Appearance.effectiveScale
+                                        radius: 4 * Appearance.effectiveScale
+                                        color: Appearance.colors.colPrimary
+                                    }
+                                    Rectangle {
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        anchors.bottom: parent.bottom
+                                        anchors.bottomMargin: -4 * Appearance.effectiveScale
+                                        width: 8 * Appearance.effectiveScale
+                                        height: 8 * Appearance.effectiveScale
+                                        radius: 4 * Appearance.effectiveScale
+                                        color: Appearance.colors.colPrimary
+                                    }
+                                }
+
+                                Flow {
+                                    id: leftClusterFlow
+                                    width: parent.width
+                                    spacing: 6 * Appearance.effectiveScale
+
+                                    Repeater {
+                                        id: leftRepeater
+                                        model: getLeftModules().map(function(m) { return { id: m, side: "left" }; })
+                                        delegate: modulePill
                                     }
                                 }
                             }
@@ -714,6 +965,7 @@ ColumnLayout {
 
                                             MouseArea {
                                                 anchors.fill: parent
+                                                cursorShape: Qt.PointingHandCursor
                                                 onClicked: addToLeftCluster(modelData.id)
                                             }
                                         }
@@ -742,127 +994,107 @@ ColumnLayout {
                                 MaterialSymbol { text: "align_horizontal_right"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                                 StyledText { text: I18nService.tr("Right Cluster Modules") + " (" + getClusterPoints(getRightModules()) + "/" + maxClusterPoints + ")"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; font.weight: Font.Medium }
 
-                                // Add Module Dropdown Button
-                                Rectangle {
-                                    implicitWidth: 28 * Appearance.effectiveScale
-                                    implicitHeight: 28 * Appearance.effectiveScale
-                                    radius: 14 * Appearance.effectiveScale
-                                    color: Appearance.m3colors.m3primary
+                                // Add Module Dropdown Button (M3 FAB: rounded-square, full-circle when open, tertiary)
+                                Item {
+                                    id: rightFabHost
+                                    Layout.alignment: Qt.AlignVCenter
+                                    implicitWidth: 40 * Appearance.effectiveScale
+                                    implicitHeight: 40 * Appearance.effectiveScale
                                     visible: getAvailableForCluster().length > 0 && getRightModules().length < poolMaxModules
 
-                                    MaterialSymbol {
-                                        anchors.centerIn: parent
-                                        text: rightMenuOpened ? "close" : "add"
-                                        iconSize: 18 * Appearance.effectiveScale
-                                        color: Appearance.m3colors.m3onPrimary
-                                    }
-                                    MouseArea {
+                                    RippleButton {
+                                        id: rightFabButton
                                         anchors.fill: parent
+                                        buttonRadius: rightMenuOpened ? height / 2 : 12 * Appearance.effectiveScale
+                                        colBackground: Appearance.m3colors.m3tertiaryContainer
+                                        colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3tertiaryContainer, Appearance.m3colors.m3onTertiaryContainer, 0.9)
+                                        colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onTertiaryContainer, 0.15)
                                         onClicked: rightMenuOpened = !rightMenuOpened
+
+                                        MaterialSymbol {
+                                            anchors.centerIn: parent
+                                            text: rightMenuOpened ? "close" : "add"
+                                            iconSize: 22 * Appearance.effectiveScale
+                                            color: Appearance.m3colors.m3onTertiaryContainer
+                                        }
                                     }
                                 }
                             }
 
-                            // Active List Flow
-                            Flow {
+                            // Active List Flow (drag & drop reorder)
+                            Item {
+                                id: rightClusterArea
                                 Layout.fillWidth: true
-                                spacing: 6 * Appearance.effectiveScale
+                                implicitHeight: rightClusterFlow.implicitHeight
 
-                                Repeater {
-                                    model: getRightModules()
-                                    delegate: Rectangle {
-                                        required property string modelData
-                                        required property int index
+                                // end4-style drop indicator: slides to the insertion point,
+                                // pills stay still (no 2D reflow mess).
+                                Rectangle {
+                                    id: rightDropIndicator
+                                    z: 5
+                                    width: 3 * Appearance.effectiveScale
+                                    implicitHeight: 32 * Appearance.effectiveScale
+                                    radius: 2 * Appearance.effectiveScale
+                                    color: Appearance.colors.colPrimary
+                                    visible: rootColumn.rightDropActive
+                                    property bool settling: false
 
-                                        readonly property var status: rootColumn.getModuleStatus(getRightModules(), index)
-                                        readonly property bool hasWarning: status.isConflict || status.isOverflow
+                                    Behavior on x {
+                                        enabled: !rightDropIndicator.settling
+                                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                                    }
+                                    Behavior on y {
+                                        enabled: !rightDropIndicator.settling
+                                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                                    }
 
-                                        implicitWidth: modRowRight.implicitWidth + (24 * Appearance.effectiveScale)
-                                        implicitHeight: 32 * Appearance.effectiveScale
-                                        radius: 8 * Appearance.effectiveScale
-                                        color: hasWarning ? Appearance.m3colors.m3errorContainer : Appearance.m3colors.m3secondaryContainer
-
-                                        MouseArea {
-                                            id: pillHoverAreaRight
-                                            anchors.fill: parent
-                                            hoverEnabled: true
-                                            acceptedButtons: Qt.NoButton
-                                        }
-
-                                        StyledToolTip {
-                                            text: status.tooltipText
-                                            alternativeVisibleCondition: hasWarning && pillHoverAreaRight.containsMouse
-                                        }
-
-                                        RowLayout {
-                                            id: modRowRight
-                                            anchors.centerIn: parent
-                                            spacing: 8 * Appearance.effectiveScale
-
-                                            MaterialSymbol {
-                                                visible: hasWarning
-                                                text: "warning"
-                                                iconSize: 14 * Appearance.effectiveScale
-                                                color: Appearance.m3colors.m3onErrorContainer
-                                            }
-
-                                            StyledText {
-                                                text: getModuleName(modelData) + status.labelSuffix
-                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
-                                                font.pixelSize: Appearance.font.pixelSize.smaller
-                                                font.weight: Font.Medium
-                                            }
-
-                                            // Move Left
-                                            MaterialSymbol {
-                                                visible: index > 0
-                                                text: "arrow_back"
-                                                iconSize: 14 * Appearance.effectiveScale
-                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
-                                                MouseArea {
-                                                    anchors.fill: parent
-                                                    onClicked: {
-                                                        let list = getRightModules();
-                                                        let temp = list[index];
-                                                        list[index] = list[index - 1];
-                                                        list[index - 1] = temp;
-                                                        Config.options.statusBar.rightModules = list;
-                                                    }
-                                                }
-                                            }
-
-                                            // Move Right
-                                            MaterialSymbol {
-                                                visible: index < (getRightModules().length - 1)
-                                                text: "arrow_forward"
-                                                iconSize: 14 * Appearance.effectiveScale
-                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
-                                                MouseArea {
-                                                    anchors.fill: parent
-                                                    onClicked: {
-                                                        let list = getRightModules();
-                                                        let temp = list[index];
-                                                        list[index] = list[index + 1];
-                                                        list[index + 1] = temp;
-                                                        Config.options.statusBar.rightModules = list;
-                                                    }
-                                                }
-                                            }
-
-                                            // Remove
-                                            MaterialSymbol {
-                                                text: "close"
-                                                iconSize: 14 * Appearance.effectiveScale
-                                                color: hasWarning ? Appearance.m3colors.m3onErrorContainer : Appearance.m3colors.m3onSecondaryContainer
-                                                MouseArea {
-                                                    anchors.fill: parent
-                                                    onClicked: {
-                                                        let list = getRightModules().filter(m => m !== modelData);
-                                                        Config.options.statusBar.rightModules = list;
-                                                    }
-                                                }
+                                    Connections {
+                                        target: rootColumn
+                                        function onRightDropActiveChanged() {
+                                            if (rootColumn.rightDropActive) {
+                                                rightDropIndicator.settling = true
+                                                rightDropIndicator.x = rootColumn.indicatorPos("right", rootColumn.dropIndex).x
+                                                rightDropIndicator.y = rootColumn.indicatorPos("right", rootColumn.dropIndex).y - rightDropIndicator.height / 2
+                                                rightDropIndicator.settling = false
                                             }
                                         }
+                                        function onDropIndexChanged() {
+                                            if (rootColumn.rightDropActive && !rightDropIndicator.settling) {
+                                                rightDropIndicator.x = rootColumn.indicatorPos("right", rootColumn.dropIndex).x
+                                                rightDropIndicator.y = rootColumn.indicatorPos("right", rootColumn.dropIndex).y - rightDropIndicator.height / 2
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        anchors.top: parent.top
+                                        anchors.topMargin: -4 * Appearance.effectiveScale
+                                        width: 8 * Appearance.effectiveScale
+                                        height: 8 * Appearance.effectiveScale
+                                        radius: 4 * Appearance.effectiveScale
+                                        color: Appearance.colors.colPrimary
+                                    }
+                                    Rectangle {
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        anchors.bottom: parent.bottom
+                                        anchors.bottomMargin: -4 * Appearance.effectiveScale
+                                        width: 8 * Appearance.effectiveScale
+                                        height: 8 * Appearance.effectiveScale
+                                        radius: 4 * Appearance.effectiveScale
+                                        color: Appearance.colors.colPrimary
+                                    }
+                                }
+
+                                Flow {
+                                    id: rightClusterFlow
+                                    width: parent.width
+                                    spacing: 6 * Appearance.effectiveScale
+
+                                    Repeater {
+                                        id: rightRepeater
+                                        model: getRightModules().map(function(m) { return { id: m, side: "right" }; })
+                                        delegate: modulePill
                                     }
                                 }
                             }
@@ -901,6 +1133,7 @@ ColumnLayout {
 
                                             MouseArea {
                                                 anchors.fill: parent
+                                                cursorShape: Qt.PointingHandCursor
                                                 onClicked: addToRightCluster(modelData.id)
                                             }
                                         }
