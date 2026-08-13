@@ -97,8 +97,11 @@ PanelWindow {
             radius: 16 * Appearance.effectiveScale
             
             color: Appearance.m3colors.m3surfaceContainerHigh
-            border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.1)
-            border.width: 1
+
+            StyledRectangularShadow {
+                target: actionPillIsland
+                z: -1
+            }
 
             RowLayout {
                 id: actionRow
@@ -173,8 +176,6 @@ PanelWindow {
 
             radius: 16 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
-            border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.15)
-            border.width: 1
             clip: true
 
             Image {
@@ -216,6 +217,11 @@ PanelWindow {
                 drag.target: dragTarget
                 propagateComposedEvents: true
             }
+        }
+
+        StyledRectangularShadow {
+            target: thumbnailIsland
+            z: -1
         }
     }
 
