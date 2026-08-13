@@ -181,6 +181,7 @@ Scope {
                                 iconSize: 24 * Appearance.effectiveScale
                                 color: Appearance.colors.colSubtext
                             }
+                            StyledToolTip { text: I18nService.tr("Profile"); extraVisibleCondition: parent.hovered || parent.realHovered }
                         }
 
                         // Search pill
