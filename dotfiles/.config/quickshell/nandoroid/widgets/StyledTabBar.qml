@@ -13,6 +13,7 @@ Item {
     property bool iconOnTop: true
     property real cornerRadius: Appearance.rounding.normal
     property var indicatorWidths: []
+    property bool scrollNavigation: true
 
     // Fired when a tab is clicked
     signal tabClicked(int index)
@@ -112,6 +113,30 @@ Item {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // Scroll wheel / trackpad over the tab bar switches tabs
+    WheelHandler {
+        enabled: root.scrollNavigation
+        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+        onWheel: (event) => {
+            const dy = event.angleDelta.y;
+            const dx = event.angleDelta.x;
+            let dir = 0;
+            if (Math.abs(dx) > Math.abs(dy))
+                dir = dx > 0 ? 1 : -1;
+            else if (dy !== 0)
+                dir = dy > 0 ? -1 : 1;
+
+            if (dir === 0)
+                return;
+
+            const next = Math.max(0, Math.min(root.tabCount - 1, root.currentTab + dir));
+            if (next !== root.currentTab) {
+                root.currentTab = next;
+                root.tabClicked(next);
             }
         }
     }
