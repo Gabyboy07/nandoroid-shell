@@ -1055,8 +1055,8 @@ Item {
                 id: fabButton
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                anchors.rightMargin: 14 * Appearance.effectiveScale
-                anchors.bottomMargin: 14 * Appearance.effectiveScale
+                anchors.rightMargin: 16 * Appearance.effectiveScale
+                anchors.bottomMargin: 16 * Appearance.effectiveScale
                 implicitWidth: 56 * Appearance.effectiveScale
                 implicitHeight: 56 * Appearance.effectiveScale
                 buttonRadius: 16 * Appearance.effectiveScale

@@ -430,28 +430,34 @@ Item {
                 
                 ScrollBar.vertical: StyledScrollBar {}
             }
+        }
 
-            // ── FAB ──
-            RippleButton {
-                id: fabButton
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                anchors.rightMargin: 14 * Appearance.effectiveScale
-                anchors.bottomMargin: 14 * Appearance.effectiveScale
-                implicitWidth: 56 * Appearance.effectiveScale
-                implicitHeight: 56 * Appearance.effectiveScale
-                buttonRadius: 16 * Appearance.effectiveScale
-                colBackground: Appearance.m3colors.m3primaryContainer
-                colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.9)
-                colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
-                onClicked: root.newNotepad()
+        // ── FAB (anchored to panel edge, not the inset list view, per M3 16dp) ──
+        StyledRectangularShadow {
+            target: fabButton
+            radius: fabButton.buttonRadius
+        }
 
-                MaterialSymbol {
-                    anchors.centerIn: parent
-                    text: "add"
-                    iconSize: 24 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3onPrimaryContainer
-                }
+        RippleButton {
+            id: fabButton
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: 16 * Appearance.effectiveScale
+            anchors.bottomMargin: 16 * Appearance.effectiveScale
+            visible: root._view === "list"
+            implicitWidth: 56 * Appearance.effectiveScale
+            implicitHeight: 56 * Appearance.effectiveScale
+            buttonRadius: 16 * Appearance.effectiveScale
+            colBackground: Appearance.m3colors.m3primaryContainer
+            colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.9)
+            colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
+            onClicked: root.newNotepad()
+
+            MaterialSymbol {
+                anchors.centerIn: parent
+                text: "add"
+                iconSize: 24 * Appearance.effectiveScale
+                color: Appearance.m3colors.m3onPrimaryContainer
             }
         }
 
