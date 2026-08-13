@@ -30,15 +30,6 @@ Item {
         }
     }
 
-    Component.onCompleted: {
-        // Initialize indicator widths to 48
-        let widths = []
-        for (let i = 0; i < tabModel.length; i++) {
-            widths.push(48)
-        }
-        indicatorWidths = widths
-    }
-
     // Bottom border for the entire tab bar
     Rectangle {
         anchors.left: parent.left
@@ -104,9 +95,18 @@ Item {
                             onImplicitWidthChanged: {
                                 if (implicitWidth > 0) {
                                     let arr = root.indicatorWidths.slice();
-                                    // if icon is inline, total width is wider
-                                    let extraWidth = (root.showIcon && !root.iconOnTop) ? (18 + 8) * Appearance.effectiveScale : 0;
-                                    arr[index] = implicitWidth * (root.showIcon && root.iconOnTop ? 0.85 : 1.0) + extraWidth;
+                                    let iconW = root.showIcon ? (root.iconOnTop ? 24 : 18) * Appearance.effectiveScale : 0;
+                                    let contentW;
+                                    if (root.showIcon && root.iconOnTop) {
+                                        contentW = Math.max(iconW, implicitWidth);
+                                    } else if (root.showIcon) {
+                                        contentW = iconW + 8 * Appearance.effectiveScale + implicitWidth;
+                                    } else {
+                                        contentW = implicitWidth;
+                                    }
+                                    // M3: 2dp inset each side, minimum 24dp
+                                    let inset = 2 * Appearance.effectiveScale;
+                                    arr[index] = Math.max(24 * Appearance.effectiveScale, contentW - inset * 2);
                                     root.indicatorWidths = arr;
                                 }
                             }
@@ -151,12 +151,12 @@ Item {
         property int idx2: root.currentTab
         
         function getLeftForIndex(i) {
-            if (root.tabCount === 0 || root.indicatorWidths.length <= i) return 0;
+            if (root.tabCount === 0) return 0;
             let w = root.indicatorWidths[i] || 48;
             return (i + 0.5) * (parent.width / root.tabCount) - w / 2
         }
         function getRightForIndex(i) {
-            if (root.tabCount === 0 || root.indicatorWidths.length <= i) return 0;
+            if (root.tabCount === 0) return 0;
             let w = root.indicatorWidths[i] || 48;
             return (i + 0.5) * (parent.width / root.tabCount) + w / 2
         }
@@ -169,8 +169,8 @@ Item {
         x: Math.min(animLeft1, animLeft2)
         width: Math.max(animRight1, animRight2) - x
         
-        topLeftRadius: 3 * Appearance.effectiveScale
-        topRightRadius: 3 * Appearance.effectiveScale
+        topLeftRadius: height / 2
+        topRightRadius: height / 2
         
         color: Appearance.m3colors.m3primary
         
