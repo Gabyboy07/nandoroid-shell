@@ -209,7 +209,6 @@ Variants {
 
             AbstractWidget {
                 id: clockWrapper
-                z: 10
                 width: nandoClockItem.width
                 height: nandoClockItem.height
                 gridSize: 12
@@ -320,7 +319,6 @@ Variants {
 
             AbstractWidget {
                 id: atAGlanceWrapper
-                z: 10
                 width: atAGlanceItem.width
                 height: atAGlanceItem.height
                 gridSize: 12
@@ -354,7 +352,6 @@ Variants {
             
             AbstractWidget {
                 id: mediaWidgetWrapper
-                z: 10
                 width: desktopMediaWidgetItem.width
                 height: desktopMediaWidgetItem.height
                 gridSize: 12
@@ -386,7 +383,6 @@ Variants {
 
             AbstractWidget {
                 id: systemMonitorWrapper
-                z: 10
                 width: desktopSystemMonitorWidgetItem.width
                 height: desktopSystemMonitorWidgetItem.height
                 gridSize: 12
@@ -418,7 +414,6 @@ Variants {
 
             AbstractWidget {
                 id: weatherWidgetWrapper
-                z: 10
                 width: desktopWeatherWidgetItem.width
                 height: desktopWeatherWidgetItem.height
                 gridSize: 12
@@ -454,7 +449,6 @@ Variants {
 
             AbstractWidget {
                 id: currencyWidgetWrapper
-                z: 10
                 width: desktopCurrencyWidgetItem.width
                 height: desktopCurrencyWidgetItem.height
                 gridSize: 12
@@ -487,7 +481,6 @@ Variants {
 
             AbstractWidget {
                 id: githubWidgetWrapper
-                z: 10
                 width: desktopGithubWidgetItem.width
                 height: desktopGithubWidgetItem.height
                 gridSize: 12

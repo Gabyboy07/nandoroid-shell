@@ -38,6 +38,8 @@ MouseArea {
     property string snapAlign: "left"
     property int snapThreshold: 4
     readonly property bool dragging: drag.active
+    property int baseZ: 10
+    z: baseZ
 
     signal dragFinished(real newX, real newY)
     signal requestContextMenu(real reqX, real reqY)
@@ -314,10 +316,35 @@ MouseArea {
         }
     }
 
+    // Bring this widget to the front of its siblings (z = max sibling z + 1)
+    function raiseToFront() {
+        if (!root.parent) return;
+        let maxZ = root.baseZ;
+        root.parent.children.forEach(child => {
+            if (child.isAbstractWidget && child !== root && child.visible && child.z > maxZ) {
+                maxZ = child.z;
+            }
+        });
+        // Renormalize when z values drift too far from baseZ, so they never grow unbounded
+        if (maxZ >= root.baseZ + 100) {
+            let visible = [];
+            root.parent.children.forEach(child => {
+                if (child.isAbstractWidget && child !== root && child.visible) visible.push(child);
+            });
+            visible.sort((a, b) => a.z - b.z);
+            visible.forEach((child, i) => child.z = root.baseZ + i + 1);
+            maxZ = root.baseZ + visible.length;
+        }
+        root.z = maxZ + 1;
+    }
+
     onDraggingChanged: {
         if (dragging) {
+            root.z = root.baseZ + 1000;
             refreshWidgetEdges();
             updateDragHelpers();
+        } else {
+            root.raiseToFront();
         }
         var canvas = findCanvas(root.parent)
         if (canvas) {
