@@ -59,7 +59,6 @@ Item {
                 colBackgroundHover: Appearance.colors.colLayer0Hover
                 colRipple: Appearance.colors.colLayer0Active
                 onClicked: {
-                    root.currentTab = index;
                     root.tabClicked(index);
                 }
                 
@@ -135,7 +134,6 @@ Item {
 
             const next = Math.max(0, Math.min(root.tabCount - 1, root.currentTab + dir));
             if (next !== root.currentTab) {
-                root.currentTab = next;
                 root.tabClicked(next);
             }
         }
