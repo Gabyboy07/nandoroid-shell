@@ -404,37 +404,12 @@ MaterialShape {
                 }
                 spacing: 8 * Appearance.effectiveScale
 
-                RowLayout {
+                StyledText {
                     Layout.fillWidth: true
-                    spacing: 8 * Appearance.effectiveScale
-
-                    Rectangle {
-                        width: 24 * Appearance.effectiveScale
-                        height: 24 * Appearance.effectiveScale
-                        radius: 12 * Appearance.effectiveScale
-                        color: Appearance.m3colors.darkmode ? "#1AFFFFFF" : "#0D000000"
-
-                        MaterialSymbol {
-                            anchors.centerIn: parent
-                            text: "arrow_back"
-                            iconSize: 14 * Appearance.effectiveScale
-                            color: Appearance.m3colors.m3onSurface
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: root.toggleFlip()
-                        }
-                    }
-
-                    StyledText {
-                        text: "Config"
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        font.weight: Font.Bold
-                        color: Appearance.colors.colPrimary
-                        Layout.fillWidth: true
-                    }
+                    text: "Config"
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    font.weight: Font.Bold
+                    color: Appearance.colors.colPrimary
                 }
 
                 StyledText {

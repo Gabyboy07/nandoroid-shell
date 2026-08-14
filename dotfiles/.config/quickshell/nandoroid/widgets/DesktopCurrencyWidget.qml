@@ -91,42 +91,6 @@ Item {
             anchors.fill: parent
             visible: !root.showingSettings
 
-            // Settings button (appears on hover, hidden when locked)
-            Item {
-                width: 24 * Appearance.effectiveScale
-                height: 24 * Appearance.effectiveScale
-                z: 100
-                visible: cfg ? !cfg.locked : true
-                opacity: widgetHoverHandler.hovered ? 0.9 : 0
-                Behavior on opacity { NumberAnimation { duration: 150 } }
-                
-                anchors {
-                    top: parent.top
-                    right: parent.right
-                    topMargin: 8 * Appearance.effectiveScale
-                    rightMargin: 8 * Appearance.effectiveScale
-                }
-
-                Rectangle {
-                    anchors.fill: parent
-                    radius: 12 * Appearance.effectiveScale
-                    color: Appearance.colors.colPrimary
-                    
-                    MaterialSymbol {
-                        anchors.centerIn: parent
-                        text: "settings"
-                        iconSize: 14 * Appearance.effectiveScale
-                        color: Appearance.colors.colOnPrimary
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: root.toggleFlip()
-                    }
-                }
-            }
-
             // ── [RADICAL M3 DESAIN 1x1: Original end4-pC Layout (Top-Right Icon, Left Bottom-Aligned Texts)] ──
             Item {
                 visible: sizeMode === "1x1"
@@ -389,39 +353,12 @@ Item {
                 }
                 spacing: 8 * Appearance.effectiveScale
 
-                // Header Row
-                RowLayout {
+                StyledText {
                     Layout.fillWidth: true
-                    spacing: 8 * Appearance.effectiveScale
-
-                    // Back button
-                    Rectangle {
-                        width: 24 * Appearance.effectiveScale
-                        height: 24 * Appearance.effectiveScale
-                        radius: 12 * Appearance.effectiveScale
-                        color: Appearance.m3colors.darkmode ? "#1AFFFFFF" : "#0D000000"
-
-                        MaterialSymbol {
-                            anchors.centerIn: parent
-                            text: "arrow_back"
-                            iconSize: 14 * Appearance.effectiveScale
-                            color: Appearance.m3colors.m3onSurface
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: root.toggleFlip()
-                        }
-                    }
-
-                    StyledText {
-                        text: root.sizeMode === "1x1" ? "Config" : "Config Currencies"
-                        font.pixelSize: root.sizeMode === "1x1" ? Appearance.font.pixelSize.smaller : Appearance.font.pixelSize.small
-                        font.weight: Font.Bold
-                        color: Appearance.colors.colPrimary
-                        Layout.fillWidth: true
-                    }
+                    text: root.sizeMode === "1x1" ? "Config" : "Config Currencies"
+                    font.pixelSize: root.sizeMode === "1x1" ? Appearance.font.pixelSize.smaller : Appearance.font.pixelSize.small
+                    font.weight: Font.Bold
+                    color: Appearance.colors.colPrimary
                 }
 
                 // Base currency input
@@ -542,6 +479,42 @@ Item {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // Settings button (appears on hover, hidden when locked)
+    Item {
+        width: 24 * Appearance.effectiveScale
+        height: 24 * Appearance.effectiveScale
+        z: 100
+        visible: cfg ? !cfg.locked : true
+        opacity: widgetHoverHandler.hovered ? 0.9 : 0
+        Behavior on opacity { NumberAnimation { duration: 150 } }
+
+        anchors {
+            top: parent.top
+            right: parent.right
+            topMargin: 8 * Appearance.effectiveScale
+            rightMargin: 8 * Appearance.effectiveScale
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 12 * Appearance.effectiveScale
+            color: Appearance.colors.colPrimary
+
+            MaterialSymbol {
+                anchors.centerIn: parent
+                text: "settings"
+                iconSize: 14 * Appearance.effectiveScale
+                color: Appearance.colors.colOnPrimary
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.toggleFlip()
             }
         }
     }
