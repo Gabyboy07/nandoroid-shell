@@ -64,6 +64,7 @@ DesktopMediaWidget DesktopMediaWidget.qml
 DesktopSystemMonitorWidget DesktopSystemMonitorWidget.qml
 DesktopWeatherWidget DesktopWeatherWidget.qml
 DesktopCurrencyWidget DesktopCurrencyWidget.qml
+DesktopGithubWidget DesktopGithubWidget.qml
 DatePicker DatePicker.qml
 TimePicker TimePicker.qml
 StyledTextInput StyledTextInput.qml

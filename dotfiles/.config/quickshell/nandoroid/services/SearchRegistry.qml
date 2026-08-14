@@ -58,6 +58,7 @@ Item {
             { file: "panels/Settings/pages/Widgets/WsSystemMonitor.qml", pageIndex: 5 },
             { file: "panels/Settings/pages/Widgets/WsWeather.qml", pageIndex: 5 },
             { file: "panels/Settings/pages/Widgets/WsCurrency.qml", pageIndex: 5 },
+            { file: "panels/Settings/pages/Widgets/WsGithub.qml", pageIndex: 5 },
             // System Page components (pageIndex: 6)
             { file: "panels/Settings/pages/System/SystemSettings.qml", pageIndex: 6 },
             { file: "panels/Settings/pages/System/SysDateTime.qml", pageIndex: 6 },

@@ -35,7 +35,7 @@ Variants {
         exclusionMode: ExclusionMode.Ignore
         WlrLayershell.layer: WlrLayer.Bottom
         WlrLayershell.namespace: "quickshell:desktop-widgets"
-        WlrLayershell.keyboardFocus: (desktopCurrencyWidgetItem && desktopCurrencyWidgetItem.showingSettings) ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+        WlrLayershell.keyboardFocus: (desktopCurrencyWidgetItem && desktopCurrencyWidgetItem.showingSettings) || (desktopGithubWidgetItem && desktopGithubWidgetItem.showingSettings) ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
         
         anchors {
             top: true
@@ -484,6 +484,39 @@ Variants {
                     interactive: !currencyWidgetWrapper.dragging
                 }
             }
+
+            AbstractWidget {
+                id: githubWidgetWrapper
+                z: 10
+                width: desktopGithubWidgetItem.width
+                height: desktopGithubWidgetItem.height
+                gridSize: 12
+                configObject: Config.ready ? Config.options.appearance.githubWidget : null
+                visible: Config.ready && Config.options.appearance.githubWidget.showOnDesktop && !GlobalStates.screenLocked
+                opacity: visible ? 1 : 0
+                Behavior on opacity { NumberAnimation { duration: 300 } }
+
+                property string childId: "githubWidgetWrapper"
+
+                x: Config.ready && Config.options.appearance.githubWidget.desktopX !== -1 ? Config.options.appearance.githubWidget.desktopX : 64
+                y: Config.ready && Config.options.appearance.githubWidget.desktopY !== -1 ? Config.options.appearance.githubWidget.desktopY : 660
+
+                onDragFinished: (newX, newY) => {
+                    if (Config.ready) {
+                        Config.options.appearance.githubWidget.desktopX = newX;
+                        Config.options.appearance.githubWidget.desktopY = newY;
+                    }
+                }
+
+                onRequestContextMenu: (reqX, reqY) => {
+                    desktopContextMenu.openAt(reqX, reqY, Config.options.appearance.githubWidget, "GitHub", "GitHub");
+                }
+
+                DesktopGithubWidget {
+                    id: desktopGithubWidgetItem
+                    interactive: !githubWidgetWrapper.dragging
+                }
+            }
         }
 
         Timer {
@@ -548,6 +581,14 @@ Variants {
                 widgetConfig = Config.options.appearance.weatherWidget;
                 widgetTitle = "Weather";
                 widgetKeyword = "Weather";
+            }
+            // Check if github widget is clicked
+            else if (githubWidgetWrapper && githubWidgetWrapper.visible &&
+                     x >= githubWidgetWrapper.x && x <= githubWidgetWrapper.x + githubWidgetWrapper.width &&
+                     y >= githubWidgetWrapper.y && y <= githubWidgetWrapper.y + githubWidgetWrapper.height) {
+                widgetConfig = Config.options.appearance.githubWidget;
+                widgetTitle = "GitHub";
+                widgetKeyword = "GitHub";
             }
 
             desktopContextMenu.close();

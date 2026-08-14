@@ -75,6 +75,7 @@ Flickable {
             WsSystemMonitor { Layout.fillWidth: true }
             WsWeather { Layout.fillWidth: true }
             WsCurrency { Layout.fillWidth: true }
+            WsGithub { Layout.fillWidth: true }
         }
 
         Item { Layout.fillHeight: true; Layout.preferredHeight: 32 * Appearance.effectiveScale }

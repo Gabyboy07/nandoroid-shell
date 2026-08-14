@@ -331,6 +331,14 @@ property JsonObject background: JsonObject {
                     property string quote3: "JPY"
                     property string quote4: "GBP"
                 }
+
+                property JsonObject githubWidget: JsonObject {
+                    property bool showOnDesktop: false
+                    property bool locked: false
+                    property string sizeMode: "2x1" // Supports "2x1", "2x2"
+                    property real desktopX: -1
+                    property real desktopY: -1
+                }
                 
                 property JsonObject lyrics: JsonObject {
                     property bool showFloatingLyrics: false

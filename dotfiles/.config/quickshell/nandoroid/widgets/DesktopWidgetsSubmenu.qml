@@ -149,5 +149,15 @@ Item {
             toggleChecked: Config.ready && Config.options.appearance && Config.options.appearance.currencyWidget && Config.options.appearance.currencyWidget.showOnDesktop
             onCustomToggled: if (Config.ready && Config.options.appearance && Config.options.appearance.currencyWidget) Config.options.appearance.currencyWidget.showOnDesktop = !Config.options.appearance.currencyWidget.showOnDesktop
         }
+
+        SubmenuItem {
+            menuText: I18nService.tr("GitHub")
+            visible: Config.ready && Config.options.appearance && Config.options.appearance.githubWidget
+            enabled: Config.ready && (Config.options.github?.githubUsername ?? "") !== ""
+            widgetLocked: (Config.ready && Config.options.appearance && Config.options.appearance.githubWidget) ? Config.options.appearance.githubWidget.locked : false
+            onLockToggled: if (Config.ready && Config.options.appearance && Config.options.appearance.githubWidget) Config.options.appearance.githubWidget.locked = !Config.options.appearance.githubWidget.locked
+            toggleChecked: Config.ready && Config.options.appearance && Config.options.appearance.githubWidget && Config.options.appearance.githubWidget.showOnDesktop
+            onCustomToggled: if (Config.ready && Config.options.appearance && Config.options.appearance.githubWidget) Config.options.appearance.githubWidget.showOnDesktop = !Config.options.appearance.githubWidget.showOnDesktop
+        }
     }
 }
