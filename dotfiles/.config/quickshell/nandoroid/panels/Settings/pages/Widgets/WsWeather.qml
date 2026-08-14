@@ -13,7 +13,7 @@ Rectangle {
     opacity: weatherServiceOn ? 1.0 : 0.5
     Behavior on opacity { NumberAnimation { duration: 200 } }
     Layout.fillWidth: true
-    implicitHeight: 96 * Appearance.effectiveScale
+    implicitHeight: 120 * Appearance.effectiveScale
     radius: 24 * Appearance.effectiveScale
     color: Appearance.m3colors.m3surfaceContainerHigh
 

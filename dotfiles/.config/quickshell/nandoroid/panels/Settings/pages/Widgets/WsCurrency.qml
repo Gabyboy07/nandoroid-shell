@@ -9,7 +9,7 @@ Rectangle {
     id: rootCurrencySettings
     visible: Config.ready && Config.options.appearance && Config.options.appearance.currencyWidget
     Layout.fillWidth: true
-    implicitHeight: 96 * Appearance.effectiveScale
+    implicitHeight: 120 * Appearance.effectiveScale
     radius: 24 * Appearance.effectiveScale
     color: Appearance.m3colors.m3surfaceContainerHigh
 
