@@ -113,6 +113,7 @@ Singleton {
                     property string lockscreenTimeFont: ""
                     property string lockscreenDateFont: ""
                 }
+                property list<string> widgetZ: []
                 property JsonObject atAGlance: JsonObject {
                     property bool show: false
                     property bool showGreeting: true

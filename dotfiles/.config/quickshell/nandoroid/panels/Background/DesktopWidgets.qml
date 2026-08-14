@@ -207,6 +207,50 @@ Variants {
             gridSize: Config.ready ? Config.options.appearance.background.gridSpacing : 12
             showGrid: Config.ready ? Config.options.appearance.background.showGrid : false
 
+            Connections {
+                target: Config
+                function onReadyChanged() {
+                    if (Config.ready) widgetCanvas.syncWidgetZ();
+                }
+            }
+
+            function syncWidgetZ() {
+                if (Config.options.appearance.widgetZ === undefined) return;
+                let zList = Array.from(Config.options.appearance.widgetZ);
+                
+                let validIds = [];
+                widgetCanvas.children.forEach(child => {
+                    if (child.isAbstractWidget && child.childId) {
+                        validIds.push(child.childId);
+                    }
+                });
+                
+                let orphans = zList.filter(id => !validIds.includes(id));
+                let newborns = validIds.filter(id => !zList.includes(id));
+                let changed = false;
+                
+                if (orphans.length === 1 && newborns.length === 1) {
+                    // Auto-heal 1-to-1 rename
+                    let idx = zList.indexOf(orphans[0]);
+                    zList[idx] = newborns[0];
+                    changed = true;
+                } else {
+                    if (orphans.length > 0) {
+                        zList = zList.filter(id => !orphans.includes(id));
+                    }
+                    if (newborns.length > 0) {
+                        for (let i = 0; i < newborns.length; i++) {
+                            zList.push(newborns[i]);
+                        }
+                    }
+                    changed = orphans.length > 0 || newborns.length > 0;
+                }
+                
+                if (changed) {
+                    Config.options.appearance.widgetZ = zList;
+                }
+            }
+
             AbstractWidget {
                 id: clockWrapper
                 width: nandoClockItem.width
@@ -314,7 +358,7 @@ Variants {
                     isLockscreen: false
                     interactive: true
                 }
-                property string childId: "clockWrapper"
+                childId: "clockWrapper"
             }
 
             AbstractWidget {
@@ -328,7 +372,7 @@ Variants {
                 opacity: visible ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: 300 } }
 
-                property string childId: "atAGlanceWrapper"
+                childId: "atAGlanceWrapper"
 
                 x: Config.ready ? Config.options.appearance.atAGlance.desktopX : 64
                 y: Config.ready ? Config.options.appearance.atAGlance.desktopY : 64
@@ -360,7 +404,7 @@ Variants {
                 opacity: visible ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: 300 } }
 
-                property string childId: "mediaWidgetWrapper"
+                childId: "mediaWidgetWrapper"
 
                 x: Config.ready && Config.options.appearance.mediaWidget.desktopX !== -1 ? Config.options.appearance.mediaWidget.desktopX : (parent.width - width) / 2
                 y: Config.ready && Config.options.appearance.mediaWidget.desktopY !== -1 ? Config.options.appearance.mediaWidget.desktopY : (parent.height - height) / 2
@@ -391,7 +435,7 @@ Variants {
                 opacity: visible ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: 300 } }
 
-                property string childId: "systemMonitorWrapper"
+                childId: "systemMonitorWrapper"
 
                 x: Config.ready && Config.options.appearance.systemMonitor.desktopX !== -1 ? Config.options.appearance.systemMonitor.desktopX : 64
                 y: Config.ready && Config.options.appearance.systemMonitor.desktopY !== -1 ? Config.options.appearance.systemMonitor.desktopY : 300
@@ -425,7 +469,7 @@ Variants {
                 opacity: visible ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: 300 } }
 
-                property string childId: "weatherWidgetWrapper"
+                childId: "weatherWidgetWrapper"
 
                 x: Config.ready && Config.options.appearance.weatherWidget.desktopX !== -1 ? Config.options.appearance.weatherWidget.desktopX : 64
                 y: Config.ready && Config.options.appearance.weatherWidget.desktopY !== -1 ? Config.options.appearance.weatherWidget.desktopY : 420
@@ -457,7 +501,7 @@ Variants {
                 opacity: visible ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: 300 } }
 
-                property string childId: "currencyWidgetWrapper"
+                childId: "currencyWidgetWrapper"
 
                 x: Config.ready && Config.options.appearance.currencyWidget.desktopX !== -1 ? Config.options.appearance.currencyWidget.desktopX : 64
                 y: Config.ready && Config.options.appearance.currencyWidget.desktopY !== -1 ? Config.options.appearance.currencyWidget.desktopY : 540
@@ -489,7 +533,7 @@ Variants {
                 opacity: visible ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: 300 } }
 
-                property string childId: "githubWidgetWrapper"
+                childId: "githubWidgetWrapper"
 
                 x: Config.ready && Config.options.appearance.githubWidget.desktopX !== -1 ? Config.options.appearance.githubWidget.desktopX : 64
                 y: Config.ready && Config.options.appearance.githubWidget.desktopY !== -1 ? Config.options.appearance.githubWidget.desktopY : 660

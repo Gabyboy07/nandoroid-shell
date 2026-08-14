@@ -41,6 +41,25 @@ MouseArea {
     property int baseZ: 10
     z: baseZ
 
+    function applyZ() {
+        if (Config.ready && Config.options.appearance.widgetZ !== undefined) {
+            let zList = Array.from(Config.options.appearance.widgetZ);
+            let idx = zList.indexOf(root.childId);
+            if (idx !== -1) {
+                root.z = root.baseZ + idx + 1;
+            }
+        }
+    }
+
+    Component.onCompleted: applyZ()
+
+    Connections {
+        target: Config
+        function onReadyChanged() {
+            if (Config.ready) applyZ();
+        }
+    }
+
     signal dragFinished(real newX, real newY)
     signal requestContextMenu(real reqX, real reqY)
 
@@ -319,23 +338,27 @@ MouseArea {
     // Bring this widget to the front of its siblings (z = max sibling z + 1)
     function raiseToFront() {
         if (!root.parent) return;
-        let maxZ = root.baseZ;
+        
+        let zList = Config.options.appearance.widgetZ !== undefined ? Array.from(Config.options.appearance.widgetZ) : [];
+        let idx = zList.indexOf(root.childId);
+        if (idx !== -1) {
+            zList.splice(idx, 1);
+        }
+        if (root.childId) {
+            zList.push(root.childId);
+            Config.options.appearance.widgetZ = zList;
+        }
+        
         root.parent.children.forEach(child => {
-            if (child.isAbstractWidget && child !== root && child.visible && child.z > maxZ) {
-                maxZ = child.z;
+            if (child.isAbstractWidget && child.childId) {
+                let childIdx = zList.indexOf(child.childId);
+                if (childIdx !== -1) {
+                    child.z = child.baseZ + childIdx + 1;
+                } else {
+                    child.z = child.baseZ;
+                }
             }
         });
-        // Renormalize when z values drift too far from baseZ, so they never grow unbounded
-        if (maxZ >= root.baseZ + 100) {
-            let visible = [];
-            root.parent.children.forEach(child => {
-                if (child.isAbstractWidget && child !== root && child.visible) visible.push(child);
-            });
-            visible.sort((a, b) => a.z - b.z);
-            visible.forEach((child, i) => child.z = root.baseZ + i + 1);
-            maxZ = root.baseZ + visible.length;
-        }
-        root.z = maxZ + 1;
     }
 
     onDraggingChanged: {
