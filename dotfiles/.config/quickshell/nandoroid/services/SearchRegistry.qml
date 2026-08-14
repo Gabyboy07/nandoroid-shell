@@ -39,6 +39,7 @@ Item {
             { file: "panels/Settings/pages/Display/DisplaySettings.qml", pageIndex: 3 },
             { file: "panels/Settings/pages/Display/DisplayEyeCare.qml", pageIndex: 3 },
             { file: "panels/Settings/pages/WallpaperStyle/WsWallpaperCycle.qml", pageIndex: 4 },
+            { file: "panels/Settings/pages/WallpaperStyle/WsWallpaperTransition.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WallpaperStyleSettings.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WsThemeColor.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WsLauncher.qml", pageIndex: 4 },

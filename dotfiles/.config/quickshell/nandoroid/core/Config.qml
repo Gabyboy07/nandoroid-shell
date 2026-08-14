@@ -149,6 +149,7 @@ property JsonObject background: JsonObject {
                 property bool showGrid: false
                 property int gridSpacing: 12
                 property bool showSnapLines: true
+                property string wallpaperTransition: "random"
             }
                 property JsonObject screenCorners: JsonObject {
                     property int mode: 1

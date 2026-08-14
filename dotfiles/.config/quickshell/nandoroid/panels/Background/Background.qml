@@ -70,9 +70,18 @@ Variants {
             return desktopPath;
         }
         
-        property var shaderList: ["circlePit", "circleSelect", "magic", "Doom", "Peel", "transition", "pixelate", "stripes"]
+        property var shaderList: ["circlePit", "circleSelect", "magic", "Doom", "Peel", "transition", "pixelate", "stripes", "crt", "dissolve", "glitch", "ripple", "shatter"]
         property string currentShader: "pixelate"
         property real transitionProgress: 1.0
+        property string wallpaperTransition: Config.ready && Config.options.appearance.background ? Config.options.appearance.background.wallpaperTransition : "random"
+
+        // Picks the shader for this transition: fixed choice from settings, or a random one
+        function pickShader() {
+            if (wallpaperTransition !== "random" && shaderList.includes(wallpaperTransition)) {
+                return wallpaperTransition;
+            }
+            return shaderList[Math.floor(Math.random() * shaderList.length)];
+        }
 
         onCurrentPathChanged: {
             if (currentPath === "" || currentPath === undefined) return;
@@ -107,7 +116,15 @@ Variants {
             // is available when the shader starts rendering on next frame
             previousWallpaper.source = fromSource;
             wallpaper.source = currentPath;
-            currentShader = shaderList[Math.floor(Math.random() * shaderList.length)];
+
+            // Transition disabled in settings: swap instantly
+            if (bgRoot.wallpaperTransition === "") {
+                previousWallpaper.source = "";
+                bgRoot.transitionProgress = 1.0;
+                return;
+            }
+
+            currentShader = pickShader();
 
             transitionProgress = 0.0;
             transitionAnim.restart();
@@ -164,12 +181,23 @@ Variants {
                 visible: bgRoot.transitionProgress < 1.0
                 property var fromImage: previousWallpaper
                 property var toImage: wallpaper
+                property var source1: previousWallpaper
+                property var source2: wallpaper
+                property real time: 0.0
                 property real progress: bgRoot.transitionProgress
                 property real aspectX: width / height
                 property real aspectY: 1.0
                 property vector2d aspectRatio: Qt.vector2d(aspectX, aspectY)
                 property vector2d origin: Qt.vector2d(0.5, 0.5)
                 fragmentShader: Qt.resolvedUrl(`shaders/${bgRoot.currentShader}.frag.qsb`)
+
+                Timer {
+                    interval: 16
+                    repeat: true
+                    running: transitionEffect.visible
+                    onTriggered: transitionEffect.time += interval / 1000.0
+                }
+                onVisibleChanged: if (!visible) transitionEffect.time = 0.0
             }
         }
 

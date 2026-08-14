@@ -308,6 +308,12 @@ Flickable {
                 visible: !root.isOnboarding
             }
 
+            // ── Wallpaper Transition ──
+            WsWallpaperTransition {
+                Layout.fillWidth: true
+                visible: !root.isOnboarding
+            }
+
             // ── Use Same Wallpaper for Lock Screen ──
             SegmentedWrapper {
                 Layout.fillWidth: true
