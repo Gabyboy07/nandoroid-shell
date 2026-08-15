@@ -445,7 +445,7 @@ Item {
             anchors.rightMargin: 16 * Appearance.effectiveScale
             anchors.bottomMargin: 16 * Appearance.effectiveScale
             visible: root._view === "list"
-            implicitWidth: 56 * Appearance.effectiveScale
+            implicitWidth: Math.max(80 * Appearance.effectiveScale, fabRow.implicitWidth + 32 * Appearance.effectiveScale)
             implicitHeight: 56 * Appearance.effectiveScale
             buttonRadius: 16 * Appearance.effectiveScale
             colBackground: Appearance.m3colors.m3primaryContainer
@@ -453,11 +453,25 @@ Item {
             colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
             onClicked: root.newNotepad()
 
-            MaterialSymbol {
+            RowLayout {
+                id: fabRow
                 anchors.centerIn: parent
-                text: "add"
-                iconSize: 24 * Appearance.effectiveScale
-                color: Appearance.m3colors.m3onPrimaryContainer
+                spacing: 8 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "edit"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.m3colors.m3onPrimaryContainer
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                StyledText {
+                    text: I18nService.tr("New note")
+                    font.pixelSize: Appearance.font.pixelSize.normal
+                    font.weight: Font.Medium
+                    color: Appearance.m3colors.m3onPrimaryContainer
+                    Layout.alignment: Qt.AlignVCenter
+                }
             }
         }
 
