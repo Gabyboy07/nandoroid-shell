@@ -15,24 +15,26 @@ RowLayout {
         const _ = DateTime.now;
         return root._fmtDate(DateTime.now);
     }
-    // Recompute the summary card whenever the schedule / deadlines change or each minute.
+    // Recompute the summary card whenever the schedule / reminders change or each minute.
     readonly property int _minuteTrigger: DateTime.minutes
     on_MinuteTriggerChanged: root._recomputeSummary()
     property var _scheduleTrigger: ScheduleService.events
     on_ScheduleTriggerChanged: root._recomputeSummary()
-    property var _deadlineTrigger: GlobalStates.todoDeadlines
-    on_DeadlineTriggerChanged: root._recomputeSummary()
+    property var _reminderTrigger: ReminderService.reminders
+    on_ReminderTriggerChanged: root._recomputeSummary()
     Component.onCompleted: root._recomputeSummary()
     // Build a flat list of all dates this event applies to (expand recurring)
-    // Combined events for popup: schedule + todo deadlines
+    // Combined events for calendar: schedule + reminders (not yet fired)
     readonly property var allEvents: {
         let combined = ScheduleService.events.slice();
-        for (let dl of GlobalStates.todoDeadlines) {
+        for (const r of ReminderService.reminders) {
+            if (r.fired) continue;
             combined.push({
-                "title": dl.taskContent || I18nService.tr("(untitled task)"),
-                "description": I18nService.tr("From: ") + dl.itemTitle,
-                "time": dl.time,
-                "date": dl.date,
+                "_isReminder": true,
+                "title": r.text,
+                "description": r.linkedTitle || "",
+                "time": r.time,
+                "date": r.date,
                 "recurrence": "once"
             });
         }
@@ -111,18 +113,22 @@ RowLayout {
     }
     function _syncSummaryDisplay() {
         const s = root._summary;
-        switch (s.state) {
-        case "now":
-            root._summaryIcon = "timer";
-            break;
-        case "nextToday":
-            root._summaryIcon = "today";
-            break;
-        case "nextLater":
-            root._summaryIcon = "event";
-            break;
-        default:
-            root._summaryIcon = "event_busy";
+        if (s.ev && s.ev._isReminder) {
+            root._summaryIcon = "notifications_active";
+        } else {
+            switch (s.state) {
+            case "now":
+                root._summaryIcon = "timer";
+                break;
+            case "nextToday":
+                root._summaryIcon = "today";
+                break;
+            case "nextLater":
+                root._summaryIcon = "event";
+                break;
+            default:
+                root._summaryIcon = "event_busy";
+            }
         }
         if (s.state === "none") {
             root._summaryTitle = I18nService.tr("No schedule");

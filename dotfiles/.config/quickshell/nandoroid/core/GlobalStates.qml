@@ -77,9 +77,6 @@ Singleton {
     property var activeScreen: Quickshell.screens[0]
     property string wallpaperSelectorTarget: "desktop" // "desktop" or "lock"
 
-    // ── Todo Deadline Data (populated by DashNotepad) ──
-    property var todoDeadlines: [] // [{date, time, itemId, itemTitle, taskId, taskContent, done}]
-
     // Normalize any date string (YYYY-MM-DD, DD/MM/YYYY, MM/DD/YYYY, YYYY/MM/DD) to canonical YYYY-MM-DD.
     // Storage and consumers (calendar marks, automation, "at a glance") all expect canonical dates.
     function toCanonicalDateStr(str) {
@@ -100,29 +97,7 @@ Singleton {
         return String(y).padStart(4, '0') + "-" + String(m).padStart(2, '0') + "-" + String(d).padStart(2, '0')
     }
 
-    function updateTodoDeadlines(items) {
-        const deadlines = []
-        for (const item of items) {
-            if (item.type !== "todo" || !item.tasks) continue
-            for (const task of item.tasks) {
-                if (task.deadline) {
-                    const canon = root.toCanonicalDateStr(task.deadline)
-                    if (!canon) continue
-                    deadlines.push({
-                        date: canon,
-                        time: task.deadlineTime || "",
-                        itemId: item.id,
-                        itemTitle: item.title || "Untitled",
-                        taskId: task.id,
-                        taskContent: task.content || "",
-                        done: task.done || false
-                    })
-                }
-            }
-        }
-        root.todoDeadlines = deadlines
-    }
-    
+
     // --- Media Notch Timing Logic ---
     property alias mediaNotchTimer: mediaNotchTimer
     Timer { 

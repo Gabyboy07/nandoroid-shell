@@ -62,7 +62,6 @@ Singleton {
 
     property bool _ready: false
     property bool _cycleGuard: false
-    property var _notifiedDeadlines: ({}) // "taskId" -> true for 1h-before + overdue
 
     Connections {
         target: ScheduleService
@@ -77,8 +76,8 @@ Singleton {
     }
 
     Connections {
-        target: GlobalStates
-        function onTodoDeadlinesChanged() {
+        target: ReminderService
+        function onRemindersChanged() {
             if (_ready && !_cycleGuard) {
                 _cycleGuard = true;
                 scheduleNext();
@@ -183,30 +182,20 @@ Singleton {
             }
         });
 
-        // Todo deadline scheduling (1h before notification, exact deadline, overdue detection)
-        for (let dl of GlobalStates.todoDeadlines) {
-            if (dl.done) continue
-            const [y, m, d] = dl.date.split("-").map(Number)
-            const [hh, mm] = (dl.time || "23:59").split(":").map(Number)
-            const deadlineDate = new Date(y, m - 1, d, hh, mm)
-
-            // 1. Target: 1h before notification
-            const oneHourBefore = new Date(deadlineDate.getTime() - 3600000)
-            if (oneHourBefore > now) {
-                nextMs = Math.min(nextMs, oneHourBefore.getTime() - now.getTime())
+        // Reminder scheduling
+        ReminderService.reminders.forEach(r => {
+            if (r.fired) {
+                // Auto-delete window: 30 min after fire time
+                const rDate = new Date(r.date + "T" + r.time);
+                const autoDeleteAt = new Date(rDate.getTime() + 1800000);
+                if (autoDeleteAt > now)
+                    nextMs = Math.min(nextMs, autoDeleteAt.getTime() - now.getTime());
+                return;
             }
-
-            // 2. Target: Exact deadline timestamp (for overdue notification)
-            if (deadlineDate > now) {
-                nextMs = Math.min(nextMs, deadlineDate.getTime() - now.getTime())
-            }
-
-            // 3. Target: End of overdue window (1h after deadline)
-            const overdueEnd = new Date(deadlineDate.getTime() + 3600000)
-            if (overdueEnd > now && deadlineDate <= now) {
-                nextMs = Math.min(nextMs, overdueEnd.getTime() - now.getTime())
-            }
-        }
+            const rDate = new Date(r.date + "T" + r.time);
+            if (rDate > now)
+                nextMs = Math.min(nextMs, rDate.getTime() - now.getTime());
+        });
 
         if (nextMs < Infinity) {
             mainTimer.interval = Math.max(1000, nextMs);
@@ -323,25 +312,25 @@ Singleton {
             }
         });
 
-        // 7. Todo Deadline Notifications
-        for (let dl of GlobalStates.todoDeadlines) {
-            if (dl.done) continue
-            const [y, m, d] = dl.date.split("-").map(Number)
-            const [hh, mm] = (dl.time || "23:59").split(":").map(Number)
-            const deadlineDate = new Date(y, m - 1, d, hh, mm)
-            const diffMs = deadlineDate.getTime() - now.getTime()
-            const diffHours = diffMs / 3600000
-
-            if (diffHours > 0 && diffHours <= 1.0 && !root._notifiedDeadlines["1h_" + dl.taskId]) {
-                root.sendNotification("Deadline Approaching", `${dl.taskContent} for "${dl.itemTitle}" is due in 1 hour`)
-                root._notifiedDeadlines["1h_" + dl.taskId] = true
+        // 7. Reminder Firing & Auto-cleanup
+        const expiredReminderIds = [];
+        ReminderService.reminders.forEach(r => {
+            if (r.fired) {
+                // Auto-delete 30 minutes after fire time
+                const rDate = new Date(r.date + "T" + r.time);
+                if (now.getTime() > rDate.getTime() + 1800000)
+                    expiredReminderIds.push(r.id);
+                return;
             }
-
-            if (diffMs < 0 && diffMs > -3600000 && !root._notifiedDeadlines["overdue_" + dl.taskId]) {
-                root.sendNotification("Deadline Passed", `${dl.taskContent} for "${dl.itemTitle}" is overdue`)
-                root._notifiedDeadlines["overdue_" + dl.taskId] = true
+            const rDate = new Date(r.date + "T" + r.time);
+            if (rDate <= now && r.lastFiredDate !== nowDateStr) {
+                let body = r.text;
+                if (r.linkedTitle) body += " \u00b7 " + r.linkedTitle;
+                root.sendNotification("Reminder", body);
+                ReminderService.updateReminder(r.id, { fired: true, lastFiredDate: nowDateStr });
             }
-        }
+        });
+        expiredReminderIds.forEach(id => ReminderService.deleteReminder(id));
 
         // Apply DND State
         if (root.scheduleDndActive !== anyEventActive) {

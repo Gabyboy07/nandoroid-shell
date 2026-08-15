@@ -40,6 +40,9 @@ Singleton {
     property string favoritesPathRaw: genericCache + "/nandoroid/favorites.json"
     property string favoritesPath: "file://" + favoritesPathRaw
 
+    // Reminders cache
+    property string remindersPath: genericCache + "/nandoroid/reminders.json"
+
     // Screenshots
     property string screenshotTemp: "/tmp/nandoroid/screenshots"
     property string screenshotDir: Functions.FileUtils.trimFileProtocol(`${pictures}/Screenshots`)
@@ -61,5 +64,6 @@ Singleton {
         Quickshell.execDetached(["touch", `${Functions.FileUtils.trimFileProtocol(state)}/quickshell/nandoroid_states.json`])
         Quickshell.execDetached(["touch", "/tmp/nandoroid_cava.conf"])
         Quickshell.execDetached(["touch", `${Functions.FileUtils.trimFileProtocol(cache)}/nandoroid/todo.json`])
+        Quickshell.execDetached(["touch", `${Functions.FileUtils.trimFileProtocol(cache)}/nandoroid/reminders.json`])
     }
 }

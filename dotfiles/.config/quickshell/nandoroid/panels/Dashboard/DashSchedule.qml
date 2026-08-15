@@ -18,9 +18,14 @@ Item {
 
     // ── Navigation state ──
     property string _view: "timeline"
-    // "timeline" | "editor"
+    // "timeline" | "editor" | "reminder-editor"
     property string _editingId: ""
+    property string _editingReminderId: ""
     property int dayOffset: 0 // 0 = today
+
+    // ── Items from parent (for reminder linked-item picker) ──
+    property var notepadItems: []
+    property var todoItems: []
     // ── Timeline metrics ──
     readonly property real hourHeight: 40 * Appearance.effectiveScale
     readonly property real gutterWidth: 46 * Appearance.effectiveScale
@@ -52,58 +57,66 @@ Item {
         list.sort((a, b) => (a.time || "00:00").localeCompare(b.time || "00:00"));
         return list;
     }
-    // Column layout for overlapping events (Google Calendar style).
-    // Returns [{ ev, col, colCount }] sorted by time.
+    // Unified column layout for overlapping events AND reminders.
+    // Returns [{ item, sf, ef, isReminder, col, colCount }] sorted by start time.
     readonly property var dayLayout: {
-        const events = root.dayEvents;
-        const result = [];
-        if (events.length === 0)
-            return result;
+        const items = [];
 
-        // Group overlapping events into clusters
+        // Add events
+        for (let i = 0; i < root.dayEvents.length; i++) {
+            const ev = root.dayEvents[i];
+            items.push({ "item": ev, "sf": root._blockStartFrac(ev), "ef": root._blockEndFrac(ev), "isReminder": false });
+        }
+
+        // Add reminders (fixed 1-hour height)
+        for (let j = 0; j < root.dayReminders.length; j++) {
+            const rem = root.dayReminders[j];
+            const sf = root._timeFrac(rem.time) ?? 0;
+            items.push({ "item": rem, "sf": sf, "ef": Math.min(1, sf + 1 / 24), "isReminder": true });
+        }
+
+        if (items.length === 0) return [];
+
+        // Sort by start time
+        items.sort(function(a, b) { return a.sf - b.sf; });
+
+        // Group overlapping items into clusters
         const clusters = [];
         let current = [];
-        for (let ev of events) {
-            const overlapsCluster = current.some((c) => {
-                return root._overlaps(ev, c);
-            });
-            if (overlapsCluster) {
-                current.push(ev);
+        for (let k = 0; k < items.length; k++) {
+            const it = items[k];
+            let overlaps = false;
+            for (let m = 0; m < current.length; m++) {
+                if (it.sf < current[m].ef && current[m].sf < it.ef) { overlaps = true; break; }
+            }
+            if (overlaps) {
+                current.push(it);
             } else {
-                if (current.length)
-                    clusters.push(current);
-
-                current = [ev];
+                if (current.length) clusters.push(current);
+                current = [it];
             }
         }
-        if (current.length)
-            clusters.push(current);
+        if (current.length) clusters.push(current);
 
-        // Greedy column assignment within each cluster; all events in the
-        // cluster share the final column count (uniform width).
-        for (let cluster of clusters) {
-            const colEnds = []; // endFrac per column
+        // Greedy column assignment
+        const result = [];
+        for (let ci = 0; ci < clusters.length; ci++) {
+            const cluster = clusters[ci];
+            const colEnds = [];
             const placed = [];
-            for (let ev of cluster) {
-                const es = root._blockStartFrac(ev);
-                const ee = root._blockEndFrac(ev);
+            for (let pi = 0; pi < cluster.length; pi++) {
+                const it = cluster[pi];
                 let col = 0;
-                while (col < colEnds.length && es < colEnds[col])col++
-                if (col === colEnds.length)
-                    colEnds.push(0);
-
-                colEnds[col] = Math.max(colEnds[col], ee);
-                placed.push({
-                    "ev": ev,
-                    "col": col
-                });
+                while (col < colEnds.length && it.sf < colEnds[col]) col++;
+                if (col === colEnds.length) colEnds.push(0);
+                colEnds[col] = Math.max(colEnds[col], it.ef);
+                placed.push({ "item": it.item, "sf": it.sf, "ef": it.ef, "isReminder": it.isReminder, "col": col });
             }
             const colCount = colEnds.length;
-            for (let p of placed) result.push({
-                "ev": p.ev,
-                "col": p.col,
-                "colCount": colCount
-            })
+            for (let ri = 0; ri < placed.length; ri++) {
+                const p = placed[ri];
+                result.push({ "item": p.item, "sf": p.sf, "ef": p.ef, "isReminder": p.isReminder, "col": p.col, "colCount": colCount });
+            }
         }
         return result;
     }
@@ -116,6 +129,23 @@ Item {
     property string formEndDate: ""
     property string formDescription: ""
     property bool formFocus: false
+
+    // ── Reminder form state ──
+    property string reminderText: ""
+    property string reminderDate: _defaultDateStr()
+    property string reminderTime: "09:00"
+    property string reminderType: "basic" // "basic" | "notepad" | "todo"
+    property string reminderLinkedId: ""
+    property string reminderLinkedTitle: ""
+
+    // ── Speed Dial FAB state ──
+    property bool _fabOpen: false
+
+    // ── Reminders for selected day ──
+    readonly property var dayReminders: {
+        const day = root._dayDate;
+        return ReminderService.reminders.filter(r => r.date === day && !r.fired);
+    }
     property int _multiDayDiff: {
         if (!formEndDate.trim() || formEndDate === formDate)
             return 0;
@@ -565,9 +595,98 @@ Item {
         }, Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : false);
     }
 
-    onDayOffsetChanged: Qt.callLater(() => {
-        return scrollToDayStart();
-    })
+    // ── Reminder editor helpers ──
+    function openReminderEditorNew() {
+        root._editingReminderId = "";
+        root.clearReminderForm();
+        root._fabOpen = false;
+        root._view = "reminder-editor";
+    }
+
+    function openReminderEditorEdit(id) {
+        const r = ReminderService.reminders.find(x => x.id === id);
+        if (!r) return;
+        root._editingReminderId = id;
+        root.reminderText = r.text;
+        root.reminderDate = root._formatDateByConfig(r.date);
+        root.reminderTime = r.time;
+        root.reminderType = r.type || "basic";
+        root.reminderLinkedId = r.linkedId || "";
+        root.reminderLinkedTitle = r.linkedTitle || "";
+        root._fabOpen = false;
+        root._view = "reminder-editor";
+    }
+
+    function backFromReminderEditor() {
+        root._editingReminderId = "";
+        root._view = "timeline";
+    }
+
+    function clearReminderForm() {
+        const now = new Date();
+        const nextH = (now.getHours() + 1) % 24;
+        const date = new Date(now);
+        if (nextH <= now.getHours()) date.setDate(date.getDate() + 1);
+        reminderText = "";
+        reminderDate = _formatDateObj(date);
+        reminderTime = String(nextH).padStart(2, '0') + ":00";
+        reminderType = "basic";
+        reminderLinkedId = "";
+        reminderLinkedTitle = "";
+    }
+
+    function saveReminder() {
+        if (!reminderText.trim()) return;
+        const dateVal = GlobalStates.toCanonicalDateStr(reminderDate) || reminderDate;
+        if (root._editingReminderId) {
+            ReminderService.updateReminder(root._editingReminderId, {
+                text: reminderText.trim(),
+                date: dateVal,
+                time: reminderTime,
+                type: reminderType,
+                linkedId: reminderLinkedId,
+                linkedTitle: reminderLinkedTitle
+            });
+        } else {
+            ReminderService.addReminder({
+                id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+                text: reminderText.trim(),
+                date: dateVal,
+                time: reminderTime,
+                type: reminderType,
+                linkedId: reminderLinkedId,
+                linkedTitle: reminderLinkedTitle,
+                fired: false,
+                lastFiredDate: ""
+            });
+        }
+        root._editingReminderId = "";
+        root._view = "timeline";
+    }
+
+    function deleteEditingReminder() {
+        if (!root._editingReminderId) return;
+        ReminderService.deleteReminder(root._editingReminderId);
+        root._editingReminderId = "";
+        root._view = "timeline";
+    }
+
+    function openReminderDatePicker() {
+        GlobalStates.datePickerCurrentDate = root.reminderDate;
+        GlobalStates.datePickerOnSelected = function(dateStr) {
+            root.reminderDate = dateStr;
+        };
+        GlobalStates.datePickerOnCancelled = function() {};
+        GlobalStates.datePickerOpen = true;
+    }
+
+    function openReminderTimePicker() {
+        GlobalStates.openTimePicker(root.reminderTime || "09:00", function(timeStr) {
+            root.reminderTime = timeStr;
+        }, function() {}, Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : false);
+    }
+
+    onDayOffsetChanged: Qt.callLater(() => scrollToDayStart())
     onFormEndDateChanged: {
         if (_multiDayDiff > 0 && formRecurrence !== "once")
             formRecurrence = "once";
@@ -839,54 +958,58 @@ Item {
 
                             }
 
-                            // Event blocks
+                            // Unified event + reminder blocks (column-layout aware)
                             Item {
-                                x: root.gutterWidth + 4 * Appearance.effectiveScale
+                                x: root.gutterWidth
                                 y: 0
-                                width: parent.width - x - 4 * Appearance.effectiveScale
+                                width: parent.width - x
                                 height: parent.height
 
                                 Repeater {
                                     model: root.dayLayout
 
                                     delegate: Item {
+
+                                        id: blockDelegate
                                         required property var modelData
-                                        readonly property var ev: modelData.ev
-                                        readonly property real startFrac: root._blockStartFrac(ev)
-                                        readonly property real endFrac: root._blockEndFrac(ev)
+                                        readonly property bool isRem: modelData.isReminder
+                                        readonly property var ev: modelData.isReminder ? ({"title": "", "time": "", "endTime": "", "id": "", "focus": false}) : modelData.item
+                                        readonly property var rem: modelData.isReminder ? modelData.item : ({"text": "", "time": "", "id": "", "linkedTitle": ""})
 
                                         x: modelData.col / modelData.colCount * parent.width
-                                        y: startFrac * root.timelineContentHeight
+                                        y: modelData.sf * root.timelineContentHeight
                                         width: parent.width / modelData.colCount
-                                        height: Math.max(root.minBlockHeight, (endFrac - startFrac) * root.timelineContentHeight)
+                                        height: Math.max(root.minBlockHeight, (modelData.ef - modelData.sf) * root.timelineContentHeight)
 
+                                        // ── Event block ──
                                         Rectangle {
+                                            id: evBlock
+                                            visible: !blockDelegate.isRem
                                             radius: Appearance.rounding.small
-                                            color: ev.focus ? Appearance.m3colors.m3tertiaryContainer : Appearance.colors.colLayer3
+                                            color: blockDelegate.ev.focus ? Appearance.m3colors.m3tertiaryContainer : Appearance.colors.colLayer3
                                             clip: true
 
                                             anchors {
                                                 fill: parent
                                                 topMargin: 1 * Appearance.effectiveScale
                                                 bottomMargin: 3 * Appearance.effectiveScale
-                                                leftMargin: 1 * Appearance.effectiveScale
-                                                rightMargin: 4 * Appearance.effectiveScale
+                                                leftMargin: 0
+                                                rightMargin: 1 * Appearance.effectiveScale
                                             }
 
-                                            // Text pinned to the top like Google Calendar
-                                            Item {
-                                                property bool isCompact: parent.height <= (root.hourHeight * 1.05)
-                                                property string timeStr: root._displayTime(ev.time) + (ev.endTime && ev.endTime !== ev.time ? " - " + root._displayTime(ev.endTime) : "")
+                                            property bool isCompact: height <= (root.hourHeight * 1.05)
+                                            property string timeStr: root._displayTime(blockDelegate.ev.time) + (blockDelegate.ev.endTime && blockDelegate.ev.endTime !== blockDelegate.ev.time ? " - " + root._displayTime(blockDelegate.ev.endTime) : "")
 
+                                            Item {
                                                 anchors {
                                                     fill: parent
-                                                    topMargin: isCompact ? 0 : (6 * Appearance.effectiveScale)
+                                                    topMargin: evBlock.isCompact ? 0 : (6 * Appearance.effectiveScale)
                                                     leftMargin: 10 * Appearance.effectiveScale
                                                     rightMargin: 8 * Appearance.effectiveScale
                                                 }
 
                                                 RowLayout {
-                                                    visible: parent.isCompact
+                                                    visible: evBlock.isCompact
                                                     anchors {
                                                         verticalCenter: parent.verticalCenter
                                                         left: parent.left
@@ -895,39 +1018,39 @@ Item {
                                                     spacing: 4 * Appearance.effectiveScale
 
                                                     StyledText {
-                                                        text: ev.title
+                                                        text: blockDelegate.ev.title
                                                         font.pixelSize: Appearance.font.pixelSize.small
                                                         font.weight: Font.Medium
-                                                        color: ev.focus ? Appearance.m3colors.m3onTertiaryContainer : Appearance.m3colors.m3onSurface
+                                                        color: blockDelegate.ev.focus ? Appearance.m3colors.m3onTertiaryContainer : Appearance.m3colors.m3onSurface
                                                         elide: Text.ElideRight
                                                         Layout.fillWidth: true
                                                     }
 
                                                     StyledText {
-                                                        visible: parent.parent.timeStr !== ""
-                                                        text: "·"
+                                                        visible: evBlock.timeStr !== ""
+                                                        text: "\u00b7"
                                                         font.pixelSize: Appearance.font.pixelSize.small
                                                         font.weight: Font.Medium
-                                                        color: ev.focus ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onTertiaryContainer, 0.75) : Appearance.colors.colSubtext
+                                                        color: blockDelegate.ev.focus ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onTertiaryContainer, 0.75) : Appearance.colors.colSubtext
                                                         Layout.alignment: Qt.AlignVCenter
                                                     }
 
                                                     StyledText {
-                                                        visible: parent.parent.timeStr !== ""
-                                                        text: parent.parent.timeStr
+                                                        visible: evBlock.timeStr !== ""
+                                                        text: evBlock.timeStr
                                                         font.pixelSize: Appearance.font.pixelSize.smallest
-                                                        color: ev.focus ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onTertiaryContainer, 0.75) : Appearance.colors.colSubtext
+                                                        color: blockDelegate.ev.focus ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onTertiaryContainer, 0.75) : Appearance.colors.colSubtext
                                                         Layout.alignment: Qt.AlignVCenter
                                                     }
                                                 }
 
                                                 StyledText {
-                                                    id: pillTitle
-                                                    visible: !parent.isCompact
-                                                    text: ev.title
+                                                    id: evTitle
+                                                    visible: !evBlock.isCompact
+                                                    text: blockDelegate.ev.title
                                                     font.pixelSize: Appearance.font.pixelSize.small
                                                     font.weight: Font.Medium
-                                                    color: ev.focus ? Appearance.m3colors.m3onTertiaryContainer : Appearance.m3colors.m3onSurface
+                                                    color: blockDelegate.ev.focus ? Appearance.m3colors.m3onTertiaryContainer : Appearance.m3colors.m3onSurface
                                                     wrapMode: Text.Wrap
                                                     maximumLineCount: 2
                                                     elide: Text.ElideRight
@@ -939,13 +1062,13 @@ Item {
                                                 }
 
                                                 StyledText {
-                                                    visible: !parent.isCompact
-                                                    text: parent.timeStr
+                                                    visible: !evBlock.isCompact
+                                                    text: evBlock.timeStr
                                                     font.pixelSize: Appearance.font.pixelSize.smallest
-                                                    color: ev.focus ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onTertiaryContainer, 0.75) : Appearance.colors.colSubtext
+                                                    color: blockDelegate.ev.focus ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onTertiaryContainer, 0.75) : Appearance.colors.colSubtext
                                                     elide: Text.ElideRight
                                                     anchors {
-                                                        top: pillTitle.bottom
+                                                        top: evTitle.bottom
                                                         topMargin: 1 * Appearance.effectiveScale
                                                         left: parent.left
                                                         right: parent.right
@@ -956,15 +1079,134 @@ Item {
                                             MouseArea {
                                                 anchors.fill: parent
                                                 cursorShape: Qt.PointingHandCursor
-                                                onClicked: root.openEditorEdit(ev.id)
+                                                onClicked: root.openEditorEdit(blockDelegate.ev.id)
                                             }
-
                                         }
 
+                                        // ── Reminder block ──
+                                        Rectangle {
+                                            id: remBlock
+                                            visible: parent.isRem
+                                            radius: Appearance.rounding.small
+                                            color: Appearance.m3colors.m3secondaryContainer
+                                            clip: true
+
+                                            anchors {
+                                                fill: parent
+                                                topMargin: 1 * Appearance.effectiveScale
+                                                bottomMargin: 3 * Appearance.effectiveScale
+                                                leftMargin: 0
+                                                rightMargin: 1 * Appearance.effectiveScale
+                                            }
+
+                                            property bool isCompact: height <= (root.hourHeight * 1.05)
+                                            property string timeStr: root._displayTime(blockDelegate.rem.time) || ""
+
+                                            Item {
+                                                anchors {
+                                                    fill: parent
+                                                    topMargin: remBlock.isCompact ? 0 : (6 * Appearance.effectiveScale)
+                                                    leftMargin: 6 * Appearance.effectiveScale
+                                                    rightMargin: 6 * Appearance.effectiveScale
+                                                }
+
+                                                // Compact: icon + text + · + time inline
+                                                RowLayout {
+                                                    visible: remBlock.isCompact
+                                                    anchors {
+                                                        verticalCenter: parent.verticalCenter
+                                                        left: parent.left
+                                                    }
+                                                    width: Math.min(implicitWidth, parent.width)
+                                                    spacing: 4 * Appearance.effectiveScale
+
+                                                    MaterialSymbol {
+                                                        text: "alarm"
+                                                        iconSize: 12 * Appearance.effectiveScale
+                                                        color: Appearance.m3colors.m3onSecondaryContainer
+                                                        Layout.alignment: Qt.AlignVCenter
+                                                    }
+
+                                                    StyledText {
+                                                        text: blockDelegate.rem.text
+                                                        font.pixelSize: Appearance.font.pixelSize.small
+                                                        font.weight: Font.Medium
+                                                        color: Appearance.m3colors.m3onSecondaryContainer
+                                                        elide: Text.ElideRight
+                                                        Layout.fillWidth: true
+                                                    }
+
+                                                    StyledText {
+                                                        visible: remBlock.timeStr !== ""
+                                                        text: "\u00b7"
+                                                        font.pixelSize: Appearance.font.pixelSize.small
+                                                        font.weight: Font.Medium
+                                                        color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSecondaryContainer, 0.75)
+                                                        Layout.alignment: Qt.AlignVCenter
+                                                    }
+
+                                                    StyledText {
+                                                        visible: remBlock.timeStr !== ""
+                                                        text: remBlock.timeStr
+                                                        font.pixelSize: Appearance.font.pixelSize.smallest
+                                                        color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSecondaryContainer, 0.75)
+                                                        Layout.alignment: Qt.AlignVCenter
+                                                    }
+                                                }
+
+                                                // Expanded: icon+text pinned top, time below
+                                                RowLayout {
+                                                    id: remTitleRow
+                                                    visible: !remBlock.isCompact
+                                                    spacing: 4 * Appearance.effectiveScale
+                                                    anchors {
+                                                        top: parent.top
+                                                        left: parent.left
+                                                        right: parent.right
+                                                    }
+
+                                                    MaterialSymbol {
+                                                        text: "alarm"
+                                                        iconSize: 14 * Appearance.effectiveScale
+                                                        color: Appearance.m3colors.m3onSecondaryContainer
+                                                        Layout.alignment: Qt.AlignVCenter
+                                                    }
+
+                                                    StyledText {
+                                                        text: blockDelegate.rem.text
+                                                        font.pixelSize: Appearance.font.pixelSize.small
+                                                        font.weight: Font.Medium
+                                                        color: Appearance.m3colors.m3onSecondaryContainer
+                                                        wrapMode: Text.Wrap
+                                                        maximumLineCount: 2
+                                                        elide: Text.ElideRight
+                                                        Layout.fillWidth: true
+                                                    }
+                                                }
+
+                                                StyledText {
+                                                    visible: !remBlock.isCompact
+                                                    text: remBlock.timeStr
+                                                    font.pixelSize: Appearance.font.pixelSize.smallest
+                                                    color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSecondaryContainer, 0.75)
+                                                    elide: Text.ElideRight
+                                                    anchors {
+                                                        top: remTitleRow.bottom
+                                                        topMargin: 1 * Appearance.effectiveScale
+                                                        left: parent.left
+                                                        right: parent.right
+                                                    }
+                                                }
+                                            }
+
+                                            MouseArea {
+                                                anchors.fill: parent
+                                                cursorShape: Qt.PointingHandCursor
+                                                onClicked: root.openReminderEditorEdit(blockDelegate.rem.id)
+                                            }
+                                        }
                                     }
-
                                 }
-
                             }
 
                             // Current time indicator (today only)
@@ -992,7 +1234,6 @@ Item {
                                     x: root.gutterWidth - 5 * Appearance.effectiveScale
                                     y: -4 * Appearance.effectiveScale
                                 }
-
                             }
 
                         }
@@ -1006,7 +1247,7 @@ Item {
                     ColumnLayout {
                         anchors.centerIn: parent
                         spacing: 8 * Appearance.effectiveScale
-                        visible: root.dayEvents.length === 0
+                        visible: root.dayEvents.length === 0 && root.dayReminders.length === 0
                         opacity: visible ? 1 : 0
 
                         MaterialSymbol {
@@ -1044,11 +1285,110 @@ Item {
 
             }
 
-            // ── FAB ──
+            // ── Speed Dial FAB ──
+
+            // Scrim (closes speed dial on outside click)
+            MouseArea {
+                id: fabScrim
+                anchors.fill: parent
+                visible: root._fabOpen
+                z: 90
+                onClicked: root._fabOpen = false
+            }
+
+            // Speed Dial container — anchored to bottom-right, same margin as FAB
+            Item {
+                id: fabSpeedDial
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.rightMargin: 16 * Appearance.effectiveScale
+                anchors.bottomMargin: 16 * Appearance.effectiveScale
+                // Size matches the FAB so children can anchor to it
+                width: 56 * Appearance.effectiveScale
+                height: 56 * Appearance.effectiveScale
+                z: 100
+
+                // ── New Event pill (bottom slot, closest to FAB) ──
+                RippleButton {
+                    id: pillNewEvent
+                    anchors.right: parent.right
+                    readonly property real shownY: -(8 + 56) * Appearance.effectiveScale
+                    y: root._fabOpen ? shownY : 0
+                    Behavior on y { NumberAnimation { duration: 200; easing.type: Easing.OutBack; easing.overshoot: 1.1 } }
+                    opacity: root._fabOpen ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 160 } }
+
+                    implicitHeight: 56 * Appearance.effectiveScale
+                    implicitWidth: pillNewEventRow.implicitWidth + 48 * Appearance.effectiveScale
+                    buttonRadius: 28 * Appearance.effectiveScale
+                    colBackground: Appearance.m3colors.m3primaryContainer
+                    colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.92)
+                    colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
+                    onClicked: { root._fabOpen = false; root.openEditorNew(); }
+
+                    RowLayout {
+                        id: pillNewEventRow
+                        anchors.centerIn: parent
+                        spacing: 12 * Appearance.effectiveScale
+
+                        MaterialSymbol {
+                            text: "event"
+                            iconSize: 24 * Appearance.effectiveScale
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
+                        StyledText {
+                            text: I18nService.tr("New Event")
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            font.weight: Font.Medium
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
+                    }
+                }
+
+                // ── Reminder pill (top slot) ──
+                RippleButton {
+                    id: pillReminder
+                    anchors.right: parent.right
+                    readonly property real shownY: -(8 + 56 + 4 + 56) * Appearance.effectiveScale
+                    y: root._fabOpen ? shownY : 0
+                    Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutBack; easing.overshoot: 1.1 } }
+                    opacity: root._fabOpen ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 200 } }
+
+                    implicitHeight: 56 * Appearance.effectiveScale
+                    implicitWidth: pillReminderRow.implicitWidth + 48 * Appearance.effectiveScale
+                    buttonRadius: 28 * Appearance.effectiveScale
+                    colBackground: Appearance.m3colors.m3primaryContainer
+                    colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.92)
+                    colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
+                    onClicked: root.openReminderEditorNew()
+
+                    RowLayout {
+                        id: pillReminderRow
+                        anchors.centerIn: parent
+                        spacing: 12 * Appearance.effectiveScale
+
+                        MaterialSymbol {
+                            text: "alarm"
+                            iconSize: 24 * Appearance.effectiveScale
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
+                        StyledText {
+                            text: I18nService.tr("Reminder")
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            font.weight: Font.Medium
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
+                    }
+                }
+
+            }
+
+            // Main FAB
             StyledRectangularShadow {
                 target: fabButton
                 radius: fabButton.buttonRadius
-
+                z: 101
             }
 
             RippleButton {
@@ -1059,26 +1399,35 @@ Item {
                 anchors.bottomMargin: 16 * Appearance.effectiveScale
                 implicitWidth: 56 * Appearance.effectiveScale
                 implicitHeight: 56 * Appearance.effectiveScale
-                buttonRadius: 16 * Appearance.effectiveScale
-                colBackground: Appearance.m3colors.m3primaryContainer
-                colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.9)
-                colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
-                onClicked: root.openEditorNew()
+                buttonRadius: root._fabOpen ? 28 * Appearance.effectiveScale : 16 * Appearance.effectiveScale
+                colBackground: root._fabOpen ? Appearance.colors.colPrimary : Appearance.m3colors.m3primaryContainer
+                Behavior on colBackground { ColorAnimation { duration: 200 } }
+                colBackgroundHover: root._fabOpen
+                    ? Functions.ColorUtils.mix(Appearance.colors.colPrimary, Appearance.colors.colOnPrimary, 0.92)
+                    : Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.92)
+                colRipple: root._fabOpen
+                    ? Functions.ColorUtils.applyAlpha(Appearance.colors.colOnPrimary, 0.15)
+                    : Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
+                z: 102
+                onClicked: root._fabOpen = !root._fabOpen
 
                 MaterialSymbol {
                     anchors.centerIn: parent
-                    text: "add"
+                    text: root._fabOpen ? "close" : "add"
                     iconSize: 24 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3onPrimaryContainer
+                    color: root._fabOpen ? Appearance.colors.colOnPrimary : Appearance.m3colors.m3onPrimaryContainer
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                    Behavior on text {}
                 }
 
                 StyledToolTip {
-                    text: I18nService.tr("New Event")
+                    text: root._fabOpen ? I18nService.tr("Close") : I18nService.tr("Add")
                 }
-
             }
 
+
         }
+
 
     }
 
@@ -1465,4 +1814,317 @@ Item {
         }
 
     }
+
+    // ══════════════════════════════════════════════════
+    //  PAGE 2: REMINDER EDITOR
+    // ══════════════════════════════════════════════════
+    Item {
+        id: reminderEditorView
+        anchors.fill: parent
+        visible: root._view === "reminder-editor"
+        opacity: visible ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutQuart } }
+
+        ColumnLayout {
+            anchors.fill: parent
+            spacing: 12 * Appearance.effectiveScale
+
+            // ── Header ──
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8 * Appearance.effectiveScale
+
+                RippleButton {
+                    implicitWidth: 36 * Appearance.effectiveScale
+                    implicitHeight: 36 * Appearance.effectiveScale
+                    buttonRadius: 18 * Appearance.effectiveScale
+                    colBackground: Appearance.colors.colLayer2
+                    colRipple: Appearance.colors.colLayer2Active
+                    onClicked: root.backFromReminderEditor()
+
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: "arrow_back"
+                        iconSize: 20 * Appearance.effectiveScale
+                        color: Appearance.m3colors.m3onSurface
+                    }
+                    StyledToolTip { text: I18nService.tr("Back to schedule") }
+                }
+
+                StyledText {
+                    text: root._editingReminderId ? I18nService.tr("Edit Reminder") : I18nService.tr("New Reminder")
+                    font.pixelSize: Appearance.font.pixelSize.large
+                    font.weight: Font.DemiBold
+                    color: Appearance.m3colors.m3onSurface
+                    Layout.fillWidth: true
+                }
+
+                // Delete button (only when editing)
+                RippleButton {
+                    visible: root._editingReminderId !== ""
+                    implicitWidth: 36 * Appearance.effectiveScale
+                    implicitHeight: 36 * Appearance.effectiveScale
+                    buttonRadius: 18 * Appearance.effectiveScale
+                    colBackground: Appearance.m3colors.m3surfaceContainer
+                    onClicked: {
+                        DialogService.requestConfirmation({
+                            titleText: I18nService.tr("Delete Reminder?"),
+                            messageText: I18nService.tr("Are you sure you want to delete this reminder? This action cannot be undone."),
+                            iconText: "delete",
+                            isDestructive: true
+                        }, () => root.deleteEditingReminder())
+                    }
+
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: "delete"
+                        iconSize: 20 * Appearance.effectiveScale
+                        color: Appearance.colors.colError
+                    }
+                    StyledToolTip { text: I18nService.tr("Delete reminder") }
+                }
+            }
+
+            // ── Scrollable form ──
+            StyledFlickable {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                contentHeight: reminderFormLayout.implicitHeight
+                clip: true
+
+                ColumnLayout {
+                    id: reminderFormLayout
+                    width: parent.width
+                    spacing: 12 * Appearance.effectiveScale
+
+                    // Reminder text
+                    StyledTextInput {
+                        id: reminderTextField
+                        Layout.fillWidth: true
+                        implicitHeight: 44 * Appearance.effectiveScale
+                        inputRadius: Appearance.rounding.small / Appearance.effectiveScale
+                        backgroundColor: Appearance.m3colors.m3surfaceContainer
+                        placeholder: I18nService.tr("Remind me to...")
+                        text: root.reminderText
+                        onTextChanged: {
+                            root.reminderText = text
+                        }
+                    }
+
+                    // Date row
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8 * Appearance.effectiveScale
+
+                        StyledText {
+                            text: I18nService.tr("Date:")
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            color: Appearance.m3colors.m3onSurface
+                            Layout.preferredWidth: 52 * Appearance.effectiveScale
+                        }
+
+                        RippleButton {
+                            Layout.fillWidth: true
+                            implicitHeight: 40 * Appearance.effectiveScale
+                            buttonRadius: Appearance.rounding.small
+                            colBackground: Appearance.m3colors.m3surfaceContainer
+                            colRipple: Appearance.colors.colLayer2Active
+                            onClicked: root.openReminderDatePicker()
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 12 * Appearance.effectiveScale
+                                anchors.rightMargin: 12 * Appearance.effectiveScale
+                                spacing: 8 * Appearance.effectiveScale
+
+                                MaterialSymbol {
+                                    text: "calendar_today"
+                                    iconSize: 16 * Appearance.effectiveScale
+                                    color: Appearance.m3colors.m3onSurface
+                                }
+                                StyledText {
+                                    text: root._displayDate(root.reminderDate) || root.reminderDate
+                                    font.pixelSize: Appearance.font.pixelSize.normal
+                                    color: Appearance.m3colors.m3onSurface
+                                    Layout.fillWidth: true
+                                }
+                            }
+                        }
+                    }
+
+                    // Time row
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8 * Appearance.effectiveScale
+
+                        StyledText {
+                            text: I18nService.tr("Time:")
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            color: Appearance.m3colors.m3onSurface
+                            Layout.preferredWidth: 52 * Appearance.effectiveScale
+                        }
+
+                        RippleButton {
+                            Layout.fillWidth: true
+                            implicitHeight: 40 * Appearance.effectiveScale
+                            buttonRadius: Appearance.rounding.small
+                            colBackground: Appearance.m3colors.m3surfaceContainer
+                            colRipple: Appearance.colors.colLayer2Active
+                            onClicked: root.openReminderTimePicker()
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 12 * Appearance.effectiveScale
+                                anchors.rightMargin: 12 * Appearance.effectiveScale
+                                spacing: 8 * Appearance.effectiveScale
+
+                                MaterialSymbol {
+                                    text: "schedule"
+                                    iconSize: 16 * Appearance.effectiveScale
+                                    color: Appearance.m3colors.m3onSurface
+                                }
+                                StyledText {
+                                    text: root._displayTime(root.reminderTime) || root.reminderTime
+                                    font.pixelSize: Appearance.font.pixelSize.normal
+                                    color: Appearance.m3colors.m3onSurface
+                                    Layout.fillWidth: true
+                                }
+                            }
+                        }
+                    }
+
+                    // Type row
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8 * Appearance.effectiveScale
+
+                        StyledText {
+                            text: I18nService.tr("Type:")
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            color: Appearance.m3colors.m3onSurface
+                            Layout.preferredWidth: 52 * Appearance.effectiveScale
+                        }
+
+                        StyledComboBox {
+                            id: reminderTypeCombo
+                            Layout.fillWidth: true
+                            searchable: false
+                            model: [I18nService.tr("Basic"), I18nService.tr("Notepad"), I18nService.tr("Todo")]
+                            text: {
+                                switch (root.reminderType) {
+                                    case "notepad": return I18nService.tr("Notepad");
+                                    case "todo": return I18nService.tr("Todo");
+                                    default: return I18nService.tr("Basic");
+                                }
+                            }
+                            colBackground: Appearance.m3colors.m3surfaceContainer
+                            onAccepted: (val) => {
+                                if (val === I18nService.tr("Notepad")) root.reminderType = "notepad";
+                                else if (val === I18nService.tr("Todo")) root.reminderType = "todo";
+                                else root.reminderType = "basic";
+                                root.reminderLinkedId = "";
+                                root.reminderLinkedTitle = "";
+                            }
+                        }
+                    }
+
+                    // Linked item row (shown only for notepad/todo types)
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8 * Appearance.effectiveScale
+                        visible: root.reminderType === "notepad" || root.reminderType === "todo"
+                        opacity: visible ? 1 : 0
+                        Behavior on opacity { NumberAnimation { duration: 150 } }
+
+                        StyledText {
+                            text: root.reminderType === "notepad" ? I18nService.tr("Note:") : I18nService.tr("Task:")
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            color: Appearance.m3colors.m3onSurface
+                            Layout.preferredWidth: 52 * Appearance.effectiveScale
+                        }
+
+                        StyledComboBox {
+                            id: linkedItemCombo
+                            Layout.fillWidth: true
+                            searchable: true
+
+                            // Model: notepad item titles or todo task contents (truncated)
+                            model: {
+                                if (root.reminderType === "notepad") {
+                                    return root.notepadItems.map(i => i.title || I18nService.tr("Untitled"));
+                                } else if (root.reminderType === "todo") {
+                                    const result = [];
+                                    for (const task of root.todoItems) {
+                                        if (!task || !task.content) continue;
+                                        const content = task.content;
+                                        result.push(content.length > 50 ? content.slice(0, 47) + "..." : content);
+                                    }
+                                    return result;
+                                }
+                                return [];
+                            }
+
+                            text: root.reminderLinkedTitle || ""
+                            placeholder: root.reminderType === "notepad"
+                                ? I18nService.tr("Select notepad...")
+                                : I18nService.tr("Select task...")
+                            colBackground: Appearance.m3colors.m3surfaceContainer
+
+                            onAccepted: (val) => {
+                                root.reminderLinkedTitle = val;
+                                // Find linked ID
+                                if (root.reminderType === "notepad") {
+                                    const item = root.notepadItems.find(i =>
+                                        (i.title || I18nService.tr("Untitled")) === val
+                                    );
+                                    root.reminderLinkedId = item ? item.id : "";
+                                } else if (root.reminderType === "todo") {
+                                    let foundId = "";
+                                    for (const task of root.todoItems) {
+                                        if (!task || !task.content) continue;
+                                        const content = task.content;
+                                        const truncated = content.length > 50 ? content.slice(0, 47) + "..." : content;
+                                        if (truncated === val) { foundId = task.id; break; }
+                                    }
+                                    root.reminderLinkedId = foundId;
+                                }
+                            }
+                        }
+                    }
+
+                    Item { implicitHeight: 8 * Appearance.effectiveScale }
+                }
+            }
+
+            // ── Save button — pinned at bottom (outside scrollable area) ──
+            RippleButton {
+                Layout.fillWidth: true
+                implicitHeight: 44 * Appearance.effectiveScale
+                buttonRadius: 22 * Appearance.effectiveScale
+                enabled: root.reminderText.trim() !== ""
+                colBackground: Appearance.colors.colPrimary
+                colRipple: Functions.ColorUtils.applyAlpha(Appearance.colors.colOnPrimary, 0.15)
+                opacity: enabled ? 1 : 0.5
+                onClicked: root.saveReminder()
+
+                RowLayout {
+                    anchors.centerIn: parent
+                    spacing: 8 * Appearance.effectiveScale
+
+                    MaterialSymbol {
+                        text: "alarm_add"
+                        iconSize: 20 * Appearance.effectiveScale
+                        color: Appearance.colors.colOnPrimary
+                    }
+
+                    StyledText {
+                        text: root._editingReminderId ? I18nService.tr("Update Reminder") : I18nService.tr("Set Reminder")
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnPrimary
+                    }
+                }
+            }
+        }
+    }
 }
+

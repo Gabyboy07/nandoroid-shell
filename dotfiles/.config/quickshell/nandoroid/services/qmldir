@@ -50,3 +50,4 @@ singleton GitHubService 1.0 GitHubService.qml
 singleton GlobalFocusGrab GlobalFocusGrab.qml
 singleton VersionService VersionService.qml
 singleton DialogService DialogService.qml
+singleton ReminderService ReminderService.qml

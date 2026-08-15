@@ -68,8 +68,8 @@ Item {
     onScheduleEventsChanged: updateScheduleInfo()
     on_MinuteTriggerChanged: { updateScheduleInfo(); updateBluetoothInfo(); }
     onBtDevicesChanged: updateBluetoothInfo()
-    property var _deadlineTracker: GlobalStates.todoDeadlines
-    on_DeadlineTrackerChanged: updateScheduleInfo()
+    property var _reminderTracker: ReminderService.reminders
+    on_ReminderTrackerChanged: updateScheduleInfo()
 
     Timer { id: scheduleFadeTimer; interval: 200; onTriggered: { _displayedScheduleTitle = _pendingScheduleTitle; _displayedScheduleDesc = _pendingScheduleDesc; _scheduleContentOpacity = 1; } }
     Timer { id: quoteFadeTimer; interval: 200; onTriggered: { _displayedQuote = _pendingQuote; _quoteContentOpacity = 1; } }
@@ -128,17 +128,16 @@ Item {
             }
         }
 
-        // If no upcoming schedule event, check todo deadlines
-        let nextDeadline = null;
+        // If no upcoming schedule event, check upcoming reminders (within 2 hours, not yet fired)
+        let nextReminder = null;
         if (!next) {
-            for (let dl of GlobalStates.todoDeadlines) {
-                if (dl.done) continue
-                const [dh, dm] = (dl.time || "23:59").split(":").map(Number)
-                const dlMs = dh * 60 + dm
-                const isUpcoming = nowMs < dlMs && (dlMs - nowMs) <= UPCOMING_WINDOW
-                if (isUpcoming) {
-                    nextDeadline = dl
-                    break
+            for (const r of ReminderService.reminders) {
+                if (r.fired) continue;
+                const [rh, rm] = r.time.split(":").map(Number);
+                const rMs = rh * 60 + rm;
+                if (nowMs < rMs && (rMs - nowMs) <= UPCOMING_WINDOW) {
+                    nextReminder = r;
+                    break;
                 }
             }
         }
@@ -151,21 +150,19 @@ Item {
             description: next.description,
             date: next.date,
             endDate: next.endDate
-        } : (nextDeadline ? {
-            title: nextDeadline.taskContent,
-            time: nextDeadline.time,
-            description: nextDeadline.itemTitle,
-            date: nextDeadline.date,
-            _isDeadline: true
+        } : (nextReminder ? {
+            _isReminder: true,
+            title: nextReminder.text,
+            time: nextReminder.time,
+            description: nextReminder.linkedTitle || ""
         } : null);
 
         let label = "";
         let desc = "";
         if (newNext) {
-            if (newNext._isDeadline) {
-                let timeStr = newNext.time || "23:59"
-                label = "Due: " + newNext.title + " \u00b7 " + timeStr
-                desc = newNext.description || ""
+            if (newNext._isReminder) {
+                label = I18nService.tr("Reminder: ") + newNext.title + " \u00b7 " + newNext.time;
+                desc = newNext.description || "";
             } else {
                 let dayInfo = "";
                 if (newNext.endDate && newNext.date) {

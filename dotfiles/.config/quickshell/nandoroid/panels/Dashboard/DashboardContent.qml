@@ -419,19 +419,26 @@ Item {
 
                 // Tab 1: Schedule
                 Loader {
+                    id: scheduleLoader
                     anchors.fill: parent
-                    active: root.currentTab === 1
+                    active: true
                     visible: root.currentTab === 1
                     opacity: visible ? 1 : 0
                     transform: Translate { y: root.currentTab === 1 ? 0 : (root.currentTab > 1 ? -12 * Appearance.effectiveScale : 12 * Appearance.effectiveScale)
                         Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutQuart } }
                     }
                     Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.OutQuart } }
-                    sourceComponent: DashSchedule { width: contentArea.width; height: contentArea.height }
+                    sourceComponent: DashSchedule {
+                        width: contentArea.width
+                        height: contentArea.height
+                        notepadItems: notepadLoader.item ? notepadLoader.item.items : []
+                        todoItems: todoLoader.item ? todoLoader.item.items : []
+                    }
                 }
 
                 // Tab 2: Notepad
                 Loader {
+                    id: notepadLoader
                     anchors.fill: parent
                     active: true
                     visible: root.currentTab === 2
@@ -445,6 +452,7 @@ Item {
 
                 // Tab 3: Todo / Kanban
                 Loader {
+                    id: todoLoader
                     anchors.fill: parent
                     active: true
                     visible: root.currentTab === 3
