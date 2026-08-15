@@ -178,11 +178,15 @@ Rectangle {
                             StyledText {
                                 id: itemText
                                 text: modelData.name
+                                width: root.expanded ? implicitWidth : (root.width - 12 * Appearance.effectiveScale)
+                                fontSizeMode: root.expanded ? Text.FixedSize : Text.HorizontalFit
+                                minimumPixelSize: 8 * Appearance.effectiveScale
                                 font.pixelSize: root.expanded ? Math.round(14 * Appearance.effectiveScale) : Math.round(12 * Appearance.effectiveScale)
                                 font.weight: Font.Normal
                                 color: isActive ? Appearance.m3colors.m3onSurface : Appearance.m3colors.m3onSurfaceVariant
+                                horizontalAlignment: root.expanded ? Text.AlignLeft : Text.AlignHCenter
                                 
-                                x: root.expanded ? (64 * Appearance.effectiveScale) : (40 * Appearance.effectiveScale - implicitWidth / 2)
+                                x: root.expanded ? (64 * Appearance.effectiveScale) : ((root.width - width) / 2)
                                 y: root.expanded ? ((56 * Appearance.effectiveScale - implicitHeight) / 2) : (36 * Appearance.effectiveScale)
                                 
                                 Behavior on color { ColorAnimation { duration: 150 } }

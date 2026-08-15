@@ -638,8 +638,8 @@ Item {
                         else if (!liveAvailable) liveTooltip = I18nService.tr("No live wallpaper backend found");
                         else if (GlobalStates.wallpaperSelectorTarget !== "desktop") liveTooltip = I18nService.tr("Live wallpapers only supported on desktop");
                         
-                        m.push({ name: I18nService.tr("Live Wallpaper"), icon: "movie", id: "live", enabled: liveEnabled, tooltip: liveTooltip });
-                        m.push({ name: I18nService.tr("Online Wallpaper"), icon: "public", id: "online", tooltip: I18nService.tr("Browse Wallhaven and NA-ive Walls") });
+                        m.push({ name: I18nService.tr("Live Walls"), icon: "movie", id: "live", enabled: liveEnabled, tooltip: liveTooltip });
+                        m.push({ name: I18nService.tr("Online Walls"), icon: "public", id: "online", tooltip: I18nService.tr("Browse Wallhaven and NA-ive Walls") });
                         m.push({ name: I18nService.tr("Favourites"), icon: "favorite", id: "fav", tooltip: I18nService.tr("View your favorite wallpapers") });
                         
                         m.push({ name: "Home", icon: "home", id: "local", path: Directories.home, tooltip: I18nService.tr("Browse wallpapers in %1").replace("%1", "Home") });
