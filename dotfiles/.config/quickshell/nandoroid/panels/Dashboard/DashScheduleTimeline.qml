@@ -397,7 +397,11 @@ Item {
                                                 spacing: 4 * Appearance.effectiveScale
 
                                                 MaterialSymbol {
-                                                    text: "alarm"
+                                                    text: {
+                                                        if (blockDelegate.rem.type === "notepad") return "edit_note";
+                                                        if (blockDelegate.rem.type === "todo") return "check_box";
+                                                        return "alarm";
+                                                    }
                                                     iconSize: 12 * Appearance.effectiveScale
                                                     color: Appearance.m3colors.m3onSecondaryContainer
                                                     Layout.alignment: Qt.AlignVCenter
@@ -442,7 +446,11 @@ Item {
                                                 }
 
                                                 MaterialSymbol {
-                                                    text: "alarm"
+                                                    text: {
+                                                        if (blockDelegate.rem.type === "notepad") return "edit_note";
+                                                        if (blockDelegate.rem.type === "todo") return "check_box";
+                                                        return "alarm";
+                                                    }
                                                     iconSize: 14 * Appearance.effectiveScale
                                                     color: Appearance.m3colors.m3onSecondaryContainer
                                                     Layout.alignment: Qt.AlignVCenter
@@ -461,6 +469,7 @@ Item {
                                             }
 
                                             StyledText {
+                                                id: remTimeText
                                                 visible: !remBlock.isCompact
                                                 text: remBlock.timeStr
                                                 font.pixelSize: Appearance.font.pixelSize.smallest
@@ -468,6 +477,22 @@ Item {
                                                 elide: Text.ElideRight
                                                 anchors {
                                                     top: remTitleRow.bottom
+                                                    topMargin: 1 * Appearance.effectiveScale
+                                                    left: parent.left
+                                                    right: parent.right
+                                                }
+                                            }
+
+                                            // Linked item subtitle (expanded only, notepad/todo)
+                                            StyledText {
+                                                visible: !remBlock.isCompact && !!blockDelegate.rem.linkedTitle
+                                                text: blockDelegate.rem.linkedTitle || ""
+                                                font.pixelSize: Appearance.font.pixelSize.smallest
+                                                font.italic: true
+                                                color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSecondaryContainer, 0.6)
+                                                elide: Text.ElideRight
+                                                anchors {
+                                                    top: remTimeText.bottom
                                                     topMargin: 1 * Appearance.effectiveScale
                                                     left: parent.left
                                                     right: parent.right

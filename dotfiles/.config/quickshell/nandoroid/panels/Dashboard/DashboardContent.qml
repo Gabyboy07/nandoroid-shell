@@ -429,10 +429,29 @@ Item {
                     }
                     Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.OutQuart } }
                     sourceComponent: DashSchedule {
+                        id: scheduleComponent
                         width: contentArea.width
                         height: contentArea.height
                         notepadItems: notepadLoader.item ? notepadLoader.item.items : []
                         todoItems: todoLoader.item ? todoLoader.item.items : []
+                    }
+                }
+
+                // Connections to keep notepadItems/todoItems reactive across loader boundaries
+                Connections {
+                    target: notepadLoader.item
+                    ignoreUnknownSignals: true
+                    function onItemsChanged() {
+                        if (scheduleLoader.item)
+                            scheduleLoader.item.notepadItems = notepadLoader.item.items
+                    }
+                }
+                Connections {
+                    target: todoLoader.item
+                    ignoreUnknownSignals: true
+                    function onItemsChanged() {
+                        if (scheduleLoader.item)
+                            scheduleLoader.item.todoItems = todoLoader.item.items
                     }
                 }
 

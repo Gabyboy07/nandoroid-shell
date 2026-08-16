@@ -43,6 +43,9 @@ Item {
     implicitHeight: 48 * Appearance.effectiveScale
     z: isOpened ? 1000 : 1
 
+    // Guard to suppress reopening/filtering during item selection
+    property bool _selecting: false
+
     // Update internal search model when text changes or model changes
     property var filteredModel: {
         if (!searchable || !isFiltering || input.text === "") return model;
@@ -99,7 +102,7 @@ Item {
                 clip: true
                 
                 onTextChanged: {
-                    if (root.searchable && activeFocus && root.isOpened) {
+                    if (root.searchable && activeFocus && root.isOpened && !root._selecting) {
                         root.isFiltering = true;
                     }
                     if (!activeFocus) cursorPosition = 0;
@@ -115,7 +118,7 @@ Item {
                 }
 
                 onActiveFocusChanged: {
-                    if (activeFocus && root.searchable) {
+                    if (activeFocus && root.searchable && !root._selecting) {
                         root.isOpened = true;
                         input.selectAll();
                     }
@@ -139,12 +142,12 @@ Item {
                     } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         if (listView.currentIndex >= 0 && listView.currentIndex < listView.count) {
                             let selectedVal = root.filteredModel[listView.currentIndex];
-                            input.text = selectedVal; // Manually update input text to fix visual lag
-                            input.focus = false; // Drop focus synchronously
+                            root._selecting = true;
+                            root.isOpened = false;
+                            input.text = selectedVal;
+                            input.focus = false;
                             root.selectItem(selectedVal);
-                            Qt.callLater(() => {
-                                root.isOpened = false;
-                            });
+                            Qt.callLater(() => { root._selecting = false; });
                         }
                         event.accepted = true;
                     } else if (event.key === Qt.Key_Escape) {
@@ -258,13 +261,15 @@ Item {
                 }
                 
                 onClicked: {
+                    root._selecting = true;
+                    // Close synchronously BEFORE firing accepted so the popup
+                    // grab is released before any external handler runs.
+                    root.isOpened = false;
                     input.text = modelData;
-                    input.focus = false; // Drop focus synchronously
-                    const comboRoot = root;
+                    input.focus = false;
                     root.selectItem(modelData);
-                    Qt.callLater(() => {
-                        comboRoot.isOpened = false;
-                    });
+                    // Reset guard after event loop settles
+                    Qt.callLater(() => { root._selecting = false; });
                 }
             }
             
@@ -322,7 +327,7 @@ Item {
     }
 
     onFilteredModelChanged: {
-        if (root.isOpened) syncPopup();
+        if (root.isOpened && !root._selecting) syncPopup();
     }
 
     onIsOpenedChanged: {

@@ -219,6 +219,7 @@ Item {
                             else ctrl.reminderType = "basic";
                             ctrl.reminderLinkedId = "";
                             ctrl.reminderLinkedTitle = "";
+                            reminderTypeCombo.isOpened = false;
                         }
                     }
                 }
@@ -259,13 +260,19 @@ Item {
                             return [];
                         }
 
-                        text: ctrl.reminderLinkedTitle || ""
+                        // NOTE: no live `text:` binding here — that fights with StyledComboBox
+                        // internals after onAccepted and causes the popup to reopen invisibly.
+                        // Text is synced imperatively below.
+                        text: ""
                         placeholder: ctrl.reminderType === "notepad"
                             ? I18nService.tr("Select notepad...")
                             : I18nService.tr("Select task...")
                         colBackground: Appearance.m3colors.m3surfaceContainer
 
                         onAccepted: (val) => {
+                            // Update the combo's own text directly (no external binding conflict)
+                            linkedItemCombo.text = val;
+                            // Store into ctrl
                             ctrl.reminderLinkedTitle = val;
                             // Find linked ID
                             if (ctrl.reminderType === "notepad") {
@@ -282,6 +289,17 @@ Item {
                                     if (truncated === val) { foundId = task.id; break; }
                                 }
                                 ctrl.reminderLinkedId = foundId;
+                            }
+                        }
+
+                        // Sync text from ctrl when editing an existing reminder
+                        Connections {
+                            target: ctrl
+                            function onReminderLinkedTitleChanged() {
+                                // Only sync when the combo is closed to avoid fighting with it
+                                if (!linkedItemCombo.isOpened) {
+                                    linkedItemCombo.text = ctrl.reminderLinkedTitle || "";
+                                }
                             }
                         }
                     }
