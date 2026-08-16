@@ -36,6 +36,7 @@ Revealer Revealer.qml
 ScrollHint ScrollHint.qml
 NandoClock NandoClock.qml
 FadeLoader FadeLoader.qml
+FloatingActionButton FloatingActionButton.qml
 AndroidToggle AndroidToggle.qml
 NotificationGroupExpandButton NotificationGroupExpandButton.qml
 NotificationListView NotificationListView.qml

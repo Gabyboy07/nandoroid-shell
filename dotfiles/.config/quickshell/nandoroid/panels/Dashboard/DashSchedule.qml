@@ -138,9 +138,6 @@ Item {
     property string reminderLinkedId: ""
     property string reminderLinkedTitle: ""
 
-    // ── Speed Dial FAB state ──
-    property bool _fabOpen: false
-
     // ── Reminders for selected day ──
     readonly property var dayReminders: {
         const day = root._dayDate;
@@ -594,7 +591,6 @@ Item {
     function openReminderEditorNew() {
         root._editingReminderId = "";
         root.clearReminderForm();
-        root._fabOpen = false;
         root._view = "reminder-editor";
     }
 
@@ -608,7 +604,6 @@ Item {
         root.reminderType = r.type || "basic";
         root.reminderLinkedId = r.linkedId || "";
         root.reminderLinkedTitle = r.linkedTitle || "";
-        root._fabOpen = false;
         root._view = "reminder-editor";
     }
 

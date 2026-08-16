@@ -562,143 +562,22 @@ Item {
         }
 
         // ── Speed Dial FAB ──
-
-        // Scrim (closes speed dial on outside click)
-        MouseArea {
-            id: fabScrim
+        FloatingActionButton {
             anchors.fill: parent
-            visible: ctrl._fabOpen
-            z: 90
-            onClicked: ctrl._fabOpen = false
-        }
-
-        // Speed Dial container — anchored to bottom-right, same margin as FAB
-        Item {
-            id: fabSpeedDial
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.rightMargin: 16 * Appearance.effectiveScale
-            anchors.bottomMargin: 16 * Appearance.effectiveScale
-            // Size matches the FAB so children can anchor to it
-            width: 56 * Appearance.effectiveScale
-            height: 56 * Appearance.effectiveScale
-            z: 100
-
-            // ── New Event pill (bottom slot, closest to FAB) ──
-            RippleButton {
-                id: pillNewEvent
-                anchors.right: parent.right
-                readonly property real shownY: -(8 + 56) * Appearance.effectiveScale
-                y: ctrl._fabOpen ? shownY : 0
-                Behavior on y { NumberAnimation { duration: 200; easing.type: Easing.OutBack; easing.overshoot: 1.1 } }
-                opacity: ctrl._fabOpen ? 1 : 0
-                Behavior on opacity { NumberAnimation { duration: 160 } }
-
-                implicitHeight: 56 * Appearance.effectiveScale
-                implicitWidth: pillNewEventRow.implicitWidth + 48 * Appearance.effectiveScale
-                buttonRadius: 28 * Appearance.effectiveScale
-                colBackground: Appearance.m3colors.m3primaryContainer
-                colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.92)
-                colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
-                onClicked: { ctrl._fabOpen = false; ctrl.openEditorNew(); }
-
-                RowLayout {
-                    id: pillNewEventRow
-                    anchors.centerIn: parent
-                    spacing: 12 * Appearance.effectiveScale
-
-                    MaterialSymbol {
-                        text: "event"
-                        iconSize: 24 * Appearance.effectiveScale
-                        color: Appearance.m3colors.m3onPrimaryContainer
-                    }
-                    StyledText {
-                        text: I18nService.tr("New Event")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.m3colors.m3onPrimaryContainer
-                    }
+            tooltipText: I18nService.tr("Add")
+            tooltipOpenText: I18nService.tr("Close")
+            actions: [
+                {
+                    icon: "event",
+                    label: I18nService.tr("New Event"),
+                    callback: () => ctrl.openEditorNew()
+                },
+                {
+                    icon: "alarm",
+                    label: I18nService.tr("Reminder"),
+                    callback: () => ctrl.openReminderEditorNew()
                 }
-            }
-
-            // ── Reminder pill (top slot) ──
-            RippleButton {
-                id: pillReminder
-                anchors.right: parent.right
-                readonly property real shownY: -(8 + 56 + 4 + 56) * Appearance.effectiveScale
-                y: ctrl._fabOpen ? shownY : 0
-                Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutBack; easing.overshoot: 1.1 } }
-                opacity: ctrl._fabOpen ? 1 : 0
-                Behavior on opacity { NumberAnimation { duration: 200 } }
-
-                implicitHeight: 56 * Appearance.effectiveScale
-                implicitWidth: pillReminderRow.implicitWidth + 48 * Appearance.effectiveScale
-                buttonRadius: 28 * Appearance.effectiveScale
-                colBackground: Appearance.m3colors.m3primaryContainer
-                colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.92)
-                colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
-                onClicked: ctrl.openReminderEditorNew()
-
-                RowLayout {
-                    id: pillReminderRow
-                    anchors.centerIn: parent
-                    spacing: 12 * Appearance.effectiveScale
-
-                    MaterialSymbol {
-                        text: "alarm"
-                        iconSize: 24 * Appearance.effectiveScale
-                        color: Appearance.m3colors.m3onPrimaryContainer
-                    }
-                    StyledText {
-                        text: I18nService.tr("Reminder")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.m3colors.m3onPrimaryContainer
-                    }
-                }
-            }
-
-        }
-
-        // Main FAB
-        StyledRectangularShadow {
-            target: fabButton
-            radius: fabButton.buttonRadius
-            z: 101
-        }
-
-        RippleButton {
-            id: fabButton
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.rightMargin: 16 * Appearance.effectiveScale
-            anchors.bottomMargin: 16 * Appearance.effectiveScale
-            implicitWidth: 56 * Appearance.effectiveScale
-            implicitHeight: 56 * Appearance.effectiveScale
-            buttonRadius: ctrl._fabOpen ? 28 * Appearance.effectiveScale : 16 * Appearance.effectiveScale
-            colBackground: ctrl._fabOpen ? Appearance.colors.colPrimary : Appearance.m3colors.m3primaryContainer
-            Behavior on colBackground { ColorAnimation { duration: 200 } }
-            colBackgroundHover: ctrl._fabOpen
-                ? Functions.ColorUtils.mix(Appearance.colors.colPrimary, Appearance.colors.colOnPrimary, 0.92)
-                : Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.92)
-            colRipple: ctrl._fabOpen
-                ? Functions.ColorUtils.applyAlpha(Appearance.colors.colOnPrimary, 0.15)
-                : Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
-            z: 102
-            onClicked: ctrl._fabOpen = !ctrl._fabOpen
-
-            MaterialSymbol {
-                anchors.centerIn: parent
-                text: ctrl._fabOpen ? "close" : "add"
-                iconSize: 24 * Appearance.effectiveScale
-                color: ctrl._fabOpen ? Appearance.colors.colOnPrimary : Appearance.m3colors.m3onPrimaryContainer
-                Behavior on color { ColorAnimation { duration: 200 } }
-                Behavior on text {}
-            }
-
-            StyledToolTip {
-                text: ctrl._fabOpen ? I18nService.tr("Close") : I18nService.tr("Add")
-            }
+            ]
         }
 
 

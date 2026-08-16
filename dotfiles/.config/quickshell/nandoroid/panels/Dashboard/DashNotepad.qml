@@ -433,46 +433,13 @@ Item {
         }
 
         // ── FAB (anchored to panel edge, not the inset list view, per M3 16dp) ──
-        StyledRectangularShadow {
-            target: fabButton
-            radius: fabButton.buttonRadius
-        }
-
-        RippleButton {
-            id: fabButton
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.rightMargin: 16 * Appearance.effectiveScale
-            anchors.bottomMargin: 16 * Appearance.effectiveScale
+        FloatingActionButton {
+            anchors.fill: parent
             visible: root._view === "list"
-            implicitWidth: Math.max(80 * Appearance.effectiveScale, fabRow.implicitWidth + 32 * Appearance.effectiveScale)
-            implicitHeight: 56 * Appearance.effectiveScale
-            buttonRadius: 16 * Appearance.effectiveScale
-            colBackground: Appearance.m3colors.m3primaryContainer
-            colBackgroundHover: Functions.ColorUtils.mix(Appearance.m3colors.m3primaryContainer, Appearance.m3colors.m3onPrimaryContainer, 0.9)
-            colRipple: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onPrimaryContainer, 0.15)
+            icon: "edit"
+            label: I18nService.tr("New note")
+            tooltipText: ""
             onClicked: root.newNotepad()
-
-            RowLayout {
-                id: fabRow
-                anchors.centerIn: parent
-                spacing: 8 * Appearance.effectiveScale
-
-                MaterialSymbol {
-                    text: "edit"
-                    iconSize: 24 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3onPrimaryContainer
-                    Layout.alignment: Qt.AlignVCenter
-                }
-
-                StyledText {
-                    text: I18nService.tr("New note")
-                    font.pixelSize: Appearance.font.pixelSize.normal
-                    font.weight: Font.Medium
-                    color: Appearance.m3colors.m3onPrimaryContainer
-                    Layout.alignment: Qt.AlignVCenter
-                }
-            }
         }
 
         Rectangle {
