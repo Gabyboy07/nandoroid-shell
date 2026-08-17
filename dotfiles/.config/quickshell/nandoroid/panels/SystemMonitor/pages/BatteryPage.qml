@@ -58,104 +58,99 @@ Flickable {
                 anchors.bottomMargin: 18 * Appearance.effectiveScale
                 spacing: 12 * Appearance.effectiveScale
 
-                // Top Row: Big Percentage + Status Tag on left, Remaining Time / Source on right
+                // Hero Section: Dashboard Circular Gauge + Status Text
                 RowLayout {
                     Layout.fillWidth: true
+                    spacing: 32 * Appearance.effectiveScale
 
-                    RowLayout {
-                        spacing: 8 * Appearance.effectiveScale
+                    // Left: Circular Progress Gauge
+                    Item {
+                        width: 120 * Appearance.effectiveScale
+                        height: 120 * Appearance.effectiveScale
+                        Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                        Layout.preferredWidth: 120 * Appearance.effectiveScale
+                        Layout.preferredHeight: 120 * Appearance.effectiveScale
+
+                        GappedCircularProgress {
+                            anchors.fill: parent
+                            progress: root.displayPercentage
+                            strokeWidth: 12 * Appearance.effectiveScale
+                            
+                            readonly property color barColor: {
+                                if (Battery.isCritical && !Battery.isCharging) return Appearance.colors.colError;
+                                if (Battery.isLow && !Battery.isCharging) return Appearance.colors.colWarning;
+                                if (Battery.isCharging) return Appearance.m3colors.m3success;
+                                return Appearance.m3colors.m3primary;
+                            }
+                            colPrimary: barColor
+                            colSecondary: Functions.ColorUtils.applyAlpha(Appearance.colors.colOnLayer1, 0.12)
+                            
+                            Behavior on colPrimary { ColorAnimation { duration: 300 } }
+                        }
+
+                        ColumnLayout {
+                            anchors.centerIn: parent
+                            spacing: 0
+
+                            Item {
+                                Layout.alignment: Qt.AlignHCenter
+                                visible: Battery.isCharging
+                                width: 20 * Appearance.effectiveScale
+                                height: 20 * Appearance.effectiveScale
+                                Layout.bottomMargin: -4 * Appearance.effectiveScale
+
+                                MaterialSymbol {
+                                    anchors.centerIn: parent
+                                    text: "bolt"
+                                    iconSize: 24 * Appearance.effectiveScale
+                                    color: Appearance.m3colors.m3success
+                                }
+                            }
+
+                            StyledText {
+                                Layout.alignment: Qt.AlignHCenter
+                                Layout.maximumWidth: 72 * Appearance.effectiveScale
+                                fontSizeMode: Text.HorizontalFit
+                                minimumPixelSize: 16 * Appearance.effectiveScale
+                                text: Math.round(root.displayPercentage * 100)
+                                font.pixelSize: Math.round(34 * Appearance.effectiveScale)
+                                font.weight: Font.DemiBold
+                                color: Appearance.m3colors.m3onSurface
+                            }
+                        }
+                    }
+
+                    // Right: Status Column
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+                        spacing: 4 * Appearance.effectiveScale
+
                         StyledText {
-                            text: Math.round(root.displayPercentage * 100) + "%"
-                            font.pixelSize: Math.round(36 * Appearance.effectiveScale)
+                            text: Battery.isCharging ? I18nService.tr("Charging") : (Battery.chargeState === 4 ? I18nService.tr("Fully Charged") : I18nService.tr("Discharging"))
+                            font.pixelSize: Math.round(26 * Appearance.effectiveScale)
                             font.weight: Font.DemiBold
-                            color: Appearance.m3colors.m3onSurface
+                            color: Battery.isCharging ? Appearance.m3colors.m3success : Appearance.m3colors.m3onSurface
                         }
 
                         StyledText {
-                            text: "•  " + (Battery.isCharging ? I18nService.tr("Charging") : (Battery.chargeState === 4 ? I18nService.tr("Fully Charged") : I18nService.tr("Discharging")))
+                            text: Battery.isPluggedIn ? I18nService.tr("Power Source: AC Adapter") : I18nService.tr("Power Source: Battery")
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.Medium
-                            color: Battery.isCharging ? Appearance.m3colors.m3success : Appearance.colors.colSubtext
-                            Layout.alignment: Qt.AlignVCenter
-                        }
-                    }
-
-                    Item { Layout.fillWidth: true }
-
-                    StyledText {
-                        text: {
-                            if (Battery.isCharging && Battery.timeToFull > 0) return I18nService.tr("%1 mins until full").replace("%1", Math.round(Battery.timeToFull / 60));
-                            if (!Battery.isCharging && Battery.timeToEmpty > 0) return I18nService.tr("%1 mins remaining").replace("%1", Math.round(Battery.timeToEmpty / 60));
-                            return Battery.isPluggedIn ? I18nService.tr("Power Source: AC Adapter") : I18nService.tr("Power Source: Battery");
-                        }
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colSubtext
-                        Layout.alignment: Qt.AlignVCenter
-                    }
-                }
-
-                // Full-width Battery Progress Bar with OpacityMask (100% Perfect Rounded Clipping)
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 6 * Appearance.effectiveScale
-
-                    Item {
-                        id: pillTrackContainer
-                        Layout.fillWidth: true
-                        height: 20 * Appearance.effectiveScale
-
-                        Rectangle {
-                            id: pillTrack
-                            anchors.fill: parent
-                            radius: height / 2
-                            color: Functions.ColorUtils.applyAlpha(Appearance.colors.colOnLayer1, 0.12)
+                            color: Appearance.colors.colSubtext
                         }
 
-                        Item {
-                            id: fillSource
-                            anchors.fill: parent
-                            visible: false
-
-                            Rectangle {
-                                id: progressFill
-                                anchors.left: parent.left
-                                anchors.top: parent.top
-                                anchors.bottom: parent.bottom
-                                width: parent.width * Math.max(0, Math.min(1, root.displayPercentage))
-                                readonly property color barColor: {
-                                    if (Battery.isCritical && !Battery.isCharging) return Appearance.colors.colError;
-                                    if (Battery.isLow && !Battery.isCharging) return Appearance.colors.colWarning;
-                                    if (Battery.isCharging) return Appearance.m3colors.m3success;
-                                    return Appearance.colors.colPrimary;
-                                }
-                                color: barColor
-
-                                Behavior on width { NumberAnimation { duration: 800; easing.type: Easing.OutCubic } }
-                                Behavior on color { ColorAnimation { duration: 300 } }
+                        StyledText {
+                            visible: (Battery.isCharging && Battery.timeToFull > 0) || (!Battery.isCharging && Battery.timeToEmpty > 0)
+                            text: {
+                                if (Battery.isCharging && Battery.timeToFull > 0) return I18nService.tr("%1 mins until full").replace("%1", Math.round(Battery.timeToFull / 60));
+                                if (!Battery.isCharging && Battery.timeToEmpty > 0) return I18nService.tr("%1 mins remaining").replace("%1", Math.round(Battery.timeToEmpty / 60));
+                                return "";
                             }
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.Medium
+                            color: Appearance.colors.colSubtext
                         }
-
-                        OpacityMask {
-                            anchors.fill: parent
-                            source: fillSource
-                            maskSource: Rectangle {
-                                width: pillTrackContainer.width
-                                height: pillTrackContainer.height
-                                radius: pillTrackContainer.height / 2
-                            }
-                        }
-                    }
-
-                    // Battery Terminal Tip
-                    Rectangle {
-                        width: 5 * Appearance.effectiveScale
-                        height: 12 * Appearance.effectiveScale
-                        radius: 2 * Appearance.effectiveScale
-                        color: (root.displayPercentage >= 0.98) ? progressFill.barColor : Functions.ColorUtils.applyAlpha(Appearance.colors.colOnLayer1, 0.25)
-                        Layout.alignment: Qt.AlignVCenter
-
-                        Behavior on color { ColorAnimation { duration: 300 } }
                     }
                 }
             }
