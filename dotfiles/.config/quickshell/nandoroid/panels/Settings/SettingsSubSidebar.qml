@@ -108,6 +108,9 @@ Rectangle {
                 colBackgroundHover: Appearance.colors.colLayer0Hover
                 
                 onClicked: {
+                    // Return to the page's root view first (e.g. About sub-pages),
+                    // otherwise the target section may live in a hidden view.
+                    GlobalStates.settingsAboutView = "main";
                     // Trigger the search handler to scroll to it
                     SearchRegistry.currentSearch = "";
                     SearchRegistry.currentSearch = modelData.matchedString;
