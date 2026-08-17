@@ -23,6 +23,7 @@
     { "name": "xdg-desktop-portal-gtk", "command": "/usr/lib/xdg-desktop-portal-gtk", "description": "File picker support" },
     { "name": "grim", "command": "grim", "description": "Screenshot tool" },
     { "name": "slurp", "command": "slurp", "description": "Region selector" },
+    { "name": "swappy", "command": "swappy", "description": "Screenshot editor / annotator" },
     { "name": "wf-recorder", "command": "wf-recorder", "description": "Screen recording" },
     { "name": "imagemagick", "command": "magick", "description": "Image processing" },
     { "name": "ffmpeg", "command": "ffmpeg", "description": "Multimedia framework" },

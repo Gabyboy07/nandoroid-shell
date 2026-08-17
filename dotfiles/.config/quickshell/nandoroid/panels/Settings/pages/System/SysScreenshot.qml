@@ -166,7 +166,50 @@ ColumnLayout {
             }
         }
 
-        // 4. Screenshot Save Path
+        // 4. Use Satty Switch
+        SegmentedWrapper {
+            Layout.fillWidth: true
+            implicitHeight: sattyRow.implicitHeight + 40 * Appearance.effectiveScale
+            orientation: Qt.Vertical
+            color: Appearance.m3colors.m3surfaceContainerHigh
+            smallRadius: 8 * Appearance.effectiveScale
+            fullRadius: 20 * Appearance.effectiveScale
+            
+            RowLayout {
+                id: sattyRow
+                anchors.fill: parent
+                anchors.margins: 20 * Appearance.effectiveScale
+                spacing: 20 * Appearance.effectiveScale
+
+                ColumnLayout {
+                    spacing: 2 * Appearance.effectiveScale
+                    StyledText {
+                        text: I18nService.tr("Use Satty for Annotation")
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnLayer1
+                    }
+                    StyledText {
+                        text: I18nService.tr("Use Satty (modern GTK4) instead of Swappy (classic GTK3) for editing.")
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: Appearance.colors.colSubtext
+                    }
+                }
+                
+                Item { Layout.fillWidth: true }
+                
+                AndroidToggle {
+                        checked: (Config.ready && Config.options.regionSelector && Config.options.regionSelector.annotation && Config.options.regionSelector.annotation.useSatty)
+                        onToggled: {
+                            if (Config.ready && Config.options.regionSelector && Config.options.regionSelector.annotation) {
+                                Config.options.regionSelector.annotation.useSatty = !Config.options.regionSelector.annotation.useSatty;
+                            }
+                        }
+                }
+            }
+        }
+
+        // 5. Screenshot Save Path
         SegmentedWrapper {
             Layout.fillWidth: true
             implicitHeight: pathRow.implicitHeight + 40 * Appearance.effectiveScale

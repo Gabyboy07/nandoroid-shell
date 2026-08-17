@@ -131,6 +131,16 @@ PanelWindow {
                 }
 
                 ActionCard {
+                    btnIcon: "edit" 
+                    tooltip: I18nService.tr("Annotate / Edit")
+                    onClicked: {
+                        const command = ScreenshotAction.getCommand(0, 0, 0, 0, root.imagePath, 1); 
+                        Quickshell.execDetached(command);
+                        root.imagePath = "";
+                    }
+                }
+
+                ActionCard {
                     btnIcon: "center_focus_strong" 
                     tooltip: I18nService.tr("Google Lens")
                     onClicked: {
