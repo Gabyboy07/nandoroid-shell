@@ -97,17 +97,13 @@ ColumnLayout {
                     }
                 }
 
-                StyledSlider {
-                    Layout.fillWidth: true
+                StyledStepper {
+                    Layout.alignment: Qt.AlignVCenter
                     value: (Config.ready && Config.options.appearance.lyrics) ? Config.options.appearance.lyrics.fontSize : 36
                     from: 16; to: 84; stepSize: 1
-                    onMoved: if (Config.ready && Config.options.appearance.lyrics) Config.options.appearance.lyrics.fontSize = Math.round(value)
-                }
-                StyledText { 
-                    text: Math.round(Config.ready && Config.options.appearance.lyrics ? Config.options.appearance.lyrics.fontSize : 36).toString() + "px"
-                    color: Appearance.colors.colOnLayer1 
-                    Layout.preferredWidth: 40 * Appearance.effectiveScale
-                    horizontalAlignment: Text.AlignRight
+                    decimals: 0
+                    suffix: "px"
+                    onValueChanged: if (Config.ready && Config.options.appearance.lyrics) Config.options.appearance.lyrics.fontSize = Math.round(value)
                 }
             }
         }
@@ -137,17 +133,12 @@ ColumnLayout {
                     }
                 }
 
-                StyledSlider {
-                    Layout.fillWidth: true
+                StyledStepper {
+                    Layout.alignment: Qt.AlignVCenter
                     value: (Config.ready && Config.options.appearance.lyrics) ? Config.options.appearance.lyrics.contextLines : 3
                     from: 1; to: 7; stepSize: 1
-                    onMoved: if (Config.ready && Config.options.appearance.lyrics) Config.options.appearance.lyrics.contextLines = Math.round(value)
-                }
-                StyledText { 
-                    text: Math.round(Config.ready && Config.options.appearance.lyrics ? Config.options.appearance.lyrics.contextLines : 3).toString()
-                    color: Appearance.colors.colOnLayer1 
-                    Layout.preferredWidth: 40 * Appearance.effectiveScale
-                    horizontalAlignment: Text.AlignRight
+                    decimals: 0
+                    onValueChanged: if (Config.ready && Config.options.appearance.lyrics) Config.options.appearance.lyrics.contextLines = Math.round(value)
                 }
             }
         }

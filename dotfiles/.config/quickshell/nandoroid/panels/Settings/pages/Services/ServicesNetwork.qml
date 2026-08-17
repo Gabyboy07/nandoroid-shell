@@ -179,27 +179,14 @@ ColumnLayout {
 
                 Item { Layout.fillWidth: true }
 
-                StyledSlider {
-                    id: intervalSlider
-                    Layout.preferredWidth: 200 * Appearance.effectiveScale
-                    Layout.maximumWidth: 200 * Appearance.effectiveScale
+                StyledStepper {
+                    id: intervalStepper
+                    Layout.alignment: Qt.AlignVCenter
                     value: Config.ready ? Config.options.bar.networkSpeedInterval : 3000
-                    defaultValue: 3000
                     from: 1000; to: 10000; stepSize: 500
-                    onMoved: if (Config.ready) Config.options.bar.networkSpeedInterval = Math.round(value)
-                }
-
-                StyledText {
-                    text: {
-                        let ms = Config.ready ? Config.options.bar.networkSpeedInterval : 3000;
-                        if (ms < 2000) return ms + "ms";
-                        return (ms / 1000).toFixed(ms % 1000 === 0 ? 0 : 1) + "s";
-                    }
-                    font.pixelSize: Appearance.font.pixelSize.normal
-                    font.weight: Font.Medium
-                    color: Appearance.colors.colOnLayer1
-                    Layout.preferredWidth: 48 * Appearance.effectiveScale
-                    horizontalAlignment: Text.AlignRight
+                    decimals: 0
+                    suffix: "ms"
+                    onValueChanged: if (Config.ready) Config.options.bar.networkSpeedInterval = Math.round(value)
                 }
             }
         }

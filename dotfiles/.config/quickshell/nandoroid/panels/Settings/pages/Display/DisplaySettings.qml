@@ -84,7 +84,7 @@ Item {
     }
 
     // ── Selection State ──
-    property bool isDraggingBrightness: false
+    
     property int currentMonitorIndex: 0
     readonly property var currentMonitor: {
         const monitors = root.monitorList;
@@ -841,67 +841,39 @@ Item {
                             // Brightness
                             SegmentedWrapper {
                             Layout.fillWidth: true
-                            implicitHeight: brightCol.implicitHeight + (40 * Appearance.effectiveScale)
+                            implicitHeight: brightRow.implicitHeight + (40 * Appearance.effectiveScale)
                             orientation: Qt.Vertical
                             color: Appearance.m3colors.m3surfaceContainerHigh
                             smallRadius: 8 * Appearance.effectiveScale
                             fullRadius: 20 * Appearance.effectiveScale
 
-                            ColumnLayout {
-                            id: brightCol
-                            anchors.fill: parent
-                            anchors.margins: 20 * Appearance.effectiveScale
-                            spacing: 12 * Appearance.effectiveScale
+                            RowLayout {
+                            id: brightRow
+                            anchors.fill: parent; anchors.margins: 20 * Appearance.effectiveScale
+                            spacing: 20 * Appearance.effectiveScale
 
                             property var mon: root.currentMonitor ? Brightness.getMonitorByName(root.currentMonitor.name) : null
 
-                            RowLayout {
-                            width: parent.width
                             StyledText {
                             text: I18nService.tr("Brightness")
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
-                            }
-                            Item { Layout.fillWidth: true }
-                            StyledText {
-                            text: brightCol.mon ? Math.round(brightCol.mon.multipliedBrightness * 100) + "%" : "N/A"
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.colors.colPrimary
-                            }
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
                             }
 
-                            StyledSlider {
-                            Layout.fillWidth: true
+                            StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
                             from: 0.0
                             to: 1.0
                             stepSize: 0.01
-                            value: brightCol.mon ? brightCol.mon.brightness : 0.5
-                            configuration: StyledSlider.Configuration.M
-                            onPressedChanged: {
-                            if (!pressed) {
-                            // Small delay to allow the last update to settle
-                            timerRelease.restart();
-                            } else {
-                            root.isDraggingBrightness = true;
-                            }
-                            }
-
-                            Timer {
-                            id: timerRelease
-                            interval: 100
-                            onTriggered: root.isDraggingBrightness = false
-                            }
-
-                            onMoved: {
-                            if (brightCol.mon) brightCol.mon.setBrightness(value);
-                            }
-
-                            // Prevent the value from updating via binding while dragging
-                            Binding on value {
-                            when: !root.isDraggingBrightness && brightCol.mon !== null
-                            value: brightCol.mon ? brightCol.mon.brightness : 0.5
-                            restoreMode: Binding.RestoreBindingOrValue
+                            displayFactor: 100
+                            decimals: 0
+                            suffix: "%"
+                            value: brightRow.mon ? brightRow.mon.brightness : 0.5
+                            onValueChanged: {
+                            if (brightRow.mon && Math.abs(brightRow.mon.brightness - value) > 0.0001) brightRow.mon.setBrightness(value);
                             }
                             }
                             }
@@ -976,7 +948,7 @@ Item {
                     // Card 2: Manual Scale Slider (Separated)
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: manualScaleCol.implicitHeight + (40 * Appearance.effectiveScale)
+                        implicitHeight: manualScaleRow.implicitHeight + (40 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         smallRadius: 8 * Appearance.effectiveScale
@@ -986,44 +958,31 @@ Item {
                         opacity: enabled ? 1 : 0.5
                         Behavior on opacity { NumberAnimation { duration: 200 } }
 
-                        ColumnLayout {
-                            id: manualScaleCol
+                        RowLayout {
+                            id: manualScaleRow
                             anchors.fill: parent
                             anchors.margins: 20 * Appearance.effectiveScale
-                            spacing: 12 * Appearance.effectiveScale
+                            spacing: 20 * Appearance.effectiveScale
 
-                            RowLayout {
-                                width: parent.width
-                                ColumnLayout {
-                                    spacing: 0
-                                    StyledText {
-                                        text: I18nService.tr("Manual Scale")
-                                        font.pixelSize: Appearance.font.pixelSize.normal
-                                        font.weight: Font.Medium
-                                        color: Appearance.colors.colOnLayer1
-                                    }
-                                    StyledText {
-                                        text: I18nService.tr("Manually adjust the size of the interface and text.")
-                                        font.pixelSize: Appearance.font.pixelSize.small
-                                        color: Appearance.colors.colSubtext
-                                    }
-                                }
-                                Item { Layout.fillWidth: true }
-                                StyledText {
-                                    text: Math.round((Config.ready && Config.options.appearance ? Config.options.appearance.globalScale : 1.0) * 100) + "%"
-                                    font.pixelSize: Appearance.font.pixelSize.small
-                                    color: Appearance.colors.colPrimary
-                                }
+                            StyledText {
+                                text: I18nService.tr("Manual Scale")
+                                font.pixelSize: Appearance.font.pixelSize.normal
+                                font.weight: Font.Medium
+                                color: Appearance.colors.colOnLayer1
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignVCenter
                             }
 
-                            StyledSlider {
-                            Layout.fillWidth: true
+                            StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
                             from: 0.5
                             to: 2.0
                             stepSize: 0.05
+                            displayFactor: 100
+                            decimals: 0
+                            suffix: "%"
                             value: Config.ready && Config.options.appearance ? Config.options.appearance.globalScale : 1.0
-                            configuration: StyledSlider.Configuration.M
-                            onMoved: if (Config.ready && Config.options.appearance) Config.options.appearance.globalScale = value
+                            onValueChanged: if (Config.ready && Config.options.appearance) Config.options.appearance.globalScale = value
                             }
                             }
                             }

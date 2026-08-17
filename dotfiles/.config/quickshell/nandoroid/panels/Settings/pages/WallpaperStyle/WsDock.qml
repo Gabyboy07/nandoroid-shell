@@ -212,15 +212,14 @@ ColumnLayout {
                         StyledText { text: I18nService.tr("Scale"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; elide: Text.ElideRight }
                     }
 
-                    StyledSlider {
-                        Layout.fillWidth: true; from: 0.5; to: 1.5; stepSize: 0.05
+                    StyledStepper {
+                        Layout.alignment: Qt.AlignVCenter
+                        from: 0.5; to: 1.5; stepSize: 0.05
+                        displayFactor: 100
+                        decimals: 0
+                        suffix: "%"
                         value: Config.ready && Config.options.dock ? Config.options.dock.scale : 1.0
-                        onMoved: if (Config.ready && Config.options.dock) Config.options.dock.scale = value
-                    }
-                    
-                    StyledText {
-                        text: Math.round((Config.ready && Config.options.dock ? Config.options.dock.scale : 1.0) * 100).toString() + "%"
-                        color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 50 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight
+                        onValueChanged: if (Config.ready && Config.options.dock) Config.options.dock.scale = value
                     }
                 }
             }

@@ -66,17 +66,12 @@ ColumnLayout {
                             }
                         }
 
-                        StyledSlider {
-                            Layout.fillWidth: true
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
                             value: Config.ready && Config.options.overview ? Config.options.overview.rows : 2
                             from: 1; to: 5; stepSize: 1
-                            onMoved: if (Config.ready && Config.options.overview) Config.options.overview.rows = Math.round(value)
-                        }
-                        StyledText { 
-                            text: Math.round(Config.ready && Config.options.overview ? Config.options.overview.rows : 2).toString()
-                            color: Appearance.colors.colOnLayer1 
-                            Layout.preferredWidth: 40 * Appearance.effectiveScale
-                            horizontalAlignment: Text.AlignRight
+                            decimals: 0
+                            onValueChanged: if (Config.ready && Config.options.overview) Config.options.overview.rows = Math.round(value)
                         }
                     }
                 }
@@ -106,17 +101,12 @@ ColumnLayout {
                             }
                         }
 
-                        StyledSlider {
-                            Layout.fillWidth: true
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
                             value: Config.ready && Config.options.overview ? Config.options.overview.columns : 5
                             from: 1; to: 10; stepSize: 1
-                            onMoved: if (Config.ready && Config.options.overview) Config.options.overview.columns = Math.round(value)
-                        }
-                        StyledText { 
-                            text: Math.round(Config.ready && Config.options.overview ? Config.options.overview.columns : 5).toString()
-                            color: Appearance.colors.colOnLayer1 
-                            Layout.preferredWidth: 40 * Appearance.effectiveScale
-                            horizontalAlignment: Text.AlignRight
+                            decimals: 0
+                            onValueChanged: if (Config.ready && Config.options.overview) Config.options.overview.columns = Math.round(value)
                         }
                     }
                 }
@@ -146,17 +136,13 @@ ColumnLayout {
                             }
                         }
 
-                        StyledSlider {
-                            Layout.fillWidth: true
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
                             value: Config.ready && Config.options.overview ? Config.options.overview.scale * 100 : 15
                             from: 5; to: 50; stepSize: 1
-                            onMoved: if (Config.ready && Config.options.overview) Config.options.overview.scale = value / 100.0
-                        }
-                        StyledText { 
-                            text: Math.round(Config.ready && Config.options.overview ? Config.options.overview.scale * 100 : 15).toString() + "%"
-                            color: Appearance.colors.colOnLayer1 
-                            Layout.preferredWidth: 40 * Appearance.effectiveScale
-                            horizontalAlignment: Text.AlignRight
+                            decimals: 0
+                            suffix: "%"
+                            onValueChanged: if (Config.ready && Config.options.overview) Config.options.overview.scale = value / 100.0
                         }
                     }
                 }
@@ -186,17 +172,13 @@ ColumnLayout {
                             }
                         }
 
-                        StyledSlider {
-                            Layout.fillWidth: true
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
                             value: Config.ready && Config.options.overview ? Config.options.overview.workspaceSpacing : 10
                             from: 0; to: 50; stepSize: 1
-                            onMoved: if (Config.ready && Config.options.overview) Config.options.overview.workspaceSpacing = Math.round(value)
-                        }
-                        StyledText { 
-                            text: Math.round(Config.ready && Config.options.overview ? Config.options.overview.workspaceSpacing : 10).toString() + "px"
-                            color: Appearance.colors.colOnLayer1 
-                            Layout.preferredWidth: 40 * Appearance.effectiveScale
-                            horizontalAlignment: Text.AlignRight
+                            decimals: 0
+                            suffix: "px"
+                            onValueChanged: if (Config.ready && Config.options.overview) Config.options.overview.workspaceSpacing = Math.round(value)
                         }
                     }
                 }

@@ -211,18 +211,13 @@ ColumnLayout {
                             Layout.fillWidth: true
                         }
                     }
-                    StyledSlider {
-                        Layout.fillWidth: true
+                    StyledStepper {
+                        Layout.alignment: Qt.AlignVCenter
                         value: Config.ready ? Config.options.appearance.atAGlance.fontSize : 24
-                        defaultValue: 24
                         from: 12; to: 72
-                        onMoved: if(Config.ready) Config.options.appearance.atAGlance.fontSize = Math.round(value)
-                    }
-                    StyledText {
-                        text: Math.round(Config.ready ? Config.options.appearance.atAGlance.fontSize : 24).toString()
-                        color: Appearance.colors.colOnLayer1
-                        Layout.preferredWidth: 40 * Appearance.effectiveScale
-                        horizontalAlignment: Text.AlignRight
+                        stepSize: 1
+                        decimals: 0
+                        onValueChanged: if(Config.ready) Config.options.appearance.atAGlance.fontSize = Math.round(value)
                     }
                 }
             }

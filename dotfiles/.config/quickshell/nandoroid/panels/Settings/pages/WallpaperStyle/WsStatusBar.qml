@@ -670,19 +670,14 @@ ColumnLayout {
                                 }
                             }
 
-                            StyledSlider {
-                                Layout.fillWidth: true
+                            StyledStepper {
+                                Layout.alignment: Qt.AlignVCenter
                                 from: 0; to: 20; stepSize: 1
+                                decimals: 0
+                                suffix: "px"
                                 value: Config.ready && Config.options.statusBar ? (Config.options.statusBar.backgroundCornerRadius ?? 20) : 20
-                                onMoved: if (Config.ready && Config.options.statusBar)
+                                onValueChanged: if (Config.ready && Config.options.statusBar)
                                     Config.options.statusBar.backgroundCornerRadius = Math.round(value)
-                            }
-                            StyledText {
-                                text: Math.round(Config.ready && Config.options.statusBar
-                                    ? (Config.options.statusBar.backgroundCornerRadius ?? 20) : 20).toString() + "px"
-                                color: Appearance.colors.colOnLayer1
-                                Layout.preferredWidth: 50
-                                horizontalAlignment: Text.AlignRight
                             }
                         }
                     }
@@ -1353,19 +1348,14 @@ ColumnLayout {
                                 }
                             }
 
-                            StyledSlider {
-                                Layout.fillWidth: true
+                            StyledStepper {
+                                Layout.alignment: Qt.AlignVCenter
                                 from: 800; to: 2000; stepSize: 50
+                                decimals: 0
+                                suffix: "px"
                                 value: Config.ready && Config.options.statusBar ? (Config.options.statusBar.centeredWidth ?? 1200) : 1200
-                                onMoved: if (Config.ready && Config.options.statusBar)
+                                onValueChanged: if (Config.ready && Config.options.statusBar)
                                     Config.options.statusBar.centeredWidth = Math.round(value)
-                            }
-                            StyledText {
-                                text: Math.round(Config.ready && Config.options.statusBar
-                                    ? (Config.options.statusBar.centeredWidth ?? 1200) : 1200).toString() + "px"
-                                color: Appearance.colors.colOnLayer1
-                                Layout.preferredWidth: 50 * Appearance.effectiveScale
-                                horizontalAlignment: Text.AlignRight
                             }
                         }
                     }
@@ -1576,44 +1566,13 @@ ColumnLayout {
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "grid_view"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Workspace count"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
-                            RowLayout {
-                                spacing: 8 * Appearance.effectiveScale
-                                M3IconButton {
-                                    iconName: "remove"
-                                    iconSize: 18 * Appearance.effectiveScale
-                                    implicitWidth: 32 * Appearance.effectiveScale; implicitHeight: 32 * Appearance.effectiveScale
-                                    buttonRadius: 16 * Appearance.effectiveScale
-                                    colBackground: Appearance.m3colors.m3surfaceContainerLow
-                                    color: Appearance.m3colors.m3primary
-                                    onClicked: {
-                                        if (Config.ready && Config.options.workspaces) {
-                                            let val = Config.options.workspaces.max_shown ?? 5
-                                            if (val > 1) Config.options.workspaces.max_shown = val - 1
-                                        }
-                                    }
-                                }
-                                StyledText {
-                                    text: (Config.ready && Config.options.workspaces ? (Config.options.workspaces.max_shown ?? 5) : 5).toString()
-                                    color: Appearance.colors.colOnLayer1
-                                    font.pixelSize: Appearance.font.pixelSize.normal
-                                    font.weight: Font.Medium
-                                    Layout.preferredWidth: 30 * Appearance.effectiveScale
-                                    horizontalAlignment: Text.AlignHCenter
-                                }
-                                M3IconButton {
-                                    iconName: "add"
-                                    iconSize: 18 * Appearance.effectiveScale
-                                    implicitWidth: 32 * Appearance.effectiveScale; implicitHeight: 32 * Appearance.effectiveScale
-                                    buttonRadius: 16 * Appearance.effectiveScale
-                                    colBackground: Appearance.m3colors.m3surfaceContainerLow
-                                    color: Appearance.m3colors.m3primary
-                                    onClicked: {
-                                        if (Config.ready && Config.options.workspaces) {
-                                            let val = Config.options.workspaces.max_shown ?? 5
-                                            if (val < 20) Config.options.workspaces.max_shown = val + 1
-                                        }
-                                    }
-                                }
+                            StyledStepper {
+                                Layout.alignment: Qt.AlignVCenter
+                                value: Config.ready && Config.options.workspaces ? (Config.options.workspaces.max_shown ?? 5) : 5
+                                from: 1; to: 20; stepSize: 1
+                                decimals: 0
+                                onValueChanged: if (Config.ready && Config.options.workspaces)
+                                    Config.options.workspaces.max_shown = Math.round(value)
                             }
                         }
                     }

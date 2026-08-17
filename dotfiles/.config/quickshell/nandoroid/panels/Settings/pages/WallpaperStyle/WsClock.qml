@@ -268,33 +268,37 @@ ColumnLayout {
                     StyledText { text: I18nService.tr("Font Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
-                        StyledSlider {
-                            Layout.fillWidth: true; value: Config.ready ? advancedPanel.digitalCfg.fontSize : 84; from: 48; to: 200
-                            defaultValue: 84
-                            onMoved: advancedPanel.digitalCfg.fontSize = Math.round(value)
+                        Item { Layout.fillWidth: true }
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
+                            value: Config.ready ? advancedPanel.digitalCfg.fontSize : 84; from: 48; to: 200; stepSize: 1
+                            decimals: 0
+                            onValueChanged: advancedPanel.digitalCfg.fontSize = Math.round(value)
                         }
-                        StyledText { text: Math.round(advancedPanel.digitalCfg.fontSize).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
                     StyledText { text: I18nService.tr("Date Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
-                        StyledSlider {
-                            Layout.fillWidth: true; value: Config.ready ? (advancedPanel.digitalCfg.dateFontSize || 24) : 24; from: 12; to: 80
-                            defaultValue: 24
-                            onMoved: advancedPanel.digitalCfg.dateFontSize = Math.round(value)
+                        Item { Layout.fillWidth: true }
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
+                            value: Config.ready ? (advancedPanel.digitalCfg.dateFontSize || 24) : 24; from: 12; to: 80; stepSize: 1
+                            decimals: 0
+                            onValueChanged: advancedPanel.digitalCfg.dateFontSize = Math.round(value)
                         }
-                        StyledText { text: Math.round(advancedPanel.digitalCfg.dateFontSize || 24).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
                     StyledText { text: I18nService.tr("Date Gap"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
-                        StyledSlider {
-                            Layout.fillWidth: true; from: -40; to: 60; stepSize: 1
+                        Item { Layout.fillWidth: true }
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
+                            from: -40; to: 60; stepSize: 1
                             value: Config.ready ? (advancedPanel.digitalCfg.dateGap ?? 4) : 4
-                            defaultValue: 4
-                            onMoved: advancedPanel.digitalCfg.dateGap = Math.round(value)
+                            decimals: 0
+                            suffix: "px"
+                            onValueChanged: advancedPanel.digitalCfg.dateGap = Math.round(value)
                         }
-                        StyledText { text: Math.round(advancedPanel.digitalCfg.dateGap ?? 4).toString() + "px"; color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
                     StyledText { text: I18nService.tr("Alignment"); color: Appearance.colors.colOnLayer1 }
                     Row {
@@ -323,12 +327,13 @@ ColumnLayout {
                     StyledText { text: I18nService.tr("Clock Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
-                        StyledSlider {
-                            Layout.fillWidth: true; value: Config.ready ? advancedPanel.analogCfg.size : 240; from: 120; to: 480
-                            defaultValue: 240
-                            onMoved: advancedPanel.analogCfg.size = Math.round(value)
+                        Item { Layout.fillWidth: true }
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
+                            value: Config.ready ? advancedPanel.analogCfg.size : 240; from: 120; to: 480; stepSize: 1
+                            decimals: 0
+                            onValueChanged: advancedPanel.analogCfg.size = Math.round(value)
                         }
-                        StyledText { text: Math.round(advancedPanel.analogCfg.size).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
                     StyledText {
                         text: I18nService.tr("Face Shape")
@@ -369,11 +374,13 @@ ColumnLayout {
                     RowLayout {
                         visible: Config.ready && (advancedPanel.analogCfg.backgroundStyle === "cookie" || advancedPanel.analogCfg.backgroundStyle === "sine")
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
-                        StyledSlider {
-                            Layout.fillWidth: true; from: 3; to: 36; stepSize: 1; value: Config.ready ? advancedPanel.analogCfg.sides : 12; defaultValue: 12
-                            onMoved: advancedPanel.analogCfg.sides = Math.round(value)
+                        Item { Layout.fillWidth: true }
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
+                            from: 3; to: 36; stepSize: 1; value: Config.ready ? advancedPanel.analogCfg.sides : 12
+                            decimals: 0
+                            onValueChanged: advancedPanel.analogCfg.sides = Math.round(value)
                         }
-                        StyledText { text: Math.round(advancedPanel.analogCfg.sides).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40; horizontalAlignment: Text.AlignRight }
                     }
                     StyledText { text: I18nService.tr("Constantly Rotate"); color: Appearance.colors.colOnLayer1 }
                     AndroidToggle { Layout.alignment: Qt.AlignRight; checked: Config.ready && advancedPanel.analogCfg.constantlyRotate; onToggled: advancedPanel.analogCfg.constantlyRotate = !advancedPanel.analogCfg.constantlyRotate }
@@ -515,14 +522,14 @@ ColumnLayout {
                     StyledText { text: I18nService.tr("Font Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
-                        StyledSlider {
-                            Layout.fillWidth: true
+                        Item { Layout.fillWidth: true }
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
                             value: Config.ready ? advancedPanel.codeCfg.fontSize : 18
-                            defaultValue: 18
-                            from: 12; to: 48
-                            onMoved: advancedPanel.codeCfg.fontSize = Math.round(value)
+                            from: 12; to: 48; stepSize: 1
+                            decimals: 0
+                            onValueChanged: advancedPanel.codeCfg.fontSize = Math.round(value)
                         }
-                        StyledText { text: Math.round(advancedPanel.codeCfg.fontSize).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
                 }
             }
@@ -580,26 +587,26 @@ ColumnLayout {
                     StyledText { text: I18nService.tr("Clock Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
-                        StyledSlider {
-                            Layout.fillWidth: true
+                        Item { Layout.fillWidth: true }
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
                             value: Config.ready ? advancedPanel.stackedCfg.fontSize : 84
-                            defaultValue: 84
-                            from: 32; to: 160
-                            onMoved: advancedPanel.stackedCfg.fontSize = Math.round(value)
+                            from: 32; to: 160; stepSize: 1
+                            decimals: 0
+                            onValueChanged: advancedPanel.stackedCfg.fontSize = Math.round(value)
                         }
-                        StyledText { text: Math.round(advancedPanel.stackedCfg.fontSize).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
                     StyledText { text: I18nService.tr("Label Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
-                        StyledSlider {
-                            Layout.fillWidth: true
+                        Item { Layout.fillWidth: true }
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
                             value: Config.ready ? advancedPanel.stackedCfg.labelFontSize : 42
-                            defaultValue: 42
-                            from: 16; to: 84
-                            onMoved: advancedPanel.stackedCfg.labelFontSize = Math.round(value)
+                            from: 16; to: 84; stepSize: 1
+                            decimals: 0
+                            onValueChanged: advancedPanel.stackedCfg.labelFontSize = Math.round(value)
                         }
-                        StyledText { text: Math.round(advancedPanel.stackedCfg.labelFontSize).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
                 }
             }
@@ -657,26 +664,26 @@ ColumnLayout {
                     StyledText { text: I18nService.tr("Font Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
-                        StyledSlider {
-                            Layout.fillWidth: true
+                        Item { Layout.fillWidth: true }
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
                             value: Config.ready ? (advancedPanel.textCfg.fontSize || 42) : 42
-                            defaultValue: 42
-                            from: 14; to: 120
-                            onMoved: advancedPanel.textCfg.fontSize = Math.round(value)
+                            from: 14; to: 120; stepSize: 1
+                            decimals: 0
+                            onValueChanged: advancedPanel.textCfg.fontSize = Math.round(value)
                         }
-                        StyledText { text: Math.round(advancedPanel.textCfg.fontSize || 42).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
                     StyledText { text: I18nService.tr("Date Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
-                        StyledSlider {
-                            Layout.fillWidth: true
+                        Item { Layout.fillWidth: true }
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
                             value: Config.ready ? (advancedPanel.textCfg.dateFontSize || 18) : 18
-                            defaultValue: 18
-                            from: 8; to: 60
-                            onMoved: advancedPanel.textCfg.dateFontSize = Math.round(value)
+                            from: 8; to: 60; stepSize: 1
+                            decimals: 0
+                            onValueChanged: advancedPanel.textCfg.dateFontSize = Math.round(value)
                         }
-                        StyledText { text: Math.round(advancedPanel.textCfg.dateFontSize || 18).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
                 }
             }
@@ -728,14 +735,14 @@ ColumnLayout {
                     StyledText { text: I18nService.tr("Clock Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
-                        StyledSlider {
-                            Layout.fillWidth: true
+                        Item { Layout.fillWidth: true }
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
                             value: Config.ready ? (advancedPanel.pillCfg.size || 120) : 120
-                            defaultValue: 120
-                            from: 60; to: 300
-                            onMoved: advancedPanel.pillCfg.size = Math.round(value)
+                            from: 60; to: 300; stepSize: 1
+                            decimals: 0
+                            onValueChanged: advancedPanel.pillCfg.size = Math.round(value)
                         }
-                        StyledText { text: Math.round(advancedPanel.pillCfg.size || 120).toString(); color: Appearance.colors.colOnLayer1; Layout.preferredWidth: 40 * Appearance.effectiveScale; horizontalAlignment: Text.AlignRight }
                     }
                 }
             }

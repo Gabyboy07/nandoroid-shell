@@ -103,18 +103,14 @@ ColumnLayout {
                                 }
                             }
 
-                            StyledSlider {
-                                Layout.fillWidth: true
+                            StyledStepper {
+                                Layout.alignment: Qt.AlignVCenter
                                 from: 0; to: 100; stepSize: 1
+                                decimals: 0
+                                suffix: "px"
                                 value: Config.ready && Config.options.appearance.screenCorners ? Config.options.appearance.screenCorners.radius : 20
-                                onMoved: if (Config.ready && Config.options.appearance.screenCorners)
+                                onValueChanged: if (Config.ready && Config.options.appearance.screenCorners)
                                     Config.options.appearance.screenCorners.radius = Math.round(value)
-                            }
-                            StyledText {
-                                text: Math.round(Config.ready && Config.options.appearance.screenCorners ? Config.options.appearance.screenCorners.radius : 20).toString() + "px"
-                                color: Appearance.colors.colOnLayer1
-                                Layout.preferredWidth: 40 * Appearance.effectiveScale
-                                horizontalAlignment: Text.AlignRight
                             }
                         }
                     }

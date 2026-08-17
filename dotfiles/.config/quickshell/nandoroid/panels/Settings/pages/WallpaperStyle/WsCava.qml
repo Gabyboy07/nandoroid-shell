@@ -81,17 +81,14 @@ ColumnLayout {
                         MaterialSymbol { text: "opacity"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                         StyledText { text: I18nService.tr("Desktop opacity"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     }
-                    StyledSlider {
-                        Layout.fillWidth: true
-                        from: 0.05; to: 0.5
+                    StyledStepper {
+                        Layout.alignment: Qt.AlignVCenter
+                        from: 0.05; to: 0.5; stepSize: 0.01
+                        displayFactor: 100
+                        decimals: 0
+                        suffix: "%"
                         value: Config.options.appearance.background.cavaOpacity
-                        onMoved: Config.options.appearance.background.cavaOpacity = value
-                    }
-                    StyledText {
-                        text: Math.round(Config.options.appearance.background.cavaOpacity * 100) + "%"
-                        color: Appearance.colors.colOnLayer1
-                        Layout.preferredWidth: 40 * Appearance.effectiveScale
-                        horizontalAlignment: Text.AlignRight
+                        onValueChanged: Config.options.appearance.background.cavaOpacity = value
                     }
                 }
             }
@@ -134,17 +131,14 @@ ColumnLayout {
                         MaterialSymbol { text: "opacity"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                         StyledText { text: I18nService.tr("Lock screen opacity"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     }
-                    StyledSlider {
-                        Layout.fillWidth: true
-                        from: 0.05; to: 0.5
+                    StyledStepper {
+                        Layout.alignment: Qt.AlignVCenter
+                        from: 0.05; to: 0.5; stepSize: 0.01
+                        displayFactor: 100
+                        decimals: 0
+                        suffix: "%"
                         value: Config.options.lock.cavaOpacity
-                        onMoved: Config.options.lock.cavaOpacity = value
-                    }
-                    StyledText {
-                        text: Math.round(Config.options.lock.cavaOpacity * 100) + "%"
-                        color: Appearance.colors.colOnLayer1
-                        Layout.preferredWidth: 40 * Appearance.effectiveScale
-                        horizontalAlignment: Text.AlignRight
+                        onValueChanged: Config.options.lock.cavaOpacity = value
                     }
                 }
             }

@@ -17,6 +17,7 @@ StyledFlickable StyledFlickable.qml
 FocusedScrollMouseArea FocusedScrollMouseArea.qml
 StyledScrollBar StyledScrollBar.qml
 StyledSlider StyledSlider.qml
+StyledStepper StyledStepper.qml
 StyledText StyledText.qml
 StyledToolTip StyledToolTip.qml
 StyledToolTipContent StyledToolTipContent.qml

@@ -97,17 +97,13 @@ ColumnLayout {
                 }
             }
 
-            StyledSlider {
-                Layout.fillWidth: true
+            StyledStepper {
+                Layout.alignment: Qt.AlignVCenter
                 from: 1; to: 120; stepSize: 1
+                decimals: 0
+                suffix: "m"
                 value: (Config.ready && Config.options.appearance.background.autoCycleInterval !== undefined) ? Config.options.appearance.background.autoCycleInterval : 30
-                onMoved: Wallpapers.setAutoCycleInterval(Math.round(value))
-            }
-            StyledText {
-                text: `${(Config.ready && Config.options.appearance.background.autoCycleInterval !== undefined) ? Config.options.appearance.background.autoCycleInterval : 30}m`
-                color: Appearance.colors.colOnLayer1
-                Layout.preferredWidth: 40 * Appearance.effectiveScale
-                horizontalAlignment: Text.AlignRight
+                onValueChanged: Wallpapers.setAutoCycleInterval(Math.round(value))
             }
         }
     }

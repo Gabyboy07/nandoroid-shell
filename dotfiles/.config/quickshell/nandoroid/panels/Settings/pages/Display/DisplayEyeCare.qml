@@ -68,7 +68,7 @@ ColumnLayout {
 
             SegmentedWrapper {
                 Layout.fillWidth: true
-                implicitHeight: colorTempCol.implicitHeight + (40 * Appearance.effectiveScale)
+                implicitHeight: colorTempRow.implicitHeight + (40 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 smallRadius: 8 * Appearance.effectiveScale
@@ -77,41 +77,35 @@ ColumnLayout {
                 opacity: Hyprsunset.active ? 1.0 : 0.4
                 enabled: Hyprsunset.active
 
-                ColumnLayout {
-                    id: colorTempCol
+                RowLayout {
+                    id: colorTempRow
                     anchors.fill: parent
                     anchors.margins: 20 * Appearance.effectiveScale
-                    spacing: 12 * Appearance.effectiveScale
+                    spacing: 20 * Appearance.effectiveScale
 
-                    RowLayout {
-                        width: parent.width
-                        StyledText {
-                            text: I18nService.tr("Color Temperature")
-                            font.pixelSize: Appearance.font.pixelSize.normal
-                            font.weight: Font.Medium
-                            color: Appearance.colors.colOnLayer1
-                        }
-                        Item { Layout.fillWidth: true }
-                        StyledText {
-                            text: Hyprsunset.colorTemperature + "K"
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.colors.colPrimary
-                        }
+                    StyledText {
+                        text: I18nService.tr("Color Temperature")
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnLayer1
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
                     }
 
-                    StyledSlider {
-                        Layout.fillWidth: true
+                    StyledStepper {
+                        Layout.alignment: Qt.AlignVCenter
                         from: 1200
                         to: 6500
                         stepSize: 100
+                        decimals: 0
+                        suffix: "K"
                         value: (Config.options && Config.options.nightMode) ? Config.options.nightMode.colorTemperature : 4000
-                        configuration: StyledSlider.Configuration.M
-                        onMoved: {
+                        onValueChanged: {
                             if (Config.ready && Config.options.nightMode) {
                                 Config.options.nightMode.colorTemperature = value;
                             }
                         }
                     }
+                }
         }
     }
-}
