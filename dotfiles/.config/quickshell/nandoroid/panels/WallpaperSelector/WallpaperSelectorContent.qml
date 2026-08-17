@@ -863,10 +863,10 @@ Item {
                             RowLayout {
                                 anchors.centerIn: parent
                                 spacing: 12 * Appearance.effectiveScale
-                                MaterialSymbol {
+                                MaterialLoadingIndicator {
                                     id: loadMoreIcon
-                                    text: "progress_activity"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary
-                                    RotationAnimation on rotation { from: 0; to: 360; duration: 1000; loops: Animation.Infinite; running: parent.visible; onRunningChanged: if (!running) loadMoreIcon.rotation = 0 }
+                                    implicitSize: 48 * Appearance.effectiveScale
+                                    loading: parent.visible
                                 }
                                 StyledText { text: I18nService.tr("Loading more..."); color: Appearance.colors.colSubtext }
                             }
@@ -1151,12 +1151,12 @@ Item {
 
                         ColumnLayout {
                             anchors.centerIn: parent; visible: grid.count === 0; spacing: 12 * Appearance.effectiveScale
-                            MaterialSymbol {
+                            MaterialLoadingIndicator {
                                 id: mainLoadIcon
                                 visible: (mainSelector.wallhavenMode && WallhavenService.loading) || (mainSelector.naiveMode && NaIveWallpaperService.loading) || (mainSelector.inVideoMode && MpvpaperService.loading) || (mainSelector.liveMode && !mainSelector.inVideoMode && WallpaperEngineService.loading)
-                                text: "progress_activity"; iconSize: 32 * Appearance.effectiveScale; color: Appearance.colors.colPrimary
+                                implicitSize: 64 * Appearance.effectiveScale
+                                loading: parent.visible
                                 Layout.alignment: Qt.AlignHCenter
-                                RotationAnimation on rotation { from: 0; to: 360; duration: 1000; loops: Animation.Infinite; running: parent.visible; onRunningChanged: if (!running) mainLoadIcon.rotation = 0 }
                             }
                             StyledText {
                                 text: {

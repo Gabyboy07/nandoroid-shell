@@ -76,3 +76,4 @@ StyledTabBar StyledTabBar.qml
 VideoThumbnail VideoThumbnail.qml
 StyledNavigationRail 1.0 StyledNavigationRail.qml
 StyledBadge StyledBadge.qml
+MaterialLoadingIndicator 1.0 MaterialLoadingIndicator.qml

@@ -160,21 +160,12 @@ ColumnLayout {
                     }
                     }
 
-                    MaterialSymbol {
+                    MaterialLoadingIndicator {
                         id: syncIcon
-                        text: "sync"
                         anchors.centerIn: parent
                         visible: previewIterateTimer.running || previewMatugen.running
-                        iconSize: 42 * Appearance.effectiveScale
-                        color: Appearance.colors.colPrimary
-                        RotationAnimation on rotation {
-                            loops: Animation.Infinite
-                            from: 0
-                            to: 360
-                            duration: 1000
-                            running: parent.visible
-                            onRunningChanged: if (!running) syncIcon.rotation = 0
-                        }
+                        implicitSize: 48 * Appearance.effectiveScale
+                        loading: visible
                     }
                 }
 

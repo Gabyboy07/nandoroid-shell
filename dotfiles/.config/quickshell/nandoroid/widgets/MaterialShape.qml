@@ -104,7 +104,8 @@ Item {
     property real borderWidth: 0
     
     // Explicitly expose properties expected by ShapeCanvas users if needed
-    property bool polygonIsNormalized: true 
+    property bool polygonIsNormalized: true
+    property alias animation: canvas.animation
 
     implicitHeight: implicitSize
     implicitWidth: implicitSize
