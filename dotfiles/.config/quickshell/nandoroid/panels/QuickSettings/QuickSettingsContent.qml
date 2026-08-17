@@ -35,6 +35,7 @@ Item {
     property bool showAudioInputPanel: false
     property bool showNightModePanel: false
     property bool showPowerProfilePanel: false
+    property bool showNotificationModePanel: false
 
     Rectangle {
         id: backgroundRect
@@ -60,6 +61,7 @@ Item {
                 root.showAudioInputPanel = false;
                 root.showNightModePanel = false;
                 root.showPowerProfilePanel = false;
+                root.showNotificationModePanel = false;
                 GlobalStates.quickSettingsEditMode = false;
             }
         }
@@ -109,12 +111,14 @@ Item {
             }
         },
         "dnd": {
-            name: I18nService.tr("Do Not Disturb"),
-            icon: "do_not_disturb_on",
-            iconOff: "do_not_disturb_off",
-            toggled: Notifications.silent,
-            statusText: Notifications.silent ? I18nService.tr("On") : I18nService.tr("Off"),
-            action: () => { Notifications.silent = !Notifications.silent }
+            name: I18nService.tr("Notification Mode"),
+            icon: Notifications.mode === 2 ? "notifications_off" : (Notifications.mode === 1 ? "vibration" : "notifications_active"),
+            iconOff: Notifications.mode === 2 ? "notifications_off" : (Notifications.mode === 1 ? "vibration" : "notifications_active"),
+            toggled: Notifications.mode > 0,
+            statusText: Notifications.mode === 2 ? I18nService.tr("DND") : (Notifications.mode === 1 ? I18nService.tr("Silent") : I18nService.tr("Normal")),
+            action: () => { Notifications.mode = (Notifications.mode + 1) % 3 },
+            hasDetails: true,
+            detailsAction: () => { root.showNotificationModePanel = true }
         },
         "darkMode": {
             name: I18nService.tr("Dark Mode"),
@@ -1207,6 +1211,15 @@ Item {
             currentMode: PowerProfileService.currentProfile
             onSetProfile: (id) => PowerProfileService.setProfile(id)
             onDismiss: root.showPowerProfilePanel = false
+        }
+    }
+
+    // Notification Mode Panel
+    Loader {
+        anchors.fill: parent
+        active: root.showNotificationModePanel
+        sourceComponent: NotificationModePanel {
+            onDismiss: root.showNotificationModePanel = false
         }
     }
     

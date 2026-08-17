@@ -172,11 +172,11 @@ Item {
                     visible: true 
 
                     SegmentedButton {
-                        isHighlighted: Notifications.silent
+                        isHighlighted: Notifications.mode > 0
                         forcePill: true
                         implicitWidth: 56 * Appearance.effectiveScale
                         implicitHeight: 40 * Appearance.effectiveScale
-                        iconName: Notifications.silent ? "notifications_off" : "notifications_active"
+                        iconName: Notifications.mode === 2 ? "notifications_off" : (Notifications.mode === 1 ? "vibration" : "notifications_active")
                         iconSize: 20 * Appearance.effectiveScale
                         
                         colActive: Appearance.m3colors.m3primaryContainer
@@ -184,7 +184,7 @@ Item {
                         colInactive: Appearance.m3colors.m3surfaceContainerHigh
                         colInactiveText: Appearance.m3colors.m3onSurfaceVariant
                         
-                        onClicked: Notifications.silent = !Notifications.silent
+                        onClicked: Notifications.mode = (Notifications.mode + 1) % 3
                     }
 
                     // Notification Count Wrapper

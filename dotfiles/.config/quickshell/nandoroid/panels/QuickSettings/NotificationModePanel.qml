@@ -6,18 +6,12 @@ import QtQuick
 import QtQuick.Layouts
 
 /**
- * Power Profile detail panel.
- * Three cards: Daily / Work / Performance.
- * currentMode and onSetProfile are wired from QuickSettingsContent via the Loader.
+ * Notification Mode detail panel.
+ * Three cards: Normal / Silent / DND.
  */
 Rectangle {
     id: root
     signal dismiss()
-
-    // Bound from parent (QuickSettingsContent.powerProfileMode)
-    property string currentMode: "daily"
-    // Called when user picks a card — parent updates the file + state
-    signal setProfile(string profileId)
 
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
@@ -30,24 +24,24 @@ Rectangle {
         onPressed: (mouse) => mouse.accepted = true
     }
 
-    readonly property var profiles: [
+    readonly property var modes: [
         {
-            id: "daily",
-            name: I18nService.tr("Power Saving"),
-            icon: "eco",
-            description: I18nService.tr("Light usage. Saves battery, stays cool.")
+            id: 0,
+            name: I18nService.tr("Normal"),
+            icon: "notifications_active",
+            description: I18nService.tr("Popups and sounds are enabled.")
         },
         {
-            id: "balanced",
-            name: I18nService.tr("Balanced"),
-            icon: "balance",
-            description: I18nService.tr("Balanced for productivity tasks.")
+            id: 1,
+            name: I18nService.tr("Silent"),
+            icon: "vibration",
+            description: I18nService.tr("Popups only. No sounds.")
         },
         {
-            id: "performance",
-            name: I18nService.tr("Performance"),
-            icon: "local_fire_department",
-            description: I18nService.tr("Full power for gaming or heavy loads.")
+            id: 2,
+            name: I18nService.tr("Do Not Disturb"),
+            icon: "notifications_off",
+            description: I18nService.tr("No popups. No sounds. Saved to history.")
         }
     ]
 
@@ -78,14 +72,14 @@ Rectangle {
 
             StyledText {
                 Layout.fillWidth: true
-                text: I18nService.tr("Power Profile")
+                text: I18nService.tr("Notification Mode")
                 font.pixelSize: Appearance.font.pixelSize.normal
                 font.weight: Font.DemiBold
                 color: Appearance.m3colors.m3onSurface
             }
 
             MaterialSymbol {
-                text: "airwave"
+                text: "notifications"
                 iconSize: 22 * Appearance.effectiveScale
                 color: Appearance.colors.colPrimary
             }
@@ -102,7 +96,7 @@ Rectangle {
         ListView {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            model: root.profiles
+            model: root.modes
             spacing: 8 * Appearance.effectiveScale
             clip: true
             boundsBehavior: Flickable.StopAtBounds
@@ -112,7 +106,7 @@ Rectangle {
                 height: 72 * Appearance.effectiveScale
                 radius: Appearance.rounding.large
                 
-                readonly property bool isSelected: root.currentMode === modelData.id
+                readonly property bool isSelected: Notifications.mode === modelData.id
                 color: isSelected ? Appearance.colors.colPrimaryContainer : Appearance.colors.colLayer1
 
                 RowLayout {
@@ -161,7 +155,7 @@ Rectangle {
                     cursorShape: Qt.PointingHandCursor
                     hoverEnabled: true
                     onClicked: {
-                        root.setProfile(modelData.id)
+                        Notifications.mode = modelData.id
                     }
                 }
             }

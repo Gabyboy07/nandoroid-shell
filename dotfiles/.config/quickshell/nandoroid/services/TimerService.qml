@@ -1,6 +1,8 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import Quickshell.Io
+import "../services"
 
 
 Singleton {
@@ -66,6 +68,7 @@ Singleton {
         active = false;
         overflowing = false;
         remainingMs = setSeconds * 1000;
+        alarmProcess.running = false;
     }
 
     function setDuration(seconds) {
@@ -94,8 +97,13 @@ Singleton {
             
             if (root.remainingMs <= 0 && !root.overflowing) {
                 root.overflowing = true;
-                Audio.playSystemSound("message");
+                alarmProcess.running = true;
             }
         }
+    }
+
+    Process {
+        id: alarmProcess
+        command: ["ffplay", "-nodisp", "-autoexit", "-loop", "0", `/usr/share/sounds/${Audio.audioTheme}/stereo/alarm-clock-elapsed.oga`]
     }
 }

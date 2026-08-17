@@ -23,8 +23,18 @@ Singleton {
     property list<QtObject> list: []
     property var activePopup: null
     property var popupList: list.filter(n => n.popup) // Still used for sidebar/history logic
+    property int mode: 0 // 0=Normal, 1=Silent, 2=DND
     property bool silent: false
     property int idOffset: 0
+
+    onModeChanged: {
+        if (mode === 2 && !silent) silent = true;
+        if (mode !== 2 && silent) silent = false;
+    }
+    onSilentChanged: {
+        if (silent && mode !== 2) mode = 2;
+        if (!silent && mode === 2) mode = 0;
+    }
 
     onListChanged: if (list.length === 0) activePopup = null;
 
@@ -234,7 +244,7 @@ Singleton {
             // Add to list and handle popup state
             root.list = [...root.list, newNotif];
 
-            if (!root.silent) {
+            if (root.mode !== 2) {
                 newNotif.popup = true;
                 root.activePopup = newNotif;
                 if (notification.expireTimeout !== 0) {
@@ -246,6 +256,10 @@ Singleton {
                     });
                 }
                 root.unread++;
+            }
+
+            if (root.mode === 0) {
+                Audio.playSystemSound("message");
             }
 
 
