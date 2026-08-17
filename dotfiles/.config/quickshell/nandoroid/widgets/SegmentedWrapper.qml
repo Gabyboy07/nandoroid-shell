@@ -30,7 +30,7 @@ Item {
     property bool hasShadow: false
     property var maxRadius: undefined
     property real fullRadius: maxRadius !== undefined ? maxRadius : (implicitHeight > 0 ? implicitHeight / 2 : 20 * Appearance.effectiveScale)
-    property real smallRadius: Appearance.rounding.unsharpenmore || (6 * Appearance.effectiveScale)
+    property real smallRadius: 8 * Appearance.effectiveScale // M3 Connected Button Group inner radius for Size M
     
     implicitWidth: 40 * Appearance.effectiveScale
     implicitHeight: 40 * Appearance.effectiveScale
