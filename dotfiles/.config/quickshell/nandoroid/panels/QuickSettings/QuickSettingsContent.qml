@@ -805,6 +805,16 @@ Item {
                     value: dimming
                         ? (Hyprsunset.gamma - Hyprsunset.gammaLowerLimit) / (100 - Hyprsunset.gammaLowerLimit) * gammaBoundary
                         : gammaBoundary + (mon ? mon.brightness * (1 - gammaBoundary) : 0)
+                        
+                    tooltipContent: {
+                        if (value >= gammaBoundary) {
+                            return Math.round((value - gammaBoundary) / (1 - gammaBoundary) * 100) + "%";
+                        } else {
+                            const g = (value / gammaBoundary) * (100 - Hyprsunset.gammaLowerLimit) + Hyprsunset.gammaLowerLimit;
+                            return Math.round(g) + "% Dim";
+                        }
+                    }
+                        
                     onMoved: {
                         if (value >= gammaBoundary) {
                             const b = (value - gammaBoundary) / (1 - gammaBoundary);

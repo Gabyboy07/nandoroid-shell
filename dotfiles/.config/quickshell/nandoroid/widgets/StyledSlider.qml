@@ -38,7 +38,7 @@ Slider {
     property color handleColor: Appearance.m3colors.m3primary // Adapted
     property color dotColor: Appearance.m3colors.m3onSecondaryContainer // Adapted
     property color dotColorHighlighted: Appearance.m3colors.m3onPrimary // Adapted
-    property real unsharpenRadius: 4 * Appearance.effectiveScale
+    property real unsharpenRadius: 2 * Appearance.effectiveScale
     
     property real trackWidth: configuration * Appearance.effectiveScale
     property real trackRadius: trackWidth >= StyledSlider.Configuration.XL * Appearance.effectiveScale ? 24 * Appearance.effectiveScale
@@ -207,6 +207,21 @@ Slider {
                 anchors.verticalCenter: parent?.verticalCenter
             }
         }
+
+        // M3 Trailing Dot
+        Rectangle {
+            anchors.verticalCenter: background.verticalCenter
+            x: root.leftPadding + root.effectiveDraggingWidth - (width / 2)
+            width: root.trackWidth >= StyledSlider.Configuration.S * Appearance.effectiveScale ? root.trackDotSize : 0
+            height: width
+            radius: width / 2
+            color: root.visualPosition > 0.98 ? root.dotColorHighlighted : root.dotColor
+            visible: width > 0
+            
+            Behavior on color {
+                animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+            }
+        }
     }
 
     handle: Rectangle {
@@ -219,12 +234,40 @@ Slider {
         radius: Appearance.rounding.full
         color: root.handleColor
 
-        StyledToolTip {
-            extraVisibleCondition: root.pressed
-            text: root.tooltipContent
-            font {
-                family: Appearance.font.family.numbers
-                variableAxes: Appearance.font.variableAxes.numbers
+        Item {
+            id: valueIndicator
+            implicitWidth: tooltipText.implicitWidth + (32 * Appearance.effectiveScale) // x padding 16 * 2
+            implicitHeight: tooltipText.implicitHeight + (24 * Appearance.effectiveScale) // y padding 12 * 2
+            
+            // Constrain X so the tooltip never overflows the slider's left/right boundaries
+            x: Math.max(-handle.x, Math.min(root.width - handle.x - width, (parent.width - width) / 2))
+            
+            anchors.bottom: parent.top
+            anchors.bottomMargin: 4 * Appearance.effectiveScale
+            
+            scale: root.pressed ? 1.0 : 0.0
+            opacity: root.pressed ? 1.0 : 0.0
+            transformOrigin: Item.Bottom
+
+            Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutBack } }
+            Behavior on opacity { NumberAnimation { duration: 150 } }
+
+            Rectangle {
+                anchors.fill: parent
+                radius: height / 2
+                color: Appearance.colors.colTooltip
+            }
+            
+            StyledText {
+                id: tooltipText
+                anchors.centerIn: parent
+                text: root.tooltipContent
+                font {
+                    family: Appearance.font.family.numbers
+                    variableAxes: Appearance.font.variableAxes.numbers
+                    pixelSize: Appearance.font.pixelSize.normal
+                }
+                color: Appearance.colors.colOnTooltip
             }
         }
     }
