@@ -18,6 +18,7 @@ Singleton {
     property string errorMessage: ""
     
     readonly property string baseUrl: "https://na-ive.github.io/wallpapers/"
+    readonly property string rawBaseUrl: "https://raw.githubusercontent.com/na-ive/wallpapers/main/"
     readonly property string jsonUrl: "https://raw.githubusercontent.com/na-ive/wallpapers/gh-pages/wallpapers.json"
 
     ListModel {
@@ -50,7 +51,7 @@ Singleton {
                                 "wallhaven_id": item.wallhaven_id || "",
                                 "filename": item.filename,
                                 "preview": root.baseUrl + item.thumbnail,
-                                "full": root.baseUrl + item.filename,
+                                "full": root.rawBaseUrl + item.filename,
                                 "color": item.color || "#000000",
                                 "is_naive": true
                             }));
