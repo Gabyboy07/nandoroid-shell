@@ -42,7 +42,7 @@ PanelWindow {
 
     // Fix: Mask ensures clicks pass through transparent areas
     mask: Region {
-        item: maskContainer
+        item: swipeWrapper
     }
 
     onImagePathChanged: {
@@ -77,14 +77,55 @@ PanelWindow {
             }
         }
 
-        // Invisible container that bounds only the visual parts
+        // Swipe Wrapper that bounds the visual parts and handles dragging
         Item {
-            id: maskContainer
-            anchors.left: parent.left
+            id: swipeWrapper
+            x: 0
             anchors.bottom: parent.bottom
             width: Math.max(actionPillIsland.width, thumbnailIsland.width)
             height: actionPillIsland.height + thumbnailIsland.height + thumbnailIsland.anchors.bottomMargin
-        }
+            
+            Behavior on x {
+                enabled: !dragHandler.active && !destroyAnimation.running
+                NumberAnimation { duration: 300; easing.type: Easing.OutQuint }
+            }
+
+            SequentialAnimation {
+                id: destroyAnimation
+                property bool left: true
+                running: false
+                NumberAnimation {
+                    target: swipeWrapper
+                    property: "x"
+                    to: (root.width + 100 * Appearance.effectiveScale) * (destroyAnimation.left ? -1 : 1)
+                    duration: 300
+                    easing.type: Easing.InQuint
+                }
+                onFinished: {
+                    root.imagePath = "";
+                    swipeWrapper.x = 0;
+                }
+            }
+
+            DragHandler {
+                id: dragHandler
+                target: swipeWrapper
+                xAxis.enabled: true
+                yAxis.enabled: false
+                onActiveChanged: {
+                    if (active) {
+                        hideTimer.stop();
+                    } else {
+                        hideTimer.restart();
+                        if (Math.abs(swipeWrapper.x) > 100 * Appearance.effectiveScale) {
+                            destroyAnimation.left = swipeWrapper.x < 0;
+                            destroyAnimation.running = true;
+                        } else {
+                            swipeWrapper.x = 0; // Bounce back
+                        }
+                    }
+                }
+            }
 
         // 1. Action Pill Island
         Rectangle {
@@ -94,7 +135,7 @@ PanelWindow {
             
             width: actionRow.implicitWidth + (16 * Appearance.effectiveScale)
             height: 40 * Appearance.effectiveScale + (16 * Appearance.effectiveScale)
-            radius: 16 * Appearance.effectiveScale
+            radius: height / 2
             
             color: Appearance.m3colors.m3surfaceContainerHigh
 
@@ -212,27 +253,13 @@ PanelWindow {
                     onClicked: Qt.openUrlExternally("file://" + root.imagePath)
                 }
             }
-            
-            Item {
-                id: dragTarget
-                Drag.active: dragArea.drag.active
-                Drag.dragType: Drag.Automatic
-                Drag.supportedActions: Qt.CopyAction
-                Drag.mimeData: { "text/uri-list": "file://" + root.imagePath }
-            }
-            
-            MouseArea {
-                id: dragArea
-                anchors.fill: parent
-                drag.target: dragTarget
-                propagateComposedEvents: true
-            }
         }
 
         StyledRectangularShadow {
             target: thumbnailIsland
             z: -1
         }
+        } // End of swipeWrapper
     }
 
     // ── Action Card Component ──
@@ -244,17 +271,17 @@ PanelWindow {
 
         implicitWidth: 40 * Appearance.effectiveScale
         implicitHeight: 40 * Appearance.effectiveScale
-        buttonRadius: 12 * Appearance.effectiveScale
+        buttonRadius: height / 2
         
-        colBackground: isError ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3error, 0.15) : Appearance.colors.colPrimary
-        colBackgroundHover: isError ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3error, 0.25) : Appearance.colors.colPrimaryHover
+        colBackground: isError ? Appearance.m3colors.m3errorContainer : Appearance.colors.colPrimary
+        colBackgroundHover: isError ? Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3errorContainer, 0.7) : Appearance.colors.colPrimaryHover
         
         MaterialSymbol {
             anchors.centerIn: parent
             text: actionBtn.btnIcon
             iconSize: 20 * Appearance.effectiveScale
             fill: 1
-            color: actionBtn.isError ? Appearance.m3colors.m3error : Appearance.colors.colOnPrimary
+            color: actionBtn.isError ? Appearance.m3colors.m3onErrorContainer : Appearance.colors.colOnPrimary
         }
 
         StyledToolTip {
