@@ -13,6 +13,10 @@ StyledListView {
     id: root
     property bool popup: false
 
+    // When true, the current delegate renders its keyboard focus highlight
+    // (driven by the hosting panel's arrow-key navigation).
+    property bool keyboardSelected: false
+
     spacing: 4 * Appearance.effectiveScale
 
     model: ScriptModel {

@@ -18,6 +18,9 @@ Item { // Notification item area
     property var notificationObject
     property bool expanded: false
     property bool onlyNotification: false
+    property bool keyboardFocused: false
+    property bool keyboardButtonSelected: false
+    property int keyboardButtonIndex: -1
     property real fontSize: Appearance.font.pixelSize.small
     property real padding: onlyNotification ? 0 : 8 * Appearance.effectiveScale
     property real summaryElideRatio: 0.85
@@ -41,6 +44,43 @@ Item { // Notification item area
         background.anchors.leftMargin = background.anchors.leftMargin; // Break binding
         destroyAnimation.left = left;
         destroyAnimation.running = true;
+    }
+
+    // Action buttons in visual order for keyboard navigation.
+    function keyboardButtons() {
+        var btns = [];
+        if (restartBtn.visible) btns.push(restartBtn);
+        if (viewBtn.visible) btns.push(viewBtn);
+        if (closeBtn.visible) btns.push(closeBtn);
+        for (var i = 0; i < actionRepeater.count; i++) {
+            var b = actionRepeater.itemAt(i);
+            if (b && b.visible) btns.push(b);
+        }
+        if (copyBtn.visible) btns.push(copyBtn);
+        return btns;
+    }
+
+    readonly property Item kbButton: {
+        if (root.keyboardButtonIndex < 0) return null;
+        var btns = root.keyboardButtons();
+        return root.keyboardButtonIndex < btns.length ? btns[root.keyboardButtonIndex] : null;
+    }
+
+    // Re-evaluates on horizontal scroll so the ring tracks the buttons.
+    property double _kbScroll: actionsFlickable ? actionsFlickable.contentX : 0
+    readonly property point kbButtonPos: {
+        root._kbScroll;
+        return root.kbButton ? root.kbButton.mapToItem(root, 0, 0) : Qt.point(0, 0);
+    }
+
+    function ensureButtonVisible() {
+        var btn = root.kbButton;
+        if (!btn) return;
+        var fx = actionsFlickable;
+        var left = btn.x;
+        var right = btn.x + btn.width;
+        if (right > fx.contentX + fx.width) fx.contentX = right - fx.width;
+        else if (left < fx.contentX) fx.contentX = left;
     }
 
     TextMetrics {
@@ -474,5 +514,41 @@ Item { // Notification item area
                 }
             }
         }
+    }
+
+    // Keyboard focus ring — shown while the host panel navigates notifications
+    Rectangle {
+        anchors.fill: parent
+        visible: root.keyboardFocused
+        enabled: false
+        z: 300
+        color: "transparent"
+        border.width: Math.max(1, 2 * Appearance.effectiveScale)
+        border.color: Appearance.m3colors.m3primary
+        radius: Appearance.rounding.small
+        opacity: 0.9
+        Behavior on border.color { ColorAnimation { duration: 120 } }
+        Behavior on opacity { NumberAnimation { duration: 120 } }
+    }
+
+    // Keyboard ring for the focused action button
+    Rectangle {
+        id: buttonRing
+        visible: root.keyboardButtonSelected && root.kbButton !== null
+        enabled: false
+        z: 400
+        color: "transparent"
+        border.width: Math.max(1, 2 * Appearance.effectiveScale)
+        border.color: Appearance.m3colors.m3primary
+        radius: 8 * Appearance.effectiveScale
+        opacity: 0.9
+        x: root.kbButtonPos.x - 3 * Appearance.effectiveScale
+        y: root.kbButtonPos.y - 3 * Appearance.effectiveScale
+        width: (root.kbButton ? root.kbButton.width : 0) + 6 * Appearance.effectiveScale
+        height: (root.kbButton ? root.kbButton.height : 0) + 6 * Appearance.effectiveScale
+        Behavior on x { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+        Behavior on y { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+        Behavior on border.color { ColorAnimation { duration: 120 } }
+        Behavior on opacity { NumberAnimation { duration: 120 } }
     }
 }

@@ -27,6 +27,15 @@ MouseArea { // Notification group area
     
     implicitHeight: background.implicitHeight
 
+    // Keyboard-focus state: highlighted by the host panel's arrow navigation.
+    readonly property bool keyboardFocused: !root.popup && ListView.isCurrentItem
+        && (ListView.view ? ListView.view.keyboardSelected : false)
+    // Host drives these: true = cursor is at group level / inside this group.
+    property bool keyboardSelected: false
+    property bool keyboardSelectedInner: false
+    property bool keyboardSelectedInnerButtons: false
+    readonly property ListView notifList: notificationsColumn
+
     property real dragConfirmThreshold: 70 * Appearance.effectiveScale // Drag further to discard notification
     property real dismissOvershoot: 20 * Appearance.effectiveScale // Account for gaps and bouncy animations
     property var qmlParent: root?.parent?.parent // There's something between this and the parent ListView
@@ -282,6 +291,8 @@ MouseArea { // Notification group area
                         required property var modelData
                         notificationObject: modelData
                         expanded: root.expanded
+                        keyboardFocused: root.keyboardSelectedInner && notificationsColumn.currentIndex === index
+                        keyboardButtonSelected: root.keyboardSelectedInnerButtons && notificationsColumn.currentIndex === index
                         
                         onlyNotification: (root.notificationCount === 1)
                         opacity: (!root.expanded && index == 1 && root.notificationCount > 2) ? 0.5 : 1
@@ -292,5 +303,20 @@ MouseArea { // Notification group area
                 }
             }
         }
+    }
+
+    // Keyboard focus ring — shown while the host panel navigates the list
+    Rectangle {
+        anchors.fill: parent
+        visible: root.keyboardFocused
+        enabled: false
+        z: 300
+        color: "transparent"
+        border.width: Math.max(1, 2 * Appearance.effectiveScale)
+        border.color: Appearance.m3colors.m3primary
+        radius: 20 * Appearance.effectiveScale
+        opacity: 0.9
+        Behavior on border.color { ColorAnimation { duration: 120 } }
+        Behavior on opacity { NumberAnimation { duration: 120 } }
     }
 }

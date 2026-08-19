@@ -31,6 +31,13 @@ Rectangle {
     readonly property var player: MprisController.activePlayer
     readonly property bool hasArt: MprisController.displayedArtFilePath.toString() !== ""
 
+    // Exposed controls so hosts can drive/position keyboard navigation.
+    readonly property Item kbPrevButton: prevBtn
+    readonly property Item kbPlayButton: playPauseButton
+    readonly property Item kbNextButton: nextBtn
+    readonly property Item kbLyricsButton: lyricsBtn
+    readonly property Item kbSeekSlider: progressSlider
+
     // When on lockscreen with no art, use lockscreen palette instead of desktop-based dyn* colors
     readonly property var m3: isLockscreen ? Appearance.lockM3colors : Appearance.m3colors
     readonly property color effectiveLayer0:    (!hasArt && isLockscreen) ? m3.m3surfaceContainerHigh : MprisController.dynLayer0
