@@ -21,16 +21,46 @@ Item {
     readonly property Item selectorItem: mainSelector
 
     ListModel {
-        id: customFoldersModel
+        id: globalCustomFoldersModel
     }
 
+    ListModel {
+        id: globalFavModel
+        function refresh() {
+            clear();
+            const favs = Wallpapers.favorites;
+            let data = [];
+            for (let i = 0; i < favs.length; i++) {
+                const path = favs[i];
+                const name = path.split('/').pop();
+                data.push({ "filePath": path, "fileName": name });
+            }
+
+            // Apply sorting
+            data.sort((a, b) => {
+                if (mainSelector.sortMode === "name_asc") return a.fileName.localeCompare(b.fileName);
+                if (mainSelector.sortMode === "name_desc") return b.fileName.localeCompare(a.fileName);
+                return 0;
+            });
+
+            for (let item of data) append(item);
+        }
+        Component.onCompleted: refresh()
+    }
+    
+    Connections {
+        target: Wallpapers
+        function onFavoritesChanged() { globalFavModel.refresh(); }
+    }
+
+
     function refreshCustomFolders() {
-        customFoldersModel.clear();
+        globalCustomFoldersModel.clear();
         const folders = Config.options.appearance.background.customFolders || [];
         for (let i = 0; i < folders.length; i++) {
             const path = folders[i];
             const name = path.split('/').pop() || path;
-            customFoldersModel.append({ "name": name, "path": path });
+            globalCustomFoldersModel.append({ "name": name, "path": path });
         }
     }
 
@@ -46,7 +76,7 @@ Item {
 
     // NA-ive collection is fully local after fetch, so search = local filename filter
     ListModel {
-        id: naiveFilteredModel
+        id: globalNaiveFilteredModel
         function refresh() {
             clear();
             const q = mainSelector.naiveSearch.trim().toLowerCase();
@@ -58,11 +88,11 @@ Item {
         }
     }
 
-    onNaiveSearchChanged: naiveFilteredModel.refresh()
+    onNaiveSearchChanged: globalNaiveFilteredModel.refresh()
 
     Connections {
         target: NaIveWallpaperService
-        function onFetchFinished() { naiveFilteredModel.refresh(); }
+        function onFetchFinished() { globalNaiveFilteredModel.refresh(); }
     }
 
     // Responsive sizing
@@ -92,6 +122,24 @@ Item {
     // Selection state for right sidebar
     property var selectedWallpaper: null
     property bool showDetails: liveMode || selectedWallpaper !== null
+    property bool sidebarExpanded: true
+
+    // Popup state management
+    property alias targetPopupVisible: targetPopup.visible
+    property alias sortPopupVisible: sortPopup.visible
+    property alias weSettingsPopupVisible: weSettingsPopup.visible
+    property alias mpvSettingsPopupVisible: mpvSettingsPopup.visible
+
+    function toggleTargetPopup() { targetPopup.visible = !targetPopup.visible }
+    function toggleSortPopup() { sortPopup.visible = !sortPopup.visible }
+    function toggleWeSettingsPopup() { 
+        weSettingsPopup.visible = !weSettingsPopup.visible;
+        if (weSettingsPopup.visible) mpvSettingsPopup.visible = false;
+    }
+    function toggleMpvSettingsPopup() { 
+        mpvSettingsPopup.visible = !mpvSettingsPopup.visible;
+        if (mpvSettingsPopup.visible) weSettingsPopup.visible = false;
+    }
     
     // Independent search states
     property string localSearch: ""
@@ -113,7 +161,7 @@ Item {
         if (wallhavenMode || naiveMode) return;
 
         if (favMode) {
-            favModel.refresh();
+            globalFavModel.refresh();
             return;
         }
 
@@ -139,10 +187,10 @@ Item {
         
         // Save current search state
         if (onlineMode) {
-            if (onlineProviderIndex === 0) wallhavenSearch = headerSearch.text;
-            else naiveSearch = headerSearch.text;
-        } else if (liveMode) liveSearch = headerSearch.text;
-        else localSearch = headerSearch.text;
+            if (onlineProviderIndex === 0) wallhavenSearch = searchFilter;
+            else naiveSearch = searchFilter;
+        } else if (liveMode) liveSearch = searchFilter;
+        else localSearch = searchFilter;
         
         // Update modes
         onlineMode = (mode === "online");
@@ -155,19 +203,19 @@ Item {
         // Restore search state
         if (onlineMode) {
             if (onlineProviderIndex === 0) {
-                headerSearch.text = wallhavenSearch;
+                searchFilter = wallhavenSearch;
                 // If empty, fetch defaults
-                if (headerSearch.text === "") WallhavenService.search("");
+                if (searchFilter === "") WallhavenService.search("");
             } else {
-                headerSearch.text = naiveSearch;
+                searchFilter = naiveSearch;
                 NaIveWallpaperService.fetch();
-                naiveFilteredModel.refresh();
+                globalNaiveFilteredModel.refresh();
             }
         } else if (liveMode) {
             // Resolve to an available backend
             if (liveBackendIndex === 0 && !MpvpaperService.isInstalled) liveBackendIndex = 1;
             else if (liveBackendIndex === 1 && !WallpaperEngineService.isInstalled) liveBackendIndex = 0;
-            headerSearch.text = liveSearch;
+            searchFilter = liveSearch;
             if (liveBackendIndex === 0) {
                 MpvpaperService.searchQuery = liveSearch;
                 MpvpaperService.fetch();
@@ -176,7 +224,7 @@ Item {
                 WallpaperEngineService.fetch();
             }
         } else {
-            headerSearch.text = localSearch;
+            searchFilter = localSearch;
             if (!favMode && !liveMode) {
                 Wallpapers.searchQuery = localSearch;
             }
@@ -191,26 +239,26 @@ Item {
         _switchingMode = true;
         // Save current search state of the active provider
         if (onlineMode) {
-            if (onlineProviderIndex === 0) wallhavenSearch = headerSearch.text;
-            else naiveSearch = headerSearch.text;
+            if (onlineProviderIndex === 0) wallhavenSearch = searchFilter;
+            else naiveSearch = searchFilter;
         }
         onlineProviderIndex = index;
         onlineMode = true;
         selectedWallpaper = null;
         // Restore + fetch for the new provider
         if (onlineProviderIndex === 0) {
-            headerSearch.text = wallhavenSearch;
-            if (headerSearch.text === "") WallhavenService.search("");
+            searchFilter = wallhavenSearch;
+            if (searchFilter === "") WallhavenService.search("");
         } else {
-            headerSearch.text = naiveSearch;
+            searchFilter = naiveSearch;
             NaIveWallpaperService.fetch();
-            naiveFilteredModel.refresh();
+            globalNaiveFilteredModel.refresh();
         }
         applySorting();
         _switchingMode = false;
     }
 
-    property alias searchFilter: headerSearch.text
+    property alias searchFilter: headerComponent.searchFilterText
     
     onSearchFilterChanged: {
         if (_switchingMode) return;
@@ -246,7 +294,7 @@ Item {
         liveSearch = "";
         WallhavenService.results.clear();
         NaIveWallpaperService.results.clear();
-        naiveFilteredModel.clear();
+        globalNaiveFilteredModel.clear();
         mainSelector.closed()
     }
     function selectWallpaper(path) {
@@ -269,10 +317,10 @@ Item {
         liveBackendIndex = index;
         selectedWallpaper = null;
         if (index === 0) {
-            MpvpaperService.searchQuery = headerSearch.text;
+            MpvpaperService.searchQuery = searchFilter;
             MpvpaperService.fetch();
         } else {
-            WallpaperEngineService.searchQuery = headerSearch.text;
+            WallpaperEngineService.searchQuery = searchFilter;
             WallpaperEngineService.fetch();
         }
     }
@@ -316,301 +364,11 @@ Item {
             spacing: 12 * Appearance.effectiveScale
 
             // ── Header ──
-            Item {
-                id: headerItem
+            WallSelHeader {
+                id: headerComponent
+                mainSelector: mainSelector
                 Layout.fillWidth: true
                 Layout.preferredHeight: 64 * Appearance.effectiveScale
-                
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.leftMargin: 16 * Appearance.effectiveScale
-                    anchors.rightMargin: 16 * Appearance.effectiveScale
-                    spacing: 8 * Appearance.effectiveScale
-
-                    // Left actions grouped tightly to match right side
-                    Row {
-                        Layout.alignment: Qt.AlignVCenter
-                        spacing: 0
-                        RippleButton {
-                            width: 48 * Appearance.effectiveScale
-                            height: 48 * Appearance.effectiveScale
-                            buttonRadius: 24 * Appearance.effectiveScale
-                            colBackground: "transparent"
-                            onClicked: sidebar.expanded = !sidebar.expanded
-                            
-                            MaterialSymbol {
-                                anchors.centerIn: parent
-                                text: sidebar.expanded ? "menu_open" : "menu"
-                                iconSize: 24 * Appearance.effectiveScale
-                                color: Appearance.colors.colOnLayer0
-                            }
-                        }
-
-                        // Target Selector (Header)
-                        RippleButton {
-                            id: targetSelectorBtn
-                            height: 48 * Appearance.effectiveScale
-                            width: targetRow.implicitWidth + 24 * Appearance.effectiveScale
-                            buttonRadius: 24 * Appearance.effectiveScale
-                            colBackground: "transparent"
-                            onClicked: targetPopup.visible = !targetPopup.visible
-                            
-                            RowLayout {
-                                id: targetRow
-                                anchors.centerIn: parent
-                                spacing: 8 * Appearance.effectiveScale
-                                
-                                StyledText {
-                                    text: GlobalStates.wallpaperSelectorTarget === "desktop" ? "Desktop" : "Lockscreen"
-                                    font.pixelSize: Appearance.font.pixelSize.large
-                                    font.weight: Font.Medium
-                                    color: Appearance.colors.colOnLayer0
-                                }
-                                
-                                MaterialSymbol {
-                                    text: "expand_more"
-                                    iconSize: 20 * Appearance.effectiveScale
-                                    color: Appearance.colors.colOnLayer0
-                                    rotation: targetPopup.visible ? 180 : 0
-                                    Behavior on rotation { NumberAnimation { duration: 200 } }
-                                }
-                            }
-                        }
-                    }
-
-                    // Header Search Pill
-                    Rectangle {
-                        id: searchPill
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 56 * Appearance.effectiveScale
-                        radius: 28 * Appearance.effectiveScale
-                        color: Appearance.colors.colLayer1
-                        Layout.alignment: Qt.AlignVCenter
-                        
-                        readonly property bool isActive: headerSearch.input.activeFocus || headerSearch.text.length > 0
-
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.leftMargin: searchPill.isActive ? (4 * Appearance.effectiveScale) : (16 * Appearance.effectiveScale)
-                            anchors.rightMargin: searchPill.isActive ? (4 * Appearance.effectiveScale) : (16 * Appearance.effectiveScale)
-                            spacing: searchPill.isActive ? (4 * Appearance.effectiveScale) : (12 * Appearance.effectiveScale)
-
-                            // Back Button (<)
-                            RippleButton {
-                                visible: searchPill.isActive
-                                implicitWidth: 48 * Appearance.effectiveScale
-                                implicitHeight: 48 * Appearance.effectiveScale
-                                buttonRadius: 24 * Appearance.effectiveScale
-                                colBackground: "transparent"
-                                onClicked: {
-                                    headerSearch.text = ""
-                                    headerSearch.focus = false
-                                }
-                                
-                                MaterialSymbol {
-                                    anchors.centerIn: parent
-                                    text: "chevron_left"
-                                    iconSize: 24 * Appearance.effectiveScale
-                                    color: Appearance.colors.colOnLayer1
-                                }
-                            }
-
-                            // Centered Text Input
-                            StyledTextInput {
-                                id: headerSearch
-                                Layout.fillWidth: true
-                                horizontalAlignment: searchPill.isActive ? TextInput.AlignLeft : TextInput.AlignHCenter
-                                inputRadius: 0
-                                backgroundColor: "transparent"
-                                borderInactiveWidth: 0
-                                showActiveBorder: false
-                                placeholder: mainSelector.wallhavenMode ? I18nService.tr("Search Wallhaven") : (mainSelector.naiveMode ? I18nService.tr("Search NA-ive Walls") : I18nService.tr("Search wallpapers"))
-                                leftMargin: 0
-                                rightMargin: 0
-                                font.pixelSize: Appearance.font.pixelSize.normal
-                                
-                                onTextChanged: {
-                                    if (mainSelector._switchingMode) return;
-                                    
-                                    if (mainSelector.wallhavenMode) mainSelector.wallhavenSearch = text;
-                                    else if (mainSelector.naiveMode) mainSelector.naiveSearch = text;
-                                    else if (mainSelector.liveMode) mainSelector.liveSearch = text;
-                                    else mainSelector.localSearch = text;
-
-                                    if (mainSelector.liveMode) {
-                                        WallpaperEngineService.searchQuery = text;
-                                    } else if (!mainSelector.wallhavenMode && !mainSelector.naiveMode) {
-                                        Wallpapers.searchQuery = text
-                                    } else if (text === "" && mainSelector.wallhavenMode) {
-                                        WallhavenService.search("");
-                                    }
-                                }
-                                
-                                onAccepted: {
-                                    if (mainSelector.wallhavenMode) {
-                                        if (text.startsWith("wallhaven-")) {
-                                            const id = text.substring(10).trim();
-                                            WallhavenService.search(id, true);
-                                        } else {
-                                            WallhavenService.search(text);
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Clear Button (X)
-                            RippleButton {
-                                visible: searchPill.isActive && headerSearch.text.length > 0
-                                implicitWidth: 48 * Appearance.effectiveScale
-                                implicitHeight: 48 * Appearance.effectiveScale
-                                buttonRadius: 24 * Appearance.effectiveScale
-                                colBackground: "transparent"
-                                onClicked: {
-                                    headerSearch.text = ""
-                                    headerSearch.forceActiveFocus()
-                                }
-                                
-                                MaterialSymbol {
-                                    anchors.centerIn: parent
-                                    text: "close"
-                                    iconSize: 24 * Appearance.effectiveScale
-                                    color: Appearance.colors.colOnLayer1
-                                }
-                            }
-                        }
-                    }
-
-                    // Right action buttons outside the search pill
-                    Row {
-                        Layout.alignment: Qt.AlignVCenter
-                        spacing: 0 // M3 groups trailing icons tightly, padding is built into the 48x48 size
-
-                        // Sorting Button
-                        Item {
-                            id: sortBtnContainer
-                            width: 48 * Appearance.effectiveScale
-                            height: 48 * Appearance.effectiveScale
-                            visible: !mainSelector.wallhavenMode && !mainSelector.naiveMode && !mainSelector.liveMode
-    
-                            RippleButton {
-                                id: sortBtn
-                                anchors.fill: parent
-                                buttonRadius: 24 * Appearance.effectiveScale 
-                                colBackground: "transparent"
-                                onClicked: sortPopup.visible = !sortPopup.visible
-                                
-                                MaterialShapeWrappedMaterialSymbol {
-                                    anchors.centerIn: parent
-                                    implicitSize: 42 * Appearance.effectiveScale
-                                    shapeString: "Sunny"
-                                    color: Appearance.colors.colSecondary
-                                    colSymbol: Appearance.colors.colOnSecondary
-                                    text: "sort_by_alpha"
-                                    iconSize: 20 * Appearance.effectiveScale
-                                    rotation: sortPopup.visible ? 45 : 0
-                                }
-                                StyledToolTip { text: I18nService.tr("Sort Options") }
-                            }
-                        }
-    
-                        // Random Wallpaper Button
-                        Item {
-                            id: randBtnContainer
-                            width: 48 * Appearance.effectiveScale
-                            height: 48 * Appearance.effectiveScale
-                            visible: !mainSelector.wallhavenMode && !mainSelector.naiveMode && !mainSelector.liveMode
-    
-                            RippleButton {
-                                id: randBtn
-                                anchors.fill: parent
-                                buttonRadius: 24 * Appearance.effectiveScale
-                                colBackground: "transparent"
-                                onClicked: {
-                                    if (mainSelector.favMode) {
-                                        if (Wallpapers.selectRandomFavorite())
-                                            mainSelector.close();
-                                    } else if (Wallpapers.directory) {
-                                        var d = Wallpapers.directory.toString();
-                                        if (d.startsWith("file://")) d = d.substring(7);
-                                        randProc.command = ["bash", "-c", `find "${d}" -maxdepth 1 -type f \\( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.avif" \\) | shuf -n 1`];
-                                        randProc.running = true;
-                                    }
-                                }
-    
-                                Process {
-                                    id: randProc
-                                    command: ["true"]
-                                    running: false
-                                    stdout: StdioCollector { id: randOut }
-                                    onExited: {
-                                        var result = randOut.text.trim();
-                                        if (result) {
-                                            Wallpapers.select(result);
-                                            mainSelector.close();
-                                        }
-                                    }
-                                }
-    
-                                MaterialShapeWrappedMaterialSymbol {
-                                    anchors.centerIn: parent
-                                    implicitSize: 42 * Appearance.effectiveScale
-                                    shapeString: "Pentagon"
-                                    color: Appearance.colors.colTertiary
-                                    colSymbol: Appearance.colors.colOnTertiary
-                                    text: "shuffle"
-                                    iconSize: 20 * Appearance.effectiveScale
-                                }
-                                StyledToolTip { text: I18nService.tr("Random Wallpaper") }
-                            }
-                        }
-    
-                        // Global Live Wallpaper Settings Button
-                        Item {
-                            id: weSettingsBtnContainer
-                            width: 48 * Appearance.effectiveScale
-                            height: 48 * Appearance.effectiveScale
-                            visible: mainSelector.liveMode
-    
-                            RippleButton {
-                                id: weSettingsBtn
-                                anchors.fill: parent
-                                buttonRadius: 24 * Appearance.effectiveScale 
-                                colBackground: "transparent"
-                                onClicked: {
-                                    if (mainSelector.inVideoMode) {
-                                        mpvSettingsPopup.visible = !mpvSettingsPopup.visible;
-                                        weSettingsPopup.visible = false;
-                                    } else {
-                                        weSettingsPopup.visible = !weSettingsPopup.visible;
-                                        mpvSettingsPopup.visible = false;
-                                    }
-                                }
-                                
-                                MaterialShapeWrappedMaterialSymbol {
-                                    anchors.centerIn: parent
-                                    implicitSize: 42 * Appearance.effectiveScale
-                                    shapeString: "Sunny"
-                                    color: Appearance.colors.colSecondary
-                                    colSymbol: Appearance.colors.colOnSecondary
-                                    text: "settings"
-                                    iconSize: 20 * Appearance.effectiveScale
-                                    rotation: (weSettingsPopup.visible || mpvSettingsPopup.visible) ? 45 : 0
-                                }
-                                StyledToolTip { text: mainSelector.inVideoMode ? I18nService.tr("Video Wallpaper Settings") : I18nService.tr("Global Engine Settings") }
-                            }
-                        }
-                        // Close Button
-                        RippleButton {
-                            Layout.alignment: Qt.AlignVCenter
-                            implicitWidth: 48 * Appearance.effectiveScale
-                            implicitHeight: 48 * Appearance.effectiveScale
-                            buttonRadius: 24 * Appearance.effectiveScale
-                            colBackground: "transparent"
-                            onClicked: mainSelector.close()
-                            MaterialSymbol { anchors.centerIn: parent; text: "close"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colSubtext }
-                        }
-                    }
-                }
             }
 
             // ── Main Body ──
@@ -621,850 +379,25 @@ Item {
                 anchors.margins: 4 * Appearance.effectiveScale
 
                 // Left Sidebar (Navigation)
-                StyledNavigationRail {
-                    id: sidebar
-                    
-                    showMenuButton: false
-                    
-                    // The rail starts expanded (like 240px wide sidebar)
-                    expanded: true
-                    
-                    model: {
-                        let m = [];
-                        let liveAvailable = WallpaperEngineService.isInstalled || MpvpaperService.isInstalled;
-                        let liveEnabled = GlobalStates.wallpaperSelectorTarget === "desktop" && liveAvailable && !GameMode.active;
-                        let liveTooltip = I18nService.tr("Browse live walls");
-                        if (GameMode.active) liveTooltip = I18nService.tr("Live wallpapers cannot be changed while Game Mode is active");
-                        else if (!liveAvailable) liveTooltip = I18nService.tr("No live wallpaper backend found");
-                        else if (GlobalStates.wallpaperSelectorTarget !== "desktop") liveTooltip = I18nService.tr("Live wallpapers only supported on desktop");
-                        
-                        m.push({ name: I18nService.tr("Live Walls"), icon: "movie", id: "live", enabled: liveEnabled, tooltip: liveTooltip });
-                        m.push({ name: I18nService.tr("Online Walls"), icon: "public", id: "online", tooltip: I18nService.tr("Browse Wallhaven and NA-ive Walls") });
-                        m.push({ name: I18nService.tr("Favourites"), icon: "favorite", id: "fav", tooltip: I18nService.tr("View your favorite wallpapers") });
-                        
-                        m.push({ name: "Home", icon: "home", id: "local", path: Directories.home, tooltip: I18nService.tr("Browse wallpapers in %1").replace("%1", "Home") });
-                        m.push({ name: "Pictures", icon: "image", id: "local", path: Directories.pictures, tooltip: I18nService.tr("Browse wallpapers in %1").replace("%1", "Pictures") });
-                        m.push({ name: "Wallpapers", icon: "wallpaper", id: "local", path: Directories.home + "/Pictures/Wallpapers", tooltip: I18nService.tr("Browse wallpapers in %1").replace("%1", "Wallpapers") });
-                        
-                        // Reference customFoldersModel.count to trigger reactivity
-                        let _count = customFoldersModel.count;
-                        for (let i = 0; i < _count; i++) {
-                            let folder = customFoldersModel.get(i);
-                            m.push({ name: folder.name, icon: "folder", id: "local", path: folder.path, isCustom: true, tooltip: Functions.FileUtils.shortenHomePath(folder.path), rightActionIcon: "delete" });
-                        }
-                        
-                        m.push({ name: I18nService.tr("Add Folder"), icon: "add", id: "add", tooltip: I18nService.tr("Add custom folder") });
-                        return m;
-                    }
-                    
-                    currentIndex: {
-                        if (mainSelector.liveMode) return 0;
-                        if (mainSelector.onlineMode) return 1;
-                        if (mainSelector.favMode) return 2;
-                        
-                        let targetPath = mainSelector.normalizePath(Wallpapers.directory);
-                        for (let i = 3; i < model.length - 1; i++) {
-                            if (model[i].id === "local" && mainSelector.normalizePath(model[i].path) === targetPath) {
-                                return i;
-                            }
-                        }
-                        return -1;
-                    }
-                    
-                    onItemClicked: (index) => {
-                        let item = model[index];
-                        if (item.id === "live") mainSelector.switchMode("live");
-                        else if (item.id === "online") mainSelector.switchMode("online");
-                        else if (item.id === "fav") mainSelector.switchMode("fav");
-                        else if (item.id === "local") {
-                            mainSelector.switchMode("local");
-                            Wallpapers.directory = "file://" + mainSelector.normalizePath(item.path);
-                        }
-                        else if (item.id === "add") Wallpapers.browseFolder();
-                    }
-                    
-                    onRightActionClicked: (index) => {
-                        let item = model[index];
-                        if (item.isCustom) {
-                            let current = (Config.options.appearance.background.customFolders || []).slice();
-                            const idx = current.indexOf(item.path);
-                            if (idx !== -1) {
-                                current.splice(idx, 1);
-                                Config.options.appearance.background.customFolders = current;
-                                mainSelector.refreshCustomFolders();
-                            }
-                        }
-                    }
+                WallSelSidebar {
+                    mainSelector: mainSelector
+                    customFoldersModel: globalCustomFoldersModel
                 }
 
                 // Grid Island
-                Rectangle {
+                WallSelGridIsland {
+                    mainSelector: mainSelector
+                    naiveFilteredModel: globalNaiveFilteredModel
+                    favModel: globalFavModel
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    color: Appearance.colors.colLayer1
-                    radius: 28 * Appearance.effectiveScale
-                    clip: true
-                    opacity: 0.98
-
-                    // Live backend switcher (only when BOTH backends are installed)
-                    StyledTabBar {
-                        id: backendTabs
-                        anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
-                        visible: mainSelector.liveMode && mainSelector.showBackendTabs
-                        showIcon: true
-                        iconOnTop: true
-                        currentTab: mainSelector.liveBackendIndex
-                        onTabClicked: (index) => mainSelector.switchLiveBackend(index)
-                        tabModel: [
-                            { name: I18nService.tr("Video"), icon: "movie" },
-                            { name: I18nService.tr("Wallpaper Engine"), icon: "desktop_windows" }
-                        ]
-                    }
-
-                    // Online provider switcher (Wallhaven / NA-ive)
-                    StyledTabBar {
-                        id: onlineTabs
-                        anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
-                        visible: mainSelector.onlineMode
-                        showIcon: true
-                        iconOnTop: true
-                        currentTab: mainSelector.onlineProviderIndex
-                        onTabClicked: (index) => mainSelector.switchOnlineProvider(index)
-                        tabModel: [
-                            { name: I18nService.tr("Wallhaven"), icon: "travel_explore" },
-                            { name: I18nService.tr("NA-ive Walls"), icon: "collections" }
-                        ]
-                    }
-
-                    // Lockscreen sync setting row (contextual — shown only for the Lockscreen target)
-                    Rectangle {
-                        id: lockscreenSyncRow
-                        visible: GlobalStates.wallpaperSelectorTarget === "lock"
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.top: backendTabs.visible ? backendTabs.bottom : (onlineTabs.visible ? onlineTabs.bottom : parent.top)
-                        anchors.leftMargin: 16 * Appearance.effectiveScale
-                        anchors.rightMargin: 16 * Appearance.effectiveScale
-                        anchors.topMargin: 12 * Appearance.effectiveScale
-                        height: lockscreenSyncBody.implicitHeight + (24 * Appearance.effectiveScale)
-                        radius: 18 * Appearance.effectiveScale
-                        color: Appearance.m3colors.m3surfaceContainerHigh
-
-                        RowLayout {
-                            id: lockscreenSyncBody
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.leftMargin: 16 * Appearance.effectiveScale
-                            anchors.rightMargin: 12 * Appearance.effectiveScale
-                            spacing: 16 * Appearance.effectiveScale
-
-                            MaterialSymbol {
-                                text: "link"
-                                iconSize: 22 * Appearance.effectiveScale
-                                color: Appearance.colors.colPrimary
-                            }
-
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 2 * Appearance.effectiveScale
-
-                                StyledText {
-                                    text: I18nService.tr("Use desktop wallpaper")
-                                    font.pixelSize: Appearance.font.pixelSize.normal
-                                    font.weight: Font.Medium
-                                    color: Appearance.colors.colOnLayer1
-                                    Layout.fillWidth: true
-                                }
-
-                                StyledText {
-                                    text: mainSelector.lockSyncEnabled
-                                        ? I18nService.tr("The current desktop wallpaper will be used for the lockscreen")
-                                        : I18nService.tr("Choose a different wallpaper for the lockscreen")
-                                    font.pixelSize: Appearance.font.pixelSize.smallest
-                                    color: Appearance.colors.colSubtext
-                                    Layout.fillWidth: true
-                                    wrapMode: Text.WordWrap
-                                }
-                            }
-
-                            AndroidToggle {
-                                id: lockscreenSyncToggle
-                                Layout.alignment: Qt.AlignVCenter
-                                checked: Config.ready && (Config.options.lock ? !Config.options.lock.useSeparateWallpaper : false)
-                                onToggled: {
-                                    if (Config.ready && Config.options.lock) {
-                                        const current = Config.options.lock.useSeparateWallpaper
-                                        Config.options.lock.useSeparateWallpaper = !current
-                                        if (current) { // Was true (separate), now false (synced)
-                                            // Sync to the desktop wallpaper (live backends use their captured frame)
-                                            let targetPath = Config.options.appearance.background.wallpaperPath;
-                                            if (WallpaperEngineService.active) {
-                                                targetPath = "file://" + WallpaperEngineService.screenshotPath;
-                                            } else if (MpvpaperService.active) {
-                                                targetPath = "file://" + MpvpaperService.framePath;
-                                            }
-                                            Wallpapers.selectForLockscreen(targetPath, false)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    GridView {
-                        id: grid
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.bottom: parent.bottom
-                        anchors.top: lockscreenSyncRow.visible ? lockscreenSyncRow.bottom : (backendTabs.visible ? backendTabs.bottom : (onlineTabs.visible ? onlineTabs.bottom : parent.top))
-                        anchors.topMargin: lockscreenSyncRow.visible ? 12 * Appearance.effectiveScale : (backendTabs.visible ? 10 * Appearance.effectiveScale : (onlineTabs.visible ? 10 * Appearance.effectiveScale : 20 * Appearance.effectiveScale))
-                        anchors.leftMargin: 20 * Appearance.effectiveScale
-                        anchors.rightMargin: 20 * Appearance.effectiveScale
-                        anchors.bottomMargin: 20 * Appearance.effectiveScale
-                        opacity: mainSelector.lockSelectionDisabled ? 0.6 : 1
-                        Behavior on opacity { NumberAnimation { duration: 200 } }
-                        cellWidth: width / (mainSelector.showDetails ? 3 : 4)
-                        cellHeight: cellWidth * 9/16 + (40 * Appearance.effectiveScale)
-                        clip: true; interactive: true
-                        
-                        // Memory optimization: Load only what's necessary (about 1.5 extra screen heights)
-                        cacheBuffer: Math.max(0, height * 1.5)
-                        
-                        model: {
-                            if (mainSelector.wallhavenMode) return WallhavenService.results;
-                            if (mainSelector.naiveMode) return naiveFilteredModel;
-                            if (mainSelector.favMode) return favModel;
-                            if (mainSelector.liveMode) return mainSelector.liveBackendIndex === 0 ? MpvpaperService.results : WallpaperEngineService.results;
-                            return Wallpapers.folderModel;
-                        }
-
-                        Connections {
-                            target: WallpaperEngineService
-                            function onLoadingChanged() {
-                                if (!WallpaperEngineService.loading) {
-                                    // Force a tiny refresh if needed, though results is a ListModel
-                                    // so GridView should handle it.
-                                }
-                            }
-                        }
-                    
-                        onContentYChanged: {
-                            if (mainSelector.wallhavenMode && !WallhavenService.loading && contentY > contentHeight - height - (400 * Appearance.effectiveScale)) {
-                                if (WallhavenService.results.count < WallhavenService.totalResults) {
-                                    WallhavenService.search(WallhavenService.lastQuery, false, WallhavenService.currentPage + 1);
-                                }
-                            }
-                        }
-
-                        footer: Item {
-                            width: grid.width; height: 80 * Appearance.effectiveScale
-                            visible: (mainSelector.wallhavenMode && WallhavenService.loading && grid.count > 0) || (mainSelector.naiveMode && NaIveWallpaperService.loading && grid.count > 0)
-                            RowLayout {
-                                anchors.centerIn: parent
-                                spacing: 12 * Appearance.effectiveScale
-                                MaterialLoadingIndicator {
-                                    id: loadMoreIcon
-                                    implicitSize: 48 * Appearance.effectiveScale
-                                    loading: parent.visible
-                                }
-                                StyledText { text: I18nService.tr("Loading more..."); color: Appearance.colors.colSubtext }
-                            }
-                        }
-
-                        ListModel {
-                            id: favModel
-                            function refresh() {
-                                clear();
-                                const favs = Wallpapers.favorites;
-                                let data = [];
-                                for (let i = 0; i < favs.length; i++) {
-                                    const path = favs[i];
-                                    const name = path.split('/').pop();
-                                    data.push({ "filePath": path, "fileName": name });
-                                }
-
-                                // Apply sorting
-                                data.sort((a, b) => {
-                                    if (mainSelector.sortMode === "name_asc") return a.fileName.localeCompare(b.fileName);
-                                    if (mainSelector.sortMode === "name_desc") return b.fileName.localeCompare(a.fileName);
-                                    return 0;
-                                });
-
-                                for (let item of data) append(item);
-                            }
-                            Component.onCompleted: refresh()
-                        }
-                        
-                        Connections {
-                            target: Wallpapers
-                            function onFavoritesChanged() { favModel.refresh(); }
-                        }
-                        
-                        onVisibleChanged: { if (visible) favModel.refresh(); }
-                        
-                        delegate: Item {
-                            id: delegateRoot
-                            width: grid.cellWidth; height: grid.cellHeight
-                            
-                            // EXPLICIT PROXY PROPERTIES TO FIX REFERENCE ERRORS
-                            readonly property Item selector: mainSelector.selectorItem
-                            readonly property bool inWallhavenMode: delegateRoot.selector.wallhavenMode
-                            readonly property bool inNaiveMode: delegateRoot.selector.naiveMode
-                            readonly property bool inFavMode: delegateRoot.selector.favMode
-                            readonly property bool inLiveMode: delegateRoot.selector.liveMode
-                            readonly property bool inVideoMode: delegateRoot.selector.inVideoMode
-                            readonly property bool gridLocked: delegateRoot.selector.lockSelectionDisabled
-                            
-                            readonly property string currentFilePath: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) ? (model.full || "") : (delegateRoot.inFavMode ? (model.filePath || "") : (delegateRoot.inLiveMode ? (model.folder || "") : (filePath || "")))
-                            readonly property string currentFileName: delegateRoot.inWallhavenMode ? ("wallhaven-" + (model.id || "")) : (delegateRoot.inNaiveMode ? model.filename : (delegateRoot.inFavMode ? (model.fileName || "") : (delegateRoot.inLiveMode ? (model.title || "") : (fileName || ""))))
-                            readonly property string previewPath: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode || delegateRoot.inLiveMode) ? (model.preview || "") : ("file://" + currentFilePath)
-                            
-                            readonly property bool isSelected: delegateRoot.selector.selectedWallpaper !== null && (delegateRoot.inLiveMode ? delegateRoot.selector.selectedWallpaper.id === model.id : delegateRoot.selector.selectedWallpaper.filePath === currentFilePath)
-                            readonly property bool isCurrentWallpaper: {
-                                if (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) return false;
-                                if (delegateRoot.inLiveMode) {
-                                    let livePath = Config.ready ? Config.options.appearance.background.liveWallpaperPath : "";
-                                    return GlobalStates.wallpaperSelectorTarget === "desktop" && livePath !== "" && mainSelector.normalizePath(livePath) === mainSelector.normalizePath(model.folder);
-                                }
-                                if (!Config.ready || currentFilePath === "") return false;
-                                // A live wallpaper is currently applied on desktop: no static
-                                // wallpaper should be highlighted as "current"
-                                if (GlobalStates.wallpaperSelectorTarget === "desktop"
-                                    && (MpvpaperService.active || WallpaperEngineService.active)) return false;
-                                if (GlobalStates.wallpaperSelectorTarget === "lock") {
-                                    if (!Config.options.lock.useSeparateWallpaper) return false;
-                                    return mainSelector.normalizePath(Config.options.lock.wallpaperPath) === mainSelector.normalizePath("file://" + currentFilePath);
-                                }
-                                return mainSelector.normalizePath(Config.options.appearance.background.wallpaperPath) === mainSelector.normalizePath("file://" + currentFilePath);
-                            }
-                            
-                            readonly property string wallhavenId: {
-                                if (delegateRoot.inWallhavenMode) return model.id || "";
-                                if (delegateRoot.inNaiveMode) return model.wallhaven_id || "";
-                                // Robust detection from local filename (e.g. wallhaven-XXXXX.jpg)
-                                let name = delegateRoot.currentFileName.toLowerCase();
-                                if (name.startsWith("wallhaven-")) {
-                                    let parts = name.split("-");
-                                    if (parts.length > 1) {
-                                        let idWithExt = parts[1];
-                                        return idWithExt.split(".")[0];
-                                    }
-                                }
-                                return "";
-                            }
-
-                            ColumnLayout {
-                                anchors.fill: parent; anchors.margins: 12 * Appearance.effectiveScale; spacing: 8 * Appearance.effectiveScale
-                                
-                                Item {
-                                    Layout.fillWidth: true; Layout.fillHeight: true
-                                        Rectangle {
-                                            id: imgPlate
-                                            anchors.fill: parent; radius: 10 * Appearance.effectiveScale; color: delegateRoot.inNaiveMode ? (model.color || Appearance.colors.colLayer2) : Appearance.colors.colLayer2
-                                            layer.enabled: true
-                                            layer.effect: OpacityMask {
-                                                maskSource: Rectangle { width: imgPlate.width; height: imgPlate.height; radius: 10 * Appearance.effectiveScale }
-                                            }
-
-                                        HoverHandler { id: imgHover }
-
-                                        ThumbnailImage {
-                                            anchors.fill: parent
-                                            sourcePath: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode || delegateRoot.inLiveMode) ? "" : currentFilePath
-                                            visible: sourcePath !== ""
-                                        }
-
-                                        VideoThumbnail {
-                                            anchors.fill: parent
-                                            videoPath: delegateRoot.inVideoMode ? currentFilePath : ""
-                                            visible: delegateRoot.inVideoMode && videoPath !== ""
-                                        }
-
-                                        AnimatedImage {
-                                            anchors.fill: parent; source: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode || (delegateRoot.inLiveMode && !delegateRoot.inVideoMode)) ? previewPath : ""
-                                            fillMode: Image.PreserveAspectCrop
-                                            visible: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode || (delegateRoot.inLiveMode && !delegateRoot.inVideoMode)) && source != ""
-                                            asynchronous: true; cache: true; playing: true
-                                        }
-
-                                        // Highlight border: selected (live preview) or currently applied wallpaper
-                                        Rectangle {
-                                            anchors.fill: parent
-                                            border.width: 3 * Appearance.effectiveScale
-                                            border.color: Appearance.colors.colPrimary
-                                            radius: 10 * Appearance.effectiveScale
-                                            color: "transparent"
-                                            antialiasing: true
-                                            visible: delegateRoot.isSelected || delegateRoot.isCurrentWallpaper
-                                        }
-                                        // Active wallpaper checkmark badge
-                                        Rectangle {
-                                            visible: delegateRoot.isCurrentWallpaper && !delegateRoot.isSelected
-                                            anchors.top: parent.top; anchors.left: parent.left
-                                            anchors.margins: 8 * Appearance.effectiveScale
-                                            width: 28 * Appearance.effectiveScale; height: 28 * Appearance.effectiveScale
-                                            radius: 14 * Appearance.effectiveScale
-                                            color: Appearance.colors.colPrimary
-
-                                            MaterialSymbol {
-                                                anchors.centerIn: parent
-                                                text: "check"
-                                                iconSize: 18 * Appearance.effectiveScale
-                                                color: Appearance.colors.colOnPrimary
-                                                fill: 1
-                                            }
-
-                                            Behavior on opacity { NumberAnimation { duration: 200 } }
-                                            opacity: visible ? 1 : 0
-                                        }
-                                        
-                                        Rectangle {
-                                            anchors.fill: parent
-                                            gradient: Gradient {
-                                                GradientStop { position: 0.0; color: Qt.rgba(0,0,0, 0.0) } 
-                                                GradientStop { position: 0.6; color: Qt.rgba(0,0,0, 0.15) } 
-                                                GradientStop { position: 1.0; color: Qt.rgba(0,0,0, 0.45) } 
-                                            }
-                                        }
-                                        
-                                        Rectangle {
-                                            anchors.fill: parent; color: Appearance.colors.colPrimary; opacity: (mArea.containsMouse || imgHover.hovered) && !delegateRoot.gridLocked ? 0.15 : 0
-                                            Behavior on opacity { NumberAnimation { duration: 200 } }
-                                        }
-                                        
-                                        MouseArea {
-                                            id: mArea; anchors.fill: parent; hoverEnabled: true
-                                            // Arrow cursor in online modes as requested
-                                            cursorShape: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode || delegateRoot.gridLocked) ? Qt.ArrowCursor : Qt.PointingHandCursor
-                                            onClicked: {
-                                                if (delegateRoot.inLiveMode) {
-                                                    delegateRoot.selector.selectedWallpaper = {
-                                                        "id": model.id,
-                                                        "title": model.title,
-                                                        "folder": model.folder,
-                                                        "metadata": model.metadata,
-                                                        "preview": model.preview
-                                                    };
-                                                } else if (!delegateRoot.inWallhavenMode && !delegateRoot.inNaiveMode) {
-                                                    if (currentFilePath !== "") {
-                                                        if (!delegateRoot.gridLocked)
-                                                            delegateRoot.selector.selectWallpaper("file://" + currentFilePath)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        
-                                        RowLayout {
-                                            anchors.bottom: parent.bottom; anchors.right: parent.right; anchors.margins: 4 * Appearance.effectiveScale; spacing: 2 * Appearance.effectiveScale
-
-                                            RippleButton {
-                                                id: similarBtn
-                                                visible: delegateRoot.wallhavenId !== ""
-                                                implicitWidth: 36 * Appearance.effectiveScale; implicitHeight: 36 * Appearance.effectiveScale; buttonRadius: 18 * Appearance.effectiveScale; colBackground: "transparent"
-                                                MaterialSymbol {
-                                                    anchors.centerIn: parent; text: "auto_awesome"; iconSize: 20 * Appearance.effectiveScale; color: "white"
-                                                    fill: parent.hovered ? 1 : 0
-                                                }
-                                                onClicked: {
-                                                    let s = delegateRoot.selector;
-                                                    s.switchOnlineProvider(0);
-                                                    s.searchFilter = "wallhaven-" + delegateRoot.wallhavenId;
-                                                    WallhavenService.search(delegateRoot.wallhavenId, true);
-                                                }
-                                                StyledToolTip { text: I18nService.tr("Search similar on Wallhaven") }
-                                            }
-
-                                            RippleButton {
-                                                id: favBtn
-                                                visible: !delegateRoot.inWallhavenMode && !delegateRoot.inNaiveMode && currentFilePath !== ""
-                                                implicitWidth: 36 * Appearance.effectiveScale; implicitHeight: 36 * Appearance.effectiveScale; buttonRadius: 18 * Appearance.effectiveScale; colBackground: "transparent"
-                                                readonly property bool isFav: currentFilePath !== "" && Wallpapers.isFavorite(currentFilePath)
-                                                MaterialSymbol {
-                                                    anchors.centerIn: parent; text: "favorite"; iconSize: 20 * Appearance.effectiveScale
-                                                    fill: (favBtn.isFav || favBtn.hovered) ? 1 : 0
-                                                    color: favBtn.isFav ? "#ff4081" : "#FFFFFF"
-                                                    Behavior on color { ColorAnimation { duration: 200 } }
-                                                }
-                                                onClicked: Wallpapers.toggleFavorite(currentFilePath)
-                                                StyledToolTip { text: favBtn.isFav ? I18nService.tr("Remove from favorites") : I18nService.tr("Add to favorites") }
-                                            }
-
-                                            RippleButton {
-                                                id: downloadOnlyBtn
-                                                visible: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) && (model.full || "") !== ""
-                                                implicitWidth: 36 * Appearance.effectiveScale; implicitHeight: 36 * Appearance.effectiveScale; buttonRadius: 18 * Appearance.effectiveScale; colBackground: "transparent"
-                                                MaterialSymbol {
-                                                    anchors.centerIn: parent; text: "download"; iconSize: 20 * Appearance.effectiveScale; color: "white"
-                                                    fill: parent.hovered ? 1 : 0
-                                                }
-                                                onClicked: {
-                                                    if (delegateRoot.inWallhavenMode) {
-                                                        WallhavenService.download(model.full, model.id, model.file_type, false);
-                                                    } else {
-                                                        NaIveWallpaperService.download(model.full, model.filename, false);
-                                                    }
-                                                }
-                                                StyledToolTip { text: I18nService.tr("Download to folder") }
-                                            }
-
-                                            RippleButton {
-                                                id: downloadApplyBtn
-                                                visible: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) && (model.full || "") !== ""
-                                                enabled: !delegateRoot.gridLocked
-                                                implicitWidth: 36 * Appearance.effectiveScale; implicitHeight: 36 * Appearance.effectiveScale; buttonRadius: 18 * Appearance.effectiveScale; colBackground: "transparent"
-                                                MaterialSymbol {
-                                                    anchors.centerIn: parent; text: "wallpaper"; iconSize: 20 * Appearance.effectiveScale; color: "white"
-                                                    fill: (parent.enabled && parent.hovered) ? 1 : 0
-                                                }
-                                                onClicked: {
-                                                    if (delegateRoot.gridLocked) return;
-                                                    if (delegateRoot.inWallhavenMode) {
-                                                        WallhavenService.download(model.full, model.id, model.file_type, true);
-                                                    } else {
-                                                        NaIveWallpaperService.download(model.full, model.filename, true);
-                                                    }
-                                                }
-                                                StyledToolTip { text: I18nService.tr("Download and Apply") }
-                                            }
-                                        }
-
-                                        Rectangle {
-                                            visible: delegateRoot.inWallhavenMode && (model.resolution || "") !== ""
-                                            anchors.top: parent.top; anchors.left: parent.left; anchors.margins: 8 * Appearance.effectiveScale
-                                            width: resText.implicitWidth + (12 * Appearance.effectiveScale); height: 20 * Appearance.effectiveScale; radius: 10 * Appearance.effectiveScale; color: Qt.rgba(0,0,0, 0.5)
-                                            StyledText {
-                                                id: resText; anchors.centerIn: parent; text: model.resolution || ""
-                                                font.pixelSize: Math.round(10 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: "white"
-                                            }
-                                        }
-                                    }
-                                }
-                                StyledText {
-                                    Layout.fillWidth: true; text: currentFileName; horizontalAlignment: Text.AlignHCenter
-                                    font.pixelSize: Appearance.font.pixelSize.smallest; elide: Text.ElideRight; color: delegateRoot.isCurrentWallpaper ? Appearance.m3colors.m3primary : Appearance.colors.colOnLayer1; opacity: delegateRoot.isCurrentWallpaper ? 1 : 0.7
-                                }
-                            }
-                        }
-                        
-                        ScrollBar.vertical: StyledScrollBar {}
-
-                        ColumnLayout {
-                            anchors.centerIn: parent; visible: grid.count === 0; spacing: 12 * Appearance.effectiveScale
-                            MaterialLoadingIndicator {
-                                id: mainLoadIcon
-                                visible: (mainSelector.wallhavenMode && WallhavenService.loading) || (mainSelector.naiveMode && NaIveWallpaperService.loading) || (mainSelector.inVideoMode && MpvpaperService.loading) || (mainSelector.liveMode && !mainSelector.inVideoMode && WallpaperEngineService.loading)
-                                implicitSize: 64 * Appearance.effectiveScale
-                                loading: parent.visible
-                                Layout.alignment: Qt.AlignHCenter
-                            }
-                            StyledText {
-                                text: {
-                                    if (mainSelector.wallhavenMode) {
-                                        if (WallhavenService.errorMessage !== "") return WallhavenService.errorMessage;
-                                        if (WallhavenService.loading) return I18nService.tr("Searching Wallhaven...");
-                                        return I18nService.tr("No online wallpapers found");
-                                    }
-                                    if (mainSelector.naiveMode) {
-                                        if (NaIveWallpaperService.errorMessage !== "") return NaIveWallpaperService.errorMessage;
-                                        if (NaIveWallpaperService.loading) return I18nService.tr("Fetching Na-ive collection...");
-                                        return I18nService.tr("No wallpapers in collection");
-                                    }
-                                    if (mainSelector.liveMode) {
-                                        if (mainSelector.inVideoMode) {
-                                            if (MpvpaperService.errorMessage !== "") return MpvpaperService.errorMessage;
-                                            if (MpvpaperService.loading) return I18nService.tr("Scanning for videos...");
-                                            return I18nService.tr("No videos found");
-                                        }
-                                        if (!WallpaperEngineService.isInstalled) return I18nService.tr("linux-wallpaperengine-git is required for this feature");
-                                        if (WallpaperEngineService.errorMessage !== "") return WallpaperEngineService.errorMessage;
-                                        if (WallpaperEngineService.loading) return I18nService.tr("Scanning Steam Workshop...");
-                                        return I18nService.tr("No Wallpaper Engine wallpapers found");
-                                    }
-                                    return mainSelector.favMode ? I18nService.tr("No favorite wallpapers") : I18nService.tr("No wallpapers found");
-                                }
-                                color: (WallhavenService.errorMessage !== "" || NaIveWallpaperService.errorMessage !== "" || WallpaperEngineService.errorMessage !== "" || MpvpaperService.errorMessage !== "") ? Appearance.m3colors.m3error : Appearance.colors.colSubtext
-                                Layout.alignment: Qt.AlignHCenter
-                            }
-                        }
-                    }
                 }
 
                 // Details Sidebar Island
-                Rectangle {
-                    id: detailsIsland
+                WallSelDetailsIsland {
+                    mainSelector: mainSelector
                     Layout.fillHeight: true
                     Layout.preferredWidth: mainSelector.showDetails ? 320 * Appearance.effectiveScale : 0
-                    visible: mainSelector.showDetails
-                    color: Appearance.colors.colLayer1
-                    radius: 28 * Appearance.effectiveScale
-                    clip: true
-                    opacity: 0.98
-
-                    Behavior on Layout.preferredWidth {
-                        NumberAnimation { duration: 250; easing.type: Easing.OutQuart }
-                    }
-
-                    ColumnLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16 * Appearance.effectiveScale
-                        spacing: 16 * Appearance.effectiveScale
-                        visible: mainSelector.selectedWallpaper !== null
-
-                        StyledText {
-                            text: mainSelector.selectedWallpaper ? mainSelector.selectedWallpaper.title : I18nService.tr("Wallpaper Details")
-                            font.pixelSize: Appearance.font.pixelSize.normal
-                            font.weight: Font.DemiBold
-                            color: Appearance.colors.colOnLayer1
-                            Layout.fillWidth: true
-                            elide: Text.ElideRight
-                        }
-
-                        // Preview & Info
-                        Rectangle {
-                            id: previewPlate
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 180 * Appearance.effectiveScale
-                            radius: 16 * Appearance.effectiveScale
-                            color: Appearance.colors.colLayer2
-                            layer.enabled: true
-                            layer.effect: OpacityMask {
-                                maskSource: Rectangle { width: previewPlate.width; height: previewPlate.height; radius: 16 * Appearance.effectiveScale }
-                            }
-
-                            VideoThumbnail {
-                                anchors.fill: parent
-                                videoPath: mainSelector.inVideoMode && mainSelector.selectedWallpaper ? mainSelector.selectedWallpaper.folder : ""
-                                visible: videoPath !== ""
-                            }
-
-                            AnimatedImage {
-                                anchors.fill: parent
-                                source: (!mainSelector.inVideoMode && mainSelector.selectedWallpaper) ? mainSelector.selectedWallpaper.preview : ""
-                                fillMode: Image.PreserveAspectCrop
-                                asynchronous: true
-                                playing: true
-                                cache: true
-                                visible: source !== ""
-                            }
-
-                            Rectangle {
-                                anchors.fill: parent
-                                gradient: Gradient {
-                                    GradientStop { position: 0.0; color: "transparent" }
-                                    GradientStop { position: 1.0; color: Qt.rgba(0,0,0, 0.5) }
-                                }
-                            }
-
-                            StyledText {
-                                anchors.bottom: parent.bottom; anchors.left: parent.left; anchors.margins: 12 * Appearance.effectiveScale
-                                text: mainSelector.selectedWallpaper ? mainSelector.selectedWallpaper.id : ""
-                                color: "white"
-                                font.pixelSize: Appearance.font.pixelSize.smallest
-                                opacity: 0.8
-                            }
-                        }
-
-                        ScrollView {
-                            id: detailsScroll
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            clip: true
-                            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-                            ScrollBar.vertical.policy: ScrollBar.AsNeeded
-
-                            ColumnLayout {
-                                width: detailsScroll.availableWidth
-                                spacing: 12 * Appearance.effectiveScale
-
-                                StyledText {
-                                    text: I18nService.tr("Properties")
-                                    font.pixelSize: Appearance.font.pixelSize.small
-                                    font.weight: Font.Medium
-                                    color: Appearance.colors.colSubtext
-                                    visible: !mainSelector.inVideoMode && WallpaperEngineService.currentProperties.count > 0
-                                }
-
-                                // Video info block (mpvpaper)
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 8 * Appearance.effectiveScale
-                                    visible: mainSelector.inVideoMode
-
-                                    StyledText {
-                                        text: I18nService.tr("Video Wallpaper")
-                                        font.pixelSize: Appearance.font.pixelSize.small
-                                        font.weight: Font.Medium
-                                        color: Appearance.colors.colSubtext
-                                        Layout.fillWidth: true
-                                    }
-
-                                    StyledText {
-                                        text: mainSelector.selectedWallpaper ? String(mainSelector.selectedWallpaper.title) : ""
-                                        font.pixelSize: Appearance.font.pixelSize.smaller
-                                        color: Appearance.colors.colOnLayer1
-                                        Layout.fillWidth: true
-                                        wrapMode: Text.WordWrap
-                                    }
-
-                                    StyledText {
-                                        text: I18nService.tr("A video file, played with mpv. Wallpaper transitions are not available for videos.")
-                                        font.pixelSize: Appearance.font.pixelSize.smallest
-                                        color: Appearance.colors.colSubtext
-                                        Layout.fillWidth: true
-                                        wrapMode: Text.WordWrap
-                                    }
-                                }
-
-                                Repeater {
-                                    model: WallpaperEngineService.currentProperties
-                                    visible: !mainSelector.inVideoMode
-                                    delegate: ColumnLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 8 * Appearance.effectiveScale
-
-                                        RowLayout {
-                                            Layout.fillWidth: true
-                                            StyledText {
-                                                text: propText || ""
-                                                font.pixelSize: Appearance.font.pixelSize.smaller
-                                                color: Appearance.colors.colOnLayer1
-                                                Layout.fillWidth: true
-                                            }
-                                            
-                                            // Boolean Checkbox
-                                            AndroidToggle {
-                                                visible: propType === "bool"
-                                                checked: valBool
-                                                onToggled: {
-                                                    WallpaperEngineService.updateProperty(propKey, !checked);
-                                                }
-                                            }
-                                        }
-
-                                        // Slider for numbers
-                                        StyledSlider {
-                                            visible: propType === "slider"
-                                            Layout.fillWidth: true
-                                            from: propMin
-                                            to: propMax
-                                            value: valNum
-                                            // Use onMoved to only trigger update when user actively changes it
-                                            onMoved: {
-                                                WallpaperEngineService.updateProperty(propKey, value);
-                                            }
-                                        }
-                                        
-                                        // Combo Box
-                                        StyledComboBox {
-                                            visible: propType === "combo"
-                                            Layout.fillWidth: true
-                                            searchable: false
-                                            text: {
-                                                if (!options_json || options_json === "" || options_json === "[]") return "";
-                                                try {
-                                                    let opts = JSON.parse(options_json);
-                                                    let current = opts.find(o => String(o.value) === String(valNum) || String(o.value) === String(valStr));
-                                                    return current ? current.label : "";
-                                                } catch(e) { return ""; }
-                                            }
-                                            model: {
-                                                if (!options_json || options_json === "" || options_json === "[]") return [];
-                                                try {
-                                                    let opts = JSON.parse(options_json);
-                                                    return opts.map(o => o.label);
-                                                } catch(e) { return []; }
-                                            }
-                                            onAccepted: (label) => {
-                                                try {
-                                                    let opts = JSON.parse(options_json);
-                                                    let found = opts.find(o => o.label === label);
-                                                    if (found) {
-                                                        WallpaperEngineService.updateProperty(propKey, found.value);
-                                                    }
-                                                } catch(e) {}
-                                            }
-                                        }
-
-                                        Item { Layout.preferredHeight: 4 * Appearance.effectiveScale }
-                                    }
-                                }
-
-                                // Placeholder if no properties
-                                StyledText {
-                                    text: I18nService.tr("No properties available for this wallpaper.")
-                                    font.pixelSize: Appearance.font.pixelSize.smaller
-                                    color: Appearance.colors.colSubtext
-                                    Layout.fillWidth: true
-                                    wrapMode: Text.WordWrap
-                                    visible: !mainSelector.inVideoMode && WallpaperEngineService.currentProperties.count === 0 && !WallpaperEngineService.loading
-                                }
-                            }
-                        }
-
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 12 * Appearance.effectiveScale
-
-                            RippleButton {
-                                Layout.fillWidth: true
-                                Layout.preferredWidth: 1
-                                implicitHeight: 44 * Appearance.effectiveScale
-                                buttonText: I18nService.tr("Apply")
-                                enabled: !GameMode.active
-                                opacity: enabled ? 1 : 0.5
-                                colBackground: Appearance.colors.colPrimary
-                                colText: Appearance.colors.colOnPrimary
-                                onClicked: {
-                                    if (mainSelector.selectedWallpaper) {
-                                        if (mainSelector.inVideoMode) {
-                                            MpvpaperService.apply(mainSelector.selectedWallpaper.folder);
-                                        } else {
-                                            WallpaperEngineService.apply(mainSelector.selectedWallpaper.folder, mainSelector.selectedWallpaper.preview);
-                                        }
-                                        mainSelector.close();
-                                    }
-                                }
-                            }
-
-                            RippleButton {
-                                Layout.fillWidth: true
-                                Layout.preferredWidth: 1
-                                implicitHeight: 44 * Appearance.effectiveScale
-                                buttonText: I18nService.tr("Reset")
-                                colBackground: Appearance.colors.colLayer2
-                                colText: Appearance.colors.colOnLayer2
-                                visible: !mainSelector.inVideoMode && WallpaperEngineService.currentProperties.count > 0
-                                onClicked: {
-                                    if (mainSelector.selectedWallpaper) {
-                                        WallpaperEngineService.resetProperties(mainSelector.selectedWallpaper.folder);
-                                    }
-                                }
-                                StyledToolTip { text: I18nService.tr("Reset properties to default") }
-                            }
-                        }
-                    }
-
-                    // No selection placeholder
-                    ColumnLayout {
-                        anchors.centerIn: parent
-                        spacing: 12 * Appearance.effectiveScale
-                        visible: mainSelector.selectedWallpaper === null && mainSelector.showDetails
-                        
-                        MaterialSymbol {
-                            text: "wallpaper"
-                            iconSize: 48 * Appearance.effectiveScale
-                            color: Appearance.colors.colSubtext
-                            Layout.alignment: Qt.AlignHCenter
-                        }
-                        
-                        StyledText {
-                            text: I18nService.tr("Select a wallpaper to see details")
-                            color: Appearance.colors.colSubtext
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            Layout.alignment: Qt.AlignHCenter
-                        }
-                    }
                 }
             }
         }
@@ -1494,14 +427,14 @@ Item {
             x: {
                 let _ = visible;
                 let _w = bgContainer.width;
-                let p = targetSelectorBtn.mapToItem(bgContainer, 0, 0);
+                let p = headerComponent.targetBtn.mapToItem(bgContainer, 0, 0);
                 return p.x;
             }
             y: {
                 let _ = visible;
                 let _h = bgContainer.height;
-                let p = targetSelectorBtn.mapToItem(bgContainer, 0, 0);
-                return p.y + targetSelectorBtn.height + (8 * Appearance.effectiveScale);
+                let p = headerComponent.targetBtn.mapToItem(bgContainer, 0, 0);
+                return p.y + headerComponent.targetBtn.height + (8 * Appearance.effectiveScale);
             }
 
             color: Appearance.m3colors.m3surfaceContainerHigh
@@ -1576,14 +509,14 @@ Item {
             x: {
                 let _ = visible;
                 let _w = bgContainer.width;
-                let p = sortBtn.mapToItem(bgContainer, 0, 0);
-                return p.x + sortBtn.width - width;
+                let p = headerComponent.sortBtnItem.mapToItem(bgContainer, 0, 0);
+                return p.x + headerComponent.sortBtnItem.width - width;
             }
             y: {
                 let _ = visible;
                 let _h = bgContainer.height;
-                let p = sortBtn.mapToItem(bgContainer, 0, 0);
-                return p.y + sortBtn.height + (8 * Appearance.effectiveScale);
+                let p = headerComponent.sortBtnItem.mapToItem(bgContainer, 0, 0);
+                return p.y + headerComponent.sortBtnItem.height + (8 * Appearance.effectiveScale);
             }
 
             color: Appearance.m3colors.m3surfaceContainerHigh
@@ -1657,14 +590,14 @@ Item {
             x: {
                 let _ = visible;
                 let _w = bgContainer.width;
-                let p = weSettingsBtn.mapToItem(bgContainer, 0, 0);
-                return Math.min(bgContainer.width - width - 12 * Appearance.effectiveScale, p.x + weSettingsBtn.width - width);
+                let p = headerComponent.weSettingsBtnItem.mapToItem(bgContainer, 0, 0);
+                return Math.min(bgContainer.width - width - 12 * Appearance.effectiveScale, p.x + headerComponent.weSettingsBtnItem.width - width);
             }
             y: {
                 let _ = visible;
                 let _h = bgContainer.height;
-                let p = weSettingsBtn.mapToItem(bgContainer, 0, 0);
-                return p.y + weSettingsBtn.height + (8 * Appearance.effectiveScale);
+                let p = headerComponent.weSettingsBtnItem.mapToItem(bgContainer, 0, 0);
+                return p.y + headerComponent.weSettingsBtnItem.height + (8 * Appearance.effectiveScale);
             }
 
             color: Appearance.m3colors.m3surfaceContainerHigh
@@ -1837,14 +770,14 @@ Item {
             x: {
                 let _ = visible;
                 let _w = bgContainer.width;
-                let p = weSettingsBtn.mapToItem(bgContainer, 0, 0);
-                return Math.min(bgContainer.width - width - 12 * Appearance.effectiveScale, p.x + weSettingsBtn.width - width);
+                let p = headerComponent.weSettingsBtnItem.mapToItem(bgContainer, 0, 0);
+                return Math.min(bgContainer.width - width - 12 * Appearance.effectiveScale, p.x + headerComponent.weSettingsBtnItem.width - width);
             }
             y: {
                 let _ = visible;
                 let _h = bgContainer.height;
-                let p = weSettingsBtn.mapToItem(bgContainer, 0, 0);
-                return p.y + weSettingsBtn.height + (8 * Appearance.effectiveScale);
+                let p = headerComponent.weSettingsBtnItem.mapToItem(bgContainer, 0, 0);
+                return p.y + headerComponent.weSettingsBtnItem.height + (8 * Appearance.effectiveScale);
             }
 
             color: Appearance.m3colors.m3surfaceContainerHigh
