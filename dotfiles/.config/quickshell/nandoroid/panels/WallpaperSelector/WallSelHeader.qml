@@ -197,7 +197,7 @@ import Quickshell.Io
                             id: sortBtnContainer
                             width: 48 * Appearance.effectiveScale
                             height: 48 * Appearance.effectiveScale
-                            visible: !mainSelector.wallhavenMode && !mainSelector.naiveMode && !mainSelector.liveMode
+                            visible: !mainSelector.wallhavenMode && !mainSelector.naiveMode
     
                             RippleButton {
                                 id: sortBtn
@@ -294,7 +294,7 @@ import Quickshell.Io
                                 MaterialShapeWrappedMaterialSymbol {
                                     anchors.centerIn: parent
                                     implicitSize: 42 * Appearance.effectiveScale
-                                    shapeString: "Sunny"
+                                    shapeString: "Cookie6Sided"
                                     color: Appearance.colors.colSecondary
                                     colSymbol: Appearance.colors.colOnSecondary
                                     text: "settings"

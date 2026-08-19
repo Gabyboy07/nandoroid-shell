@@ -57,6 +57,16 @@ Item {
                 mainSelector.switchLiveBackend(nextIdx);
             }
             event.accepted = true;
+        } else if (event.key === Qt.Key_A) {
+            if (!headerComponent.isSearchFocused) {
+                gridComponent.downloadOnlyCurrent();
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_S) {
+            if (!headerComponent.isSearchFocused) {
+                gridComponent.searchSimilarCurrent();
+            }
+            event.accepted = true;
         } else if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
             if (!headerComponent.isSearchFocused) {
                 sidebarComponent.cycleTab(event.key === Qt.Key_Tab && !(event.modifiers & Qt.ShiftModifier));
@@ -180,7 +190,7 @@ Item {
     
     // Selection state for right sidebar
     property var selectedWallpaper: null
-    property bool showDetails: liveMode || selectedWallpaper !== null
+    property bool showDetails: (liveMode && liveBackendIndex === 1) || (!liveMode && selectedWallpaper !== null)
     property bool sidebarExpanded: true
 
     // Popup state management

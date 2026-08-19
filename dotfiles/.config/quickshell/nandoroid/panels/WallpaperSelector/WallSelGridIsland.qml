@@ -20,6 +20,18 @@ import Quickshell.Io
                             Wallpapers.toggleFavorite(grid.currentItem.currentFilePath);
                         }
                     }
+                    
+                    function downloadOnlyCurrent() {
+                        if (grid.currentItem && grid.currentItem.downloadOnly) {
+                            grid.currentItem.downloadOnly();
+                        }
+                    }
+
+                    function searchSimilarCurrent() {
+                        if (grid.currentItem && grid.currentItem.searchSimilar) {
+                            grid.currentItem.searchSimilar();
+                        }
+                    }
 
                     property Item mainSelector
                     property ListModel naiveFilteredModel
@@ -142,6 +154,10 @@ import Quickshell.Io
                         focus: true
                         keyNavigationEnabled: true
                         keyNavigationWraps: false
+                        Keys.onReturnPressed: (event) => { if (currentItem && currentItem.activate) { currentItem.activate(); event.accepted = true; } }
+                        Keys.onEnterPressed: (event) => { if (currentItem && currentItem.activate) { currentItem.activate(); event.accepted = true; } }
+                        Keys.onSpacePressed: (event) => { if (currentItem && currentItem.activate) { currentItem.activate(); event.accepted = true; } }
+                        
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
@@ -206,6 +222,57 @@ import Quickshell.Io
                         delegate: Item {
                             id: delegateRoot
                             width: grid.cellWidth; height: grid.cellHeight
+                            
+                            function activate() {
+                                if (delegateRoot.inLiveMode) {
+                                    if (delegateRoot.selector.liveBackendIndex === 1) {
+                                        // Wallpaper Engine needs the details sidebar
+                                        delegateRoot.selector.selectedWallpaper = {
+                                            "id": model.id,
+                                            "title": model.title,
+                                            "folder": model.folder,
+                                            "metadata": model.metadata,
+                                            "preview": model.preview
+                                        };
+                                    } else {
+                                        // mpvpaper applies immediately
+                                        MpvpaperService.apply(model.folder);
+                                        WallpaperEngineService.stop();
+                                        delegateRoot.selector.close();
+                                    }
+                                } else if (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) {
+                                    if ((model.full || "") !== "" && !delegateRoot.gridLocked) {
+                                        if (delegateRoot.inWallhavenMode) {
+                                            WallhavenService.download(model.full, model.id, model.file_type, true);
+                                        } else {
+                                            NaIveWallpaperService.download(model.full, model.filename, true);
+                                        }
+                                    }
+                                } else if (currentFilePath !== "") {
+                                    if (!delegateRoot.gridLocked)
+                                        delegateRoot.selector.selectWallpaper("file://" + currentFilePath)
+                                }
+                            }
+                            
+                            function downloadOnly() {
+                                if ((delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) && (model.full || "") !== "") {
+                                    if (delegateRoot.inWallhavenMode) {
+                                        WallhavenService.download(model.full, model.id, model.file_type, false);
+                                    } else {
+                                        NaIveWallpaperService.download(model.full, model.filename, false);
+                                    }
+                                }
+                            }
+                            
+                            function searchSimilar() {
+                                if (delegateRoot.wallhavenId !== "") {
+                                    let s = delegateRoot.selector;
+                                    s.switchMode("online");
+                                    s.switchOnlineProvider(0);
+                                    s.searchFilter = "wallhaven-" + delegateRoot.wallhavenId;
+                                    WallhavenService.search(delegateRoot.wallhavenId, true);
+                                }
+                            }
                             
                             // EXPLICIT PROXY PROPERTIES TO FIX REFERENCE ERRORS
                             readonly property Item selector: mainSelector.selectorItem
@@ -348,22 +415,7 @@ import Quickshell.Io
                                             id: mArea; anchors.fill: parent; hoverEnabled: true
                                             // Arrow cursor in online modes as requested
                                             cursorShape: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode || delegateRoot.gridLocked) ? Qt.ArrowCursor : Qt.PointingHandCursor
-                                            onClicked: {
-                                                if (delegateRoot.inLiveMode) {
-                                                    delegateRoot.selector.selectedWallpaper = {
-                                                        "id": model.id,
-                                                        "title": model.title,
-                                                        "folder": model.folder,
-                                                        "metadata": model.metadata,
-                                                        "preview": model.preview
-                                                    };
-                                                } else if (!delegateRoot.inWallhavenMode && !delegateRoot.inNaiveMode) {
-                                                    if (currentFilePath !== "") {
-                                                        if (!delegateRoot.gridLocked)
-                                                            delegateRoot.selector.selectWallpaper("file://" + currentFilePath)
-                                                    }
-                                                }
-                                            }
+                                            onClicked: delegateRoot.activate()
                                         }
                                         
                                         RowLayout {
@@ -377,12 +429,7 @@ import Quickshell.Io
                                                     anchors.centerIn: parent; text: "auto_awesome"; iconSize: 20 * Appearance.effectiveScale; color: "white"
                                                     fill: parent.hovered ? 1 : 0
                                                 }
-                                                onClicked: {
-                                                    let s = delegateRoot.selector;
-                                                    s.switchOnlineProvider(0);
-                                                    s.searchFilter = "wallhaven-" + delegateRoot.wallhavenId;
-                                                    WallhavenService.search(delegateRoot.wallhavenId, true);
-                                                }
+                                                onClicked: delegateRoot.searchSimilar()
                                                 StyledToolTip { text: I18nService.tr("Search similar on Wallhaven") }
                                             }
 
