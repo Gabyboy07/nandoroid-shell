@@ -13,6 +13,9 @@ Rectangle {
     id: root
     signal dismiss()
 
+    focus: true
+    property int navIndex: 0
+
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
 
@@ -44,6 +47,52 @@ Rectangle {
             description: I18nService.tr("No popups. No sounds. Saved to history.")
         }
     ]
+
+    // ── Keyboard navigation ──
+    function syncModeRing() {
+        const it = modeList.currentItem;
+        if (!it) { modeNavRing.visible = false; return; }
+        const p = it.mapToItem(root, 0, 0);
+        modeNavRing.x = p.x - 4 * Appearance.effectiveScale;
+        modeNavRing.y = p.y - 4 * Appearance.effectiveScale;
+        modeNavRing.width = it.width + 8 * Appearance.effectiveScale;
+        modeNavRing.height = it.height + 8 * Appearance.effectiveScale;
+        modeNavRing.radius = Math.min(12 * Appearance.effectiveScale, modeNavRing.height / 2);
+        modeNavRing.visible = root.activeFocus;
+    }
+
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
+        if (modeList.count === 0) return;
+        if (event.key === Qt.Key_Up) {
+            if (modeList.currentIndex > 0) {
+                modeList.currentIndex--;
+                modeList.positionViewAtIndex(modeList.currentIndex, ListView.Contain);
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            if (modeList.currentIndex < modeList.count - 1) {
+                modeList.currentIndex++;
+                modeList.positionViewAtIndex(modeList.currentIndex, ListView.Contain);
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+            Notifications.mode = root.modes[modeList.currentIndex].id;
+            event.accepted = true;
+        }
+    }
+
+    Component.onCompleted: {
+        for (var i = 0; i < root.modes.length; i++) {
+            if (root.modes[i].id === Notifications.mode) { root.navIndex = i; break; }
+        }
+        if (modeList.count > 0) {
+            modeList.currentIndex = root.navIndex;
+            modeList.positionViewAtIndex(root.navIndex, ListView.Contain);
+        }
+        root.forceActiveFocus();
+        root.syncModeRing();
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -94,12 +143,20 @@ Rectangle {
 
         // ── List ──
         ListView {
+            id: modeList
             Layout.fillWidth: true
             Layout.fillHeight: true
             model: root.modes
             spacing: 8 * Appearance.effectiveScale
             clip: true
             boundsBehavior: Flickable.StopAtBounds
+            highlightFollowsCurrentItem: false
+            onCurrentIndexChanged: {
+                if (modeList.currentIndex >= 0) {
+                    root.navIndex = modeList.currentIndex;
+                    root.syncModeRing();
+                }
+            }
 
             delegate: Rectangle {
                 width: ListView.view.width
@@ -155,10 +212,27 @@ Rectangle {
                     cursorShape: Qt.PointingHandCursor
                     hoverEnabled: true
                     onClicked: {
+                        modeList.currentIndex = index
                         Notifications.mode = modelData.id
                     }
                 }
             }
         }
+    }
+
+    // ── Keyboard focus ring ──
+    Rectangle {
+        id: modeNavRing
+        visible: false
+        z: 999
+        enabled: false
+        color: "transparent"
+        border.width: Math.max(1, 2 * Appearance.effectiveScale)
+        border.color: Appearance.m3colors.m3primary
+        opacity: 0.9
+        Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
 }

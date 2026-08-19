@@ -20,6 +20,7 @@ import QtQuick.Controls
  */
 RippleButton {
     id: root
+    focusPolicy: Qt.NoFocus
 
     // Data from repeater
     required property int buttonIndex
@@ -32,6 +33,35 @@ RippleButton {
 
     // Signals
     signal openDetails()
+
+
+
+    // Keyboard navigation support (host registers this delegate for focus ring)
+    // Keyed by the toggle's stable `type`, so navigation stays correct for any
+    // toggle count/size/order and survives delegate recreation.
+    property var keyboardHost: null
+    property string _keyboardType: ""
+
+    function _registerKey() {
+        if (!root.keyboardHost) return;
+        const t = root.buttonData?.type ?? "";
+        if (t === "" || t === root._keyboardType) return;
+        if (root._keyboardType !== "") {
+            root.keyboardHost.unregisterToggleDelegate(root._keyboardType);
+        }
+        root.keyboardHost.registerToggleDelegate(t, root);
+        root._keyboardType = t;
+    }
+
+    Component.onCompleted: {
+        root._registerKey();
+    }
+    Component.onDestruction: {
+        if (root.keyboardHost && root._keyboardType !== "") {
+            root.keyboardHost.unregisterToggleDelegate(root._keyboardType, root);
+        }
+    }
+    onButtonDataChanged: root._registerKey()
 
     // Resolved toggle info
     property var toggleData: allToggles ? (allToggles[buttonData.type] ?? null) : null

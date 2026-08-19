@@ -15,6 +15,9 @@ Rectangle {
     id: root
     signal dismiss()
     
+    focus: true
+    property int navIndex: 0
+
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
 
@@ -24,6 +27,50 @@ Rectangle {
         hoverEnabled: true
         onWheel: (wheel) => wheel.accepted = true
         onPressed: (mouse) => mouse.accepted = true
+    }
+
+    // ── Keyboard navigation ──
+    function syncWifiRing() {
+        const it = wifiList.currentItem;
+        if (!it) { wifiNavRing.visible = false; return; }
+        const p = it.mapToItem(root, 0, 0);
+        wifiNavRing.x = p.x - 4 * Appearance.effectiveScale;
+        wifiNavRing.y = p.y - 4 * Appearance.effectiveScale;
+        wifiNavRing.width = it.width + 8 * Appearance.effectiveScale;
+        wifiNavRing.height = it.height + 8 * Appearance.effectiveScale;
+        wifiNavRing.radius = Math.min(12 * Appearance.effectiveScale, wifiNavRing.height / 2);
+        wifiNavRing.visible = root.activeFocus;
+    }
+
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
+        if (wifiList.count === 0) return;
+        if (event.key === Qt.Key_Up) {
+            if (wifiList.currentIndex > 0) {
+                wifiList.currentIndex--;
+                wifiList.positionViewAtIndex(wifiList.currentIndex, ListView.Contain);
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            if (wifiList.currentIndex < wifiList.count - 1) {
+                wifiList.currentIndex++;
+                wifiList.positionViewAtIndex(wifiList.currentIndex, ListView.Contain);
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+            const it = wifiList.currentItem;
+            if (it && it.networkButton) it.networkButton.click();
+            event.accepted = true;
+        }
+    }
+
+    Component.onCompleted: {
+        if (wifiList.count > 0) {
+            wifiList.currentIndex = 0;
+            wifiList.positionViewAtIndex(0, ListView.Contain);
+        }
+        root.forceActiveFocus();
+        root.syncWifiRing();
     }
 
 
@@ -124,11 +171,19 @@ Rectangle {
                 clip: true
                 spacing: 2 * Appearance.effectiveScale
                 model: Network.friendlyWifiNetworks
+                highlightFollowsCurrentItem: false
+                onCurrentIndexChanged: {
+                    if (wifiList.currentIndex >= 0) {
+                        root.navIndex = wifiList.currentIndex;
+                        root.syncWifiRing();
+                    }
+                }
 
                 delegate: Item {
                     id: delegateRoot
                     required property var modelData
                     required property int index
+                    property alias networkButton: networkItem
                     width: wifiList.width
                     height: delegateCol.implicitHeight
 
@@ -153,6 +208,7 @@ Rectangle {
                                 return Appearance.colors.colLayer0Hover;
                             }
                             onClicked: {
+                                wifiList.currentIndex = delegateRoot.index
                                 if (delegateRoot.modelData.active) {
                                     Network.disconnectWifiNetwork();
                                 } else if (delegateRoot.modelData.isSaved) {
@@ -402,5 +458,21 @@ Rectangle {
                 }
             }
         }
+    }
+
+    // ── Keyboard focus ring ──
+    Rectangle {
+        id: wifiNavRing
+        visible: false
+        z: 999
+        enabled: false
+        color: "transparent"
+        border.width: Math.max(1, 2 * Appearance.effectiveScale)
+        border.color: Appearance.m3colors.m3primary
+        opacity: 0.9
+        Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
 }

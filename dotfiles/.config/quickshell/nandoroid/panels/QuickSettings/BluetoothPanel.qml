@@ -16,6 +16,9 @@ Rectangle {
     id: root
     signal dismiss()
     
+    focus: true
+    property int navIndex: 0
+
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
 
@@ -25,6 +28,50 @@ Rectangle {
         hoverEnabled: true
         onWheel: (wheel) => wheel.accepted = true
         onPressed: (mouse) => mouse.accepted = true
+    }
+
+    // ── Keyboard navigation ──
+    function syncBtRing() {
+        const it = deviceList.currentItem;
+        if (!it) { btNavRing.visible = false; return; }
+        const p = it.mapToItem(root, 0, 0);
+        btNavRing.x = p.x - 4 * Appearance.effectiveScale;
+        btNavRing.y = p.y - 4 * Appearance.effectiveScale;
+        btNavRing.width = it.width + 8 * Appearance.effectiveScale;
+        btNavRing.height = it.height + 8 * Appearance.effectiveScale;
+        btNavRing.radius = Math.min(12 * Appearance.effectiveScale, btNavRing.height / 2);
+        btNavRing.visible = root.activeFocus;
+    }
+
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
+        if (deviceList.count === 0) return;
+        if (event.key === Qt.Key_Up) {
+            if (deviceList.currentIndex > 0) {
+                deviceList.currentIndex--;
+                deviceList.positionViewAtIndex(deviceList.currentIndex, ListView.Contain);
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            if (deviceList.currentIndex < deviceList.count - 1) {
+                deviceList.currentIndex++;
+                deviceList.positionViewAtIndex(deviceList.currentIndex, ListView.Contain);
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+            const it = deviceList.currentItem;
+            if (it && it.deviceButton) it.deviceButton.click();
+            event.accepted = true;
+        }
+    }
+
+    Component.onCompleted: {
+        if (deviceList.count > 0) {
+            deviceList.currentIndex = 0;
+            deviceList.positionViewAtIndex(0, ListView.Contain);
+        }
+        root.forceActiveFocus();
+        root.syncBtRing();
     }
 
     ColumnLayout {
@@ -99,11 +146,19 @@ Rectangle {
                 clip: true
                 spacing: 2 * Appearance.effectiveScale
                 model: BluetoothStatus.enabled ? [...BluetoothStatus.connectedDevices, ...BluetoothStatus.pairedButNotConnectedDevices] : []
+                highlightFollowsCurrentItem: false
+                onCurrentIndexChanged: {
+                    if (deviceList.currentIndex >= 0) {
+                        root.navIndex = deviceList.currentIndex;
+                        root.syncBtRing();
+                    }
+                }
 
                 delegate: Item {
                     id: deviceItem
                     required property var modelData
                     required property int index
+                    property alias deviceButton: cardHeader
                     property bool expanded: false
                     width: deviceList.width
                     implicitHeight: deviceContent.implicitHeight
@@ -125,7 +180,10 @@ Rectangle {
                                 return "transparent"
                             }
                             colBackgroundHover: deviceItem.modelData.connected ? colBackground : Appearance.colors.colLayer0Hover
-                            onClicked: deviceItem.expanded = !deviceItem.expanded
+                            onClicked: {
+                                deviceList.currentIndex = deviceItem.index
+                                deviceItem.expanded = !deviceItem.expanded
+                            }
 
                             contentItem: RowLayout {
                                 anchors.fill: parent
@@ -341,5 +399,21 @@ Rectangle {
                 }
             }
         }
+    }
+
+    // ── Keyboard focus ring ──
+    Rectangle {
+        id: btNavRing
+        visible: false
+        z: 999
+        enabled: false
+        color: "transparent"
+        border.width: Math.max(1, 2 * Appearance.effectiveScale)
+        border.color: Appearance.m3colors.m3primary
+        opacity: 0.9
+        Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
 }

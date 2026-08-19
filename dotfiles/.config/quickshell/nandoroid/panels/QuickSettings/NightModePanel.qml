@@ -13,8 +13,45 @@ Rectangle {
     id: root
     signal dismiss()
 
+    focus: true
+
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
+
+    // ── Keyboard navigation ──
+    function adjustTemp(delta) {
+        const target = Math.max(tempSlider.from, Math.min(tempSlider.to, tempSlider.value + delta));
+        Config.options.nightMode.colorTemperature = target;
+    }
+
+    function syncNightRing() {
+        const p = tempSlider.mapToItem(root, 0, 0);
+        nightNavRing.x = p.x - 4 * Appearance.effectiveScale;
+        nightNavRing.y = p.y - 4 * Appearance.effectiveScale;
+        nightNavRing.width = tempSlider.width + 8 * Appearance.effectiveScale;
+        nightNavRing.height = tempSlider.height + 8 * Appearance.effectiveScale;
+        nightNavRing.radius = Math.min(12 * Appearance.effectiveScale, nightNavRing.height / 2);
+        nightNavRing.visible = root.activeFocus;
+    }
+
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
+        if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+            Hyprsunset.toggle();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Left) {
+            root.adjustTemp(-100);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Right) {
+            root.adjustTemp(100);
+            event.accepted = true;
+        }
+    }
+
+    Component.onCompleted: {
+        root.forceActiveFocus();
+        Qt.callLater(() => root.syncNightRing());
+    }
 
     // Block clicks and hovers from leaking through to the items below
     MouseArea {
@@ -170,5 +207,21 @@ Rectangle {
                 }
             }
         }
+    }
+
+    // ── Keyboard focus ring ──
+    Rectangle {
+        id: nightNavRing
+        visible: false
+        z: 999
+        enabled: false
+        color: "transparent"
+        border.width: Math.max(1, 2 * Appearance.effectiveScale)
+        border.color: Appearance.m3colors.m3primary
+        opacity: 0.9
+        Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
 }

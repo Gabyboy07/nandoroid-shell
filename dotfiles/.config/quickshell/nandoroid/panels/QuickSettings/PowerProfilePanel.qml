@@ -19,6 +19,9 @@ Rectangle {
     // Called when user picks a card — parent updates the file + state
     signal setProfile(string profileId)
 
+    focus: true
+    property int navIndex: 0
+
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
 
@@ -50,6 +53,52 @@ Rectangle {
             description: I18nService.tr("Full power for gaming or heavy loads.")
         }
     ]
+
+    // ── Keyboard navigation ──
+    function syncProfileRing() {
+        const it = profileList.currentItem;
+        if (!it) { profileNavRing.visible = false; return; }
+        const p = it.mapToItem(root, 0, 0);
+        profileNavRing.x = p.x - 4 * Appearance.effectiveScale;
+        profileNavRing.y = p.y - 4 * Appearance.effectiveScale;
+        profileNavRing.width = it.width + 8 * Appearance.effectiveScale;
+        profileNavRing.height = it.height + 8 * Appearance.effectiveScale;
+        profileNavRing.radius = Math.min(12 * Appearance.effectiveScale, profileNavRing.height / 2);
+        profileNavRing.visible = root.activeFocus;
+    }
+
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
+        if (profileList.count === 0) return;
+        if (event.key === Qt.Key_Up) {
+            if (profileList.currentIndex > 0) {
+                profileList.currentIndex--;
+                profileList.positionViewAtIndex(profileList.currentIndex, ListView.Contain);
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            if (profileList.currentIndex < profileList.count - 1) {
+                profileList.currentIndex++;
+                profileList.positionViewAtIndex(profileList.currentIndex, ListView.Contain);
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+            root.setProfile(root.profiles[profileList.currentIndex].id);
+            event.accepted = true;
+        }
+    }
+
+    Component.onCompleted: {
+        for (var i = 0; i < root.profiles.length; i++) {
+            if (root.profiles[i].id === root.currentMode) { root.navIndex = i; break; }
+        }
+        if (profileList.count > 0) {
+            profileList.currentIndex = root.navIndex;
+            profileList.positionViewAtIndex(root.navIndex, ListView.Contain);
+        }
+        root.forceActiveFocus();
+        root.syncProfileRing();
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -100,12 +149,20 @@ Rectangle {
 
         // ── List ──
         ListView {
+            id: profileList
             Layout.fillWidth: true
             Layout.fillHeight: true
             model: root.profiles
             spacing: 8 * Appearance.effectiveScale
             clip: true
             boundsBehavior: Flickable.StopAtBounds
+            highlightFollowsCurrentItem: false
+            onCurrentIndexChanged: {
+                if (profileList.currentIndex >= 0) {
+                    root.navIndex = profileList.currentIndex;
+                    root.syncProfileRing();
+                }
+            }
 
             delegate: Rectangle {
                 width: ListView.view.width
@@ -161,10 +218,27 @@ Rectangle {
                     cursorShape: Qt.PointingHandCursor
                     hoverEnabled: true
                     onClicked: {
+                        profileList.currentIndex = index
                         root.setProfile(modelData.id)
                     }
                 }
             }
         }
+    }
+
+    // ── Keyboard focus ring ──
+    Rectangle {
+        id: profileNavRing
+        visible: false
+        z: 999
+        enabled: false
+        color: "transparent"
+        border.width: Math.max(1, 2 * Appearance.effectiveScale)
+        border.color: Appearance.m3colors.m3primary
+        opacity: 0.9
+        Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
 }

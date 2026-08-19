@@ -21,6 +21,9 @@ Rectangle {
     property string panelIcon: "volume_up"
     property bool isSink: true
 
+    focus: true
+    property int navIndex: 0
+
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
 
@@ -30,6 +33,42 @@ Rectangle {
         hoverEnabled: true
         onWheel: (wheel) => wheel.accepted = true
         onPressed: (mouse) => mouse.accepted = true
+    }
+
+    // ── Keyboard navigation ──
+    function syncAudioRing() {
+        const it = deviceRepeater.itemAt(root.navIndex);
+        if (!it) { audioNavRing.visible = false; return; }
+        const p = it.mapToItem(root, 0, 0);
+        audioNavRing.x = p.x - 4 * Appearance.effectiveScale;
+        audioNavRing.y = p.y - 4 * Appearance.effectiveScale;
+        audioNavRing.width = it.width + 8 * Appearance.effectiveScale;
+        audioNavRing.height = it.height + 8 * Appearance.effectiveScale;
+        audioNavRing.radius = Math.min(12 * Appearance.effectiveScale, audioNavRing.height / 2);
+        audioNavRing.visible = root.activeFocus;
+        const cpos = it.mapToItem(audioFlick.contentItem, 0, 0);
+        if (cpos.y < audioFlick.contentY + 4 * Appearance.effectiveScale) audioFlick.contentY = Math.max(0, cpos.y - 4 * Appearance.effectiveScale);
+        else if (cpos.y + it.height > audioFlick.contentY + audioFlick.height - 4 * Appearance.effectiveScale) audioFlick.contentY = cpos.y + it.height - audioFlick.height + 4 * Appearance.effectiveScale;
+    }
+
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
+        if (event.key === Qt.Key_Up) {
+            if (root.navIndex > 0) { root.navIndex--; root.syncAudioRing(); }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            if (root.navIndex < deviceRepeater.count - 1) { root.navIndex++; root.syncAudioRing(); }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+            const it = deviceRepeater.itemAt(root.navIndex);
+            if (it) it.click();
+            event.accepted = true;
+        }
+    }
+
+    Component.onCompleted: {
+        root.forceActiveFocus();
+        Qt.callLater(() => root.syncAudioRing());
     }
 
     ColumnLayout {
@@ -109,6 +148,7 @@ Rectangle {
                         Layout.fillWidth: true
                         spacing: 2 * Appearance.effectiveScale
                         Repeater {
+                            id: deviceRepeater
                             model: root.isSink ? Audio.outputDevices : Audio.inputDevices
                             delegate: RippleButton {
                                 id: audioDeviceItem
@@ -125,6 +165,7 @@ Rectangle {
                                 colBackgroundHover: audioDeviceItem.isActive ? Functions.ColorUtils.transparentize(Appearance.colors.colPrimary, 0.75) : Appearance.colors.colLayer2
                                 
                                 onClicked: {
+                                    root.navIndex = index
                                     if (root.isSink) Audio.setDefaultSink(audioDeviceItem.modelData);
                                     else Audio.setDefaultSource(audioDeviceItem.modelData);
                                 }
@@ -286,5 +327,21 @@ Rectangle {
                 }
             }
         }
+    }
+
+    // ── Keyboard focus ring ──
+    Rectangle {
+        id: audioNavRing
+        visible: false
+        z: 999
+        enabled: false
+        color: "transparent"
+        border.width: Math.max(1, 2 * Appearance.effectiveScale)
+        border.color: Appearance.m3colors.m3primary
+        opacity: 0.9
+        Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
 }

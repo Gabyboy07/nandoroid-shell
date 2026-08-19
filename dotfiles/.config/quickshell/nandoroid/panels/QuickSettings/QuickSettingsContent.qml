@@ -26,7 +26,6 @@ Item {
     implicitHeight: contentColumn.implicitHeight + (20 * Appearance.effectiveScale)
 
     focus: true
-    Keys.onEscapePressed: close()
 
     // Detail panel visibility
     property bool showWifiPanel: false
@@ -36,6 +35,19 @@ Item {
     property bool showNightModePanel: false
     property bool showPowerProfilePanel: false
     property bool showNotificationModePanel: false
+
+    // ── Keyboard navigation state ──
+    property bool navEngaged: false
+    property string navZone: "header"
+    property int navHeaderIndex: 0
+    property int navSliderIndex: 0
+    property string navGridType: ""
+    property var _toggleDelegates: ({})
+    readonly property bool anyDetailOpen: root.showWifiPanel || root.showBluetoothPanel || root.showAudioOutputPanel
+        || root.showAudioInputPanel || root.showNightModePanel || root.showPowerProfilePanel || root.showNotificationModePanel
+    readonly property bool navActive: root.activeFocus && GlobalStates.quickSettingsOpen && !root.editMode && !root.anyDetailOpen
+
+
 
     Rectangle {
         id: backgroundRect
@@ -49,27 +61,258 @@ Item {
 
     function close() { root.closed(); }
 
+    function closeOverlayOrPanel() {
+        if (root.anyDetailOpen) root.closeDetailPanels();
+        else root.close();
+    }
+
+    function closeDetailPanels() {
+        root.showWifiPanel = false;
+        root.showBluetoothPanel = false;
+        root.showAudioOutputPanel = false;
+        root.showAudioInputPanel = false;
+        root.showNightModePanel = false;
+        root.showPowerProfilePanel = false;
+        root.showNotificationModePanel = false;
+    }
+
+    // ── Keyboard navigation ──
+
+    function findByName(item, name) {
+        if (!item) return null;
+        if (item.objectName === name) return item;
+        const kids = item.children;
+        for (let i = 0; i < kids.length; i++) {
+            const r = root.findByName(kids[i], name);
+            if (r) return r;
+        }
+        return null;
+    }
+
+    function headerButton(i) {
+        const names = ["qsHeaderWallpaper", "qsHeaderEdit", "qsHeaderSettings", "qsHeaderPower"];
+        if (i < 0 || i >= names.length) return null;
+        const host = qsHeaderLoader.item;
+        if (!host) return null;
+        return root.findByName(host, names[i]);
+    }
+
+    function sliderAt(i) {
+        if (i === 0) return brightnessSlider;
+        if (i === 1) return volumeSlider;
+        if (i === 2) return micSlider;
+        return null;
+    }
+
+    function sliderAdjust(delta) {
+        const s = root.sliderAt(root.navSliderIndex);
+        if (!s) return;
+        const target = Math.max(s.from, Math.min(s.to, s.value + delta));
+        if (root.navSliderIndex === 0) {
+            if (target >= s.gammaBoundary) {
+                const b = (target - s.gammaBoundary) / (1 - s.gammaBoundary);
+                if (s.mon) s.mon.setBrightness(b);
+                if (s.dimming) Hyprsunset.resetGamma();
+            } else {
+                if (s.mon && s.mon.brightness !== 0) s.mon.setBrightness(0);
+                Hyprsunset.setGamma(target / s.gammaBoundary * (100 - Hyprsunset.gammaLowerLimit) + Hyprsunset.gammaLowerLimit);
+            }
+        } else if (root.navSliderIndex === 1) {
+            Audio.setVolume(target);
+        } else {
+            Audio.setMicrophoneVolume(target);
+        }
+    }
+
+    function setZone(z) {
+        root.navZone = z;
+        if (z === "grid") {
+            const keys = root.gridDelegateKeys();
+            if (keys.length === 0 || keys.indexOf(root.navGridType) < 0) {
+                root.navGridType = keys.length > 0 ? keys[0] : "";
+            }
+        }
+    }
+
+    function zoneNext(dir) {
+        root.navEngaged = true;
+        const zones = root.gridAvailable ? ["header", "sliders", "grid"] : ["header", "sliders"];
+        const i = zones.indexOf(root.navZone);
+        root.setZone(zones[(i + dir + zones.length) % zones.length]);
+        root.syncNavHighlight();
+    }
+
+    function resetNav() {
+        root.navEngaged = false;
+        root.navZone = "header";
+        root.navHeaderIndex = 0;
+        root.navSliderIndex = 0;
+        root.navGridType = "";
+        Qt.callLater(() => { root.syncNavHighlight(); });
+    }
+
+    function syncNavHighlight() {
+        if (!root.navActive) {
+            navRing.visible = false; return;
+        }
+        let target = null;
+        if (root.navZone === "header") {
+            target = root.headerButton(root.navHeaderIndex);
+        } else if (root.navZone === "sliders") {
+            target = root.sliderAt(root.navSliderIndex);
+        } else {
+            target = root._toggleDelegates[root.navGridType];
+            if (!target || !target.visible) {
+                const keys = root.gridDelegateKeys();
+                if (keys.length === 0) { navRing.visible = false; return; }
+                if (keys.indexOf(root.navGridType) < 0) root.navGridType = keys[0];
+                target = root._toggleDelegates[root.navGridType];
+            }
+        }
+        if (!target || !target.visible) {
+            navRing.visible = false; return;
+        }
+        const p = target.mapToItem(root, 0, 0);
+        navRing.x = p.x - 4 * Appearance.effectiveScale;
+        navRing.y = p.y - 4 * Appearance.effectiveScale;
+        navRing.width = target.width + 8 * Appearance.effectiveScale;
+        navRing.height = target.height + 8 * Appearance.effectiveScale;
+        navRing.radius = Math.min(12 * Appearance.effectiveScale, navRing.height / 2);
+        navRing.visible = root.navActive && root.navEngaged;
+    }
+
+    function navUp() {
+        root.navEngaged = true;
+        if (root.navZone === "header") { return; }
+        if (root.navZone === "sliders") {
+            if (root.navSliderIndex > 0) root.navSliderIndex--;
+            else root.setZone("header");
+            root.syncNavHighlight();
+            return;
+        }
+        const t = root.gridMove(-1, 0);
+        if (t !== "") root.navGridType = t;
+        else if (root.gridAvailable && root.isGridTopRow()) root.setZone("sliders");
+        root.syncNavHighlight();
+    }
+
+    function navDown() {
+        root.navEngaged = true;
+        if (root.navZone === "header") {
+            root.setZone("sliders");
+            root.syncNavHighlight();
+            return;
+        }
+        if (root.navZone === "sliders") {
+            if (root.navSliderIndex < 2) root.navSliderIndex++;
+            else if (root.gridAvailable) root.setZone("grid");
+            root.syncNavHighlight();
+            return;
+        }
+        const t = root.gridMove(1, 0);
+        if (t !== "") root.navGridType = t;
+        root.syncNavHighlight();
+    }
+
+    function navLeft() {
+        root.navEngaged = true;
+        if (root.navZone === "header") {
+            root.navHeaderIndex = (root.navHeaderIndex + 3) % 4;
+            root.syncNavHighlight();
+        } else if (root.navZone === "sliders") {
+            root.sliderAdjust(-0.05);
+        } else {
+            const t = root.gridMove(0, -1);
+            if (t !== "") root.navGridType = t;
+            root.syncNavHighlight();
+        }
+    }
+
+    function navRight() {
+        root.navEngaged = true;
+        if (root.navZone === "header") {
+            root.navHeaderIndex = (root.navHeaderIndex + 1) % 4;
+            root.syncNavHighlight();
+        } else if (root.navZone === "sliders") {
+            root.sliderAdjust(0.05);
+        } else {
+            const t = root.gridMove(0, 1);
+            if (t !== "") root.navGridType = t;
+            root.syncNavHighlight();
+        }
+    }
+
+    function navActivate() {
+        if (root.navZone === "header") {
+            const b = root.headerButton(root.navHeaderIndex);
+            if (b) b.click();
+        } else if (root.navZone === "grid") {
+            const del = root._toggleDelegates[root.navGridType];
+            if (del) del.click();
+        }
+        root.syncNavHighlight();
+    }
+
+    function navOpenDetails() {
+        if (root.navZone !== "grid") return;
+        const del = root._toggleDelegates[root.navGridType];
+        if (del) del.openDetails();
+    }
+
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Escape) {
+            root.closeOverlayOrPanel();
+            event.accepted = true;
+            return;
+        }
+        if (root.anyDetailOpen || root.editMode) return;
+        if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
+            root.zoneNext(event.key === Qt.Key_Backtab ? -1 : 1);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Up) {
+            root.navUp();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            root.navDown();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Left) {
+            root.navLeft();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Right) {
+            root.navRight();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+            root.navActivate();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_D && !(event.modifiers & (Qt.ControlModifier | Qt.MetaModifier | Qt.AltModifier))) {
+            root.navOpenDetails();
+            event.accepted = true;
+        }
+    }
+
     Connections {
         target: GlobalStates
         function onQuickSettingsOpenChanged() {
             if (GlobalStates.quickSettingsOpen) {
                 root.forceActiveFocus();
+                root.resetNav();
             } else {
-                root.showWifiPanel = false;
-                root.showBluetoothPanel = false;
-                root.showAudioOutputPanel = false;
-                root.showAudioInputPanel = false;
-                root.showNightModePanel = false;
-                root.showPowerProfilePanel = false;
-                root.showNotificationModePanel = false;
+                root.closeDetailPanels();
+                navRing.visible = false;
                 GlobalStates.quickSettingsEditMode = false;
             }
         }
     }
 
+    onActiveFocusChanged: {
+        if (root.activeFocus && GlobalStates.quickSettingsOpen && !root.editMode && !root.anyDetailOpen) root.syncNavHighlight();
+        else navRing.visible = false;
+    }
+
     Component.onCompleted: {
         if (GlobalStates.quickSettingsOpen) {
             root.forceActiveFocus();
+            root.resetNav();
         }
     }
 
@@ -329,6 +572,94 @@ Item {
         return rows;
     }
 
+    // ── Keyboard grid model (geometry-based: operates on the actual rendered toggles) ──
+    readonly property bool gridAvailable: root.toggleRows.length > 0
+
+    function gridDelegateKeys() {
+        const keys = [];
+        for (const k in root._toggleDelegates) {
+            const d = root._toggleDelegates[k];
+            if (d && d.visible) keys.push(k);
+        }
+        return keys;
+    }
+
+    function gridStructure() {
+        const island = toggleGridIsland;
+        if (!island) return [];
+        const entries = [];
+        for (const k in root._toggleDelegates) {
+            const d = root._toggleDelegates[k];
+            if (!d || !d.visible) continue;
+            let p = null;
+            try { p = d.mapToItem(island, 0, 0); } catch (e) { continue; }
+            if (!p) continue;
+            entries.push({ idx: k, x: p.x, y: p.y, w: d.width, h: d.height });
+        }
+        const buckets = [];
+        const ys = [];
+        for (const e of entries) {
+            let placed = false;
+            for (let r = 0; r < ys.length; r++) {
+                if (Math.abs(e.y - ys[r]) <= 2) { buckets[r].push(e); placed = true; break; }
+            }
+            if (!placed) { ys.push(e.y); buckets.push([e]); }
+        }
+        const order = ys.map((y, r) => r).sort((a, b) => ys[a] - ys[b]);
+        return order.map(r => buckets[r].slice().sort((a, b) => a.x - b.x));
+    }
+
+    function isGridTopRow() {
+        const grid = root.gridStructure();
+        if (grid.length === 0) return false;
+        return grid[0].some(c => c.idx === root.navGridType);
+    }
+
+    function gridMove(dr, dc) {
+        const grid = root.gridStructure();
+        if (grid.length === 0) return "";
+        let curRow = -1;
+        let curIdx = -1;
+        for (let r = 0; r < grid.length && curRow < 0; r++) {
+            for (let c = 0; c < grid[r].length; c++) {
+                if (grid[r][c].idx === root.navGridType) { curRow = r; curIdx = c; break; }
+            }
+        }
+        if (curRow < 0) { root.navGridType = grid[0][0].idx; return ""; }
+        const cur = grid[curRow][curIdx];
+        if (dr !== 0) {
+            const tr = curRow + dr;
+            if (tr < 0 || tr >= grid.length) return "";
+            const myStart = cur.x;
+            const myEnd = cur.x + cur.w;
+            const myCenter = cur.x + cur.w / 2;
+            let best = "";
+            let bestScore = -Infinity;
+            for (const f of grid[tr]) {
+                const overlap = Math.max(0, Math.min(f.x + f.w, myEnd) - Math.max(f.x, myStart));
+                const fCenter = f.x + f.w / 2;
+                const score = overlap * 10000 - Math.abs(fCenter - myCenter);
+                if (score > bestScore) { bestScore = score; best = f.idx; }
+            }
+            return best;
+        }
+        const target = dc > 0 ? curIdx + 1 : curIdx - 1;
+        if (target >= 0 && target < grid[curRow].length) return grid[curRow][target].idx;
+        return "";
+    }
+
+    function registerToggleDelegate(type, d) {
+        if (!type) return;
+        root._toggleDelegates[type] = d;
+    }
+
+    function unregisterToggleDelegate(type, d) {
+        if (!type) return;
+        if (d === undefined || root._toggleDelegates[type] === d) {
+            delete root._toggleDelegates[type];
+        }
+    }
+
     // ── VOLUME/MIC WATCHERS ──
     Component.onDestruction: {
         // Cleanup if needed
@@ -455,12 +786,14 @@ Item {
                         spacing: 4 * Appearance.effectiveScale
 
                         RippleButton {
+                            focusPolicy: Qt.NoFocus
                             implicitWidth: 36 * Appearance.effectiveScale
                             implicitHeight: 36 * Appearance.effectiveScale
                             buttonRadius: 18 * Appearance.effectiveScale
                             colBackground: "transparent"
                             colBackgroundHover: Appearance.colors.colLayer2
                             colRipple: Appearance.colors.colLayer2Active
+                            objectName: "qsHeaderWallpaper"
                             onClicked: {
                                 root.close()
                                 GlobalStates.wallpaperSelectorTarget = "desktop"
@@ -476,12 +809,14 @@ Item {
                         }
 
                         RippleButton {
+                            focusPolicy: Qt.NoFocus
                             implicitWidth: 36 * Appearance.effectiveScale
                             implicitHeight: 36 * Appearance.effectiveScale
                             buttonRadius: 18 * Appearance.effectiveScale
                             colBackground: root.editMode ? Appearance.m3colors.m3primaryContainer : "transparent"
                             colBackgroundHover: Appearance.colors.colLayer2
                             colRipple: Appearance.colors.colLayer2Active
+                            objectName: "qsHeaderEdit"
                             onClicked: GlobalStates.quickSettingsEditMode = !GlobalStates.quickSettingsEditMode
                             MaterialSymbol {
                                 anchors.centerIn: parent
@@ -493,12 +828,14 @@ Item {
                         }
 
                         RippleButton {
+                            focusPolicy: Qt.NoFocus
                             implicitWidth: 36 * Appearance.effectiveScale
                             implicitHeight: 36 * Appearance.effectiveScale
                             buttonRadius: 18 * Appearance.effectiveScale
                             colBackground: "transparent"
                             colBackgroundHover: Appearance.colors.colLayer2
                             colRipple: Appearance.colors.colLayer2Active
+                            objectName: "qsHeaderSettings"
                             onClicked: {
                                 GlobalStates.quickSettingsOpen = false
                                 GlobalStates.activateSettings()
@@ -513,12 +850,14 @@ Item {
                         }
 
                         RippleButton {
+                            focusPolicy: Qt.NoFocus
                             implicitWidth: 36 * Appearance.effectiveScale
                             implicitHeight: 36 * Appearance.effectiveScale
                             buttonRadius: 18 * Appearance.effectiveScale
                             colBackground: "transparent"
                             colBackgroundHover: Appearance.colors.colLayer2
                             colRipple: Appearance.colors.colLayer2Active
+                            objectName: "qsHeaderPower"
                             onClicked: {
                                 GlobalStates.quickSettingsOpen = false
                                 GlobalStates.sessionOpen = true
@@ -684,12 +1023,14 @@ Item {
                         spacing: 4 * Appearance.effectiveScale
 
                         RippleButton {
+                            focusPolicy: Qt.NoFocus
                             implicitWidth: 36 * Appearance.effectiveScale
                             implicitHeight: 36 * Appearance.effectiveScale
                             buttonRadius: 18 * Appearance.effectiveScale
                             colBackground: "transparent"
                             colBackgroundHover: Appearance.colors.colLayer2
                             colRipple: Appearance.colors.colLayer2Active
+                            objectName: "qsHeaderWallpaper"
                             onClicked: {
                                 root.close()
                                 GlobalStates.wallpaperSelectorTarget = "desktop"
@@ -705,12 +1046,14 @@ Item {
                         }
 
                         RippleButton {
+                            focusPolicy: Qt.NoFocus
                             implicitWidth: 36 * Appearance.effectiveScale
                             implicitHeight: 36 * Appearance.effectiveScale
                             buttonRadius: 18 * Appearance.effectiveScale
                             colBackground: root.editMode ? Appearance.m3colors.m3primaryContainer : "transparent"
                             colBackgroundHover: Appearance.colors.colLayer2
                             colRipple: Appearance.colors.colLayer2Active
+                            objectName: "qsHeaderEdit"
                             onClicked: GlobalStates.quickSettingsEditMode = !GlobalStates.quickSettingsEditMode
                             MaterialSymbol {
                                 anchors.centerIn: parent
@@ -722,12 +1065,14 @@ Item {
                         }
 
                         RippleButton {
+                            focusPolicy: Qt.NoFocus
                             implicitWidth: 36 * Appearance.effectiveScale
                             implicitHeight: 36 * Appearance.effectiveScale
                             buttonRadius: 18 * Appearance.effectiveScale
                             colBackground: "transparent"
                             colBackgroundHover: Appearance.colors.colLayer2
                             colRipple: Appearance.colors.colLayer2Active
+                            objectName: "qsHeaderSettings"
                             onClicked: {
                                 GlobalStates.quickSettingsOpen = false
                                 GlobalStates.activateSettings()
@@ -742,12 +1087,14 @@ Item {
                         }
 
                         RippleButton {
+                            focusPolicy: Qt.NoFocus
                             implicitWidth: 36 * Appearance.effectiveScale
                             implicitHeight: 36 * Appearance.effectiveScale
                             buttonRadius: 18 * Appearance.effectiveScale
                             colBackground: "transparent"
                             colBackgroundHover: Appearance.colors.colLayer2
                             colRipple: Appearance.colors.colLayer2Active
+                            objectName: "qsHeaderPower"
                             onClicked: {
                                 GlobalStates.quickSettingsOpen = false
                                 GlobalStates.sessionOpen = true
@@ -863,6 +1210,7 @@ Item {
 
     component QuickSlider: StyledSlider { 
         id: quickSlider
+        focusPolicy: Qt.NoFocus
         required property string materialSymbol
         property string secondaryMaterialSymbol
         configuration: StyledSlider.Configuration.L
@@ -913,6 +1261,7 @@ Item {
 
         // ── Toggle Grid Island ──
         Rectangle {
+            id: toggleGridIsland
             Layout.fillWidth: true
             implicitHeight: toggleColumn.implicitHeight + (root.togglePadding * 2)
             radius: Appearance.rounding.large
@@ -960,6 +1309,7 @@ Item {
                                     baseCellWidth: root.baseCellWidth
                                     baseCellHeight: root.baseCellHeight
                                     cellSpacing: root.toggleSpacing
+                                    keyboardHost: root
 
                                     onOpenDetails: {
                                         const type = modelData.type
@@ -1158,6 +1508,23 @@ Item {
 
     }
 
+    // ── Keyboard focus ring ──
+    Rectangle {
+        id: navRing
+        visible: false
+        z: 999
+        enabled: false
+        color: "transparent"
+        border.width: Math.max(1, 2 * Appearance.effectiveScale)
+        border.color: Appearance.m3colors.m3primary
+        opacity: 0.9
+        Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on opacity { NumberAnimation { duration: 120 } }
+    }
+
     // ════════════════════════════════════════
     //            DETAIL PANELS
     // ════════════════════════════════════════
@@ -1166,6 +1533,7 @@ Item {
     Loader {
         anchors.fill: parent
         active: root.showWifiPanel
+        onActiveChanged: { if (!active) root.forceActiveFocus(); }
         sourceComponent: WifiPanel {
             onDismiss: root.showWifiPanel = false
         }
@@ -1175,6 +1543,7 @@ Item {
     Loader {
         anchors.fill: parent
         active: root.showBluetoothPanel
+        onActiveChanged: { if (!active) root.forceActiveFocus(); }
         sourceComponent: BluetoothPanel {
             onDismiss: root.showBluetoothPanel = false
         }
@@ -1184,6 +1553,7 @@ Item {
     Loader {
         anchors.fill: parent
         active: root.showAudioOutputPanel
+        onActiveChanged: { if (!active) root.forceActiveFocus(); }
         sourceComponent: AudioPanel {
             isSink: true
             panelTitle: "Audio Output"
@@ -1196,6 +1566,7 @@ Item {
     Loader {
         anchors.fill: parent
         active: root.showAudioInputPanel
+        onActiveChanged: { if (!active) root.forceActiveFocus(); }
         sourceComponent: AudioPanel {
             isSink: false
             panelTitle: "Audio Input"
@@ -1208,6 +1579,7 @@ Item {
     Loader {
         anchors.fill: parent
         active: root.showNightModePanel
+        onActiveChanged: { if (!active) root.forceActiveFocus(); }
         sourceComponent: NightModePanel {
             onDismiss: root.showNightModePanel = false
         }
@@ -1217,6 +1589,7 @@ Item {
     Loader {
         anchors.fill: parent
         active: root.showPowerProfilePanel
+        onActiveChanged: { if (!active) root.forceActiveFocus(); }
         sourceComponent: PowerProfilePanel {
             currentMode: PowerProfileService.currentProfile
             onSetProfile: (id) => PowerProfileService.setProfile(id)
@@ -1228,6 +1601,7 @@ Item {
     Loader {
         anchors.fill: parent
         active: root.showNotificationModePanel
+        onActiveChanged: { if (!active) root.forceActiveFocus(); }
         sourceComponent: NotificationModePanel {
             onDismiss: root.showNotificationModePanel = false
         }
