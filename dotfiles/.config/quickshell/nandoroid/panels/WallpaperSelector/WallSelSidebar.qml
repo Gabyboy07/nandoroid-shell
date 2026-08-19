@@ -62,7 +62,7 @@ import Quickshell.Io
                         return -1;
                     }
                     
-                    onItemClicked: (index) => {
+                    function selectTab(index) {
                         let item = model[index];
                         if (item.id === "live") mainSelector.switchMode("live");
                         else if (item.id === "online") mainSelector.switchMode("online");
@@ -72,6 +72,28 @@ import Quickshell.Io
                             Wallpapers.directory = "file://" + mainSelector.normalizePath(item.path);
                         }
                         else if (item.id === "add") Wallpapers.browseFolder();
+                    }
+                    
+                    onItemClicked: (index) => {
+                        selectTab(index);
+                    }
+                    
+                    function cycleTab(forward) {
+                        let total = model.length;
+                        if (total <= 1) return;
+                        
+                        let nextIdx = currentIndex;
+                        do {
+                            if (forward) {
+                                nextIdx = (nextIdx + 1) % total;
+                            } else {
+                                nextIdx = (nextIdx - 1 + total) % total;
+                            }
+                        } while (model[nextIdx].id === "add" && nextIdx !== currentIndex);
+                        
+                        if (nextIdx !== currentIndex && model[nextIdx].id !== "add") {
+                            selectTab(nextIdx);
+                        }
                     }
                     
                     onRightActionClicked: (index) => {

@@ -17,6 +17,12 @@ import Quickshell.Io
                 property Item sortBtnItem: sortBtn
                 property Item weSettingsBtnItem: weSettingsBtn
                 property alias searchFilterText: headerSearch.text
+                
+                property bool isSearchFocused: headerSearch.input.activeFocus
+                signal searchArrowPressed(int key)
+                function focusSearch() { headerSearch.forceActiveFocus(); }
+                function defocusSearch() { headerSearch.input.focus = false; }
+                
                 Layout.fillWidth: true
                 Layout.preferredHeight: 64 * Appearance.effectiveScale
                 
@@ -117,6 +123,8 @@ import Quickshell.Io
                             // Centered Text Input
                             StyledTextInput {
                                 id: headerSearch
+                                yieldArrows: true
+                                onArrowPressed: (key) => { headerItem.searchArrowPressed(key) }
                                 Layout.fillWidth: true
                                 horizontalAlignment: searchPill.isActive ? TextInput.AlignLeft : TextInput.AlignHCenter
                                 inputRadius: 0

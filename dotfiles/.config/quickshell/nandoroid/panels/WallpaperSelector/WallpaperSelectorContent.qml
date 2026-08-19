@@ -17,6 +17,65 @@ import Quickshell.Io
 Item {
     id: mainSelector
     
+    Item {
+        id: focusStealer
+        width: 0; height: 0
+        visible: true
+        focus: true
+    }
+
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_X) {
+            headerComponent.focusSearch();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_C) {
+            if (!headerComponent.isSearchFocused) {
+                GlobalStates.wallpaperSelectorTarget = (GlobalStates.wallpaperSelectorTarget === "desktop") ? "lock" : "desktop";
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_D) {
+            if (!headerComponent.isSearchFocused && Config.ready && GlobalStates.wallpaperSelectorTarget === "lock") {
+                Config.options.lock.useSeparateWallpaper = !Config.options.lock.useSeparateWallpaper;
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_V) {
+            if (!headerComponent.isSearchFocused) {
+                mainSelector.sortMode = (mainSelector.sortMode === "name_asc") ? "name_desc" : "name_asc";
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_F) {
+            if (!headerComponent.isSearchFocused) {
+                gridComponent.toggleFavoriteCurrent();
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Z) {
+            if (!headerComponent.isSearchFocused && mainSelector.onlineMode) {
+                let nextIdx = (mainSelector.onlineProviderIndex === 0) ? 1 : 0;
+                mainSelector.switchOnlineProvider(nextIdx);
+            } else if (!headerComponent.isSearchFocused && mainSelector.liveMode) {
+                let nextIdx = (mainSelector.liveBackendIndex === 0) ? 1 : 0;
+                mainSelector.switchLiveBackend(nextIdx);
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
+            if (!headerComponent.isSearchFocused) {
+                sidebarComponent.cycleTab(event.key === Qt.Key_Tab && !(event.modifiers & Qt.ShiftModifier));
+            }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Up || event.key === Qt.Key_Down || event.key === Qt.Key_Left || event.key === Qt.Key_Right) {
+            if (!headerComponent.isSearchFocused) {
+                gridComponent.focusGrid();
+                // Let the grid handle the event if possible, though setting focus here might swallow the first press
+            }
+        }
+    }
+    
+    onVisibleChanged: {
+        if (visible) {
+            gridComponent.focusGrid();
+        }
+    }
+    
     // Explicit reference for child components to avoid ReferenceError
     readonly property Item selectorItem: mainSelector
 
@@ -367,6 +426,11 @@ Item {
             WallSelHeader {
                 id: headerComponent
                 mainSelector: mainSelector
+                onSearchArrowPressed: {
+                    focusStealer.forceActiveFocus();
+                    headerComponent.defocusSearch();
+                    gridComponent.focusGrid();
+                }
                 Layout.fillWidth: true
                 Layout.preferredHeight: 64 * Appearance.effectiveScale
             }
@@ -380,12 +444,14 @@ Item {
 
                 // Left Sidebar (Navigation)
                 WallSelSidebar {
+                    id: sidebarComponent
                     mainSelector: mainSelector
                     customFoldersModel: globalCustomFoldersModel
                 }
 
                 // Grid Island
                 WallSelGridIsland {
+                    id: gridComponent
                     mainSelector: mainSelector
                     naiveFilteredModel: globalNaiveFilteredModel
                     favModel: globalFavModel

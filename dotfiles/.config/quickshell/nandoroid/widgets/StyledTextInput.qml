@@ -25,9 +25,11 @@ Item {
     property color borderInactiveColor: "transparent"
     property real leftMargin: 16
     property real rightMargin: 16
+    property bool yieldArrows: false
 
     signal editingFinished()
     signal accepted()
+    signal arrowPressed(int key)
 
     implicitWidth: 200 * Appearance.effectiveScale
     implicitHeight: 48 * Appearance.effectiveScale
@@ -71,6 +73,13 @@ Item {
         onEditingFinished: root.editingFinished()
         onAccepted: root.accepted()
 
+        Keys.onPressed: (event) => {
+            if (root.yieldArrows && (event.key === Qt.Key_Up || event.key === Qt.Key_Down || event.key === Qt.Key_Left || event.key === Qt.Key_Right)) {
+                root.arrowPressed(event.key);
+                event.accepted = true;
+            }
+        }
+
         StyledText {
             anchors.fill: parent
             verticalAlignment: Text.AlignVCenter
@@ -85,6 +94,8 @@ Item {
         onActiveFocusChanged: {
             if (activeFocus)
                 focusGuard.open()
+            else
+                focusGuard.close()
         }
     }
 

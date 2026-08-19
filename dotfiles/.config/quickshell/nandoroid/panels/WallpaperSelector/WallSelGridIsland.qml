@@ -11,6 +11,16 @@ import Quickshell
 import Quickshell.Io
 
                 Rectangle {
+                    function focusGrid() {
+                        grid.forceActiveFocus();
+                    }
+                    
+                    function toggleFavoriteCurrent() {
+                        if (grid.currentItem && grid.currentItem.currentFilePath) {
+                            Wallpapers.toggleFavorite(grid.currentItem.currentFilePath);
+                        }
+                    }
+
                     property Item mainSelector
                     property ListModel naiveFilteredModel
                     property ListModel favModel
@@ -129,6 +139,9 @@ import Quickshell.Io
 
                     GridView {
                         id: grid
+                        focus: true
+                        keyNavigationEnabled: true
+                        keyNavigationWraps: false
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
@@ -304,6 +317,17 @@ import Quickshell.Io
 
                                             Behavior on opacity { NumberAnimation { duration: 200 } }
                                             opacity: visible ? 1 : 0
+                                        }
+                                        
+                                        // Keyboard focus highlight matching Quick Settings
+                                        Rectangle {
+                                            anchors.fill: parent
+                                            border.width: Math.max(1, 2 * Appearance.effectiveScale)
+                                            border.color: Appearance.colors.colPrimary
+                                            radius: 10 * Appearance.effectiveScale
+                                            color: "transparent"
+                                            visible: delegateRoot.GridView.isCurrentItem && grid.activeFocus
+                                            z: 999
                                         }
                                         
                                         Rectangle {
