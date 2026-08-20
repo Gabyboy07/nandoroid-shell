@@ -14,6 +14,8 @@ A Quickshell-based desktop shell for Hyprland adopting Android 16 design element
 </div>
 
 > **Note**: This shell and its dependencies are designed strictly for **Arch Linux based distributions** (Arch, CachyOS, EndeavourOS, etc.).
+> 
+> **Opinionated Design**: NAnDoroid is highly opinionated. Many design choices, UI layouts, and workflows are built specifically to suit my personal preferences. While some features are customizable, core paradigms remain fixed by design.
 
 **Version:** v1.5.0
 **License:** AGPL-3.0
@@ -225,6 +227,12 @@ Nandoroid uses native Quickshell Global Shortcuts for specialized tool operation
 | `regionRecordWithSound` | Record region with audio         | `hl.bind("SUPER + SHIFT + R", hl.dsp.global("quickshell:regionRecordWithSound"))`          |
 
 </details>
+
+## Contributing
+
+I am open to Pull Requests! If you find bugs, want to fix issues, or have minor improvements, feel free to contribute. However, because this project is highly **opinionated**, please understand that I might politely decline PRs that introduce major changes or features that don't align with my personal workflow and vision for the shell. 
+
+If you have a different direction or vision in mind, you are highly encouraged to **fork** the repository and customize it to your own liking! For significant changes intended for this upstream repository, it is best to open an issue first to discuss it.
 
 ## Credits
 
