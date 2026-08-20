@@ -21,6 +21,8 @@ Rectangle {
 
     focus: true
     property int navIndex: 0
+    property bool inheritedNav: false
+    property bool navEngaged: false
 
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
@@ -64,12 +66,13 @@ Rectangle {
         profileNavRing.width = it.width + 8 * Appearance.effectiveScale;
         profileNavRing.height = it.height + 8 * Appearance.effectiveScale;
         profileNavRing.radius = Math.min(12 * Appearance.effectiveScale, profileNavRing.height / 2);
-        profileNavRing.visible = root.activeFocus;
+        profileNavRing.visible = root.activeFocus && root.navEngaged;
     }
 
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
         if (profileList.count === 0) return;
+        root.navEngaged = true;
         if (event.key === Qt.Key_Up) {
             if (profileList.currentIndex > 0) {
                 profileList.currentIndex--;
@@ -89,6 +92,7 @@ Rectangle {
     }
 
     Component.onCompleted: {
+        root.navEngaged = root.inheritedNav;
         for (var i = 0; i < root.profiles.length; i++) {
             if (root.profiles[i].id === root.currentMode) { root.navIndex = i; break; }
         }

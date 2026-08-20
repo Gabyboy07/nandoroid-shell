@@ -23,6 +23,8 @@ Rectangle {
 
     focus: true
     property int navIndex: 0
+    property bool inheritedNav: false
+    property bool navEngaged: false
 
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
@@ -45,7 +47,7 @@ Rectangle {
         audioNavRing.width = it.width + 8 * Appearance.effectiveScale;
         audioNavRing.height = it.height + 8 * Appearance.effectiveScale;
         audioNavRing.radius = Math.min(12 * Appearance.effectiveScale, audioNavRing.height / 2);
-        audioNavRing.visible = root.activeFocus;
+        audioNavRing.visible = root.activeFocus && root.navEngaged;
         const cpos = it.mapToItem(audioFlick.contentItem, 0, 0);
         if (cpos.y < audioFlick.contentY + 4 * Appearance.effectiveScale) audioFlick.contentY = Math.max(0, cpos.y - 4 * Appearance.effectiveScale);
         else if (cpos.y + it.height > audioFlick.contentY + audioFlick.height - 4 * Appearance.effectiveScale) audioFlick.contentY = cpos.y + it.height - audioFlick.height + 4 * Appearance.effectiveScale;
@@ -53,6 +55,7 @@ Rectangle {
 
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
+        root.navEngaged = true;
         if (event.key === Qt.Key_Up) {
             if (root.navIndex > 0) { root.navIndex--; root.syncAudioRing(); }
             event.accepted = true;
@@ -67,6 +70,7 @@ Rectangle {
     }
 
     Component.onCompleted: {
+        root.navEngaged = root.inheritedNav;
         root.forceActiveFocus();
         Qt.callLater(() => root.syncAudioRing());
     }

@@ -43,6 +43,7 @@ Item {
     property int navSliderIndex: 0
     property string navGridType: ""
     property var _toggleDelegates: ({})
+    property bool panelOpenedViaKeyboard: false
     readonly property bool anyDetailOpen: root.showWifiPanel || root.showBluetoothPanel || root.showAudioOutputPanel
         || root.showAudioInputPanel || root.showNightModePanel || root.showPowerProfilePanel || root.showNotificationModePanel
     readonly property bool navActive: root.activeFocus && GlobalStates.quickSettingsOpen && !root.editMode && !root.anyDetailOpen
@@ -240,7 +241,11 @@ Item {
     function navOpenDetails() {
         if (root.navZone !== "grid") return;
         const del = root._toggleDelegates[root.navGridType];
-        if (del) del.openDetails();
+        if (del) {
+            root.panelOpenedViaKeyboard = true;
+            del.openDetails();
+            root.panelOpenedViaKeyboard = false;
+        }
     }
 
     Keys.onPressed: (event) => {
@@ -1553,6 +1558,7 @@ Item {
         active: root.showWifiPanel
         onActiveChanged: { if (!active) root.forceActiveFocus(); }
         sourceComponent: WifiPanel {
+            inheritedNav: root.panelOpenedViaKeyboard
             onDismiss: root.showWifiPanel = false
         }
     }
@@ -1563,6 +1569,7 @@ Item {
         active: root.showBluetoothPanel
         onActiveChanged: { if (!active) root.forceActiveFocus(); }
         sourceComponent: BluetoothPanel {
+            inheritedNav: root.panelOpenedViaKeyboard
             onDismiss: root.showBluetoothPanel = false
         }
     }
@@ -1576,6 +1583,7 @@ Item {
             isSink: true
             panelTitle: "Audio Output"
             panelIcon: "volume_up"
+            inheritedNav: root.panelOpenedViaKeyboard
             onDismiss: root.showAudioOutputPanel = false
         }
     }
@@ -1589,6 +1597,7 @@ Item {
             isSink: false
             panelTitle: "Audio Input"
             panelIcon: "mic"
+            inheritedNav: root.panelOpenedViaKeyboard
             onDismiss: root.showAudioInputPanel = false
         }
     }
@@ -1599,6 +1608,7 @@ Item {
         active: root.showNightModePanel
         onActiveChanged: { if (!active) root.forceActiveFocus(); }
         sourceComponent: NightModePanel {
+            inheritedNav: root.panelOpenedViaKeyboard
             onDismiss: root.showNightModePanel = false
         }
     }
@@ -1610,6 +1620,7 @@ Item {
         onActiveChanged: { if (!active) root.forceActiveFocus(); }
         sourceComponent: PowerProfilePanel {
             currentMode: PowerProfileService.currentProfile
+            inheritedNav: root.panelOpenedViaKeyboard
             onSetProfile: (id) => PowerProfileService.setProfile(id)
             onDismiss: root.showPowerProfilePanel = false
         }
@@ -1621,6 +1632,7 @@ Item {
         active: root.showNotificationModePanel
         onActiveChanged: { if (!active) root.forceActiveFocus(); }
         sourceComponent: NotificationModePanel {
+            inheritedNav: root.panelOpenedViaKeyboard
             onDismiss: root.showNotificationModePanel = false
         }
     }

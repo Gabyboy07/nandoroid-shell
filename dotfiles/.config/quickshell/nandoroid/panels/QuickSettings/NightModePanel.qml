@@ -14,6 +14,8 @@ Rectangle {
     signal dismiss()
 
     focus: true
+    property bool inheritedNav: false
+    property bool navEngaged: false
 
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
@@ -31,11 +33,12 @@ Rectangle {
         nightNavRing.width = tempSlider.width + 8 * Appearance.effectiveScale;
         nightNavRing.height = tempSlider.height + 8 * Appearance.effectiveScale;
         nightNavRing.radius = Math.min(12 * Appearance.effectiveScale, nightNavRing.height / 2);
-        nightNavRing.visible = root.activeFocus;
+        nightNavRing.visible = root.activeFocus && root.navEngaged;
     }
 
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
+        root.navEngaged = true;
         if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
             Hyprsunset.toggle();
             event.accepted = true;
@@ -49,6 +52,7 @@ Rectangle {
     }
 
     Component.onCompleted: {
+        root.navEngaged = root.inheritedNav;
         root.forceActiveFocus();
         Qt.callLater(() => root.syncNightRing());
     }

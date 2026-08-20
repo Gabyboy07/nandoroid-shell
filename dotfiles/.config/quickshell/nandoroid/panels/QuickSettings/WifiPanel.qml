@@ -17,6 +17,8 @@ Rectangle {
     
     focus: true
     property int navIndex: 0
+    property bool inheritedNav: false
+    property bool navEngaged: false
 
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
@@ -31,6 +33,11 @@ Rectangle {
 
     // ── Keyboard navigation ──
     function syncWifiRing() {
+        if (!wifiList.visible || Network.wifiScanning) { wifiNavRing.visible = false; return; }
+        if (wifiList.count > 0 && wifiList.currentIndex < 0) {
+            wifiList.currentIndex = 0;
+            wifiList.positionViewAtIndex(0, ListView.Contain);
+        }
         const it = wifiList.currentItem;
         if (!it) { wifiNavRing.visible = false; return; }
         const p = it.mapToItem(root, 0, 0);
@@ -39,12 +46,27 @@ Rectangle {
         wifiNavRing.width = it.width + 8 * Appearance.effectiveScale;
         wifiNavRing.height = it.height + 8 * Appearance.effectiveScale;
         wifiNavRing.radius = Math.min(12 * Appearance.effectiveScale, wifiNavRing.height / 2);
-        wifiNavRing.visible = root.activeFocus;
+        wifiNavRing.visible = root.activeFocus && root.navEngaged;
+    }
+
+    Connections {
+        target: Network
+        function onWifiScanningChanged() {
+            if (Network.wifiScanning) {
+                wifiNavRing.visible = false;
+            } else {
+                Qt.callLater(() => {
+                    root.forceActiveFocus();
+                    root.syncWifiRing();
+                });
+            }
+        }
     }
 
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
         if (wifiList.count === 0) return;
+        root.navEngaged = true;
         if (event.key === Qt.Key_Up) {
             if (wifiList.currentIndex > 0) {
                 wifiList.currentIndex--;
@@ -65,6 +87,7 @@ Rectangle {
     }
 
     Component.onCompleted: {
+        root.navEngaged = root.inheritedNav;
         if (wifiList.count > 0) {
             wifiList.currentIndex = 0;
             wifiList.positionViewAtIndex(0, ListView.Contain);

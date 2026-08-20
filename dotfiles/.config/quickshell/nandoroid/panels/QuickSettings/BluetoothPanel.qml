@@ -18,6 +18,8 @@ Rectangle {
     
     focus: true
     property int navIndex: 0
+    property bool inheritedNav: false
+    property bool navEngaged: false
 
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
@@ -40,12 +42,13 @@ Rectangle {
         btNavRing.width = it.width + 8 * Appearance.effectiveScale;
         btNavRing.height = it.height + 8 * Appearance.effectiveScale;
         btNavRing.radius = Math.min(12 * Appearance.effectiveScale, btNavRing.height / 2);
-        btNavRing.visible = root.activeFocus;
+        btNavRing.visible = root.activeFocus && root.navEngaged;
     }
 
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
         if (deviceList.count === 0) return;
+        root.navEngaged = true;
         if (event.key === Qt.Key_Up) {
             if (deviceList.currentIndex > 0) {
                 deviceList.currentIndex--;
@@ -66,6 +69,7 @@ Rectangle {
     }
 
     Component.onCompleted: {
+        root.navEngaged = root.inheritedNav;
         if (deviceList.count > 0) {
             deviceList.currentIndex = 0;
             deviceList.positionViewAtIndex(0, ListView.Contain);
