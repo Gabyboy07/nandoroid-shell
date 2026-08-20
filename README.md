@@ -226,6 +226,15 @@ Nandoroid uses native Quickshell Global Shortcuts for specialized tool operation
 | `regionRecord`          | Record selected region           | `hl.bind("SUPER + R", hl.dsp.global("quickshell:regionRecord"))`                           |
 | `regionRecordWithSound` | Record region with audio         | `hl.bind("SUPER + SHIFT + R", hl.dsp.global("quickshell:regionRecordWithSound"))`          |
 
+### Panel Shortcuts
+
+When any major NAnDoroid panel is open and focused, you can use built-in keyboard shortcuts to navigate efficiently:
+
+| Key | Action |
+| :--- | :--- |
+| `/` | Open the Keyboard Shortcuts Cheatsheet |
+| `Esc` | Close the current panel |
+
 </details>
 
 ## Contributing

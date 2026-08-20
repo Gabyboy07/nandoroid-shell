@@ -9,8 +9,8 @@ Rectangle {
     property bool loading: true
     property double pullProgress: 0
 
-    property color colBg: Appearance.colors.colPrimaryContainer
-    property color colShape: Appearance.colors.colOnPrimaryContainer
+    property color colBg: Appearance.colors.colOnPrimaryContainer
+    property color colShape: Appearance.colors.colPrimaryContainer
 
     // Size, color
     property double implicitSize: 48 * Appearance.effectiveScale
@@ -25,8 +25,8 @@ Rectangle {
     // Shape
     property list<var> shapes: [
         MaterialShape.Shape.SoftBurst,
-        MaterialShape.Shape.Cookie9Sided,
-        MaterialShape.Shape.Pentagon,
+        MaterialShape.Shape.Cookie6Sided,
+        MaterialShape.Shape.Cookie12Sided,
         MaterialShape.Shape.Pill,
         MaterialShape.Shape.Sunny,
         MaterialShape.Shape.Cookie4Sided,
@@ -36,7 +36,6 @@ Rectangle {
     property double pullRotation: root.loading ? 0 : -(root.pullProgress * 360)
     property double continuousRotation: 0
     property double leapRotation: 0
-    rotation: pullRotation + continuousRotation + leapRotation
 
     RotationAnimation on continuousRotation {
         running: root.loading
@@ -77,13 +76,9 @@ Rectangle {
     MaterialShape {
         id: shape
         anchors.centerIn: parent
+        rotation: root.pullRotation + root.continuousRotation + root.leapRotation
         shape: root.shapes[root.shapeIndex]
-        implicitSize: {
-            const leapZoomDiff = root.leapZoomSize - root.baseShapeSize
-            const progressFirstHalf = Math.min(root.leapZoomProgress, 0.5) * 2;
-            const progressSecondHalf = Math.max(root.leapZoomProgress - 0.5, 0) * 2;
-            return root.baseShapeSize + leapZoomDiff * progressFirstHalf - leapZoomDiff * progressSecondHalf;
-        }
+        implicitSize: root.baseShapeSize
         color: root.colShape
         animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
     }
