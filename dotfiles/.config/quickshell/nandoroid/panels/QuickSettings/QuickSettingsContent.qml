@@ -37,6 +37,7 @@ Item {
     property bool showNotificationModePanel: false
 
     // ── Keyboard navigation state ──
+    property bool cheatsheetOpen: false
     property bool navEngaged: false
     property string navZone: "grid"
     property int navSliderIndex: 0
@@ -243,7 +244,15 @@ Item {
     }
 
     Keys.onPressed: (event) => {
-        if (event.key === Qt.Key_Escape) {
+        if (event.key === Qt.Key_Slash) {
+            root.cheatsheetOpen = !root.cheatsheetOpen;
+            event.accepted = true;
+            return;
+        } else if (root.cheatsheetOpen && event.key === Qt.Key_Escape) {
+            root.cheatsheetOpen = false;
+            event.accepted = true;
+            return;
+        } else if (event.key === Qt.Key_Escape) {
             root.closeOverlayOrPanel();
             event.accepted = true;
             return;
@@ -1616,5 +1625,20 @@ Item {
         }
     }
     
+    DialogCheatsheet {
+        visible: root.cheatsheetOpen
+        onClosed: root.cheatsheetOpen = false
+        shortcuts: [
+            { key: "Tab / Shift+Tab", action: "Switch Zones (Grid/Sliders)" },
+            { key: "↑ ↓ ← →", action: "Navigate Grid / Adjust Sliders" },
+            { key: "Enter / Space / C", action: "Toggle Setting" },
+            { key: "A", action: "Wallpaper Settings" },
+            { key: "S", action: "Edit Toggles" },
+            { key: "D", action: "Open System Settings" },
+            { key: "F", action: "Power Menu" },
+            { key: "V", action: "Open Details Menu" },
+            { key: "X", action: "Close Details Menu" }
+        ]
+    }
 
 }

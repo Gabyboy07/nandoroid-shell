@@ -23,9 +23,20 @@ Item {
         visible: true
         focus: true
     }
+    
+    property bool cheatsheetOpen: false
 
     Keys.onPressed: (event) => {
-        if (event.key === Qt.Key_X) {
+        if (event.key === Qt.Key_Slash) {
+            mainSelector.cheatsheetOpen = !mainSelector.cheatsheetOpen;
+            event.accepted = true;
+        } else if (mainSelector.cheatsheetOpen && event.key === Qt.Key_Escape) {
+            mainSelector.cheatsheetOpen = false;
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Escape) {
+            close();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_X) {
             headerComponent.focusSearch();
             event.accepted = true;
         } else if (event.key === Qt.Key_C) {
@@ -172,7 +183,6 @@ Item {
     implicitHeight: height
     
     focus: true
-    Keys.onEscapePressed: close()
 
     signal closed()
     
@@ -954,5 +964,23 @@ Item {
                 }
             }
         }
+    }
+
+    DialogCheatsheet {
+        visible: mainSelector.cheatsheetOpen
+        onClosed: mainSelector.cheatsheetOpen = false
+        shortcuts: [
+            { key: "Enter", action: "Apply / Download & Apply" },
+            { key: "Tab / Shift+Tab", action: "Cycle Sidebar Tabs" },
+            { key: "↑ ↓ ← →", action: "Navigate Grid" },
+            { key: "X", action: "Focus Search" },
+            { key: "C", action: "Toggle Target (Desktop/Lockscreen)" },
+            { key: "D", action: "Toggle Separate Lockscreen Wallpaper" },
+            { key: "V", action: "Toggle Sort Mode" },
+            { key: "F", action: "Toggle Favorite" },
+            { key: "Z", action: "Switch Online/Live Provider" },
+            { key: "A", action: "Download Only" },
+            { key: "S", action: "Search Similar (Online)" }
+        ]
     }
 }

@@ -24,6 +24,8 @@ FocusScope {
         root.closed();
     }
 
+    property bool cheatsheetOpen: false
+
     // ── Keyboard navigation ──
     property bool navEngaged: false  // true once any nav key is pressed
     property bool navInGroup: false  // true when the cursor is inside an expanded group
@@ -272,7 +274,13 @@ FocusScope {
     }
 
     Keys.onPressed: (event) => {
-        if (event.key === Qt.Key_Escape) {
+        if (event.key === Qt.Key_Slash) {
+            root.cheatsheetOpen = !root.cheatsheetOpen;
+            event.accepted = true;
+        } else if (root.cheatsheetOpen && event.key === Qt.Key_Escape) {
+            root.cheatsheetOpen = false;
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Escape) {
             root.close();
             event.accepted = true;
         } else if (event.key === Qt.Key_Up) {
@@ -627,4 +635,21 @@ FocusScope {
         }
     }
 
+    DialogCheatsheet {
+        visible: root.cheatsheetOpen
+        onClosed: root.cheatsheetOpen = false
+        shortcuts: [
+            { key: "↑ ↓", action: "Navigate Items" },
+            { key: "← →", action: "Expand/Collapse" },
+            { key: "Enter / Space", action: "Activate" },
+            { key: "A", action: "Media Previous" },
+            { key: "S", action: "Media -5s" },
+            { key: "D", action: "Media +5s" },
+            { key: "F", action: "Media Next" },
+            { key: "Z", action: "Media Play/Pause" },
+            { key: "X", action: "Toggle Floating Lyric" },
+            { key: "C", action: "Clear All Notifications" },
+            { key: "V", action: "Toggle Notification Mode" }
+        ]
+    }
 }
