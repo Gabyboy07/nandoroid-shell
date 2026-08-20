@@ -91,11 +91,15 @@ RippleButton {
     property color colIcon: expandedSize ? (isToggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer3) : colText
 
     // ── Normal mode click handling ──
+    function triggerAction() {
+        if (toggleData?.action) toggleData.action();
+    }
+
     onClicked: {
         if (hasMenu) {
             root.openDetails();
         } else {
-            if (toggleData?.action) toggleData.action();
+            triggerAction();
         }
     }
 

@@ -38,8 +38,7 @@ Item {
 
     // ── Keyboard navigation state ──
     property bool navEngaged: false
-    property string navZone: "header"
-    property int navHeaderIndex: 0
+    property string navZone: "grid"
     property int navSliderIndex: 0
     property string navGridType: ""
     property var _toggleDelegates: ({})
@@ -136,16 +135,19 @@ Item {
 
     function zoneNext(dir) {
         root.navEngaged = true;
-        const zones = root.gridAvailable ? ["header", "sliders", "grid"] : ["header", "sliders"];
+        const zones = root.gridAvailable ? ["grid", "sliders"] : ["sliders"];
         const i = zones.indexOf(root.navZone);
-        root.setZone(zones[(i + dir + zones.length) % zones.length]);
+        if (i >= 0) {
+            root.setZone(zones[(i + dir + zones.length) % zones.length]);
+        } else {
+            root.setZone(zones[0]);
+        }
         root.syncNavHighlight();
     }
 
     function resetNav() {
         root.navEngaged = false;
-        root.navZone = "header";
-        root.navHeaderIndex = 0;
+        root.navZone = root.gridAvailable ? "grid" : "sliders";
         root.navSliderIndex = 0;
         root.navGridType = "";
         Qt.callLater(() => { root.syncNavHighlight(); });
@@ -156,9 +158,7 @@ Item {
             navRing.visible = false; return;
         }
         let target = null;
-        if (root.navZone === "header") {
-            target = root.headerButton(root.navHeaderIndex);
-        } else if (root.navZone === "sliders") {
+        if (root.navZone === "sliders") {
             target = root.sliderAt(root.navSliderIndex);
         } else {
             target = root._toggleDelegates[root.navGridType];
@@ -183,29 +183,20 @@ Item {
 
     function navUp() {
         root.navEngaged = true;
-        if (root.navZone === "header") { return; }
         if (root.navZone === "sliders") {
             if (root.navSliderIndex > 0) root.navSliderIndex--;
-            else root.setZone("header");
             root.syncNavHighlight();
             return;
         }
         const t = root.gridMove(-1, 0);
         if (t !== "") root.navGridType = t;
-        else if (root.gridAvailable && root.isGridTopRow()) root.setZone("sliders");
         root.syncNavHighlight();
     }
 
     function navDown() {
         root.navEngaged = true;
-        if (root.navZone === "header") {
-            root.setZone("sliders");
-            root.syncNavHighlight();
-            return;
-        }
         if (root.navZone === "sliders") {
             if (root.navSliderIndex < 2) root.navSliderIndex++;
-            else if (root.gridAvailable) root.setZone("grid");
             root.syncNavHighlight();
             return;
         }
@@ -216,10 +207,7 @@ Item {
 
     function navLeft() {
         root.navEngaged = true;
-        if (root.navZone === "header") {
-            root.navHeaderIndex = (root.navHeaderIndex + 3) % 4;
-            root.syncNavHighlight();
-        } else if (root.navZone === "sliders") {
+        if (root.navZone === "sliders") {
             root.sliderAdjust(-0.05);
         } else {
             const t = root.gridMove(0, -1);
@@ -230,10 +218,7 @@ Item {
 
     function navRight() {
         root.navEngaged = true;
-        if (root.navZone === "header") {
-            root.navHeaderIndex = (root.navHeaderIndex + 1) % 4;
-            root.syncNavHighlight();
-        } else if (root.navZone === "sliders") {
+        if (root.navZone === "sliders") {
             root.sliderAdjust(0.05);
         } else {
             const t = root.gridMove(0, 1);
@@ -243,12 +228,10 @@ Item {
     }
 
     function navActivate() {
-        if (root.navZone === "header") {
-            const b = root.headerButton(root.navHeaderIndex);
-            if (b) b.click();
-        } else if (root.navZone === "grid") {
+        if (root.navZone === "grid") {
             const del = root._toggleDelegates[root.navGridType];
-            if (del) del.click();
+            if (del && typeof del.triggerAction === "function") del.triggerAction();
+            else if (del) del.click();
         }
         root.syncNavHighlight();
     }
@@ -265,7 +248,17 @@ Item {
             event.accepted = true;
             return;
         }
+        
+        const hasMods = (event.modifiers & (Qt.ControlModifier | Qt.MetaModifier | Qt.AltModifier));
+
+        if (!hasMods && event.key === Qt.Key_X && root.anyDetailOpen) {
+            root.closeDetailPanels();
+            event.accepted = true;
+            return;
+        }
+
         if (root.anyDetailOpen || root.editMode) return;
+        
         if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
             root.zoneNext(event.key === Qt.Key_Backtab ? -1 : 1);
             event.accepted = true;
@@ -281,10 +274,26 @@ Item {
         } else if (event.key === Qt.Key_Right) {
             root.navRight();
             event.accepted = true;
-        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space || (!hasMods && event.key === Qt.Key_C)) {
             root.navActivate();
             event.accepted = true;
-        } else if (event.key === Qt.Key_D && !(event.modifiers & (Qt.ControlModifier | Qt.MetaModifier | Qt.AltModifier))) {
+        } else if (!hasMods && event.key === Qt.Key_A) {
+            const b = root.headerButton(0);
+            if (b) b.click();
+            event.accepted = true;
+        } else if (!hasMods && event.key === Qt.Key_S) {
+            const b = root.headerButton(1);
+            if (b) b.click();
+            event.accepted = true;
+        } else if (!hasMods && event.key === Qt.Key_D) {
+            const b = root.headerButton(2);
+            if (b) b.click();
+            event.accepted = true;
+        } else if (!hasMods && event.key === Qt.Key_F) {
+            const b = root.headerButton(3);
+            if (b) b.click();
+            event.accepted = true;
+        } else if (!hasMods && event.key === Qt.Key_V) {
             root.navOpenDetails();
             event.accepted = true;
         }
