@@ -25,13 +25,7 @@ FocusScope {
     }
 
     // ── Keyboard navigation ──
-    // Three "zones": media card, notification list, bottom action row.
-    // Tab/Shift+Tab cycles zones; arrows navigate within a zone.
-    property string navZone: "media" // "media" | "list" | "actions"
-    property int navMediaIndex: 0    // 0=prev 1=play 2=next 3=lyrics 4=seek
-    property int navActionIndex: 0   // 0=mode 1=clear
-    readonly property int navMediaCount: 5
-    property bool navEngaged: false  // true once any nav key is pressed (lazy ring)
+    property bool navEngaged: false  // true once any nav key is pressed
     property bool navInGroup: false  // true when the cursor is inside an expanded group
     property bool navInButtons: false // true when the cursor is on a notification's action buttons
     property int navButtonIndex: 0
@@ -39,36 +33,6 @@ FocusScope {
     readonly property bool mediaZoneAvailable: mediaCard.visible
     readonly property bool listZoneAvailable: Notifications.list.length > 0
     readonly property bool navActive: root.activeFocus && GlobalStates.notificationCenterOpen
-
-    function zoneOrder() {
-        var order = [];
-        if (root.mediaZoneAvailable) order.push("media");
-        if (root.listZoneAvailable) order.push("list");
-        order.push("actions");
-        return order;
-    }
-
-    function setZone(zone) {
-        if (zone === root.navZone) return;
-        root.navZone = zone;
-        if (zone === "list") {
-            if (listview.count > 0 && (listview.currentIndex < 0 || listview.currentIndex >= listview.count))
-                listview.currentIndex = 0;
-        } else if (zone === "media") {
-            root.navMediaIndex = 0;
-        } else if (zone === "actions") {
-            root.navActionIndex = 0;
-        }
-        root.syncNavHighlight();
-    }
-
-    function zoneNext(dir) {
-        root.navEngaged = true;
-        var order = root.zoneOrder();
-        var i = order.indexOf(root.navZone);
-        if (i < 0) i = dir > 0 ? -1 : 0;
-        root.setZone(order[(i + dir + order.length) % order.length]);
-    }
 
     function currentGroup() {
         return listview.count > 0 ? listview.currentItem : null;
@@ -162,178 +126,129 @@ FocusScope {
         root.syncNavHighlight();
     }
 
-    function seekBy(delta) {
+    function seekBy(deltaSec) {
         var player = MprisController.activePlayer;
         if (player && player.canSeek && player.length > 0) {
-            player.position = Math.max(0, Math.min(1, player.position / player.length + delta)) * player.length;
+            var deltaMicroseconds = deltaSec * 1000000;
+            player.position = Math.max(0, Math.min(player.length, player.position + deltaMicroseconds));
         }
     }
 
     function navActivate() {
         root.navEngaged = true;
-        if (root.navZone === "media") {
-            if (root.navMediaIndex === 0) MprisController.previous();
-            else if (root.navMediaIndex === 1) MprisController.togglePlaying();
-            else if (root.navMediaIndex === 2) MprisController.next();
-            else if (root.navMediaIndex === 3)
-                Config.options.appearance.lyrics.showFloatingLyrics = !Config.options.appearance.lyrics.showFloatingLyrics;
-            else root.seekBy(0.5 - (MprisController.length > 0 ? MprisController.position / MprisController.length : 0));
-        } else if (root.navZone === "list") {
-            var g = root.currentGroup();
-            if (root.navInButtons) {
-                var b = root.currentNotif();
-                if (b && b.kbButton) b.kbButton.clicked();
-            } else if (root.navInGroup) {
-                var item = g && g.notifList ? g.notifList.currentItem : null;
-                root.actNotification(item ? item.notificationObject : null);
-            } else if (g && g.multipleNotifications) {
-                root.enterGroup();
-            } else if (g && g.notificationCount === 1 && g.notifications.length > 0) {
-                root.actNotification(g.notifications[0]);
-            }
-        } else if (root.navActionIndex === 0) {
-            root.cycleMode();
-        } else {
-            root.clearAll();
+        var g = root.currentGroup();
+        if (root.navInButtons) {
+            var b = root.currentNotif();
+            if (b && b.kbButton) b.kbButton.clicked();
+        } else if (root.navInGroup) {
+            var item = g && g.notifList ? g.notifList.currentItem : null;
+            root.actNotification(item ? item.notificationObject : null);
+        } else if (g && g.multipleNotifications) {
+            root.enterGroup();
+        } else if (g && g.notificationCount === 1 && g.notifications.length > 0) {
+            root.actNotification(g.notifications[0]);
         }
         root.syncNavHighlight();
     }
 
     function navUp() {
         root.navEngaged = true;
-        if (root.navZone === "media") {
-            root.zoneNext(-1);
-        } else if (root.navZone === "list") {
-            if (root.navInButtons) {
-                root.navInButtons = false;
-                root.syncNavHighlight();
-            } else if (root.navInGroup) {
-                var g = root.currentGroup();
-                if (g && g.notifList && g.notifList.count > 0) {
-                    if (g.notifList.currentIndex > 0) {
-                        g.notifList.currentIndex--;
-                        g.notifList.positionViewAtIndex(g.notifList.currentIndex, ListView.Contain);
-                        root.ensureInnerVisible(g);
-                    } else {
-                        root.navInGroup = false;
-                        if (g.expanded) g.toggleExpanded();
-                    }
-                    root.syncNavHighlight();
+        if (root.navInButtons) {
+            root.navInButtons = false;
+            root.syncNavHighlight();
+        } else if (root.navInGroup) {
+            var g = root.currentGroup();
+            if (g && g.notifList && g.notifList.count > 0) {
+                if (g.notifList.currentIndex > 0) {
+                    g.notifList.currentIndex--;
+                    g.notifList.positionViewAtIndex(g.notifList.currentIndex, ListView.Contain);
+                    root.ensureInnerVisible(g);
+                } else {
+                    root.navInGroup = false;
+                    if (g.expanded) g.toggleExpanded();
                 }
-            } else if (listview.count > 0 && listview.currentIndex > 0) {
-                listview.currentIndex--;
-                root.scrollToCurrent();
                 root.syncNavHighlight();
-            } else if (root.mediaZoneAvailable) {
-                root.setZone("media");
             }
-        } else if (root.listZoneAvailable) {
-            root.setZone("list");
-        } else if (root.mediaZoneAvailable) {
-            root.setZone("media");
+        } else if (listview.count > 0 && listview.currentIndex > 0) {
+            listview.currentIndex--;
+            root.scrollToCurrent();
+            root.syncNavHighlight();
         }
     }
 
     function navDown() {
         root.navEngaged = true;
-        if (root.navZone === "media") {
-            if (root.listZoneAvailable) root.setZone("list");
-            else root.setZone("actions");
-        } else if (root.navZone === "list") {
-            if (root.navInButtons) {
-                root.navInButtons = false;
-                root.syncNavHighlight();
-            } else if (root.navInGroup) {
-                var g = root.currentGroup();
-                if (g && g.notifList && g.notifList.count > 0) {
-                    if (g.notifList.currentIndex < g.notifList.count - 1) {
-                        g.notifList.currentIndex++;
-                        g.notifList.positionViewAtIndex(g.notifList.currentIndex, ListView.Contain);
-                        root.ensureInnerVisible(g);
-                        root.syncNavHighlight();
-                    } else {
-                        root.navInGroup = false;
-                        if (g.expanded) g.toggleExpanded();
-                        if (listview.count > 0 && listview.currentIndex < listview.count - 1) {
-                            listview.currentIndex++;
-                            root.scrollToCurrent();
-                        }
-                        root.syncNavHighlight();
+        if (root.navInButtons) {
+            root.navInButtons = false;
+            root.syncNavHighlight();
+        } else if (root.navInGroup) {
+            var g = root.currentGroup();
+            if (g && g.notifList && g.notifList.count > 0) {
+                if (g.notifList.currentIndex < g.notifList.count - 1) {
+                    g.notifList.currentIndex++;
+                    g.notifList.positionViewAtIndex(g.notifList.currentIndex, ListView.Contain);
+                    root.ensureInnerVisible(g);
+                    root.syncNavHighlight();
+                } else {
+                    root.navInGroup = false;
+                    if (g.expanded) g.toggleExpanded();
+                    if (listview.count > 0 && listview.currentIndex < listview.count - 1) {
+                        listview.currentIndex++;
+                        root.scrollToCurrent();
                     }
+                    root.syncNavHighlight();
                 }
-            } else if (listview.count > 0 && listview.currentIndex < listview.count - 1) {
-                listview.currentIndex++;
-                root.scrollToCurrent();
-                root.syncNavHighlight();
-            } else {
-                root.setZone("actions");
             }
-        } else if (root.mediaZoneAvailable) {
-            root.setZone("media");
-        } else if (root.listZoneAvailable) {
-            root.setZone("list");
+        } else if (listview.count > 0 && listview.currentIndex < listview.count - 1) {
+            listview.currentIndex++;
+            root.scrollToCurrent();
+            root.syncNavHighlight();
         }
     }
 
     function navLeft() {
         root.navEngaged = true;
-        if (root.navZone === "media") {
-            if (root.navMediaIndex === 4) root.seekBy(-0.05);
-            else { root.navMediaIndex = (root.navMediaIndex + root.navMediaCount - 1) % root.navMediaCount; root.syncNavHighlight(); }
-        } else if (root.navZone === "list") {
-            if (root.navInButtons) {
-                if (root.navButtonIndex > 0) {
-                    root.navButtonIndex--;
-                    root.setButtonIndex(root.navButtonIndex);
-                    root.syncNavHighlight();
-                } else {
-                    root.navInButtons = false;
-                    root.syncNavHighlight();
-                }
-            } else if (root.navInGroup) {
-                var g = root.currentGroup();
-                root.navInGroup = false;
-                if (g && g.expanded) g.toggleExpanded();
+        if (root.navInButtons) {
+            if (root.navButtonIndex > 0) {
+                root.navButtonIndex--;
+                root.setButtonIndex(root.navButtonIndex);
                 root.syncNavHighlight();
             } else {
-                var grp = root.currentGroup();
-                if (grp && grp.expanded) grp.toggleExpanded();
-                else if (grp) grp.destroyWithAnimation(true);
+                root.navInButtons = false;
                 root.syncNavHighlight();
             }
-        } else if (root.navActionIndex > 0) {
-            root.navActionIndex--;
+        } else if (root.navInGroup) {
+            var g = root.currentGroup();
+            root.navInGroup = false;
+            if (g && g.expanded) g.toggleExpanded();
+            root.syncNavHighlight();
+        } else {
+            var grp = root.currentGroup();
+            if (grp && grp.expanded) grp.toggleExpanded();
+            else if (grp) grp.destroyWithAnimation(true);
             root.syncNavHighlight();
         }
     }
 
     function navRight() {
         root.navEngaged = true;
-        if (root.navZone === "media") {
-            if (root.navMediaIndex === 4) root.seekBy(0.05);
-            else { root.navMediaIndex = (root.navMediaIndex + 1) % root.navMediaCount; root.syncNavHighlight(); }
-        } else if (root.navZone === "list") {
-            if (root.navInButtons) {
-                var nb = root.currentNotif();
-                var ncount = nb && nb.keyboardButtons ? nb.keyboardButtons().length : 0;
-                if (root.navButtonIndex < ncount - 1) {
-                    root.navButtonIndex++;
-                    root.setButtonIndex(root.navButtonIndex);
-                    root.syncNavHighlight();
-                }
-            } else if (root.navInGroup) {
-                root.enterButtons();
-            } else {
-                root.enterGroup();
+        if (root.navInButtons) {
+            var nb = root.currentNotif();
+            var ncount = nb && nb.keyboardButtons ? nb.keyboardButtons().length : 0;
+            if (root.navButtonIndex < ncount - 1) {
+                root.navButtonIndex++;
+                root.setButtonIndex(root.navButtonIndex);
+                root.syncNavHighlight();
             }
-        } else if (root.navActionIndex < 1) {
-            root.navActionIndex++;
-            root.syncNavHighlight();
+        } else if (root.navInGroup) {
+            root.enterButtons();
+        } else {
+            root.enterGroup();
         }
     }
 
     function syncNavHighlight() {
-        var engaged = root.navZone === "list" && root.navEngaged;
+        var engaged = root.navEngaged;
         var inner = engaged && root.navInGroup && !root.navInButtons;
         var innerButtons = engaged && root.navInGroup && root.navInButtons;
         listview.keyboardSelected = engaged && !root.navInGroup;
@@ -345,30 +260,6 @@ FocusScope {
         }
         var item = root.currentNotif();
         if (item) item.keyboardButtonIndex = innerButtons ? root.navButtonIndex : -1;
-        if (root.navZone === "list") {
-            navRing.visible = false;
-            return;
-        }
-        var target = null;
-        if (root.navZone === "media") {
-            if (root.navMediaIndex === 0) target = mediaCard.kbPrevButton;
-            else if (root.navMediaIndex === 1) target = mediaCard.kbPlayButton;
-            else if (root.navMediaIndex === 2) target = mediaCard.kbNextButton;
-            else if (root.navMediaIndex === 3) target = mediaCard.kbLyricsButton;
-            else target = mediaCard.kbSeekSlider;
-        } else if (root.navActionIndex === 0) {
-            target = modeButton;
-        } else {
-            target = clearButton;
-        }
-        if (!target || !target.visible) { navRing.visible = false; return; }
-        var p = target.mapToItem(root, 0, 0);
-        navRing.x = p.x - 4 * Appearance.effectiveScale;
-        navRing.y = p.y - 4 * Appearance.effectiveScale;
-        navRing.width = target.width + 8 * Appearance.effectiveScale;
-        navRing.height = target.height + 8 * Appearance.effectiveScale;
-        navRing.radius = Math.min(12 * Appearance.effectiveScale, navRing.height / 2);
-        navRing.visible = root.navActive && root.navEngaged;
     }
 
     function resetNav() {
@@ -376,9 +267,6 @@ FocusScope {
         root.navInGroup = false;
         root.navInButtons = false;
         root.navButtonIndex = 0;
-        root.navZone = root.mediaZoneAvailable ? "media" : (root.listZoneAvailable ? "list" : "actions");
-        root.navMediaIndex = 0;
-        root.navActionIndex = 0;
         if (listview.count > 0) listview.currentIndex = 0;
         Qt.callLater(() => { root.scrollToCurrent(); root.syncNavHighlight(); });
     }
@@ -386,9 +274,6 @@ FocusScope {
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Escape) {
             root.close();
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
-            root.zoneNext(event.key === Qt.Key_Backtab ? -1 : 1);
             event.accepted = true;
         } else if (event.key === Qt.Key_Up) {
             root.navUp();
@@ -406,15 +291,13 @@ FocusScope {
             root.navActivate();
             event.accepted = true;
         } else if (event.key === Qt.Key_Delete || event.key === Qt.Key_Backspace) {
-            if (root.navZone === "list") {
-                var g = root.currentGroup();
-                if (root.navInGroup) {
-                    var item = g && g.notifList ? g.notifList.currentItem : null;
-                    var n = item ? item.notificationObject : null;
-                    if (n) Notifications.discardNotification(n.notificationId);
-                } else if (g && g.destroyWithAnimation) {
-                    g.destroyWithAnimation();
-                }
+            var g = root.currentGroup();
+            if (root.navInGroup) {
+                var item = g && g.notifList ? g.notifList.currentItem : null;
+                var n = item ? item.notificationObject : null;
+                if (n) Notifications.discardNotification(n.notificationId);
+            } else if (g && g.destroyWithAnimation) {
+                g.destroyWithAnimation();
             }
             event.accepted = true;
         } else if (event.key === Qt.Key_C && !(event.modifiers & (Qt.ControlModifier | Qt.MetaModifier | Qt.AltModifier))) {
@@ -423,45 +306,63 @@ FocusScope {
         } else if (event.key === Qt.Key_V && !(event.modifiers & (Qt.ControlModifier | Qt.MetaModifier | Qt.AltModifier))) {
             root.cycleMode();
             event.accepted = true;
-        } else if (event.key === Qt.Key_Home) {
-            if (root.navZone === "list") {
-                if (root.navInButtons) {
-                    root.navButtonIndex = 0;
-                    root.setButtonIndex(0);
-                } else if (root.navInGroup) {
-                    var gh = root.currentGroup();
-                    if (gh && gh.notifList && gh.notifList.count > 0) {
-                        gh.notifList.currentIndex = 0;
-                        gh.notifList.positionViewAtIndex(0, ListView.Contain);
-                        root.ensureInnerVisible(gh);
-                    }
-                } else if (listview.count > 0) {
-                    listview.currentIndex = 0;
-                    root.scrollToCurrent();
-                }
-                root.syncNavHighlight();
+        } else if (root.mediaZoneAvailable) {
+            if (event.key === Qt.Key_A) {
+                MprisController.previous();
+                event.accepted = true;
+            } else if (event.key === Qt.Key_S) {
+                root.seekBy(-5);
+                event.accepted = true;
+            } else if (event.key === Qt.Key_D) {
+                root.seekBy(5);
+                event.accepted = true;
+            } else if (event.key === Qt.Key_F) {
+                MprisController.next();
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Z) {
+                MprisController.togglePlaying();
+                event.accepted = true;
+            } else if (event.key === Qt.Key_X) {
+                Config.options.appearance.lyrics.showFloatingLyrics = !Config.options.appearance.lyrics.showFloatingLyrics;
+                event.accepted = true;
             }
+        }
+        
+        if (!event.accepted && event.key === Qt.Key_Home) {
+            if (root.navInButtons) {
+                root.navButtonIndex = 0;
+                root.setButtonIndex(0);
+            } else if (root.navInGroup) {
+                var gh = root.currentGroup();
+                if (gh && gh.notifList && gh.notifList.count > 0) {
+                    gh.notifList.currentIndex = 0;
+                    gh.notifList.positionViewAtIndex(0, ListView.Contain);
+                    root.ensureInnerVisible(gh);
+                }
+            } else if (listview.count > 0) {
+                listview.currentIndex = 0;
+                root.scrollToCurrent();
+            }
+            root.syncNavHighlight();
             event.accepted = true;
-        } else if (event.key === Qt.Key_End) {
-            if (root.navZone === "list") {
-                if (root.navInButtons) {
-                    var ge2 = root.currentNotif();
-                    root.navButtonIndex = ge2 && ge2.keyboardButtons ? ge2.keyboardButtons().length - 1 : 0;
-                    if (root.navButtonIndex < 0) root.navButtonIndex = 0;
-                    root.setButtonIndex(root.navButtonIndex);
-                } else if (root.navInGroup) {
-                    var ge = root.currentGroup();
-                    if (ge && ge.notifList && ge.notifList.count > 0) {
-                        ge.notifList.currentIndex = ge.notifList.count - 1;
-                        ge.notifList.positionViewAtIndex(ge.notifList.currentIndex, ListView.Contain);
-                        root.ensureInnerVisible(ge);
-                    }
-                } else if (listview.count > 0) {
-                    listview.currentIndex = listview.count - 1;
-                    root.scrollToCurrent();
+        } else if (!event.accepted && event.key === Qt.Key_End) {
+            if (root.navInButtons) {
+                var ge2 = root.currentNotif();
+                root.navButtonIndex = ge2 && ge2.keyboardButtons ? ge2.keyboardButtons().length - 1 : 0;
+                if (root.navButtonIndex < 0) root.navButtonIndex = 0;
+                root.setButtonIndex(root.navButtonIndex);
+            } else if (root.navInGroup) {
+                var ge = root.currentGroup();
+                if (ge && ge.notifList && ge.notifList.count > 0) {
+                    ge.notifList.currentIndex = ge.notifList.count - 1;
+                    ge.notifList.positionViewAtIndex(ge.notifList.currentIndex, ListView.Contain);
+                    root.ensureInnerVisible(ge);
                 }
-                root.syncNavHighlight();
+            } else if (listview.count > 0) {
+                listview.currentIndex = listview.count - 1;
+                root.scrollToCurrent();
             }
+            root.syncNavHighlight();
             event.accepted = true;
         }
     }
@@ -474,7 +375,6 @@ FocusScope {
                 root.resetNav();
             } else {
                 listview.keyboardSelected = false;
-                navRing.visible = false;
                 for (var i = 0; i < listview.count; i++) {
                     var it = listview.itemAtIndex(i);
                     if (it) {
@@ -508,7 +408,6 @@ FocusScope {
                 listview.currentIndex = -1;
                 root.navInGroup = false;
                 root.navInButtons = false;
-                if (root.navZone === "list") root.setZone(root.mediaZoneAvailable ? "media" : "actions");
             }
             root.syncNavHighlight();
         }
@@ -524,7 +423,6 @@ FocusScope {
     onActiveFocusChanged: {
         if (root.activeFocus && GlobalStates.notificationCenterOpen) root.syncNavHighlight();
         else {
-            navRing.visible = false;
             listview.keyboardSelected = false;
         }
     }
@@ -560,11 +458,6 @@ FocusScope {
             // wavy Canvas lifecycle to the real open-state to avoid 60fps
             // off-screen repaints.
             wavyVisible: GlobalStates.notificationCenterOpen
-
-            onVisibleChanged: {
-                if (!mediaCard.visible && root.navZone === "media")
-                    root.setZone(root.listZoneAvailable ? "list" : "actions");
-            }
         }
 
         // ── Weather Card ──
@@ -734,20 +627,4 @@ FocusScope {
         }
     }
 
-    // ── Keyboard focus ring ──
-    Rectangle {
-        id: navRing
-        visible: false
-        z: 999
-        enabled: false
-        color: "transparent"
-        border.width: Math.max(1, 2 * Appearance.effectiveScale)
-        border.color: Appearance.m3colors.m3primary
-        opacity: 0.9
-        Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on opacity { NumberAnimation { duration: 120 } }
-    }
 }
