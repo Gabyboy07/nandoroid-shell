@@ -438,7 +438,7 @@ Singleton {
 
     Timer {
         id: autoRefreshTimer
-        interval: 15 * 60 * 1000
+        interval: 30 * 60 * 1000
         running: root.widgetEnabled
         repeat: true
         triggeredOnStart: true
