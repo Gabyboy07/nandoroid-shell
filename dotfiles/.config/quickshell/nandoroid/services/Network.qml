@@ -84,6 +84,11 @@ Singleton {
         rescanProcess.exec(rescanProcess.command);
     }
 
+    function cancelRescanWifi() {
+        rescanProcess.running = false;
+        wifiScanning = false;
+    }
+
     function connectToWifiNetwork(accessPoint) {
         accessPoint.askingPassword = false;
         root.wifiConnectTarget = accessPoint;

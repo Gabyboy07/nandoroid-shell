@@ -76,37 +76,25 @@ ColumnLayout {
                     color: Appearance.colors.colOnLayer1
                     Layout.fillWidth: true
                 }
-                // Solid Arc Spinner
-                Item {
-                    implicitWidth: 24 * Appearance.effectiveScale
-                    implicitHeight: 24 * Appearance.effectiveScale
+                RippleButton {
+                    implicitWidth: 32 * Appearance.effectiveScale
+                    implicitHeight: 32 * Appearance.effectiveScale
+                    buttonRadius: 16 * Appearance.effectiveScale
+                    colBackground: "transparent"
+                    colBackgroundHover: Appearance.colors.colLayer2
                     visible: BluetoothStatus.enabled
-
-                    Shape {
-                        anchors.fill: parent
-                        layer.enabled: true
-                        layer.samples: 4
-                        
-                        ShapePath {
-                            fillColor: "transparent"
-                            strokeColor: Appearance.colors.colPrimary
-                            strokeWidth: 3 * Appearance.effectiveScale
-                            capStyle: ShapePath.RoundCap
-                            
-                            PathAngleArc {
-                                centerX: 12 * Appearance.effectiveScale; centerY: 12 * Appearance.effectiveScale
-                                radiusX: 9 * Appearance.effectiveScale; radiusY: 9 * Appearance.effectiveScale
-                                startAngle: -90
-                                sweepAngle: 270
-                            }
+                    onClicked: {
+                        if (Bluetooth.defaultAdapter.discovering) {
+                            BluetoothStatus.stopDiscovery();
+                        } else {
+                            BluetoothStatus.startDiscovery();
                         }
-                        
-                        RotationAnimation on rotation {
-                            from: 0; to: 360
-                            duration: 1000
-                            loops: Animation.Infinite
-                            running: true
-                        }
+                    }
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: Bluetooth.defaultAdapter.discovering ? "close" : "refresh"
+                        iconSize: 18 * Appearance.effectiveScale
+                        color: Appearance.colors.colOnLayer1
                     }
                 }
             }
@@ -115,12 +103,21 @@ ColumnLayout {
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                Layout.minimumHeight: 250 * Appearance.effectiveScale
                 radius: 16 * Appearance.effectiveScale
                 color: Appearance.colors.colLayer1
                 clip: true
 
+                MaterialLoadingIndicator {
+                    anchors.centerIn: parent
+                    visible: BluetoothStatus.enabled && Bluetooth.defaultAdapter.discovering
+                    implicitSize: 60 * Appearance.effectiveScale
+                    z: 10
+                }
+
                 ListView {
                     id: unpairedList
+                    visible: !(BluetoothStatus.enabled && Bluetooth.defaultAdapter.discovering)
                     anchors.fill: parent
                     anchors.margins: 8 * Appearance.effectiveScale
                     clip: true

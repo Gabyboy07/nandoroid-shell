@@ -164,7 +164,7 @@ ColumnLayout {
                         id: syncIcon
                         anchors.centerIn: parent
                         visible: previewIterateTimer.running || previewMatugen.running
-                        implicitSize: 48 * Appearance.effectiveScale
+                        implicitSize: 60 * Appearance.effectiveScale
                         loading: visible
                     }
                 }

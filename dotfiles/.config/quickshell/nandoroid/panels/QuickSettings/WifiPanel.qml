@@ -112,23 +112,13 @@ Rectangle {
                 implicitHeight: 36 * Appearance.effectiveScale
                 buttonRadius: 18 * Appearance.effectiveScale
                 colBackground: Appearance.colors.colLayer2
-                onClicked: Network.rescanWifi()
+                onClicked: Network.wifiScanning ? Network.cancelRescanWifi() : Network.rescanWifi()
                 MaterialSymbol {
                     id: refreshIconWifi
                     anchors.centerIn: parent
-                    text: "refresh"
+                    text: Network.wifiScanning ? "close" : "refresh"
                     iconSize: 18 * Appearance.effectiveScale
                     color: Appearance.m3colors.m3onSurface
-                    
-                    RotationAnimation on rotation {
-                        id: refreshAnim
-                        from: 0
-                        to: 360
-                        duration: 1000
-                        loops: Animation.Infinite
-                        running: Network.wifiScanning
-                        onRunningChanged: if (!running) refreshIconWifi.rotation = 0
-                    }
                 }
             }
 
@@ -160,12 +150,21 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.minimumHeight: 250 * Appearance.effectiveScale
             radius: 12 * Appearance.effectiveScale
             color: "transparent"
             clip: true
 
+            MaterialLoadingIndicator {
+                anchors.centerIn: parent
+                visible: Network.wifiScanning
+                implicitSize: 60 * Appearance.effectiveScale
+                z: 10
+            }
+
             ListView {
                 id: wifiList
+                visible: !Network.wifiScanning
                 anchors.fill: parent
                 anchors.margins: 4 * Appearance.effectiveScale
                 clip: true

@@ -18,7 +18,7 @@ Rectangle {
     implicitHeight: implicitSize
     radius: Math.min(width, height) / 2
     color: colBg
-    property double baseShapeSize: root.implicitSize * 0.7
+    property double baseShapeSize: Math.round(root.implicitSize * (38 / 48))
     property double leapZoomSize: root.baseShapeSize * 1.2
     property double leapZoomProgress: 0
 

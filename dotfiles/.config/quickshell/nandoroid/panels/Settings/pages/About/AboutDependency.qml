@@ -75,23 +75,17 @@ ColumnLayout {
                     buttonRadius: 19 * Appearance.effectiveScale
                     colBackground: Appearance.colors.colPrimary
                     onClicked: {
-                        dependencyRoot.scanDependencies();
+                        if (SysCheckService.isChecking) SysCheckService.cancel();
+                        else dependencyRoot.scanDependencies();
                     }
                     RowLayout {
                         anchors.centerIn: parent
                         spacing: 6 * Appearance.effectiveScale
                         MaterialSymbol {
                             id: scanIcon
-                            text: "sync"
+                            text: SysCheckService.isChecking ? "close" : "sync"
                             iconSize: 18 * Appearance.effectiveScale
                             color: Appearance.colors.colOnPrimary
-                            RotationAnimation on rotation {
-                                running: SysCheckService.isChecking
-                                from: 0; to: 360
-                                duration: 1000
-                                loops: Animation.Infinite
-                                onRunningChanged: if (!running) scanIcon.rotation = 0
-                            }
                         }
                         StyledText {
                             text: SysCheckService.isChecking ? I18nService.tr("Scanning...") : I18nService.tr("Scan Now")
@@ -106,6 +100,13 @@ ColumnLayout {
     }
 
     // ── Categorized List (2-Column Grid with System Settings style headers) ──
+    MaterialLoadingIndicator {
+        Layout.alignment: Qt.AlignHCenter
+        Layout.topMargin: 80 * Appearance.effectiveScale
+        visible: SysCheckService.isChecking
+        implicitSize: 60 * Appearance.effectiveScale
+    }
+
     Repeater {
         model: [
             { id: "core", name: I18nService.tr("Core Components (Required)"), icon: "widgets" },
@@ -121,7 +122,7 @@ ColumnLayout {
             required property var modelData
             readonly property var catItems: SysCheckService.dependencyData.filter(d => d.category === modelData.id)
 
-            visible: catItems.length > 0
+            visible: catItems.length > 0 && !SysCheckService.isChecking
             Layout.fillWidth: true
             spacing: 10 * Appearance.effectiveScale
 

@@ -27,6 +27,11 @@ Singleton {
         checkProcess.running = true;
     }
 
+    function cancel() {
+        checkProcess.running = false;
+        isChecking = false;
+    }
+
     Component.onCompleted: check()
 
     Process {

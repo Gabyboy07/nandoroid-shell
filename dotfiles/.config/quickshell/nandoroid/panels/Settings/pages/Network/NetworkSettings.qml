@@ -82,25 +82,15 @@ Item {
                         implicitHeight: 40 * Appearance.effectiveScale
                         buttonRadius: 20 * Appearance.effectiveScale
                         colBackground: Appearance.colors.colLayer1
-                        onClicked: Network.rescanWifi()
+                        onClicked: Network.wifiScanning ? Network.cancelRescanWifi() : Network.rescanWifi()
                         
                         contentItem: MaterialSymbol {
                             id: refreshIconNetwork
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
-                            text: "refresh"
+                            text: Network.wifiScanning ? "close" : "refresh"
                             iconSize: 20 * Appearance.effectiveScale
                             color: Appearance.colors.colOnLayer1
-                            
-                            RotationAnimation on rotation {
-                                id: refreshAnim
-                                from: 0
-                                to: 360
-                                duration: 1000
-                                loops: Animation.Infinite
-                                running: Network.wifiScanning
-                                onRunningChanged: if (!running) refreshIconNetwork.rotation = 0
-                            }
                         }
                     }
 
@@ -140,18 +130,22 @@ Item {
         }
 
         // ── Scrollable Content Area ──
-        Flickable {
-            id: mainFlicking
+        Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            contentHeight: contentCol.implicitHeight
-            clip: true
-            interactive: true
 
-            ScrollBar.vertical: ScrollBar {}
+            Flickable {
+                id: mainFlicking
+                anchors.fill: parent
+                contentHeight: contentCol.implicitHeight
+                clip: true
+                interactive: true
+
+                ScrollBar.vertical: ScrollBar {}
 
             ColumnLayout {
                 id: contentCol
+                visible: !Network.wifiScanning
                 width: parent.width - (24 * Appearance.effectiveScale)
                 spacing: 24 * Appearance.effectiveScale
 
@@ -172,6 +166,14 @@ Item {
                 }
             }
         } // End Flickable
+
+        MaterialLoadingIndicator {
+            anchors.centerIn: parent
+            visible: Network.wifiScanning
+            implicitSize: 60 * Appearance.effectiveScale
+            z: 10
+        }
+    } // End Item
 
         // ── Bottom Management Buttons (Main View) ──
         RowLayout {

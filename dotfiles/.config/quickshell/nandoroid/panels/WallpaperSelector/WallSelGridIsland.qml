@@ -209,7 +209,6 @@ import Quickshell.Io
                                 spacing: 12 * Appearance.effectiveScale
                                 MaterialLoadingIndicator {
                                     id: loadMoreIcon
-                                    implicitSize: 48 * Appearance.effectiveScale
                                     loading: parent.visible
                                 }
                                 StyledText { text: I18nService.tr("Loading more..."); color: Appearance.colors.colSubtext }
@@ -512,7 +511,7 @@ import Quickshell.Io
                             MaterialLoadingIndicator {
                                 id: mainLoadIcon
                                 visible: (mainSelector.wallhavenMode && WallhavenService.loading) || (mainSelector.naiveMode && NaIveWallpaperService.loading) || (mainSelector.inVideoMode && MpvpaperService.loading) || (mainSelector.liveMode && !mainSelector.inVideoMode && WallpaperEngineService.loading)
-                                implicitSize: 64 * Appearance.effectiveScale
+                                implicitSize: 60 * Appearance.effectiveScale
                                 loading: parent.visible
                                 Layout.alignment: Qt.AlignHCenter
                             }
