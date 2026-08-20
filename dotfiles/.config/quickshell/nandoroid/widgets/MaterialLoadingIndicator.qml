@@ -9,8 +9,8 @@ Rectangle {
     property bool loading: true
     property double pullProgress: 0
 
-    property color colBg: Appearance.colors.colOnPrimaryContainer
-    property color colShape: Appearance.colors.colPrimaryContainer
+    property color colBg: Appearance.colors.colPrimaryContainer
+    property color colShape: Appearance.colors.colOnPrimaryContainer
 
     // Size, color
     property double implicitSize: 48 * Appearance.effectiveScale
