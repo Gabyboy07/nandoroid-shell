@@ -638,20 +638,6 @@ MouseArea {
 
 
 
-                    // Battery pill (terpisah, m3primaryContainer)
-                    M3StatusWrapper {
-                        id: lockM3BatteryWrapper
-                        Layout.alignment: Qt.AlignVCenter
-                        show: Battery.available
-                        m3Color: Appearance.lockM3colors.m3primaryContainer
-                        m3ContentColor: Appearance.lockM3colors.m3onPrimaryContainer
-
-                        BatteryIndicator {
-                            Layout.alignment: Qt.AlignVCenter
-                            color: lockM3BatteryWrapper.contentColor
-                        }
-                    }
-
                     // System icons pill (Notif + Volume + WiFi + BT + DND)
                     M3StatusWrapper {
                         id: lockM3SystemWrapper
@@ -683,7 +669,7 @@ MouseArea {
                             }
                         }
 
-                        // Volume (selalu visible sesuai showVolumeIndicator)
+                        // Volume (always visible according to showVolumeIndicator)
                         MaterialSymbol {
                             visible: Config.ready && Config.options.statusBar ? (Config.options.statusBar.showVolumeIndicator ?? true) : true
                             text: Audio.muted || Audio.volume === 0 ? "volume_off" : (Audio.volume > 0.3 ? "volume_up" : "volume_down")
@@ -720,6 +706,20 @@ MouseArea {
                             fill: 1
                             color: lockM3SystemWrapper.contentColor
                             Layout.alignment: Qt.AlignVCenter
+                        }
+                    }
+
+                    // Battery pill (separated, m3primaryContainer)
+                    M3StatusWrapper {
+                        id: lockM3BatteryWrapper
+                        Layout.alignment: Qt.AlignVCenter
+                        show: Battery.available
+                        m3Color: Appearance.lockM3colors.m3primaryContainer
+                        m3ContentColor: Appearance.lockM3colors.m3onPrimaryContainer
+
+                        BatteryIndicator {
+                            Layout.alignment: Qt.AlignVCenter
+                            color: lockM3BatteryWrapper.contentColor
                         }
                     }
 
