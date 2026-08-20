@@ -197,6 +197,7 @@ Button {
 
     contentItem: StyledText {
         text: root.buttonText
+        font.weight: Font.Medium
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         color: root.textColor

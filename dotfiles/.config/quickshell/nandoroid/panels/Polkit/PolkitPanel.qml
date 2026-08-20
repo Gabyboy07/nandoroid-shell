@@ -53,9 +53,9 @@ Scope {
                 Rectangle {
                     id: dialog
                     anchors.centerIn: parent
-                    width: 450 * Appearance.effectiveScale
-                    implicitHeight: contentCol.implicitHeight + (40 * Appearance.effectiveScale)
-                    radius: Appearance.rounding.card
+                    width: Math.max(280 * Appearance.effectiveScale, Math.min(parent.width - 48 * Appearance.effectiveScale, 560 * Appearance.effectiveScale))
+                    implicitHeight: contentCol.implicitHeight + (48 * Appearance.effectiveScale)
+                    radius: 28 * Appearance.effectiveScale
                     color: Appearance.m3colors.m3surfaceContainerHigh
                     
                     StyledRectangularShadow {
@@ -67,39 +67,42 @@ Scope {
                         id: contentCol
                         anchors.fill: parent
                         anchors.margins: 24 * Appearance.effectiveScale
-                        spacing: 20 * Appearance.effectiveScale
+                        spacing: 0
 
                         // Icon
                         MaterialSymbol {
                             Layout.alignment: Qt.AlignHCenter
                             text: "security"
-                            iconSize: 32 * Appearance.effectiveScale
-                            color: Appearance.colors.colPrimary
+                            iconSize: 24 * Appearance.effectiveScale
+                            color: Appearance.m3colors.m3secondary
                         }
 
                         // Title
                         StyledText {
                             Layout.fillWidth: true
+                            Layout.topMargin: 16 * Appearance.effectiveScale
                             horizontalAlignment: Text.AlignHCenter
                             text: I18nService.tr("Authentication Required")
-                            font.pixelSize: Appearance.font.pixelSize.large
-                            font.weight: Font.DemiBold
+                            font.pixelSize: Appearance.font.pixelSize.huge
+                            font.weight: Font.Normal
                             color: Appearance.colors.colOnLayer1
                         }
 
                         // Message
                         StyledText {
                             Layout.fillWidth: true
+                            Layout.topMargin: 16 * Appearance.effectiveScale
                             horizontalAlignment: Text.AlignHCenter
                             text: PolkitService.cleanMessage
-                            font.pixelSize: Appearance.font.pixelSize.normal
-                            color: Appearance.colors.colSubtext
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            color: Appearance.m3colors.m3onSurfaceVariant
                             wrapMode: Text.Wrap
                         }
 
                         // Password Field Section
                         ColumnLayout {
                             Layout.fillWidth: true
+                            Layout.topMargin: 24 * Appearance.effectiveScale
                             spacing: 8 * Appearance.effectiveScale
 
                             Rectangle {
@@ -166,28 +169,28 @@ Scope {
                         // Buttons
                         RowLayout {
                             Layout.fillWidth: true
-                            Layout.topMargin: 12 * Appearance.effectiveScale
-                            spacing: 12 * Appearance.effectiveScale
+                            Layout.topMargin: 24 * Appearance.effectiveScale
+                            spacing: 8 * Appearance.effectiveScale
 
                             Item { Layout.fillWidth: true }
 
                             RippleButton {
-                                implicitHeight: 36 * Appearance.effectiveScale
-                                buttonRadius: Appearance.rounding.full
+                                implicitHeight: 40 * Appearance.effectiveScale
+                                buttonRadius: 20 * Appearance.effectiveScale
                                 buttonText: I18nService.tr("Cancel")
                                 colBackground: "transparent"
                                 colBackgroundHover: Appearance.colors.colLayer2Hover
-                                colText: Appearance.colors.colPrimary
+                                colText: Appearance.m3colors.m3primary
                                 onClicked: PolkitService.cancel()
                             }
 
                             RippleButton {
-                                implicitHeight: 36 * Appearance.effectiveScale
-                                buttonRadius: Appearance.rounding.full
+                                implicitHeight: 40 * Appearance.effectiveScale
+                                buttonRadius: 20 * Appearance.effectiveScale
                                 buttonText: I18nService.tr("OK")
                                 colBackground: "transparent"
                                 colBackgroundHover: Appearance.colors.colLayer2Hover
-                                colText: Appearance.colors.colPrimary
+                                colText: Appearance.m3colors.m3primary
                                 enabled: PolkitService.interactionAvailable
                                 onClicked: PolkitService.submit(passwordInput.text)
                             }

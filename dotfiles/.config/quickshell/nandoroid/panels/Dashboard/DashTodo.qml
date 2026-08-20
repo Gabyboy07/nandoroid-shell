@@ -659,40 +659,11 @@ Item {
 
                     StyledText {
                         text: I18nService.tr("Edit task")
-                        font.pixelSize: Appearance.font.pixelSize.large
-                        font.weight: Font.Medium
+                        font.pixelSize: Appearance.font.pixelSize.huge
+                        font.weight: Font.Normal
                         color: Appearance.colors.colOnLayer1
                         Layout.fillWidth: true
                     }
-
-                    // Delete Button (Icon)
-                    RippleButton {
-                        implicitWidth: 32 * Appearance.effectiveScale
-                        implicitHeight: 32 * Appearance.effectiveScale
-                        buttonRadius: 16 * Appearance.effectiveScale
-                        colBackground: "transparent"
-                        colBackgroundHover: Functions.ColorUtils.applyAlpha(Appearance.colors.colError, 0.08)
-                        onClicked: {
-                            DialogService.requestConfirmation({
-                                "titleText": I18nService.tr("Delete Task?"),
-                                "messageText": I18nService.tr("Are you sure you want to delete this task? This action cannot be undone."),
-                                "iconText": "delete",
-                                "isDestructive": true
-                            }, () => {
-                                editPopup.close();
-                                return root.deleteTask(root._editingId);
-                            });
-                        }
-
-                        MaterialSymbol {
-                            anchors.centerIn: parent
-                            text: "delete"
-                            iconSize: 18 * Appearance.effectiveScale
-                            color: Appearance.colors.colError
-                        }
-
-                    }
-
                 }
 
                 // M3 Outlined Text Field lookalike
@@ -745,6 +716,35 @@ Item {
                     Layout.fillWidth: true
                     Layout.topMargin: 8 * Appearance.effectiveScale
                     spacing: 8 * Appearance.effectiveScale
+
+                    // Delete (Text Button)
+                    RippleButton {
+                        implicitWidth: deleteText.width + 24 * Appearance.effectiveScale
+                        implicitHeight: 40 * Appearance.effectiveScale
+                        buttonRadius: 20 * Appearance.effectiveScale
+                        colBackground: "transparent"
+                        colBackgroundHover: Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.08)
+                        onClicked: {
+                            DialogService.requestConfirmation({
+                                "titleText": I18nService.tr("Delete Task?"),
+                                "messageText": I18nService.tr("Are you sure you want to delete this task? This action cannot be undone."),
+                                "iconText": "delete",
+                                "isDestructive": true
+                            }, () => {
+                                editPopup.close();
+                                return root.deleteTask(root._editingId);
+                            });
+                        }
+
+                        StyledText {
+                            id: deleteText
+                            anchors.centerIn: parent
+                            text: I18nService.tr("Delete")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.Medium
+                            color: Appearance.colors.colPrimary
+                        }
+                    }
 
                     Item {
                         Layout.fillWidth: true
