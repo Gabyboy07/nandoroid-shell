@@ -7,48 +7,35 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 
-/**
- * Functional Wi-Fi network selection panel.
- * Shows real networks using nmcli scanning.
- */
-Rectangle {
+Item {
     id: root
     signal dismiss()
     
-    focus: true
+    anchors.fill: parent
+    property bool isActive: true
     property int navIndex: 0
     property bool inheritedNav: false
     property bool navEngaged: false
-
-    color: Appearance.colors.colLayer0
-    radius: Appearance.rounding.panel
-
-    // Block clicks and hovers from leaking through to the items below
-    MouseArea {
-        anchors.fill: parent
-        hoverEnabled: true
-        onWheel: (wheel) => wheel.accepted = true
-        onPressed: (mouse) => mouse.accepted = true
+    
+    Component.onCompleted: {
+        Network.rescanWifi();
+        root.navEngaged = root.inheritedNav;
+        root.forceActiveFocus();
+        Qt.callLater(() => root.syncNavRing());
     }
-
-    // ── Keyboard navigation ──
-    function syncWifiRing() {
-        if (!wifiList.visible || Network.wifiScanning) { wifiNavRing.visible = false; return; }
-        if (wifiList.count > 0 && wifiList.currentIndex < 0) {
-            wifiList.currentIndex = 0;
-            wifiList.positionViewAtIndex(0, ListView.Contain);
+    
+    Component.onDestruction: {
+        if (Network.wifiScanning) {
+            Network.cancelRescanWifi();
         }
-        const it = wifiList.currentItem;
-        if (!it) { wifiNavRing.visible = false; return; }
-        const p = it.mapToItem(root, 0, 0);
-        wifiNavRing.x = p.x - 4 * Appearance.effectiveScale;
-        wifiNavRing.y = p.y - 4 * Appearance.effectiveScale;
-        wifiNavRing.width = it.width + 8 * Appearance.effectiveScale;
-        wifiNavRing.height = it.height + 8 * Appearance.effectiveScale;
-        wifiNavRing.radius = Math.min(12 * Appearance.effectiveScale, wifiNavRing.height / 2);
-        wifiNavRing.visible = root.activeFocus && root.navEngaged;
     }
-
+    
+    onPasswordDialogOpenChanged: {
+        if (!passwordDialogOpen && root.activeFocus) {
+            Qt.callLater(() => root.syncNavRing());
+        }
+    }
+    
     Connections {
         target: Network
         function onWifiScanningChanged() {
@@ -56,445 +43,551 @@ Rectangle {
                 wifiNavRing.visible = false;
             } else {
                 Qt.callLater(() => {
-                    root.forceActiveFocus();
-                    root.syncWifiRing();
+                    let maxListItems = Math.min(wifiList.count, 3);
+                    let hasSeeAll = wifiList.count > 3;
+                    let totalItems = maxListItems + (hasSeeAll ? 1 : 0) + 1;
+                    if (root.navIndex >= totalItems && totalItems > 0) {
+                        root.navIndex = totalItems - 1;
+                    }
+                    if (root.activeFocus) {
+                        root.syncNavRing();
+                    }
                 });
             }
         }
     }
-
+    
+    focus: true
     Keys.onPressed: (event) => {
+        if (root.passwordDialogOpen) return;
         if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
-        if (wifiList.count === 0) return;
+        
+        let maxListItems = Math.min(wifiList.count, 3);
+        let hasSeeAll = wifiList.count > 3;
+        let totalItems = maxListItems + (hasSeeAll ? 1 : 0) + 1; // +1 for Done
+        
         root.navEngaged = true;
-        if (event.key === Qt.Key_Up) {
-            if (wifiList.currentIndex > 0) {
-                wifiList.currentIndex--;
-                wifiList.positionViewAtIndex(wifiList.currentIndex, ListView.Contain);
-            }
+        if (event.key === Qt.Key_Z) {
+            Network.toggleWifi();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Up) {
+            if (root.navIndex > 0) { root.navIndex--; root.syncNavRing(); }
             event.accepted = true;
         } else if (event.key === Qt.Key_Down) {
-            if (wifiList.currentIndex < wifiList.count - 1) {
-                wifiList.currentIndex++;
-                wifiList.positionViewAtIndex(wifiList.currentIndex, ListView.Contain);
+            if (root.navIndex < totalItems - 1) { root.navIndex++; root.syncNavRing(); }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Space) {
+            let targetItem = null;
+            if (root.navIndex < maxListItems) {
+                targetItem = wifiList.itemAtIndex(root.navIndex);
+            } else if (hasSeeAll && root.navIndex === maxListItems) {
+                targetItem = wifiList.footerItem;
+            } else {
+                targetItem = doneBtn;
             }
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
-            const it = wifiList.currentItem;
-            if (it && it.networkButton) it.networkButton.click();
+            if (targetItem && targetItem.clicked) targetItem.clicked();
             event.accepted = true;
         }
     }
-
-    Component.onCompleted: {
-        root.navEngaged = root.inheritedNav;
-        if (wifiList.count > 0) {
-            wifiList.currentIndex = 0;
-            wifiList.positionViewAtIndex(0, ListView.Contain);
+    
+    function syncNavRing() {
+        if (root.passwordDialogOpen || !root.navEngaged) {
+            wifiNavRing.visible = false;
+            return;
         }
-        root.forceActiveFocus();
-        root.syncWifiRing();
+        
+        let targetItem = null;
+        let maxListItems = Math.min(wifiList.count, 3);
+        let hasSeeAll = wifiList.count > 3;
+        
+        if (root.navIndex < maxListItems) {
+            targetItem = wifiList.itemAtIndex(root.navIndex);
+        } else if (hasSeeAll && root.navIndex === maxListItems) {
+            targetItem = wifiList.footerItem;
+        } else {
+            targetItem = doneBtn;
+        }
+        
+        if (!targetItem) { wifiNavRing.visible = false; return; }
+        
+        let p = targetItem.mapToItem(dialogBg, 0, 0);
+        let newX = p.x - 4 * Appearance.effectiveScale;
+        let newY = p.y - 4 * Appearance.effectiveScale;
+        let newW = targetItem.width + 8 * Appearance.effectiveScale;
+        let newH = targetItem.height + 8 * Appearance.effectiveScale;
+        let newR = targetItem.buttonRadius ? targetItem.buttonRadius + 4 * Appearance.effectiveScale : 12 * Appearance.effectiveScale;
+        
+        if (!wifiNavRing.visible) {
+            // Jump directly without animating if becoming visible
+            wifiNavRing.enableAnimation = false;
+            
+            wifiNavRing.x = newX;
+            wifiNavRing.y = newY;
+            wifiNavRing.width = newW;
+            wifiNavRing.height = newH;
+            wifiNavRing.radius = newR;
+            
+            Qt.callLater(() => { wifiNavRing.enableAnimation = true; });
+        } else {
+            wifiNavRing.enableAnimation = true;
+            wifiNavRing.x = newX;
+            wifiNavRing.y = newY;
+            wifiNavRing.width = newW;
+            wifiNavRing.height = newH;
+            wifiNavRing.radius = newR;
+        }
+        
+        wifiNavRing.visible = root.activeFocus && root.navEngaged;
     }
-
-
-    ColumnLayout {
+    
+    onActiveFocusChanged: {
+        if (root.activeFocus) Qt.callLater(() => root.syncNavRing());
+        else wifiNavRing.visible = false;
+    }
+    
+    property bool passwordDialogOpen: false
+    property var connectingNetwork: null
+    
+    // Dimmed Scrim
+    Rectangle {
         anchors.fill: parent
-        anchors.margins: 14 * Appearance.effectiveScale
-        spacing: 12 * Appearance.effectiveScale
-
-        // Header
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 12 * Appearance.effectiveScale
-
-            RippleButton {
-                implicitWidth: 36 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: Appearance.colors.colLayer2
-                onClicked: root.dismiss()
-                MaterialSymbol {
-                    anchors.centerIn: parent
-                    text: "arrow_back"
-                    iconSize: 20 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3onSurface
+        color: Functions.ColorUtils.applyAlpha(Appearance.colors.colLayer0, 0.6)
+        radius: Appearance.rounding.panel
+        opacity: root.isActive ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.AllButtons
+            onClicked: root.dismiss()
+            onWheel: (wheel) => wheel.accepted = true
+        }
+    }
+    
+    // Main Wifi Dialog
+    Rectangle {
+        id: dialogBg
+        anchors.centerIn: parent
+        width: Math.min(parent.width - 24 * Appearance.effectiveScale, 380 * Appearance.effectiveScale)
+        height: Math.min(parent.height - 48 * Appearance.effectiveScale, contentCol.implicitHeight + 48 * Appearance.effectiveScale)
+        radius: 28 * Appearance.effectiveScale
+        color: Appearance.m3colors.m3surfaceContainerHigh
+        
+        opacity: root.isActive ? 1 : 0
+        scale: root.isActive ? 1 : 0.95
+        visible: opacity > 0
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+        Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+        
+        StyledRectangularShadow { target: dialogBg; z: -1 }
+        
+        Rectangle {
+            id: wifiNavRing
+            property bool enableAnimation: false
+            color: "transparent"
+            border.color: Appearance.m3colors.m3primary
+            border.width: Math.max(1, 2 * Appearance.effectiveScale)
+            opacity: 0.9
+            z: 99
+            visible: false
+            Behavior on x { enabled: wifiNavRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on y { enabled: wifiNavRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on width { enabled: wifiNavRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on height { enabled: wifiNavRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+        }
+        
+        MouseArea { anchors.fill: parent } // Block clicks
+        
+        ColumnLayout {
+            id: contentCol
+            anchors.fill: parent
+            anchors.margins: 24 * Appearance.effectiveScale
+            spacing: 16 * Appearance.effectiveScale
+            
+            // Header: Title
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 0
+                
+                StyledText {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    text: I18nService.tr("Internet")
+                    font.pixelSize: Appearance.font.pixelSize.huge
+                    font.weight: Font.Normal
+                    color: Appearance.colors.colOnLayer1
+                }
+                
+                StyledText {
+                    id: subtitleText
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    Layout.topMargin: 4 * Appearance.effectiveScale // Add space above subtitle
+                    horizontalAlignment: Text.AlignHCenter
+                    text: I18nService.tr("Tap a network to connect")
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    color: Appearance.colors.colSubtext
+                }
+                
+                // Loading Indicator Wrapper
+                Item {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.topMargin: 12 * Appearance.effectiveScale
+                    Layout.preferredWidth: Math.max(24 * Appearance.effectiveScale, subtitleText.implicitWidth - 8 * Appearance.effectiveScale)
+                    Layout.preferredHeight: 4 * Appearance.effectiveScale
+                    visible: Network.wifiScanning
+                    
+                    StyledIndeterminateProgressBar {
+                        anchors.fill: parent
+                        running: Network.wifiScanning
+                        barColor: Appearance.m3colors.m3primary
+                    }
                 }
             }
+            
+            // Wi-Fi Toggle Row
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 24 * Appearance.effectiveScale // Increased top margin
+                Layout.leftMargin: 24 * Appearance.effectiveScale // Matched pill internal padding
+                Layout.rightMargin: 24 * Appearance.effectiveScale
+                spacing: 12 * Appearance.effectiveScale
+                
+                StyledText {
+                    Layout.fillWidth: true
+                    text: I18nService.tr("Wi-Fi")
+                    font.pixelSize: Appearance.font.pixelSize.large // Increased font size
+                    color: Appearance.colors.colOnLayer1
+                }
+                
+                AndroidToggle {
+                    checked: Network.wifiEnabled
+                    onToggled: Network.toggleWifi()
+                }
+            }
+            
+            // List of networks
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.topMargin: 8 * Appearance.effectiveScale // Added space between toggle and list
+                Layout.preferredHeight: Math.min(wifiList.contentHeight, 300 * Appearance.effectiveScale)
+                color: "transparent"
+                clip: true
+                
+                ListView {
+                    id: wifiList
+                    anchors.fill: parent
+                    model: Network.friendlyWifiNetworks
+                    spacing: 4 * Appearance.effectiveScale
+                    clip: true
+                    
+                    onCountChanged: Qt.callLater(() => root.syncNavRing())
+                    
+                    delegate: RippleButton {
+                        id: networkItem
+                        required property var modelData
+                        required property int index
+                        
+                        visible: index < 3
+                        width: wifiList.width
+                        implicitHeight: visible ? 64 * Appearance.effectiveScale : 0 // Increased height
+                        buttonRadius: 28 * Appearance.effectiveScale // Extra large rounding
+                        colBackground: modelData.active ? Appearance.m3colors.m3primaryContainer : "transparent"
+                        colBackgroundHover: modelData.active ? Qt.darker(Appearance.m3colors.m3primaryContainer, 1.1) : Appearance.colors.colLayer0Hover
+                        
+                        onClicked: {
+                            if (modelData.active) {
+                                GlobalStates.quickSettingsOpen = false;
+                                GlobalStates.settingsPageIndex = 0; // Network settings page
+                                GlobalStates.activateSettings();
+                                root.dismiss();
+                            } else if (modelData.isSaved || !modelData.isSecure) {
+                                Network.connectToWifiNetwork(modelData);
+                            } else {
+                                root.connectingNetwork = modelData;
+                                root.passwordDialogOpen = true;
+                                pwdInput.text = "";
+                                pwdInput.forceActiveFocus();
+                            }
+                        }
 
+                        contentItem: RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 24 * Appearance.effectiveScale
+                            anchors.rightMargin: 24 * Appearance.effectiveScale
+                            spacing: 16 * Appearance.effectiveScale
+
+                            MaterialSymbol {
+                                text: {
+                                    const s = networkItem.modelData.strength
+                                    if (s > 80) return "signal_wifi_4_bar"
+                                    if (s > 60) return "network_wifi_3_bar"
+                                    if (s > 40) return "network_wifi_2_bar"
+                                    if (s > 20) return "network_wifi_1_bar"
+                                    return "signal_wifi_0_bar"
+                                }
+                                iconSize: 24 * Appearance.effectiveScale
+                                color: networkItem.modelData.active ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer1
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 0
+                                StyledText {
+                                    text: networkItem.modelData.ssid
+                                    font.pixelSize: Appearance.font.pixelSize.normal
+                                    color: networkItem.modelData.active ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer1
+                                    elide: Text.ElideRight
+                                    Layout.fillWidth: true
+                                }
+                                StyledText {
+                                    text: networkItem.modelData.active ? I18nService.tr("Connected") : (networkItem.modelData.isSaved ? I18nService.tr("Saved") : "")
+                                    font.pixelSize: Appearance.font.pixelSize.smaller
+                                    color: networkItem.modelData.active ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colSubtext
+                                    Layout.fillWidth: true
+                                    visible: text !== ""
+                                }
+                            }
+
+                            MaterialSymbol {
+                                visible: networkItem.modelData.active || networkItem.modelData.isSecure
+                                text: networkItem.modelData.active ? "settings" : "lock"
+                                iconSize: networkItem.modelData.active ? 20 * Appearance.effectiveScale : 18 * Appearance.effectiveScale
+                                color: networkItem.modelData.active ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colSubtext
+                            }
+                        }
+                    }
+                    footer: RippleButton {
+                        width: wifiList.width
+                        implicitHeight: wifiList.count > 3 ? 64 * Appearance.effectiveScale : 0 // Matched height
+                        visible: wifiList.count > 3
+                        buttonRadius: 28 * Appearance.effectiveScale
+                        colBackground: "transparent"
+                        colBackgroundHover: Appearance.colors.colLayer0Hover
+                        onClicked: {
+                            GlobalStates.settingsPageIndex = 0;
+                            GlobalStates.activateSettings();
+                            root.dismiss();
+                        }
+                        
+                        contentItem: RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 24 * Appearance.effectiveScale
+                            anchors.rightMargin: 24 * Appearance.effectiveScale
+                            spacing: 16 * Appearance.effectiveScale
+                            
+                            MaterialSymbol {
+                                text: "arrow_forward_ios"
+                                iconSize: 20 * Appearance.effectiveScale // Slightly smaller size for ios arrow to look proportional
+                                color: Appearance.colors.colOnLayer1
+                            }
+                            
+                            StyledText {
+                                Layout.fillWidth: true
+                                text: I18nService.tr("See all")
+                                font.pixelSize: Appearance.font.pixelSize.normal
+                                color: Appearance.colors.colOnLayer1
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Actions (Done)
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 16 * Appearance.effectiveScale // Increased top margin
+                spacing: 8 * Appearance.effectiveScale
+                
+                Item { Layout.fillWidth: true }
+                
+                RippleButton {
+                    id: doneBtn
+                    implicitHeight: 40 * Appearance.effectiveScale
+                    leftPadding: 24 * Appearance.effectiveScale
+                    rightPadding: 24 * Appearance.effectiveScale
+                    buttonRadius: 20 * Appearance.effectiveScale
+                    buttonText: I18nService.tr("Done")
+                    colBackground: Appearance.colors.colPrimary
+                    colBackgroundHover: Qt.darker(Appearance.colors.colPrimary, 1.1)
+                    colText: Appearance.colors.colOnPrimary
+                    font.weight: Font.DemiBold
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    onClicked: root.dismiss()
+                }
+            }
+        }
+    }
+    
+    // Password Dialog Scrim (dims the main panel)
+    Rectangle {
+        anchors.fill: dialogBg
+        radius: 28 * Appearance.effectiveScale
+        color: Functions.ColorUtils.applyAlpha(Appearance.colors.colLayer0, 0.4)
+        opacity: root.passwordDialogOpen ? 1 : 0
+        visible: opacity > 0
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: {
+                root.passwordDialogOpen = false;
+                root.connectingNetwork = null;
+                root.forceActiveFocus();
+            }
+            onWheel: (wheel) => wheel.accepted = true
+        }
+    }
+    
+    // Password Dialog
+    Rectangle {
+        id: pwdDialogBg
+        anchors.centerIn: parent
+        width: Math.min(parent.width - 24 * Appearance.effectiveScale, 340 * Appearance.effectiveScale)
+        height: pwdContentCol.implicitHeight + 48 * Appearance.effectiveScale
+        radius: 28 * Appearance.effectiveScale
+        color: Appearance.m3colors.m3surfaceContainerHigh
+        
+        opacity: root.passwordDialogOpen ? 1 : 0
+        scale: root.passwordDialogOpen ? 1 : 0.95
+        visible: opacity > 0
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+        Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+        
+        StyledRectangularShadow { target: pwdDialogBg; z: -1 }
+        
+        MouseArea { anchors.fill: parent } // Block clicks
+        
+        ColumnLayout {
+            id: pwdContentCol
+            anchors.fill: parent
+            anchors.margins: 24 * Appearance.effectiveScale
+            spacing: 0
+            
             StyledText {
                 Layout.fillWidth: true
-                text: I18nService.tr("Connect to Wi-Fi")
-                font.pixelSize: Appearance.font.pixelSize.normal
-                font.weight: Font.DemiBold
-                color: Appearance.m3colors.m3onSurface
+                text: root.connectingNetwork ? root.connectingNetwork.ssid : ""
+                horizontalAlignment: Text.AlignLeft
+                font.pixelSize: Appearance.font.pixelSize.huge || 24 * Appearance.effectiveScale
+                font.weight: Font.Normal
+                color: Appearance.colors.colOnLayer1
+                wrapMode: Text.Wrap
             }
-
-            // Refresh Button
-            RippleButton {
-                implicitWidth: 36 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: Appearance.colors.colLayer2
-                onClicked: Network.wifiScanning ? Network.cancelRescanWifi() : Network.rescanWifi()
-                MaterialSymbol {
-                    id: refreshIconWifi
-                    anchors.centerIn: parent
-                    text: Network.wifiScanning ? "close" : "refresh"
-                    iconSize: 18 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3onSurface
-                }
-            }
-
-            // WiFi Power Toggle
-            RippleButton {
-                implicitWidth: 56 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: Network.wifiEnabled ? Appearance.colors.colPrimary : Appearance.colors.colLayer2
-                colBackgroundHover: Network.wifiEnabled ? Qt.darker(Appearance.colors.colPrimary, 1.12) : Appearance.colors.colLayer2Hover
-                onClicked: Network.toggleWifi()
-                MaterialSymbol {
-                    anchors.centerIn: parent
-                    text: Network.wifiEnabled ? "wifi" : "wifi_off"
-                    iconSize: 18 * Appearance.effectiveScale
-                    color: Network.wifiEnabled ? Appearance.colors.colOnPrimary : Appearance.m3colors.m3onSurface
-                }
-            }
-        }
-
-        // Separator
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Appearance.m3colors.m3outlineVariant
-        }
-
-        // Network list
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.minimumHeight: 250 * Appearance.effectiveScale
-            radius: 12 * Appearance.effectiveScale
-            color: "transparent"
-            clip: true
-
-            MaterialLoadingIndicator {
-                anchors.centerIn: parent
-                visible: Network.wifiScanning
-                implicitSize: 60 * Appearance.effectiveScale
-                z: 10
-            }
-
-            ListView {
-                id: wifiList
-                visible: !Network.wifiScanning
-                anchors.fill: parent
-                anchors.margins: 4 * Appearance.effectiveScale
-                clip: true
-                spacing: 2 * Appearance.effectiveScale
-                model: Network.friendlyWifiNetworks
-                highlightFollowsCurrentItem: false
-                onCurrentIndexChanged: {
-                    if (wifiList.currentIndex >= 0) {
-                        root.navIndex = wifiList.currentIndex;
-                        root.syncWifiRing();
+            
+            // Password Input
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.topMargin: 24 * Appearance.effectiveScale
+                Layout.preferredHeight: 52 * Appearance.effectiveScale
+                radius: 8 * Appearance.effectiveScale
+                color: "transparent"
+                border.width: pwdInput.input.activeFocus ? Math.max(1, 2 * Appearance.effectiveScale) : Math.max(1, 1 * Appearance.effectiveScale)
+                border.color: pwdInput.input.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline
+                
+                // Floating Label
+                Rectangle {
+                    x: 12 * Appearance.effectiveScale
+                    y: -8 * Appearance.effectiveScale
+                    width: passLabel.width + 8 * Appearance.effectiveScale
+                    height: 16 * Appearance.effectiveScale
+                    color: Appearance.m3colors.m3surfaceContainerHigh
+                    
+                    StyledText {
+                        id: passLabel
+                        anchors.centerIn: parent
+                        text: I18nService.tr("Password")
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        font.weight: Font.Medium
+                        color: pwdInput.input.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline
                     }
                 }
-
-                delegate: Item {
-                    id: delegateRoot
-                    required property var modelData
-                    required property int index
-                    property alias networkButton: networkItem
-                    width: wifiList.width
-                    height: delegateCol.implicitHeight
-
-                    ColumnLayout {
-                        id: delegateCol
-                        anchors.fill: parent
-                        spacing: 0
-
-                        RippleButton {
-                            id: networkItem
-                            Layout.fillWidth: true
-                            implicitHeight: 56 * Appearance.effectiveScale
-                            buttonRadius: 16 * Appearance.effectiveScale
-                            colBackground: {
-                                if (delegateRoot.modelData.active) return Functions.ColorUtils.mix(Appearance.colors.colLayer0, Appearance.colors.colPrimary, 0.85);
-                                if (delegateRoot.modelData.askingPassword) return Appearance.colors.colLayer2;
-                                return "transparent";
-                            }
-                            colBackgroundHover: {
-                                if (delegateRoot.modelData.active) return colBackground;
-                                if (delegateRoot.modelData.askingPassword) return colBackground;
-                                return Appearance.colors.colLayer0Hover;
-                            }
-                            onClicked: {
-                                wifiList.currentIndex = delegateRoot.index
-                                if (delegateRoot.modelData.active) {
-                                    Network.disconnectWifiNetwork();
-                                } else if (delegateRoot.modelData.isSaved) {
-                                    Network.connectToWifiNetwork(delegateRoot.modelData);
-                                } else {
-                                    delegateRoot.modelData.askingPassword = !delegateRoot.modelData.askingPassword;
-                                    if (delegateRoot.modelData.askingPassword && delegateRoot.modelData.isSecure) {
-                                        passwordInput.forceActiveFocus();
-                                    }
-                                }
-                            }
-
-                            // Header rounding overlay for expansion joint
-                            Rectangle {
-                                anchors.fill: parent
-                                visible: delegateRoot.modelData.askingPassword
-                                color: parent.colBackground
-                                z: -1
-                                radius: 16 * Appearance.effectiveScale
-                                
-                                // Make bottom square
-                                Rectangle {
-                                    anchors.bottom: parent.bottom
-                                    width: parent.width
-                                    height: 12 * Appearance.effectiveScale
-                                    color: parent.color
-                                }
-                            }
-
-                            contentItem: RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 12 * Appearance.effectiveScale
-                                anchors.rightMargin: 12 * Appearance.effectiveScale
-                                spacing: 12 * Appearance.effectiveScale
-
-                                MaterialSymbol {
-                                    text: {
-                                        const s = delegateRoot.modelData.strength
-                                        if (s > 80) return "signal_wifi_4_bar"
-                                        if (s > 60) return "network_wifi_3_bar"
-                                        if (s > 40) return "network_wifi_2_bar"
-                                        if (s > 20) return "network_wifi_1_bar"
-                                        return "signal_wifi_0_bar"
-                                    }
-                                    iconSize: 22 * Appearance.effectiveScale
-                                    color: (delegateRoot.modelData.active || delegateRoot.modelData.askingPassword) ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
-                                }
-
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 0
-                                    StyledText {
-                                        text: delegateRoot.modelData.ssid
-                                        font.pixelSize: Appearance.font.pixelSize.small
-                                        color: Appearance.colors.colOnLayer1
-                                        elide: Text.ElideRight
-                                        Layout.fillWidth: true
-                                    }
-                                    StyledText {
-                                        text: delegateRoot.modelData.active ? I18nService.tr("Connected") : (delegateRoot.modelData.isSaved ? I18nService.tr("Saved") : (delegateRoot.modelData.isSecure ? I18nService.tr("Secured") : I18nService.tr("Open")))
-                                        font.pixelSize: Appearance.font.pixelSize.smaller
-                                        color: Appearance.colors.colSubtext
-                                        Layout.fillWidth: true
-                                    }
-                                }
-
-                                MaterialSymbol {
-                                    visible: delegateRoot.modelData.active
-                                    text: "check"
-                                    iconSize: 20 * Appearance.effectiveScale
-                                    color: Appearance.colors.colPrimary
-                                }
-
-                                MaterialSymbol {
-                                    visible: delegateRoot.modelData.isSecure && !delegateRoot.modelData.active
-                                    text: "lock"
-                                    iconSize: 18 * Appearance.effectiveScale
-                                    color: Appearance.colors.colSubtext
-                                }
-                            }
+                
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 16 * Appearance.effectiveScale
+                    anchors.rightMargin: 8 * Appearance.effectiveScale
+                    
+                    StyledTextInput {
+                        id: pwdInput
+                        Layout.fillWidth: true
+                        echoMode: showPwdBtn.revealed ? TextInput.Normal : TextInput.Password
+                        placeholder: ""
+                        backgroundColor: "transparent"
+                        inputRadius: 0
+                        borderInactiveWidth: 0
+                        showActiveBorder: false
+                        leftMargin: 0
+                        rightMargin: 0
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        onAccepted: connectBtn.click()
+                        Keys.onEscapePressed: {
+                            root.passwordDialogOpen = false;
+                            root.connectingNetwork = null;
+                            root.forceActiveFocus();
                         }
-
-                        // Password entry / Connect area
-                        Rectangle {
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: delegateRoot.modelData.askingPassword ? 56 * Appearance.effectiveScale : 0
-
-                            visible: Layout.preferredHeight > 0
-                            clip: true
-                            color: Appearance.colors.colLayer2
-                            radius: 16 * Appearance.effectiveScale
-                            opacity: delegateRoot.modelData.askingPassword ? 1 : 0
-                            Behavior on Layout.preferredHeight { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
-                            Behavior on opacity { NumberAnimation { duration: 200 } }
-
-                            // Merge with header by making top square
-                            Rectangle {
-                                width: parent.width
-                                height: 12 * Appearance.effectiveScale
-                                color: parent.color
-                                visible: delegateRoot.modelData.askingPassword
-                                anchors.top: parent.top
-                                z: 0
-                            }
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 12 * Appearance.effectiveScale
-                                anchors.rightMargin: 12 * Appearance.effectiveScale
-                                anchors.topMargin: 8 * Appearance.effectiveScale
-                                anchors.bottomMargin: 8 * Appearance.effectiveScale
-                                spacing: 8 * Appearance.effectiveScale
-
-
-                                // Password Input Field
-                                Rectangle {
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 40 * Appearance.effectiveScale
-                                    radius: 20 * Appearance.effectiveScale
-                                    visible: delegateRoot.modelData.isSecure
-                                    color: Appearance.colors.colLayer1
-                                    border.color: passwordInput.input.activeFocus ? Appearance.colors.colPrimary : "transparent"
-                                    border.width: Math.max(1, 1 * Appearance.effectiveScale)
-
-                                    RowLayout {
-                                        anchors.fill: parent
-                                        anchors.leftMargin: 12 * Appearance.effectiveScale
-                                        anchors.rightMargin: 4 * Appearance.effectiveScale
-                                        spacing: 8 * Appearance.effectiveScale
-
-                                        StyledTextInput {
-                                            id: passwordInput
-                                            Layout.fillWidth: true
-                                            Layout.fillHeight: true
-                                            inputRadius: 0
-                                            backgroundColor: "transparent"
-                                            borderInactiveWidth: 0
-                                            showActiveBorder: false
-                                            leftMargin: 0
-                                            rightMargin: 0
-                                            font.pixelSize: Appearance.font.pixelSize.small
-                                            echoMode: showPasswordBtn.revealed ? TextInput.Normal : TextInput.Password
-                                            selectByMouse: true
-                                            placeholder: I18nService.tr("Enter password...")
-                                            
-                                            onAccepted: {
-                                                Network.connectWithPassword(delegateRoot.modelData.ssid, text);
-                                                delegateRoot.modelData.askingPassword = false;
-                                            }
-                                        }
-
-                                        RippleButton {
-                                            id: showPasswordBtn
-                                            property bool revealed: false
-                                            implicitWidth: 32 * Appearance.effectiveScale
-                                            implicitHeight: 32 * Appearance.effectiveScale
-                                            buttonRadius: 16 * Appearance.effectiveScale
-                                            colBackground: "transparent"
-                                            onClicked: revealed = !revealed
-                                            MaterialSymbol {
-                                                anchors.centerIn: parent
-                                                text: showPasswordBtn.revealed ? "visibility" : "visibility_off"
-                                                iconSize: 18 * Appearance.effectiveScale
-                                                color: showPasswordBtn.revealed ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // Connect Button
-                                RippleButton {
-                                    implicitWidth: 80 * Appearance.effectiveScale
-                                    implicitHeight: 40 * Appearance.effectiveScale
-                                    buttonRadius: 20 * Appearance.effectiveScale
-                                    colBackground: Appearance.colors.colPrimary
-                                    colBackgroundHover: Qt.darker(Appearance.colors.colPrimary, 1.1)
-                                    onClicked: {
-                                        if (delegateRoot.modelData.isSecure) {
-                                            Network.connectWithPassword(delegateRoot.modelData.ssid, passwordInput.text);
-                                        } else {
-                                            Network.connectToWifiNetwork(delegateRoot.modelData);
-                                        }
-                                        delegateRoot.modelData.askingPassword = false;
-                                    }
-                                    StyledText {
-                                        anchors.centerIn: parent
-                                        text: I18nService.tr("Connect")
-                                        font.pixelSize: Appearance.font.pixelSize.small
-                                        font.weight: Font.Medium
-                                        color: Appearance.colors.colOnPrimary
-                                    }
-                                }
-                            }
+                    }
+                    
+                    RippleButton {
+                        id: showPwdBtn
+                        property bool revealed: false
+                        implicitWidth: 32 * Appearance.effectiveScale
+                        implicitHeight: 32 * Appearance.effectiveScale
+                        buttonRadius: 16 * Appearance.effectiveScale
+                        colBackground: "transparent"
+                        onClicked: revealed = !revealed
+                        contentItem: MaterialSymbol {
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            text: showPwdBtn.revealed ? "visibility_off" : "visibility"
+                            iconSize: 20 * Appearance.effectiveScale
+                            color: Appearance.colors.colSubtext
                         }
                     }
                 }
-
-
             }
-        }
-
-        // Footer
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Appearance.m3colors.m3outlineVariant
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 8 * Appearance.effectiveScale
-
-            RippleButton {
-                implicitWidth: detailsText.implicitWidth + (24 * Appearance.effectiveScale)
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: height / 2
-                colBackground: Appearance.colors.colLayer1
-                colBackgroundHover: Appearance.colors.colLayer1Hover
-                onClicked: {
-                    GlobalStates.settingsPageIndex = 0;
-                    GlobalStates.activateSettings();
+            
+            // Actions
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 24 * Appearance.effectiveScale
+                spacing: 8 * Appearance.effectiveScale
+                
+                Item { Layout.fillWidth: true }
+                
+                RippleButton {
+                    implicitHeight: 40 * Appearance.effectiveScale
+                    buttonRadius: 20 * Appearance.effectiveScale
+                    buttonText: I18nService.tr("Cancel")
+                    colBackground: "transparent"
+                    colBackgroundHover: Appearance.colors.colLayer2Hover
+                    colText: Appearance.m3colors.m3primary
+                    onClicked: {
+                        root.passwordDialogOpen = false;
+                        root.connectingNetwork = null;
+                        root.forceActiveFocus();
+                    }
                 }
-                StyledText {
-                    id: detailsText
-                    anchors.centerIn: parent
-                    text: I18nService.tr("Details")
-                    font.pixelSize: Appearance.font.pixelSize.small
-                    color: Appearance.m3colors.m3onSurface
-                }
-            }
-
-            Item { Layout.fillWidth: true }
-
-            RippleButton {
-                implicitWidth: doneText.implicitWidth + (24 * Appearance.effectiveScale)
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: height / 2
-                colBackground: Appearance.colors.colPrimary
-                colBackgroundHover: Qt.darker(Appearance.colors.colPrimary, 1.1)
-                onClicked: root.dismiss()
-                StyledText {
-                    id: doneText
-                    anchors.centerIn: parent
-                    text: I18nService.tr("Done")
-                    font.pixelSize: Appearance.font.pixelSize.small
-                    color: Appearance.colors.colOnPrimary
+                
+                RippleButton {
+                    id: connectBtn
+                    implicitHeight: 40 * Appearance.effectiveScale
+                    buttonRadius: 20 * Appearance.effectiveScale
+                    buttonText: I18nService.tr("Connect")
+                    colBackground: "transparent"
+                    colBackgroundHover: Appearance.colors.colLayer2Hover
+                    colText: Appearance.m3colors.m3primary
+                    enabled: pwdInput.text.length > 0
+                    onClicked: {
+                        if (root.connectingNetwork) {
+                            Network.connectWithPassword(root.connectingNetwork.ssid, pwdInput.text);
+                        }
+                        root.passwordDialogOpen = false;
+                        root.forceActiveFocus();
+                        root.dismiss();
+                    }
                 }
             }
         }
-    }
-
-    // ── Keyboard focus ring ──
-    Rectangle {
-        id: wifiNavRing
-        visible: false
-        z: 999
-        enabled: false
-        color: "transparent"
-        border.width: Math.max(1, 2 * Appearance.effectiveScale)
-        border.color: Appearance.m3colors.m3primary
-        opacity: 0.9
-        Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
 }

@@ -1649,7 +1649,8 @@ Item {
             { key: "D", action: "Open System Settings" },
             { key: "F", action: "Power Menu" },
             { key: "V", action: "Open Details Menu" },
-            { key: "X", action: "Close Details Menu" }
+            { key: "X", action: "Close Details Menu" },
+            { key: "Z", action: "Toggle Power State (Detail Panel)" }
         ]
     }
 

@@ -78,3 +78,4 @@ StyledNavigationRail 1.0 StyledNavigationRail.qml
 StyledBadge StyledBadge.qml
 MaterialLoadingIndicator 1.0 MaterialLoadingIndicator.qml
 DialogCheatsheet DialogCheatsheet.qml
+StyledIndeterminateProgressBar 1.0 StyledIndeterminateProgressBar.qml
