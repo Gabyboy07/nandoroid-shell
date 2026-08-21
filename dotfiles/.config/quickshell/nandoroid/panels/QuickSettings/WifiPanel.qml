@@ -172,6 +172,7 @@ Item {
         height: Math.min(parent.height - 48 * Appearance.effectiveScale, contentCol.implicitHeight + 48 * Appearance.effectiveScale)
         radius: 28 * Appearance.effectiveScale
         color: Appearance.m3colors.m3surfaceContainerHigh
+        clip: true
         
         opacity: root.isActive ? 1 : 0
         scale: root.isActive ? 1 : 0.95
@@ -267,12 +268,15 @@ Item {
             }
             
             // List of networks
-            Rectangle {
+            Flickable {
                 Layout.fillWidth: true
-                Layout.topMargin: 8 * Appearance.effectiveScale // Added space between toggle and list
+                Layout.fillHeight: true
+                Layout.topMargin: 8 * Appearance.effectiveScale
                 Layout.preferredHeight: Math.min(wifiList.implicitHeight, 300 * Appearance.effectiveScale)
-                color: "transparent"
                 clip: true
+                contentWidth: width
+                contentHeight: wifiList.implicitHeight
+                boundsBehavior: Flickable.StopAtBounds
                 
                 Column {
                     id: wifiList

@@ -233,12 +233,15 @@ Item {
             }
             
             // List of devices
-            Rectangle {
+            Flickable {
                 Layout.fillWidth: true
+                Layout.fillHeight: true
                 Layout.topMargin: 8 * Appearance.effectiveScale
                 Layout.preferredHeight: Math.min(deviceList.implicitHeight, 300 * Appearance.effectiveScale)
-                color: "transparent"
                 clip: true
+                contentWidth: width
+                contentHeight: deviceList.implicitHeight
+                boundsBehavior: Flickable.StopAtBounds
                 
                 Column {
                     id: deviceList

@@ -227,12 +227,15 @@ Item {
             }
             
             // List of modes
-            Rectangle {
+            Flickable {
                 Layout.fillWidth: true
+                Layout.fillHeight: true
                 Layout.topMargin: 16 * Appearance.effectiveScale
                 Layout.preferredHeight: Math.min(profileList.implicitHeight, 300 * Appearance.effectiveScale)
-                color: "transparent"
                 clip: true
+                contentWidth: width
+                contentHeight: profileList.implicitHeight
+                boundsBehavior: Flickable.StopAtBounds
                 
                 Column {
                     id: profileList

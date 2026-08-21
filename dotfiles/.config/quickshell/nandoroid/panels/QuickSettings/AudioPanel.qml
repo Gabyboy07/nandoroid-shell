@@ -175,6 +175,7 @@ Item {
         anchors.centerIn: parent
         radius: 28 * Appearance.effectiveScale
         color: Appearance.m3colors.m3surfaceContainerHigh
+        clip: true
         
         opacity: root.isActive ? 1 : 0
         scale: root.isActive ? 1 : 0.95
