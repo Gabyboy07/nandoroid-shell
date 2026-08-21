@@ -234,9 +234,8 @@ Item {
                 Item {
                     Layout.alignment: Qt.AlignHCenter
                     Layout.topMargin: 12 * Appearance.effectiveScale
-                    Layout.preferredWidth: Math.max(24 * Appearance.effectiveScale, subtitleText.implicitWidth - 8 * Appearance.effectiveScale)
+                    Layout.preferredWidth: 120 * Appearance.effectiveScale
                     Layout.preferredHeight: 4 * Appearance.effectiveScale
-                    visible: Network.wifiScanning
                     
                     StyledIndeterminateProgressBar {
                         anchors.fill: parent
@@ -271,21 +270,27 @@ Item {
             Rectangle {
                 Layout.fillWidth: true
                 Layout.topMargin: 8 * Appearance.effectiveScale // Added space between toggle and list
-                Layout.preferredHeight: Math.min(wifiList.contentHeight, 300 * Appearance.effectiveScale)
+                Layout.preferredHeight: Math.min(wifiList.implicitHeight, 300 * Appearance.effectiveScale)
                 color: "transparent"
                 clip: true
                 
-                ListView {
+                Column {
                     id: wifiList
-                    anchors.fill: parent
-                    model: Network.friendlyWifiNetworks
+                    width: parent.width
                     spacing: 4 * Appearance.effectiveScale
-                    clip: true
+                    
+                    property int count: wifiRepeater.count
+                    property Item footerItem: seeAllBtn
                     
                     onCountChanged: Qt.callLater(() => root.syncNavRing())
+                    function itemAtIndex(idx) { return wifiRepeater.itemAt(idx); }
                     
-                    delegate: RippleButton {
-                        id: networkItem
+                    Repeater {
+                        id: wifiRepeater
+                        model: Network.friendlyWifiNetworks
+                        
+                        delegate: RippleButton {
+                            id: networkItem
                         required property var modelData
                         required property int index
                         
@@ -295,6 +300,8 @@ Item {
                         buttonRadius: 28 * Appearance.effectiveScale // Extra large rounding
                         colBackground: modelData.active ? Appearance.m3colors.m3primaryContainer : "transparent"
                         colBackgroundHover: modelData.active ? Qt.darker(Appearance.m3colors.m3primaryContainer, 1.1) : Appearance.colors.colLayer0Hover
+                        
+                        onYChanged: if (root.navEngaged) Qt.callLater(() => root.syncNavRing())
                         
                         onClicked: {
                             if (modelData.active) {
@@ -357,14 +364,20 @@ Item {
                                 color: networkItem.modelData.active ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colSubtext
                             }
                         }
+                        }
                     }
-                    footer: RippleButton {
+                    
+                    RippleButton {
+                        id: seeAllBtn
                         width: wifiList.width
                         implicitHeight: wifiList.count > 3 ? 64 * Appearance.effectiveScale : 0 // Matched height
                         visible: wifiList.count > 3
                         buttonRadius: 28 * Appearance.effectiveScale
                         colBackground: "transparent"
                         colBackgroundHover: Appearance.colors.colLayer0Hover
+                        
+                        onYChanged: if (root.navEngaged) Qt.callLater(() => root.syncNavRing())
+                        
                         onClicked: {
                             GlobalStates.settingsPageIndex = 0;
                             GlobalStates.activateSettings();
@@ -414,6 +427,9 @@ Item {
                     colText: Appearance.colors.colOnPrimary
                     font.weight: Font.DemiBold
                     font.pixelSize: Appearance.font.pixelSize.small
+                    
+                    onYChanged: if (root.navEngaged) Qt.callLater(() => root.syncNavRing())
+                    
                     onClicked: root.dismiss()
                 }
             }
