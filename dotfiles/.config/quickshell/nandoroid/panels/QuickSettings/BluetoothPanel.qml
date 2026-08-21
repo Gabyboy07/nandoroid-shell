@@ -130,17 +130,18 @@ Item {
     }
     
     // --- Scrim (Click outside to close) ---
-    MouseArea {
+    Rectangle {
         anchors.fill: parent
-        hoverEnabled: true
-        acceptedButtons: Qt.AllButtons
-        onClicked: root.dismiss()
-        onWheel: (event) => { event.accepted = true; } // Block scroll
-        
-        Rectangle {
+        color: Functions.ColorUtils.applyAlpha(Appearance.colors.colLayer0, 0.6)
+        radius: Appearance.rounding.panel
+        opacity: root.isActive ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+        MouseArea {
             anchors.fill: parent
-            color: Appearance.colors.colLayer0
-            opacity: 0.5
+            hoverEnabled: true
+            acceptedButtons: Qt.AllButtons
+            onClicked: root.dismiss()
+            onWheel: (event) => { event.accepted = true; } // Block scroll
         }
     }
     
