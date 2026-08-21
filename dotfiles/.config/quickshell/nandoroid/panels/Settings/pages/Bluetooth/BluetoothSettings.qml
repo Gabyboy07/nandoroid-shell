@@ -26,11 +26,12 @@ Item {
     }
 
     Component.onCompleted: checkPairMode()
+    onVisibleChanged: if (visible) checkPairMode()
 
     Connections {
         target: GlobalStates
         function onSettingsBluetoothPairModeChanged() {
-            if (GlobalStates.settingsBluetoothPairMode && root.visible) {
+            if (GlobalStates.settingsBluetoothPairMode) {
                 root.stackLevel = 1;
             }
         }

@@ -6,418 +6,437 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
-import Quickshell.Bluetooth
 
 /**
- * Functional Bluetooth device list panel.
- * Shows real devices using Quickshell.Bluetooth.
+ * BluetoothPanel - Android 16 style details panel for Bluetooth.
  */
-Rectangle {
+Item {
     id: root
+    
+    // Fill the QuickSettings popup area
+    anchors.fill: parent
+    
+    // Properties to communicate with the main QS content
+    property bool isActive: true
+    property bool navEngaged: false
+    property bool inheritedNav: false
+    property int navIndex: 0
+    
     signal dismiss()
     
+    Component.onCompleted: {
+        root.navEngaged = root.inheritedNav;
+        root.forceActiveFocus();
+        Qt.callLater(() => root.syncNavRing());
+    }
+    
+    function syncNavRing() {
+        if (!root.navEngaged) {
+            wifiNavRing.visible = false;
+            return;
+        }
+        
+        let maxListItems = Math.min(deviceList.count, 3);
+        let hasSeeAll = deviceList.count > 3;
+        let hasPair = BluetoothStatus.enabled;
+        
+        let targetItem = null;
+        if (root.navIndex < maxListItems) {
+            targetItem = deviceList.itemAtIndex(root.navIndex);
+        } else if (hasSeeAll && root.navIndex === maxListItems) {
+            targetItem = deviceList.footerItem ? deviceList.footerItem.children[0] : null;
+        } else if (hasPair && ((hasSeeAll && root.navIndex === maxListItems + 1) || (!hasSeeAll && root.navIndex === maxListItems))) {
+            targetItem = deviceList.footerItem ? deviceList.footerItem.children[1] : null;
+        } else {
+            targetItem = doneBtn;
+        }
+        
+        if (targetItem) {
+            let p = targetItem.mapToItem(dialogBg, 0, 0);
+            let newX = p.x - 4 * Appearance.effectiveScale;
+            let newY = p.y - 4 * Appearance.effectiveScale;
+            let newW = targetItem.width + 8 * Appearance.effectiveScale;
+            let newH = targetItem.height + 8 * Appearance.effectiveScale;
+            let newR = targetItem.buttonRadius ? targetItem.buttonRadius + 4 * Appearance.effectiveScale : 12 * Appearance.effectiveScale;
+            
+            if (!wifiNavRing.visible) {
+                wifiNavRing.enableAnimation = false;
+                wifiNavRing.x = newX;
+                wifiNavRing.y = newY;
+                wifiNavRing.width = newW;
+                wifiNavRing.height = newH;
+                wifiNavRing.radius = newR;
+                Qt.callLater(() => { wifiNavRing.enableAnimation = true; });
+            } else {
+                wifiNavRing.enableAnimation = true;
+                wifiNavRing.x = newX;
+                wifiNavRing.y = newY;
+                wifiNavRing.width = newW;
+                wifiNavRing.height = newH;
+                wifiNavRing.radius = newR;
+            }
+            
+            wifiNavRing.visible = root.activeFocus && root.navEngaged;
+        }
+    }
+    
+    onActiveFocusChanged: {
+        if (root.activeFocus && root.navEngaged) {
+            root.syncNavRing();
+        } else {
+            wifiNavRing.visible = false;
+        }
+    }
+
     focus: true
-    property int navIndex: 0
-    property bool inheritedNav: false
-    property bool navEngaged: false
-
-    color: Appearance.colors.colLayer0
-    radius: Appearance.rounding.panel
-
-    // Block clicks and hovers from leaking through to the items below
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
+        
+        let maxListItems = Math.min(deviceList.count, 3);
+        let hasSeeAll = deviceList.count > 3;
+        let hasPair = BluetoothStatus.enabled;
+        let totalItems = maxListItems + (hasSeeAll ? 1 : 0) + (hasPair ? 1 : 0) + 1; // +1 for Done
+        
+        root.navEngaged = true;
+        if (event.key === Qt.Key_Z) {
+            BluetoothStatus.toggle();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Up) {
+            if (root.navIndex > 0) { root.navIndex--; root.syncNavRing(); }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            if (root.navIndex < totalItems - 1) { root.navIndex++; root.syncNavRing(); }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Space) {
+            let targetItem = null;
+            if (root.navIndex < maxListItems) {
+                targetItem = deviceList.itemAtIndex(root.navIndex);
+            } else if (hasSeeAll && root.navIndex === maxListItems) {
+                targetItem = deviceList.footerItem ? deviceList.footerItem.children[0] : null;
+            } else if (hasPair && ((hasSeeAll && root.navIndex === maxListItems + 1) || (!hasSeeAll && root.navIndex === maxListItems))) {
+                targetItem = deviceList.footerItem ? deviceList.footerItem.children[1] : null;
+            } else {
+                targetItem = doneBtn;
+            }
+            if (targetItem && targetItem.clicked) targetItem.clicked();
+            event.accepted = true;
+        }
+    }
+    
+    Connections {
+        target: BluetoothStatus
+        function onConnectedDevicesChanged() { if (root.navEngaged) Qt.callLater(() => root.syncNavRing()) }
+        function onPairedButNotConnectedDevicesChanged() { if (root.navEngaged) Qt.callLater(() => root.syncNavRing()) }
+    }
+    
+    // --- Scrim (Click outside to close) ---
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
-        onWheel: (wheel) => wheel.accepted = true
-        onPressed: (mouse) => mouse.accepted = true
-    }
-
-    // ── Keyboard navigation ──
-    function syncBtRing() {
-        const it = deviceList.currentItem;
-        if (!it) { btNavRing.visible = false; return; }
-        const p = it.mapToItem(root, 0, 0);
-        btNavRing.x = p.x - 4 * Appearance.effectiveScale;
-        btNavRing.y = p.y - 4 * Appearance.effectiveScale;
-        btNavRing.width = it.width + 8 * Appearance.effectiveScale;
-        btNavRing.height = it.height + 8 * Appearance.effectiveScale;
-        btNavRing.radius = Math.min(12 * Appearance.effectiveScale, btNavRing.height / 2);
-        btNavRing.visible = root.activeFocus && root.navEngaged;
-    }
-
-    Keys.onPressed: (event) => {
-        if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
-        if (deviceList.count === 0) return;
-        root.navEngaged = true;
-        if (event.key === Qt.Key_Up) {
-            if (deviceList.currentIndex > 0) {
-                deviceList.currentIndex--;
-                deviceList.positionViewAtIndex(deviceList.currentIndex, ListView.Contain);
-            }
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Down) {
-            if (deviceList.currentIndex < deviceList.count - 1) {
-                deviceList.currentIndex++;
-                deviceList.positionViewAtIndex(deviceList.currentIndex, ListView.Contain);
-            }
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
-            const it = deviceList.currentItem;
-            if (it && it.deviceButton) it.deviceButton.click();
-            event.accepted = true;
-        }
-    }
-
-    Component.onCompleted: {
-        root.navEngaged = root.inheritedNav;
-        if (deviceList.count > 0) {
-            deviceList.currentIndex = 0;
-            deviceList.positionViewAtIndex(0, ListView.Contain);
-        }
-        root.forceActiveFocus();
-        root.syncBtRing();
-    }
-
-    ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 14 * Appearance.effectiveScale
-        spacing: 12 * Appearance.effectiveScale
-
-        // Header
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 12 * Appearance.effectiveScale
-
-            RippleButton {
-                implicitWidth: 36 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: Appearance.colors.colLayer2
-                onClicked: root.dismiss()
-                MaterialSymbol {
-                    anchors.centerIn: parent
-                    text: "arrow_back"
-                    iconSize: 20 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3onSurface
-                }
-            }
-
-            StyledText {
-                Layout.fillWidth: true
-                text: I18nService.tr("Bluetooth Devices")
-                font.pixelSize: Appearance.font.pixelSize.normal
-                font.weight: Font.DemiBold
-                color: Appearance.m3colors.m3onSurface
-            }
-
-            // Bluetooth power toggle
-            RippleButton {
-                implicitWidth: 56 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: BluetoothStatus.enabled ? Appearance.colors.colPrimary : Appearance.colors.colLayer2
-                colBackgroundHover: BluetoothStatus.enabled ? Qt.darker(Appearance.colors.colPrimary, 1.12) : Appearance.colors.colLayer2Hover
-                onClicked: {
-                    BluetoothStatus.toggle();
-                }
-                MaterialSymbol {
-                    anchors.centerIn: parent
-                    text: BluetoothStatus.enabled ? "bluetooth" : "bluetooth_disabled"
-                    iconSize: 20 * Appearance.effectiveScale
-                    color: BluetoothStatus.enabled ? Appearance.colors.colOnPrimary : Appearance.m3colors.m3onSurface
-                }
-            }
-        }
-
+        acceptedButtons: Qt.AllButtons
+        onClicked: root.dismiss()
+        onWheel: (event) => { event.accepted = true; } // Block scroll
+        
         Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Appearance.m3colors.m3outlineVariant
-        }
-
-        // Device list
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            radius: 16 * Appearance.effectiveScale
+            anchors.fill: parent
             color: Appearance.colors.colLayer0
-            clip: true
-
-            ListView {
-                id: deviceList
-                anchors.fill: parent
-                anchors.margins: 4 * Appearance.effectiveScale
-                clip: true
-                spacing: 2 * Appearance.effectiveScale
-                model: BluetoothStatus.enabled ? [...BluetoothStatus.connectedDevices, ...BluetoothStatus.pairedButNotConnectedDevices] : []
-                highlightFollowsCurrentItem: false
-                onCurrentIndexChanged: {
-                    if (deviceList.currentIndex >= 0) {
-                        root.navIndex = deviceList.currentIndex;
-                        root.syncBtRing();
-                    }
+            opacity: 0.5
+        }
+    }
+    
+    // --- Main Panel Background ---
+    Rectangle {
+        id: dialogBg
+        anchors.centerIn: parent
+        width: Math.min(parent.width - 24 * Appearance.effectiveScale, 380 * Appearance.effectiveScale)
+        height: Math.min(parent.height - 48 * Appearance.effectiveScale, contentCol.implicitHeight + 48 * Appearance.effectiveScale)
+        radius: 28 * Appearance.effectiveScale
+        color: Appearance.m3colors.m3surfaceContainerHigh
+        clip: true
+        
+        opacity: root.isActive ? 1 : 0
+        scale: root.isActive ? 1 : 0.95
+        visible: opacity > 0
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+        Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
+        
+        Rectangle {
+            id: wifiNavRing
+            property bool enableAnimation: false
+            color: "transparent"
+            border.color: Appearance.m3colors.m3primary
+            border.width: Math.max(1, 2 * Appearance.effectiveScale)
+            opacity: 0.9
+            z: 99
+            visible: false
+            Behavior on x { enabled: wifiNavRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on y { enabled: wifiNavRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on width { enabled: wifiNavRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on height { enabled: wifiNavRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+        }
+        
+        MouseArea { anchors.fill: parent } // Block clicks
+        
+        ColumnLayout {
+            id: contentCol
+            anchors.fill: parent
+            anchors.margins: 24 * Appearance.effectiveScale
+            spacing: 16 * Appearance.effectiveScale
+            
+            // Header: Title
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 0
+                
+                StyledText {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    text: I18nService.tr("Bluetooth")
+                    font.pixelSize: Appearance.font.pixelSize.huge
+                    font.weight: Font.Normal
+                    color: Appearance.colors.colOnLayer1
                 }
-
-                delegate: Item {
-                    id: deviceItem
-                    required property var modelData
-                    required property int index
-                    property alias deviceButton: cardHeader
-                    property bool expanded: false
-                    width: deviceList.width
-                    implicitHeight: deviceContent.implicitHeight
-
-                    ColumnLayout {
-                        id: deviceContent
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        spacing: 0
-
-                        RippleButton {
-                            id: cardHeader
-                            Layout.fillWidth: true
-                            implicitHeight: 64 * Appearance.effectiveScale
-                            buttonRadius: 16 * Appearance.effectiveScale
-                            colBackground: {
-                                if (deviceItem.modelData.connected) return Functions.ColorUtils.mix(Appearance.colors.colLayer0, Appearance.colors.colPrimary, 0.92)
-                                if (deviceItem.expanded) return Appearance.colors.colLayer0Hover
-                                return "transparent"
-                            }
-                            colBackgroundHover: deviceItem.modelData.connected ? colBackground : Appearance.colors.colLayer0Hover
-                            onClicked: {
-                                deviceList.currentIndex = deviceItem.index
-                                deviceItem.expanded = !deviceItem.expanded
-                            }
-
-                            contentItem: RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 12 * Appearance.effectiveScale
-                                anchors.rightMargin: 12 * Appearance.effectiveScale
-                                spacing: 12 * Appearance.effectiveScale
-
-                                MaterialSymbol {
-                                    text: {
-                                        const type = deviceItem.modelData.deviceType;
-                                        if (type === "phone") return "smartphone"
-                                        if (type === "computer") return "computer"
-                                        if (type === "audio-card") return "headset"
-                                        return "bluetooth"
-                                    }
-                                    iconSize: 22 * Appearance.effectiveScale
-                                    color: deviceItem.modelData.connected ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
-                                }
-
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 0
-                                    StyledText {
-                                        text: deviceItem.modelData.name || deviceItem.modelData.address
-                                        font.pixelSize: Appearance.font.pixelSize.small
-                                        font.weight: deviceItem.modelData.connected ? Font.DemiBold : Font.Normal
-                                        color: Appearance.colors.colOnLayer1
-                                        elide: Text.ElideRight
-                                        Layout.fillWidth: true
-                                    }
-                                    StyledText {
-                                        readonly property var _d: deviceItem.modelData
-                                        text: {
-                                            if (_d.connected) return I18nService.tr("Connected") + (_d.batteryAvailable ? " · " + Math.round(_d.battery * 100) + "%" : "")
-                                            if (_d.state === BluetoothDeviceState.Connecting || BluetoothStatus.pairingAddress === _d.address) return I18nService.tr("Connecting...")
-                                            if (_d.pairing) return I18nService.tr("Pairing...")
-                                            if (_d.paired || _d.trusted) return I18nService.tr("Paired")
-                                            return I18nService.tr("Available")
-                                        }
-                                        font.pixelSize: Appearance.font.pixelSize.smaller
-                                        color: _d.state === BluetoothDeviceState.Connecting || _d.pairing ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
-                                        elide: Text.ElideRight
-                                        Layout.fillWidth: true
-                                    }
-                                }
-
-                                RippleButton {
-                                    implicitWidth: 32 * Appearance.effectiveScale
-                                    implicitHeight: 32 * Appearance.effectiveScale
-                                    buttonRadius: 16 * Appearance.effectiveScale
-                                    colBackground: "transparent"
-                                    onClicked: deviceItem.expanded = !deviceItem.expanded
-                                    contentItem: MaterialSymbol {
-                                        anchors.centerIn: parent
-                                        text: deviceItem.expanded ? "expand_less" : "expand_more"
-                                        iconSize: 20 * Appearance.effectiveScale
-                                        color: Appearance.colors.colSubtext
-                                    }
-                                }
-                            }
-
-                            // Header rounding overlay for expansion joint
-                            Rectangle {
-                                anchors.fill: parent
-                                visible: deviceItem.expanded
-                                color: cardHeader.colBackground
-                                z: -1
-                                radius: 16 * Appearance.effectiveScale
-                                Rectangle {
-                                    anchors.bottom: parent.bottom
-                                    width: parent.width
-                                    height: 16 * Appearance.effectiveScale
-                                    color: parent.color
-                                }
+                
+                StyledText {
+                    id: subtitleText
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    Layout.topMargin: 4 * Appearance.effectiveScale
+                    horizontalAlignment: Text.AlignHCenter
+                    text: I18nService.tr("Tap to connect or disconnect a device")
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    color: Appearance.colors.colSubtext
+                }
+            }
+            
+            // Bluetooth Toggle Row
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 24 * Appearance.effectiveScale
+                Layout.leftMargin: 24 * Appearance.effectiveScale
+                Layout.rightMargin: 24 * Appearance.effectiveScale
+                spacing: 12 * Appearance.effectiveScale
+                
+                StyledText {
+                    Layout.fillWidth: true
+                    text: I18nService.tr("Use Bluetooth")
+                    font.pixelSize: Appearance.font.pixelSize.large
+                    color: Appearance.colors.colOnLayer1
+                }
+                
+                AndroidToggle {
+                    checked: BluetoothStatus.enabled
+                    onToggled: BluetoothStatus.toggle()
+                }
+            }
+            
+            // List of devices
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.topMargin: 8 * Appearance.effectiveScale
+                Layout.preferredHeight: Math.min(deviceList.implicitHeight, 300 * Appearance.effectiveScale)
+                color: "transparent"
+                clip: true
+                
+                Column {
+                    id: deviceList
+                    width: parent.width
+                    spacing: 4 * Appearance.effectiveScale
+                    
+                    property var _model: BluetoothStatus.enabled ? [...BluetoothStatus.connectedDevices, ...BluetoothStatus.pairedButNotConnectedDevices] : []
+                    property int count: _model.length
+                    property Item footerItem: footerCol
+                    
+                    onCountChanged: Qt.callLater(() => root.syncNavRing())
+                    function itemAtIndex(idx) { return deviceRepeater.itemAt(idx); }
+                    
+                    Repeater {
+                        id: deviceRepeater
+                        model: deviceList._model
+                        
+                        delegate: RippleButton {
+                            id: networkItem
+                        required property var modelData
+                        required property int index
+                        
+                        visible: index < 3
+                        width: deviceList.width
+                        implicitHeight: visible ? 64 * Appearance.effectiveScale : 0
+                        buttonRadius: 28 * Appearance.effectiveScale
+                        colBackground: modelData.connected ? Appearance.m3colors.m3primaryContainer : "transparent"
+                        colBackgroundHover: modelData.connected ? Qt.darker(Appearance.m3colors.m3primaryContainer, 1.1) : Appearance.colors.colLayer0Hover
+                        
+                        onYChanged: if (root.navEngaged) Qt.callLater(() => root.syncNavRing())
+                        
+                        onClicked: {
+                            if (modelData.connected) {
+                                modelData.disconnect();
+                            } else {
+                                BluetoothStatus.pairAndTrust(modelData);
                             }
                         }
 
-                        // ── Expanded Actions ──
-                        Rectangle {
-                            id: cardExpansion
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: deviceItem.expanded ? expansionColumn.implicitHeight + (32 * Appearance.effectiveScale) : 0
-                            clip: true
-                            color: Appearance.colors.colLayer2
-                            radius: 16 * Appearance.effectiveScale
-                            opacity: deviceItem.expanded ? 1 : 0
-                            visible: Layout.preferredHeight > 0
-                            Behavior on Layout.preferredHeight { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
-                            Behavior on opacity { NumberAnimation { duration: 200 } }
+                        contentItem: RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 24 * Appearance.effectiveScale
+                            anchors.rightMargin: 24 * Appearance.effectiveScale
+                            spacing: 16 * Appearance.effectiveScale
 
-                            Rectangle {
-                                width: parent.width
-                                height: 16 * Appearance.effectiveScale
-                                color: parent.color
-                                visible: deviceItem.expanded
-                                anchors.top: parent.top
+                            MaterialSymbol {
+                                text: {
+                                    const type = networkItem.modelData.deviceType;
+                                    if (type === "phone") return "smartphone"
+                                    if (type === "computer") return "computer"
+                                    if (type === "audio-card") return "headset"
+                                    return "bluetooth"
+                                }
+                                iconSize: 24 * Appearance.effectiveScale
+                                color: networkItem.modelData.connected ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer1
                             }
 
                             ColumnLayout {
-                                id: expansionColumn
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.leftMargin: 16 * Appearance.effectiveScale
-                                anchors.rightMargin: 16 * Appearance.effectiveScale
-                                anchors.top: parent.top
-                                anchors.topMargin: 16 * Appearance.effectiveScale
-                                spacing: 12 * Appearance.effectiveScale
-
-                                RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 0
+                                StyledText {
+                                    text: networkItem.modelData.name || networkItem.modelData.address
+                                    font.pixelSize: Appearance.font.pixelSize.normal
+                                    color: networkItem.modelData.connected ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer1
+                                    elide: Text.ElideRight
                                     Layout.fillWidth: true
-                                    spacing: 12 * Appearance.effectiveScale
-
-                                    Item { Layout.fillWidth: true }
-
-                                    RippleButton {
-                                        visible: (deviceItem.modelData.paired || deviceItem.modelData.trusted) && !deviceItem.modelData.connected
-                                        buttonText: I18nService.tr("Forget")
-                                        implicitWidth: 90 * Appearance.effectiveScale
-                                        implicitHeight: 36 * Appearance.effectiveScale
-                                        buttonRadius: 18 * Appearance.effectiveScale
-                                        colBackground: Appearance.m3colors.m3error
-                                        colText: Appearance.m3colors.m3onError
-                                        onClicked: {
-                                            if (deviceItem.modelData.forget) deviceItem.modelData.forget()
-                                            else if (deviceItem.modelData.unpair) deviceItem.modelData.unpair()
-                                            deviceItem.modelData.trusted = false
-                                            deviceItem.expanded = false
-                                        }
+                                }
+                                StyledText {
+                                    readonly property var _d: networkItem.modelData
+                                    text: {
+                                        if (_d.connected) return I18nService.tr("Connected") + (_d.batteryAvailable ? " · " + Math.round(_d.battery * 100) + "%" : "")
+                                        if (BluetoothStatus.pairingAddress === _d.address) return I18nService.tr("Connecting...")
+                                        if (_d.pairing) return I18nService.tr("Pairing...")
+                                        if (_d.paired || _d.trusted) return I18nService.tr("Saved")
+                                        return I18nService.tr("Available")
                                     }
-
-                                    RippleButton {
-                                        visible: deviceItem.modelData.paired
-                                        buttonText: deviceItem.modelData.connected ? I18nService.tr("Disconnect") : I18nService.tr("Connect")
-                                        implicitWidth: 110 * Appearance.effectiveScale
-                                        implicitHeight: 36 * Appearance.effectiveScale
-                                        buttonRadius: 18 * Appearance.effectiveScale
-                                        colBackground: Appearance.colors.colPrimary
-                                        colText: Appearance.colors.colOnPrimary
-                                        onClicked: {
-                                            if (deviceItem.modelData.connected) deviceItem.modelData.disconnect()
-                                            else BluetoothStatus.pairAndTrust(deviceItem.modelData)
-                                            deviceItem.expanded = false
-                                        }
-                                    }
-
-                                    RippleButton {
-                                        visible: !deviceItem.modelData.paired
-                                        buttonText: I18nService.tr("Pair & Connect")
-                                        implicitWidth: 110 * Appearance.effectiveScale
-                                        implicitHeight: 36 * Appearance.effectiveScale
-                                        buttonRadius: 18 * Appearance.effectiveScale
-                                        colBackground: Appearance.colors.colPrimary
-                                        colText: Appearance.colors.colOnPrimary
-                                        onClicked: {
-                                            BluetoothStatus.pairAndTrust(deviceItem.modelData)
-                                            deviceItem.expanded = false
-                                        }
-                                    }
+                                    font.pixelSize: Appearance.font.pixelSize.smaller
+                                    color: networkItem.modelData.connected ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colSubtext
+                                    Layout.fillWidth: true
+                                    visible: text !== ""
+                                }
+                            }
+                        }
+                        }
+                    }
+                    
+                    Column {
+                        id: footerCol
+                        width: deviceList.width
+                        spacing: (seeAllBtn.visible && pairBtn.visible) ? 4 * Appearance.effectiveScale : 0
+                        
+                        RippleButton {
+                            id: seeAllBtn
+                            visible: deviceList.count > 3
+                            width: parent.width
+                            implicitHeight: visible ? 56 * Appearance.effectiveScale : 0
+                            buttonRadius: 28 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer0Hover
+                            
+                            onYChanged: if (root.navEngaged) Qt.callLater(() => root.syncNavRing())
+                            
+                            onClicked: {
+                                GlobalStates.quickSettingsOpen = false;
+                                GlobalStates.settingsPageIndex = 1; // Bluetooth settings page
+                                GlobalStates.activateSettings();
+                                root.dismiss();
+                            }
+                            
+                            contentItem: RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 24 * Appearance.effectiveScale
+                                anchors.rightMargin: 24 * Appearance.effectiveScale
+                                spacing: 16 * Appearance.effectiveScale
+                                
+                                MaterialSymbol {
+                                    text: "arrow_forward_ios"
+                                    iconSize: 20 * Appearance.effectiveScale
+                                    color: Appearance.colors.colOnLayer1
+                                }
+                                
+                                StyledText {
+                                    Layout.fillWidth: true
+                                    text: I18nService.tr("See all")
+                                    font.pixelSize: Appearance.font.pixelSize.normal
+                                    color: Appearance.colors.colOnLayer1
+                                }
+                            }
+                        }
+                        
+                        RippleButton {
+                            id: pairBtn
+                            visible: BluetoothStatus.enabled
+                            width: parent.width
+                            implicitHeight: visible ? 56 * Appearance.effectiveScale : 0
+                            buttonRadius: 28 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer0Hover
+                            
+                            onYChanged: if (root.navEngaged) Qt.callLater(() => root.syncNavRing())
+                            
+                            onClicked: {
+                                GlobalStates.quickSettingsOpen = false;
+                                GlobalStates.settingsBluetoothPairMode = true;
+                                GlobalStates.settingsPageIndex = 1;
+                                GlobalStates.activateSettings();
+                                root.dismiss();
+                            }
+                            
+                            contentItem: RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 24 * Appearance.effectiveScale
+                                anchors.rightMargin: 24 * Appearance.effectiveScale
+                                spacing: 16 * Appearance.effectiveScale
+                                
+                                MaterialSymbol {
+                                    text: "add"
+                                    iconSize: 24 * Appearance.effectiveScale
+                                    color: Appearance.colors.colOnLayer1
+                                }
+                                
+                                StyledText {
+                                    Layout.fillWidth: true
+                                    text: I18nService.tr("Pair new device")
+                                    font.pixelSize: Appearance.font.pixelSize.normal
+                                    color: Appearance.colors.colOnLayer1
                                 }
                             }
                         }
                     }
                 }
             }
-        }
-
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Appearance.m3colors.m3outlineVariant
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 8 * Appearance.effectiveScale
-
-            RippleButton {
-                visible: BluetoothStatus.enabled
-                implicitWidth: btPairText.implicitWidth + (24 * Appearance.effectiveScale)
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: height / 2
-                colBackground: Appearance.colors.colLayer1
-                colBackgroundHover: Appearance.colors.colLayer1Hover
-                onClicked: {
-                    GlobalStates.settingsPageIndex = 1;
-                    GlobalStates.settingsBluetoothPairMode = true;
-                    GlobalStates.activateSettings();
-                }
-                StyledText {
-                    id: btPairText
-                    anchors.centerIn: parent
-                    text: I18nService.tr("Pair new device")
+            
+            Item { Layout.fillHeight: true } // Spacer
+            
+            // Bottom Action Row
+            RowLayout {
+                Layout.fillWidth: true
+                
+                Item { Layout.fillWidth: true } // Push Done to right
+                
+                RippleButton {
+                    id: doneBtn
+                    implicitHeight: 40 * Appearance.effectiveScale
+                    leftPadding: 24 * Appearance.effectiveScale
+                    rightPadding: 24 * Appearance.effectiveScale
+                    buttonRadius: 20 * Appearance.effectiveScale
+                    buttonText: I18nService.tr("Done")
+                    colBackground: Appearance.colors.colPrimary
+                    colBackgroundHover: Qt.darker(Appearance.colors.colPrimary, 1.1)
+                    colText: Appearance.colors.colOnPrimary
+                    font.weight: Font.DemiBold
                     font.pixelSize: Appearance.font.pixelSize.small
-                    color: Appearance.colors.colOnLayer1
-                }
-            }
-
-            Item { Layout.fillWidth: true }
-
-            RippleButton {
-                implicitWidth: btDoneText.implicitWidth + (24 * Appearance.effectiveScale)
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: height / 2
-                colBackground: Appearance.colors.colPrimary
-                colBackgroundHover: Qt.darker(Appearance.colors.colPrimary, 1.1)
-                onClicked: root.dismiss()
-                StyledText {
-                    id: btDoneText
-                    anchors.centerIn: parent
-                    text: I18nService.tr("Done")
-                    font.pixelSize: Appearance.font.pixelSize.small
-                    color: Appearance.colors.colOnPrimary
+                    
+                    onYChanged: if (root.navEngaged) Qt.callLater(() => root.syncNavRing())
+                    
+                    onClicked: root.dismiss()
                 }
             }
         }
-    }
-
-    // ── Keyboard focus ring ──
-    Rectangle {
-        id: btNavRing
-        visible: false
-        z: 999
-        enabled: false
-        color: "transparent"
-        border.width: Math.max(1, 2 * Appearance.effectiveScale)
-        border.color: Appearance.m3colors.m3primary
-        opacity: 0.9
-        Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
 }
