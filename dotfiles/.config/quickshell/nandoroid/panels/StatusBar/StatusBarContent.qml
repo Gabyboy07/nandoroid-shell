@@ -156,11 +156,12 @@ Item {
             color: root.contentColor
         }
 
-        MaterialSymbol {
-            text: Network.materialSymbol
+        NetworkIcon {
+            overrideBackground: Network.materialSymbolBackground
+            overrideForeground: Network.materialSymbol
             iconSize: 16 * Appearance.effectiveScale
-            fill: 1
             color: root.contentColor
+            Layout.alignment: Qt.AlignVCenter
         }
 
         RowLayout {

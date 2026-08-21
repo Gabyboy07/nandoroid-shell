@@ -79,3 +79,4 @@ StyledBadge StyledBadge.qml
 MaterialLoadingIndicator 1.0 MaterialLoadingIndicator.qml
 DialogCheatsheet DialogCheatsheet.qml
 StyledIndeterminateProgressBar 1.0 StyledIndeterminateProgressBar.qml
+NetworkIcon 1.0 NetworkIcon.qml

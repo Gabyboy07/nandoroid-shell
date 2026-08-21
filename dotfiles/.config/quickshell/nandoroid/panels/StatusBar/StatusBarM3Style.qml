@@ -292,10 +292,10 @@ Item {
             Layout.alignment: Qt.AlignVCenter
         }
 
-        MaterialSymbol {
-            text: Network.materialSymbol
+        NetworkIcon {
+            overrideBackground: Network.materialSymbolBackground
+            overrideForeground: Network.materialSymbol
             iconSize: 16 * Appearance.effectiveScale
-            fill: 1
             color: rightQuickSettingsWrapper.contentColor
             Layout.alignment: Qt.AlignVCenter
         }

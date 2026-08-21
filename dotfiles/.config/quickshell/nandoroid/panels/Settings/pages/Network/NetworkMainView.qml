@@ -109,15 +109,8 @@ import Quickshell
                                             anchors.rightMargin: 16 * Appearance.effectiveScale
                                             spacing: 16 * Appearance.effectiveScale
 
-                                            MaterialSymbol {
-                                                text: {
-                                                    const s = modelData.strength
-                                                    if (s > 80) return "signal_wifi_4_bar"
-                                                    if (s > 60) return "network_wifi_3_bar"
-                                                    if (s > 40) return "network_wifi_2_bar"
-                                                    if (s > 20) return "network_wifi_1_bar"
-                                                    return "signal_wifi_0_bar"
-                                                }
+                                            NetworkIcon {
+                                                strength: modelData.strength
                                                 iconSize: 24 * Appearance.effectiveScale
                                                 color: modelData.active ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
                                             }
