@@ -27,7 +27,7 @@ Singleton {
     // Reactive: custom path file changes via inotify
     FileView {
         id: customFileView
-        path: root.useCustomProfile ? root.customPath : ""
+        path: ""
         watchChanges: true
         onFileChanged: customFileView.reload()
         onLoaded: {
@@ -52,8 +52,7 @@ Singleton {
 
     onCustomPathChanged: {
         if (useCustomProfile) {
-            customFileView.path = root.customPath;
-            customFileView.reload();
+            ensureFileExists();
         }
     }
 
@@ -62,11 +61,20 @@ Singleton {
             ensureFileExists();
     }
 
+    Timer {
+        id: ensureFileTimer
+        interval: 100
+        repeat: false
+        onTriggered: {
+            customFileView.path = root.customPath;
+            customFileView.reload();
+        }
+    }
+
     function ensureFileExists() {
         // Ensure file exists before FileView reads it (silences warnings)
         Quickshell.execDetached(["bash", "-c", `[ -f "${customPath}" ] && grep -qsE '^(daily|balanced|performance)$' "${customPath}" || echo "${currentProfile}" > "${customPath}"`]);
-        customFileView.path = root.customPath;
-        customFileView.reload();
+        ensureFileTimer.restart();
     }
 
     function setProfile(profile) {
