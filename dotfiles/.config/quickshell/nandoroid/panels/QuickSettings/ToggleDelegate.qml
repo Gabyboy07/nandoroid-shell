@@ -77,6 +77,10 @@ RippleButton {
     visible: toggleData !== null && (editMode || (toggleData?.available ?? true))
     enabled: (toggleData?.available ?? true) || editMode
     padding: 6 * Appearance.effectiveScale
+    leftPadding: padding
+    rightPadding: padding
+    topPadding: padding
+    bottomPadding: padding
 
     // Styling
     toggled: hasMenu ? false : isToggled
@@ -85,7 +89,10 @@ RippleButton {
     colBackgroundToggled: (hasMenu) ? Appearance.colors.colLayer2 : Appearance.colors.colPrimary
     colBackgroundToggledHover: (hasMenu) ? Appearance.colors.colLayer2Hover : Appearance.colors.colPrimary
     
-    buttonRadius: isToggled ? 16 * Appearance.effectiveScale : height / 2
+    // In Android 16 / Material 3, squircle radii are usually standardized tokens.
+    // 20px is the standard button rounding in this theme (Appearance.rounding.button), 
+    // which gives a 14px inner radius (20 - 6 = 14).
+    buttonRadius: isToggled ? Appearance.rounding.button : height / 2
 
     property color colText: (isToggled && !hasMenu && enabled) ? Appearance.colors.colOnPrimary : Functions.ColorUtils.transparentize(Appearance.colors.colOnLayer2, enabled ? 0 : 0.7)
     property color colIcon: expandedSize ? (isToggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer3) : colText
@@ -115,9 +122,7 @@ RippleButton {
     contentItem: Item {
         RowLayout {
             anchors.fill: parent
-            anchors.leftMargin: root.padding
-            anchors.rightMargin: root.padding
-            spacing: 6 * Appearance.effectiveScale
+            spacing: (root.hasMenu ? 8 : 6) * Appearance.effectiveScale
             
             // Spacers for 1x centering
             Item { Layout.fillWidth: true; visible: !root.expandedSize }
@@ -129,8 +134,8 @@ RippleButton {
                 propagateComposedEvents: true
                 acceptedButtons: (root.hasMenu) ? Qt.LeftButton : Qt.NoButton
                 Layout.alignment: Qt.AlignVCenter
-                Layout.preferredHeight: 36 * Appearance.effectiveScale
-                Layout.preferredWidth: 36 * Appearance.effectiveScale
+                Layout.preferredHeight: root.hasMenu ? 44 * Appearance.effectiveScale : 44 * Appearance.effectiveScale
+                Layout.preferredWidth: root.hasMenu ? 44 * Appearance.effectiveScale : 44 * Appearance.effectiveScale
                 cursorShape: Qt.PointingHandCursor
 
                 onClicked: {
@@ -142,12 +147,13 @@ RippleButton {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    radius: (root.hasMenu && root.isToggled) ? 12 * Appearance.effectiveScale : width / 2
+                    radius: (root.hasMenu && root.isToggled) ? Math.max(0, root.buttonRadius - root.padding) : height / 2
                     color: {
-                        const isActive = root.isToggled
-                        const baseColor = isActive ? Appearance.colors.colPrimary : Appearance.colors.colLayer3
-                        const transparentizeAmount = (root.hasMenu && isActive) ? 0 : 1
-                        return Functions.ColorUtils.transparentize(baseColor, transparentizeAmount)
+                        if (root.hasMenu) {
+                            return root.isToggled ? Appearance.colors.colPrimary : Functions.ColorUtils.applyAlpha(Appearance.colors.colOnLayer2, 0.08)
+                        } else {
+                            return "transparent"
+                        }
                     }
 
                     Behavior on color { ColorAnimation { duration: 150 } }
@@ -155,7 +161,7 @@ RippleButton {
                     MaterialSymbol {
                         anchors.centerIn: parent
                         fill: root.isToggled ? 1 : 0
-                        iconSize: root.expandedSize ? 20 * Appearance.effectiveScale : 22 * Appearance.effectiveScale
+                        iconSize: root.expandedSize ? 24 * Appearance.effectiveScale : 22 * Appearance.effectiveScale
                         color: root.colIcon
                         text: root.isToggled 
                             ? (root.toggleData?.icon ?? "check") 
