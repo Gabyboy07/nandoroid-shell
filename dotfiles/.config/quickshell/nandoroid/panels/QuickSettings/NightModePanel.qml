@@ -4,228 +4,307 @@ import "../../services"
 import "../../widgets"
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 
 /**
- * Night Mode detail panel.
- * Shows toggle + color temperature slider.
+ * NightModePanel - Android 16 style details panel for Night Mode.
  */
-Rectangle {
+Item {
     id: root
-    signal dismiss()
-
-    focus: true
-    property bool inheritedNav: false
+    
+    // Fill the QuickSettings popup area
+    anchors.fill: parent
+    
+    // Properties to communicate with the main QS content
+    property bool isActive: true
     property bool navEngaged: false
-
-    color: Appearance.colors.colLayer0
-    radius: Appearance.rounding.panel
-
-    // ── Keyboard navigation ──
+    property bool inheritedNav: false
+    property int navIndex: 0
+    
+    signal dismiss()
+    
     function adjustTemp(delta) {
-        const target = Math.max(tempSlider.from, Math.min(tempSlider.to, tempSlider.value + delta));
+        let current = Config.options.nightMode?.colorTemperature ?? 4000;
+        let currentSnapped = Math.round(current / 100) * 100;
+        const target = Math.max(tempSlider.from, Math.min(tempSlider.to, currentSnapped + delta));
         Config.options.nightMode.colorTemperature = target;
     }
-
-    function syncNightRing() {
-        const p = tempSlider.mapToItem(root, 0, 0);
-        nightNavRing.x = p.x - 4 * Appearance.effectiveScale;
-        nightNavRing.y = p.y - 4 * Appearance.effectiveScale;
-        nightNavRing.width = tempSlider.width + 8 * Appearance.effectiveScale;
-        nightNavRing.height = tempSlider.height + 8 * Appearance.effectiveScale;
-        nightNavRing.radius = Math.min(12 * Appearance.effectiveScale, nightNavRing.height / 2);
-        nightNavRing.visible = root.activeFocus && root.navEngaged;
-    }
-
-    Keys.onPressed: (event) => {
-        if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
-        root.navEngaged = true;
-        if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
-            Hyprsunset.toggle();
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Left) {
-            root.adjustTemp(-100);
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Right) {
-            root.adjustTemp(100);
-            event.accepted = true;
-        }
-    }
-
+    
     Component.onCompleted: {
         root.navEngaged = root.inheritedNav;
         root.forceActiveFocus();
-        Qt.callLater(() => root.syncNightRing());
+        Qt.callLater(() => root.syncNavRing());
     }
-
-    // Block clicks and hovers from leaking through to the items below
-    MouseArea {
-        anchors.fill: parent
-        hoverEnabled: true
-        onWheel: (wheel) => wheel.accepted = true
-        onPressed: (mouse) => mouse.accepted = true
-    }
-
-    ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 14 * Appearance.effectiveScale
-        spacing: 12 * Appearance.effectiveScale
-
-        // ── Header ──
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 12 * Appearance.effectiveScale
-
-            RippleButton {
-                implicitWidth: 36 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: Appearance.colors.colLayer2
-                onClicked: root.dismiss()
-                MaterialSymbol {
-                    anchors.centerIn: parent
-                    text: "arrow_back"
-                    iconSize: 20 * Appearance.effectiveScale
-                    color: Appearance.m3colors.m3onSurface
-                }
-            }
-
-            StyledText {
-                Layout.fillWidth: true
-                text: I18nService.tr("Night Mode")
-                font.pixelSize: Appearance.font.pixelSize.normal
-                font.weight: Font.DemiBold
-                color: Appearance.m3colors.m3onSurface
-            }
-
-            RippleButton {
-                implicitWidth: 56 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: Hyprsunset.active ? Appearance.colors.colPrimary : Appearance.colors.colLayer2
-                colBackgroundHover: Hyprsunset.active ? Qt.darker(Appearance.colors.colPrimary, 1.12) : Appearance.colors.colLayer2Hover
-                onClicked: Hyprsunset.toggle()
-
-                MaterialSymbol {
-                    anchors.centerIn: parent
-                    text: "bedtime"
-                    iconSize: 20 * Appearance.effectiveScale
-                    fill: Hyprsunset.active ? 1 : 0
-                    color: Hyprsunset.active ? Appearance.colors.colOnPrimary : Appearance.m3colors.m3onSurface
-                }
-            }
+    
+    function syncNavRing() {
+        if (!root.navEngaged) {
+            navRing.visible = false;
+            return;
         }
-
-        // ── Separator ──
+        
+        let targetItem = null;
+        if (root.navIndex === 0) {
+            targetItem = tempSlider;
+        } else {
+            targetItem = doneBtn;
+        }
+        
+        if (targetItem) {
+            let p = targetItem.mapToItem(dialogBg, 0, 0);
+            let newX = p.x - 4 * Appearance.effectiveScale;
+            let newY = p.y - 4 * Appearance.effectiveScale;
+            let newW = targetItem.width + 8 * Appearance.effectiveScale;
+            let newH = targetItem.height + 8 * Appearance.effectiveScale;
+            let newR = targetItem.buttonRadius ? targetItem.buttonRadius + 4 * Appearance.effectiveScale : 12 * Appearance.effectiveScale;
+            
+            if (!navRing.visible) {
+                navRing.enableAnimation = false;
+                navRing.x = newX;
+                navRing.y = newY;
+                navRing.width = newW;
+                navRing.height = newH;
+                navRing.radius = newR;
+                Qt.callLater(() => { navRing.enableAnimation = true; });
+            } else {
+                navRing.enableAnimation = true;
+                navRing.x = newX;
+                navRing.y = newY;
+                navRing.width = newW;
+                navRing.height = newH;
+                navRing.radius = newR;
+            }
+            
+            navRing.visible = root.activeFocus && root.navEngaged;
+        }
+    }
+    
+    onActiveFocusChanged: {
+        if (root.activeFocus) Qt.callLater(() => root.syncNavRing());
+        else navRing.visible = false;
+    }
+    
+    focus: true
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
+        
+        root.navEngaged = true;
+        
+        if (event.key === Qt.Key_Z) {
+            Hyprsunset.toggle();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Up) {
+            if (root.navIndex > 0) { root.navIndex--; root.syncNavRing(); }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            if (root.navIndex < 1) { root.navIndex++; root.syncNavRing(); }
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Left) {
+            if (root.navIndex === 0) { root.adjustTemp(-100); event.accepted = true; }
+        } else if (event.key === Qt.Key_Right) {
+            if (root.navIndex === 0) { root.adjustTemp(100); event.accepted = true; }
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Space) {
+            if (root.navIndex === 1) {
+                doneBtn.clicked();
+            }
+            event.accepted = true;
+        }
+    }
+    
+    // --- Scrim (Click outside to close) ---
+    Rectangle {
+        anchors.fill: parent
+        color: Functions.ColorUtils.applyAlpha(Appearance.colors.colLayer0, 0.6)
+        radius: Appearance.rounding.panel
+        opacity: root.isActive ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+        MouseArea {
+            anchors.fill: parent
+            onWheel: (wheel) => wheel.accepted = true
+            hoverEnabled: true
+            onClicked: root.dismiss()
+        }
+    }
+    
+    // --- Dialog Container ---
+    Rectangle {
+        id: dialogBg
+        width: Math.min(parent.width - 24 * Appearance.effectiveScale, 380 * Appearance.effectiveScale)
+        height: Math.min(parent.height - 48 * Appearance.effectiveScale, contentCol.implicitHeight + 48 * Appearance.effectiveScale)
+        anchors.centerIn: parent
+        radius: 28 * Appearance.effectiveScale
+        color: Appearance.m3colors.m3surfaceContainerHigh
+        clip: true
+        
+        opacity: root.isActive ? 1 : 0
+        scale: root.isActive ? 1 : 0.95
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+        Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+        
+        StyledRectangularShadow { target: dialogBg; z: -1 }
+        
+        // Trap clicks inside dialog
+        MouseArea {
+            anchors.fill: parent
+            onWheel: (wheel) => wheel.accepted = true
+            hoverEnabled: true
+        }
+        
+        // --- Keyboard Focus Ring ---
         Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Appearance.m3colors.m3outlineVariant
+            id: navRing
+            property bool enableAnimation: false
+            visible: false
+            z: 999
+            color: "transparent"
+            border.width: Math.max(1, 2 * Appearance.effectiveScale)
+            border.color: Appearance.m3colors.m3primary
+            opacity: 0.9
+            radius: 12 * Appearance.effectiveScale
+            
+            Behavior on x { enabled: navRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on y { enabled: navRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on width { enabled: navRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on height { enabled: navRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on radius { enabled: navRing.enableAnimation; NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
         }
-
-
-        // ── Color temperature slider ──
-        Column {
-            Layout.fillWidth: true
-            Layout.topMargin: 8 * Appearance.effectiveScale
-            spacing: 6 * Appearance.effectiveScale
-
+        
+        ColumnLayout {
+            id: contentCol
+            anchors.fill: parent
+            anchors.margins: 24 * Appearance.effectiveScale
+            spacing: 16 * Appearance.effectiveScale
+            
+            // Header: Title
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 0
+                
+                StyledText {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    text: I18nService.tr("Night Mode")
+                    font.pixelSize: Appearance.font.pixelSize.huge
+                    font.weight: Font.Normal
+                    color: Appearance.colors.colOnLayer1
+                }
+                
+                StyledText {
+                    id: subtitleText
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    Layout.topMargin: 4 * Appearance.effectiveScale
+                    horizontalAlignment: Text.AlignHCenter
+                    text: I18nService.tr("Adjust screen color temperature")
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    color: Appearance.colors.colSubtext
+                }
+            }
+            
+            // Toggle Row
             RowLayout {
-                width: parent.width
+                Layout.fillWidth: true
+                Layout.topMargin: 24 * Appearance.effectiveScale
+                Layout.leftMargin: 24 * Appearance.effectiveScale
+                Layout.rightMargin: 24 * Appearance.effectiveScale
+                spacing: 12 * Appearance.effectiveScale
+                
                 StyledText {
                     Layout.fillWidth: true
-                    text: I18nService.tr("Color Temperature")
-                    font.pixelSize: Appearance.font.pixelSize.small
-                    font.weight: Font.Medium
-                    color: Appearance.m3colors.m3onSurface
+                    text: I18nService.tr("Use Night Mode")
+                    font.pixelSize: Appearance.font.pixelSize.large
+                    color: Appearance.colors.colOnLayer1
                 }
-                StyledText {
-                    text: `${tempSlider.value}K`
-                    font.pixelSize: Appearance.font.pixelSize.small
-                    color: Appearance.colors.colPrimary
+                
+                AndroidToggle {
+                    checked: Hyprsunset.active
+                    onToggled: Hyprsunset.toggle()
                 }
             }
-
-            // Temperature label row (cool ← → warm)
+            
+            // Color temperature slider
+            Column {
+                Layout.fillWidth: true
+                Layout.topMargin: 16 * Appearance.effectiveScale
+                Layout.leftMargin: 12 * Appearance.effectiveScale
+                Layout.rightMargin: 12 * Appearance.effectiveScale
+                spacing: 6 * Appearance.effectiveScale
+                
+                RowLayout {
+                    width: parent.width
+                    StyledText {
+                        Layout.fillWidth: true
+                        text: I18nService.tr("Color Temperature")
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        font.weight: Font.Medium
+                        color: Appearance.m3colors.m3onSurface
+                    }
+                    StyledText {
+                        text: `${Math.round(tempSlider.value)}K`
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: Appearance.colors.colPrimary
+                    }
+                }
+                
+                // Temperature label row (warm ← → cool)
+                RowLayout {
+                    width: parent.width
+                    StyledText {
+                        text: I18nService.tr("Warm")
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        color: Appearance.m3colors.m3onSurfaceVariant
+                    }
+                    Item { Layout.fillWidth: true }
+                    StyledText {
+                        text: I18nService.tr("Cool")
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        color: Appearance.m3colors.m3onSurfaceVariant
+                    }
+                }
+                
+                StyledSlider {
+                    id: tempSlider
+                    width: parent.width
+                    from: 1200  // warmest
+                    to: 6500    // coolest
+                    stepSize: 100
+                    value: Config.options.nightMode?.colorTemperature ?? 4000
+                    configuration: StyledSlider.Configuration.S
+                    
+                    onYChanged: if (root.navEngaged) Qt.callLater(() => root.syncNavRing())
+                    
+                    onMoved: {
+                        Config.options.nightMode.colorTemperature = value;
+                    }
+                }
+            }
+            
+            // Actions (Done)
             RowLayout {
-                width: parent.width
-                StyledText {
-                    text: I18nService.tr("Warm")
-                    font.pixelSize: Appearance.font.pixelSize.smaller
-                    color: Appearance.m3colors.m3onSurfaceVariant
-                }
+                Layout.fillWidth: true
+                Layout.topMargin: 16 * Appearance.effectiveScale
+                spacing: 8 * Appearance.effectiveScale
+                
                 Item { Layout.fillWidth: true }
-                StyledText {
-                    text: I18nService.tr("Cool")
-                    font.pixelSize: Appearance.font.pixelSize.smaller
-                    color: Appearance.m3colors.m3onSurfaceVariant
-                }
-            }
-
-            StyledSlider {
-                id: tempSlider
-                width: parent.width
-                from: 1200  // warmest
-                to: 6500    // coolest
-                stepSize: 100
-                value: Config.options.nightMode?.colorTemperature ?? 4000
-                configuration: StyledSlider.Configuration.S
-
-                onMoved: {
-                    Config.options.nightMode.colorTemperature = value;
-                    // Hyprsunset.colorTemperature is bound to this config value,
-                    // so onColorTemperatureChanged fires automatically — updating hyprsunset live.
-                }
-            }
-        }
-
-
-
-        Item { Layout.fillHeight: true }
-
-        // ── Footer ──
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Appearance.m3colors.m3outlineVariant
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 8 * Appearance.effectiveScale
-
-            Item { Layout.fillWidth: true }
-
-            RippleButton {
-                implicitWidth: doneText.implicitWidth + (24 * Appearance.effectiveScale)
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: height / 2
-                colBackground: Appearance.colors.colPrimary
-                colBackgroundHover: Qt.darker(Appearance.colors.colPrimary, 1.1)
-                onClicked: root.dismiss()
-                StyledText {
-                    id: doneText
-                    anchors.centerIn: parent
-                    text: I18nService.tr("Done")
+                
+                RippleButton {
+                    id: doneBtn
+                    implicitHeight: 40 * Appearance.effectiveScale
+                    leftPadding: 24 * Appearance.effectiveScale
+                    rightPadding: 24 * Appearance.effectiveScale
+                    buttonRadius: 20 * Appearance.effectiveScale
+                    buttonText: I18nService.tr("Done")
+                    colBackground: Appearance.colors.colPrimary
+                    colBackgroundHover: Qt.darker(Appearance.colors.colPrimary, 1.1)
+                    colText: Appearance.colors.colOnPrimary
+                    font.weight: Font.DemiBold
                     font.pixelSize: Appearance.font.pixelSize.small
-                    color: Appearance.colors.colOnPrimary
+                    
+                    onYChanged: if (root.navEngaged) Qt.callLater(() => root.syncNavRing())
+                    
+                    onClicked: root.dismiss()
                 }
             }
         }
-    }
-
-    // ── Keyboard focus ring ──
-    Rectangle {
-        id: nightNavRing
-        visible: false
-        z: 999
-        enabled: false
-        color: "transparent"
-        border.width: Math.max(1, 2 * Appearance.effectiveScale)
-        border.color: Appearance.m3colors.m3primary
-        opacity: 0.9
-        Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
 }
