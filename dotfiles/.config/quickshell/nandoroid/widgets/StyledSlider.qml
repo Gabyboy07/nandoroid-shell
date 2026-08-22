@@ -44,9 +44,7 @@ Slider {
     property real trackRadius: trackWidth >= StyledSlider.Configuration.XL * Appearance.effectiveScale ? 28 * Appearance.effectiveScale
         : trackWidth >= StyledSlider.Configuration.L * Appearance.effectiveScale ? 16 * Appearance.effectiveScale
         : trackWidth >= StyledSlider.Configuration.M * Appearance.effectiveScale ? 12 * Appearance.effectiveScale
-        : trackWidth >= StyledSlider.Configuration.S * Appearance.effectiveScale ? 8 * Appearance.effectiveScale
-        : trackWidth >= StyledSlider.Configuration.XS * Appearance.effectiveScale ? 8 * Appearance.effectiveScale
-        : height / 2
+        : 8 * Appearance.effectiveScale
     property real handleHeight: (configuration === StyledSlider.Configuration.Wavy) ? 24 * Appearance.effectiveScale : (configuration === StyledSlider.Configuration.X0) ? 14 * Appearance.effectiveScale : Math.max(44 * Appearance.effectiveScale, trackWidth + (12 * Appearance.effectiveScale))
     property real handleWidth: handleDefaultWidth
     property real handleMargins: 4 * Appearance.effectiveScale
