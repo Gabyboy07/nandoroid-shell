@@ -57,6 +57,9 @@ RippleButton {
         root._registerKey();
     }
     Component.onDestruction: {
+        if (root.rowCoordinator && root.rowCoordinator.pressedIndex === root.rowIndex) {
+            root.rowCoordinator.pressedIndex = -1;
+        }
         if (root.keyboardHost && root._keyboardType !== "") {
             root.keyboardHost.unregisterToggleDelegate(root._keyboardType, root);
         }
@@ -71,7 +74,73 @@ RippleButton {
 
     // Sizing
     property int cellSize: buttonData?.size ?? 1
-    Layout.preferredWidth: Math.floor(baseCellWidth * cellSize + cellSpacing * (cellSize - 1))
+
+    // ── Press squeeze effect ──
+    // While a toggle is pressed it widens slightly and its horizontal neighbors
+    // in the same row shrink to compensate (half each, or the full amount if the
+    // pressed toggle only has one neighbor). The shared press state lives on the
+    // row (RowLayout) which acts as coordinator for its toggles.
+    property real squeezeAmount: 10 * Appearance.effectiveScale
+    property var rowCoordinator: null
+    property int rowIndex: 0
+    readonly property real baseCellTotalWidth: Math.floor(baseCellWidth * cellSize + cellSpacing * (cellSize - 1))
+
+    Layout.preferredWidth: {
+        if (!rowCoordinator || rowCoordinator.pressedIndex < 0)
+            return baseCellTotalWidth;
+        const p = rowCoordinator.pressedIndex;
+        const count = rowCoordinator.rowToggleCount;
+        if (p === rowIndex)
+            return baseCellTotalWidth + squeezeAmount;
+        const isRightNeighbor = p === rowIndex - 1 && p >= 0;
+        const isLeftNeighbor = p === rowIndex + 1;
+        if (!isRightNeighbor && !isLeftNeighbor)
+            return baseCellTotalWidth;
+        // Existing neighbors split the bill evenly: both sides -> half each,
+        // only one side -> that single neighbor pays the full amount, so the
+        // pressed toggle visually expands only toward the occupied side(s).
+        const donors = (p > 0 ? 1 : 0) + (p < count - 1 ? 1 : 0);
+        return baseCellTotalWidth - squeezeAmount / Math.max(1, donors);
+    }
+
+    Behavior on Layout.preferredWidth {
+        NumberAnimation {
+            duration: Appearance.animation ? Appearance.animation.elementMoveFast.duration : 200
+            easing.type: Easing.OutCubic
+        }
+    }
+
+    // Shared by the card press and the inner icon press so both trigger the
+    // same row-level squeeze on the parent card (the icon itself never grows).
+    function _setSqueezed(active) {
+        if (!root.rowCoordinator || root.editMode) return;
+        if (active) {
+            root.rowCoordinator.pressedIndex = root.rowIndex;
+        } else if (root.rowCoordinator.pressedIndex === root.rowIndex) {
+            root.rowCoordinator.pressedIndex = -1;
+        }
+    }
+
+    // Keyboard activations have no press/release cycle, so pulse instead:
+    // expand now, revert automatically after a beat.
+    Timer {
+        id: squeezeResetTimer
+        interval: 200
+        onTriggered: root._setSqueezed(false)
+    }
+
+    function squeezePulse() {
+        root._setSqueezed(true);
+        squeezeResetTimer.restart();
+    }
+
+    // Menu cards (x2 with details): only the inner icon toggle squeezes the
+    // parent card — a plain card click opens the details panel and shouldn't
+    // deform the row.
+    onDownChanged: {
+        if (!root.hasMenu) root._setSqueezed(down);
+    }
+
     Layout.preferredHeight: baseCellHeight
 
     visible: toggleData !== null && (editMode || (toggleData?.available ?? true))
@@ -137,6 +206,11 @@ RippleButton {
                 Layout.preferredHeight: root.hasMenu ? 44 * Appearance.effectiveScale : 44 * Appearance.effectiveScale
                 Layout.preferredWidth: root.hasMenu ? 44 * Appearance.effectiveScale : 44 * Appearance.effectiveScale
                 cursorShape: Qt.PointingHandCursor
+
+                // Pressing the inner icon squeezes the parent card, not the icon
+                onPressed: (event) => root._setSqueezed(true)
+                onReleased: (event) => root._setSqueezed(false)
+                onCanceled: (event) => root._setSqueezed(false)
 
                 onClicked: {
                     if (root.toggleData?.action) root.toggleData.action();

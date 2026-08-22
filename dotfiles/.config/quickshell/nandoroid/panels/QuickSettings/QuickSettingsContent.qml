@@ -174,12 +174,7 @@ Item {
         if (!target || !target.visible) {
             navRing.visible = false; return;
         }
-        const p = target.mapToItem(root, 0, 0);
-        navRing.x = p.x - 4 * Appearance.effectiveScale;
-        navRing.y = p.y - 4 * Appearance.effectiveScale;
-        navRing.width = target.width + 8 * Appearance.effectiveScale;
-        navRing.height = target.height + 8 * Appearance.effectiveScale;
-        navRing.radius = Math.min(12 * Appearance.effectiveScale, navRing.height / 2);
+        navRing.targetItem = target;
         navRing.visible = root.navActive && root.navEngaged;
     }
 
@@ -232,7 +227,11 @@ Item {
     function navActivate() {
         if (root.navZone === "grid") {
             const del = root._toggleDelegates[root.navGridType];
-            if (del && typeof del.triggerAction === "function") del.triggerAction();
+            if (del && typeof del.triggerAction === "function") {
+                // Pulse the row squeeze so keyboard toggles feel like presses
+                if (typeof del.squeezePulse === "function") del.squeezePulse();
+                del.triggerAction();
+            }
             else if (del) del.click();
         }
         root.syncNavHighlight();
@@ -1326,6 +1325,10 @@ Item {
                             width: parent.width
                             spacing: root.toggleSpacing
 
+                            // Shared press state for the toggle squeeze effect
+                            property int pressedIndex: -1
+                            readonly property int rowToggleCount: modelData?.length ?? 0
+
                             Repeater {
                                 model: ScriptModel {
                                     values: toggleRow?.modelData ?? []
@@ -1343,6 +1346,8 @@ Item {
                                     baseCellHeight: root.baseCellHeight
                                     cellSpacing: root.toggleSpacing
                                     keyboardHost: root
+                                    rowIndex: index
+                                    rowCoordinator: toggleRow
 
                                     onOpenDetails: {
                                         const type = modelData.type
@@ -1400,6 +1405,10 @@ Item {
                                     width: parent.width
                                     spacing: root.toggleSpacing
 
+                                    // Shared press state for the toggle squeeze effect
+                                    property int pressedIndex: -1
+                                    readonly property int rowToggleCount: modelData?.length ?? 0
+
                                     Repeater {
                                         model: ScriptModel {
                                             values: unusedRow?.modelData ?? []
@@ -1416,6 +1425,8 @@ Item {
                                             baseCellWidth: root.baseCellWidth
                                             baseCellHeight: root.baseCellHeight
                                             cellSpacing: root.toggleSpacing
+                                            rowIndex: index
+                                            rowCoordinator: unusedRow
                                         }
                                     }
                                     Item { Layout.fillWidth: true }
@@ -1544,6 +1555,24 @@ Item {
     // ── Keyboard focus ring ──
     Rectangle {
         id: navRing
+        property Item targetItem: null
+
+        readonly property real pad: 4 * Appearance.effectiveScale
+
+        // Absolute position resolved by walking up the parent chain; the
+        // binding reads x/y along the way so it stays reactive to layout
+        // changes — including the animated width of a squeezed toggle.
+        function mapToRootX(item) {
+            let x = 0;
+            for (let it = item; it && it !== root; it = it.parent) x += it.x;
+            return x;
+        }
+        function mapToRootY(item) {
+            let y = 0;
+            for (let it = item; it && it !== root; it = it.parent) y += it.y;
+            return y;
+        }
+
         visible: false
         z: 999
         enabled: false
@@ -1551,10 +1580,22 @@ Item {
         border.width: Math.max(1, 2 * Appearance.effectiveScale)
         border.color: Appearance.m3colors.m3primary
         opacity: 0.9
-        Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+
+        x: targetItem ? mapToRootX(targetItem) - pad : 0
+        y: targetItem ? mapToRootY(targetItem) - pad : 0
+        width: targetItem ? targetItem.width + pad * 2 : 0
+        height: targetItem ? targetItem.height + pad * 2 : 0
+        // Mirror the target's own corner shape so pills get pill rings
+        radius: {
+            const r = (targetItem && targetItem.buttonRadius !== undefined)
+                ? targetItem.buttonRadius + pad
+                : 12 * Appearance.effectiveScale;
+            return Math.min(r, height / 2);
+        }
+
+        // No geometry Behaviors: bindings above must track the target 1:1 so
+        // the ring stays in lockstep with squeeze animations instead of
+        // trailing behind them. Only the visibility fade is animated.
         Behavior on opacity { NumberAnimation { duration: 120 } }
     }
 
