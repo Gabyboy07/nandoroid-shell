@@ -12,11 +12,8 @@ OsdValueIndicator {
     readonly property bool dimming: Hyprsunset.gamma !== 100
 
     icon: dimming ? "wb_twilight" : "light_mode"
-    rotateIcon: true
-    scaleIcon: true
     name: dimming ? "Dim" : "Brightness"
     value: dimming
         ? (Hyprsunset.gamma - Hyprsunset.gammaLowerLimit) / (100 - Hyprsunset.gammaLowerLimit)
         : (root.brightnessMonitor !== undefined ? root.brightnessMonitor.brightness : 0.5)
-    shape: "Burst"
 }

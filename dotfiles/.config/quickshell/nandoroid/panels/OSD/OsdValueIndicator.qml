@@ -16,9 +16,6 @@ Item {
     property real value: 0
     property string icon: ""
     property string name: ""
-    property var shape
-    property bool rotateIcon: false
-    property bool scaleIcon: false
 
     // Root dimensions for the Loader/PanelWindow
     implicitWidth: 360 * Appearance.effectiveScale

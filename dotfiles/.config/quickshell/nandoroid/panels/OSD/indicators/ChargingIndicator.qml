@@ -9,5 +9,4 @@ OsdToggleIndicator {
     name: "Power"
     statusText: isPluggedIn ? "Charging" : "Discharging"
     icon: Battery.materialSymbol
-    // shape: "circle"
 }
