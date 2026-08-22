@@ -22,11 +22,11 @@ Slider {
     enum Configuration {
         Wavy = 4,
         X0 = 3,
-        XS = 12,
-        S = 18,
-        M = 30,
-        L = 42,
-        XL = 72
+        XS = 16,
+        S = 24,
+        M = 40,
+        L = 56,
+        XL = 96
     }
 
     property var configuration: StyledSlider.Configuration.S
@@ -41,15 +41,18 @@ Slider {
     property real unsharpenRadius: 2 * Appearance.effectiveScale
     
     property real trackWidth: configuration * Appearance.effectiveScale
-    property real trackRadius: trackWidth >= StyledSlider.Configuration.XL * Appearance.effectiveScale ? 24 * Appearance.effectiveScale
+    property real trackRadius: trackWidth >= StyledSlider.Configuration.XL * Appearance.effectiveScale ? 28 * Appearance.effectiveScale
         : trackWidth >= StyledSlider.Configuration.L * Appearance.effectiveScale ? 16 * Appearance.effectiveScale
         : trackWidth >= StyledSlider.Configuration.M * Appearance.effectiveScale ? 12 * Appearance.effectiveScale
         : trackWidth >= StyledSlider.Configuration.S * Appearance.effectiveScale ? 8 * Appearance.effectiveScale
+        : trackWidth >= StyledSlider.Configuration.XS * Appearance.effectiveScale ? 8 * Appearance.effectiveScale
         : height / 2
-    property real handleHeight: (configuration === StyledSlider.Configuration.Wavy) ? 24 * Appearance.effectiveScale : (configuration === StyledSlider.Configuration.X0) ? 14 * Appearance.effectiveScale : Math.max(33 * Appearance.effectiveScale, trackWidth + (9 * Appearance.effectiveScale))
+    property real handleHeight: (configuration === StyledSlider.Configuration.Wavy) ? 24 * Appearance.effectiveScale : (configuration === StyledSlider.Configuration.X0) ? 14 * Appearance.effectiveScale : Math.max(44 * Appearance.effectiveScale, trackWidth + (12 * Appearance.effectiveScale))
     property real handleWidth: handleDefaultWidth
     property real handleMargins: 4 * Appearance.effectiveScale
     property real trackDotSize: 3 * Appearance.effectiveScale
+    property real insetIconSize: configuration >= StyledSlider.Configuration.XL ? 32 * Appearance.effectiveScale : 24 * Appearance.effectiveScale
+    property bool showTrailingDot: true
     property bool usePercentTooltip: true
     property string tooltipContent: usePercentTooltip ? `${Math.round(((value - from) / (to - from)) * 100)}%` : `${Math.round(value)}`
     property bool wavy: configuration === StyledSlider.Configuration.Wavy // If true, the progress bar will have a wavy fill effect
@@ -212,7 +215,7 @@ Slider {
         Rectangle {
             anchors.verticalCenter: background.verticalCenter
             x: root.leftPadding + root.effectiveDraggingWidth - (width / 2)
-            width: root.trackWidth >= StyledSlider.Configuration.S * Appearance.effectiveScale ? root.trackDotSize : 0
+            width: (root.showTrailingDot && root.trackWidth >= StyledSlider.Configuration.S * Appearance.effectiveScale) ? root.trackDotSize : 0
             height: width
             radius: width / 2
             color: root.visualPosition > 0.98 ? root.dotColorHighlighted : root.dotColor

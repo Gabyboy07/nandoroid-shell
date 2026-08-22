@@ -21,8 +21,8 @@ Item {
     property bool scaleIcon: false
 
     // Root dimensions for the Loader/PanelWindow
-    implicitWidth: 340 * Appearance.effectiveScale
-    implicitHeight: 48 * Appearance.effectiveScale
+    implicitWidth: 360 * Appearance.effectiveScale
+    implicitHeight: 56 * Appearance.effectiveScale
 
     StyledRectangularShadow {
         target: valueIndicator
@@ -38,38 +38,38 @@ Item {
         RowLayout {
             id: valueRow
             anchors.fill: parent
-            anchors.leftMargin: 12 * Appearance.effectiveScale
-            anchors.rightMargin: 12 * Appearance.effectiveScale
-            spacing: 12 * Appearance.effectiveScale
+            anchors.leftMargin: 8 * Appearance.effectiveScale
+            anchors.rightMargin: 8 * Appearance.effectiveScale
+            anchors.topMargin: 10 * Appearance.effectiveScale
+            anchors.bottomMargin: 10 * Appearance.effectiveScale
+            spacing: 8 * Appearance.effectiveScale
 
             // ── Slot Kiri: Icon Wrapper ──
             Item {
-                Layout.preferredWidth: 32 * Appearance.effectiveScale
-                Layout.preferredHeight: 32 * Appearance.effectiveScale
+                Layout.preferredWidth: 36 * Appearance.effectiveScale
+                Layout.preferredHeight: 36 * Appearance.effectiveScale
                 Layout.alignment: Qt.AlignVCenter
 
-                MaterialShapeWrappedMaterialSymbol {
-                    id: iconMain
+                Rectangle {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    
-                    rotation: root.rotateIcon ? root.value * 360 : 0
-                    scale: root.scaleIcon ? (0.85 + root.value * 0.3) : 1.0
-                    
-                    shapeString: (typeof root.shape === "string") ? root.shape : "Circle"
-                    text: root.icon
-                    iconSize: 18 * Appearance.effectiveScale
-                    
+                    radius: height / 2
                     color: Appearance.m3colors.m3primaryContainer
-                    colSymbol: Appearance.m3colors.m3onPrimaryContainer
+                    
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: root.icon
+                        iconSize: 22 * Appearance.effectiveScale
+                        color: Appearance.m3colors.m3onPrimaryContainer
+                    }
                 }
             }
 
             // ── Slot Tengah: Main Content (Sleeker StyledSlider) ──
             Item {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 32 * Appearance.effectiveScale
+                Layout.preferredHeight: 36 * Appearance.effectiveScale
                 Layout.alignment: Qt.AlignVCenter
                 
                 StyledSlider {
@@ -82,7 +82,10 @@ Item {
                     to: 1
                     enabled: false
                     
-                    configuration: StyledSlider.Configuration.M
+                    trackWidth: 36 * Appearance.effectiveScale
+                    trackRadius: 12 * Appearance.effectiveScale
+                    handleHeight: 48 * Appearance.effectiveScale
+                    showTrailingDot: false
                     animateValue: true
                     
                     handleMargins: 4 * Appearance.effectiveScale
@@ -92,23 +95,22 @@ Item {
                 }
             }
 
-            // ── Slot Kanan: Value Indicator (Compact Centered Square) ──
-            Rectangle {
+            // ── Slot Kanan: Value Indicator (Text Only) ──
+            Item {
                 id: valueSlot
-                Layout.preferredWidth: 44 * Appearance.effectiveScale
-                Layout.preferredHeight: 32 * Appearance.effectiveScale
+                Layout.preferredWidth: 36 * Appearance.effectiveScale
+                Layout.preferredHeight: 36 * Appearance.effectiveScale
                 Layout.alignment: Qt.AlignVCenter
                 
-                radius: 12 * Appearance.effectiveScale
-                color: Appearance.m3colors.m3secondaryContainer
-
                 Text {
                     anchors.centerIn: parent
+                    anchors.verticalCenterOffset: 1 * Appearance.effectiveScale
                     text: Math.round(root.value * 100)
-                    font.pixelSize: Math.round(13 * Appearance.effectiveScale)
+                    font.pixelSize: Math.round(15 * Appearance.effectiveScale)
                     font.family: Appearance.font.family.numbers
+                    font.features: { "tnum": 1 }
                     font.weight: Font.DemiBold
-                    color: Appearance.m3colors.m3onSecondaryContainer
+                    color: Appearance.m3colors.m3onSurface
                     
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter

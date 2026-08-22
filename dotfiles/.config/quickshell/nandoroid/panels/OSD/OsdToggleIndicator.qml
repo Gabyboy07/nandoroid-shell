@@ -19,8 +19,8 @@ Item {
     property var shape
     
     // Root dimensions for the Loader/PanelWindow
-    implicitWidth: 340 * Appearance.effectiveScale
-    implicitHeight: 48 * Appearance.effectiveScale
+    implicitWidth: 360 * Appearance.effectiveScale
+    implicitHeight: 56 * Appearance.effectiveScale
 
     StyledRectangularShadow {
         target: valueIndicator
@@ -36,35 +36,31 @@ Item {
         RowLayout {
             id: valueRow
             anchors.fill: parent
-            anchors.leftMargin: 12 * Appearance.effectiveScale
-            anchors.rightMargin: 12 * Appearance.effectiveScale
-            spacing: 12 * Appearance.effectiveScale
+            anchors.leftMargin: 8 * Appearance.effectiveScale
+            anchors.rightMargin: 8 * Appearance.effectiveScale
+            anchors.topMargin: 10 * Appearance.effectiveScale
+            anchors.bottomMargin: 10 * Appearance.effectiveScale
+            spacing: 8 * Appearance.effectiveScale
 
             // ── Slot Kiri: Icon Wrapper ──
             Item {
-                Layout.preferredWidth: 32 * Appearance.effectiveScale
-                Layout.preferredHeight: 32 * Appearance.effectiveScale
+                Layout.preferredWidth: 36 * Appearance.effectiveScale
+                Layout.preferredHeight: 36 * Appearance.effectiveScale
                 Layout.alignment: Qt.AlignVCenter
 
-                MaterialShapeWrappedMaterialSymbol {
-                    id: iconMain
+                Rectangle {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    
-                    shapeString: {
-                        if (typeof root.shape === "string" && root.shape !== "") return root.shape;
-                        if (root.name.toLowerCase().includes("power")) return "Sunny";
-                        if (root.name.toLowerCase().includes("battery") || root.name.toLowerCase().includes("charging")) return "Gem";
-                        if (root.name.toLowerCase().includes("layout")) return "PuffyDiamond";
-                        return "Ghostish";
-                    }
-                    
-                    text: root.icon
-                    iconSize: 18 * Appearance.effectiveScale
-                    
+                    radius: height / 2
                     color: Appearance.m3colors.m3primaryContainer
-                    colSymbol: Appearance.m3colors.m3onPrimaryContainer
+                    
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: root.icon
+                        iconSize: 22 * Appearance.effectiveScale
+                        color: Appearance.m3colors.m3onPrimaryContainer
+                    }
                 }
             }
 
@@ -72,41 +68,18 @@ Item {
             Rectangle {
                 id: textWrapper
                 Layout.fillWidth: true
-                Layout.preferredHeight: 32 * Appearance.effectiveScale
+                Layout.preferredHeight: 36 * Appearance.effectiveScale
                 Layout.alignment: Qt.AlignVCenter
-                radius: 16 * Appearance.effectiveScale
+                radius: 18 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHighest
                 
                 Text {
                     anchors.centerIn: parent
                     text: root.statusText !== "" ? root.statusText : root.name
-                    font.pixelSize: Math.round(13 * Appearance.effectiveScale)
+                    font.pixelSize: Math.round(15 * Appearance.effectiveScale)
                     font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
                     elide: Text.ElideRight
-                    
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    renderType: Text.NativeRendering
-                }
-            }
-
-            // ── Slot Kanan: Category Label (Centered Square) ──
-            Rectangle {
-                id: contextSlot
-                Layout.preferredWidth: 44 * Appearance.effectiveScale
-                Layout.preferredHeight: 32 * Appearance.effectiveScale
-                Layout.alignment: Qt.AlignVCenter
-                radius: 12 * Appearance.effectiveScale
-                color: Appearance.m3colors.m3secondaryContainer
-
-                Text {
-                    anchors.centerIn: parent
-                    text: root.name.substring(0, 2).toUpperCase()
-                    font.pixelSize: Math.round(11 * Appearance.effectiveScale)
-                    font.weight: Font.DemiBold
-                    color: Appearance.m3colors.m3onSecondaryContainer
-                    opacity: 0.8
                     
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter

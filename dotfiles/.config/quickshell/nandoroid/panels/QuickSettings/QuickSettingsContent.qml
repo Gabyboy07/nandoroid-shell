@@ -1160,6 +1160,7 @@ Item {
                     id: brightnessSlider
                     Layout.fillWidth: true
                     configuration: StyledSlider.Configuration.M
+                    showTrailingDot: false
                     visible: true
                     readonly property real gammaBoundary: 0.3
                     readonly property bool dimming: Hyprsunset.gamma !== 100
@@ -1207,6 +1208,7 @@ Item {
                             id: volumeSlider
                             Layout.fillWidth: true
                             configuration: StyledSlider.Configuration.M
+                            showTrailingDot: false
                             visible: true
                             from: 0.0
                             to: 1.0
@@ -1220,6 +1222,7 @@ Item {
                             id: micSlider
                             Layout.fillWidth: true
                             configuration: StyledSlider.Configuration.M
+                            showTrailingDot: false
                             visible: true
                             from: 0.0
                             to: 1.0
@@ -1231,12 +1234,19 @@ Item {
             }
         }
 
-    component QuickSlider: StyledSlider { 
+    component QuickSlider: StyledSlider {
         id: quickSlider
         focusPolicy: Qt.NoFocus
         required property string materialSymbol
         property string secondaryMaterialSymbol
-        configuration: StyledSlider.Configuration.L
+        configuration: StyledSlider.Configuration.M
+        
+        // Override default M configuration for QS specifically
+        trackWidth: 36 * Appearance.effectiveScale
+        handleHeight: 48 * Appearance.effectiveScale
+        trackRadius: 12 * Appearance.effectiveScale
+        insetIconSize: 22 * Appearance.effectiveScale
+        
         stopIndicatorValues: []
         
         MaterialSymbol {
@@ -1247,7 +1257,7 @@ Item {
                 right: nearFull ? quickSlider.handle.right : parent.right
                 rightMargin: icon.nearFull ? 16 * Appearance.effectiveScale : 10 * Appearance.effectiveScale
             }
-            iconSize: 20 * Appearance.effectiveScale
+            iconSize: quickSlider.insetIconSize
             color: nearFull ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSecondaryContainer
             text: quickSlider.materialSymbol
 
@@ -1269,7 +1279,7 @@ Item {
                 right: nearIcon ? quickSlider.handle.right : parent.right
                 rightMargin: nearIcon ? 14 * Appearance.effectiveScale : (1 - iconLocation) * quickSlider.effectiveDraggingWidth + quickSlider.rightPadding + 8 * Appearance.effectiveScale
             }
-            iconSize: 20 * Appearance.effectiveScale
+            iconSize: quickSlider.insetIconSize
             color: quickSlider.value >= iconLocation - 0.1 ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSecondaryContainer
             text: secondaryMaterialSymbol
 
