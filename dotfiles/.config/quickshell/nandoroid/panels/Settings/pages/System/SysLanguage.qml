@@ -5,7 +5,6 @@ import "../../../../core/functions" as Functions
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import Qt5Compat.GraphicalEffects
 import Quickshell
 
 ColumnLayout {
@@ -39,11 +38,11 @@ ColumnLayout {
 
     ColumnLayout {
         Layout.fillWidth: true
-        spacing: 16 * Appearance.effectiveScale
+        spacing: 4 * Appearance.effectiveScale
 
         RowLayout {
             spacing: 12 * Appearance.effectiveScale
-            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            Layout.bottomMargin: 8 * Appearance.effectiveScale
             MaterialSymbol {
                 text: "translate"
                 iconSize: 24 * Appearance.effectiveScale
@@ -57,61 +56,79 @@ ColumnLayout {
             }
         }
 
-        // Language Info Card
+        // Language Selector Card
         SegmentedWrapper {
+            id: languageCard
             Layout.fillWidth: true
-            implicitHeight: wrapperLayout.implicitHeight + (32 * Appearance.effectiveScale)
+            implicitHeight: languageRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
 
-            ColumnLayout {
-                id: wrapperLayout
+            RippleButton {
+                id: languageClickArea
                 anchors.fill: parent
-                anchors.margins: 16 * Appearance.effectiveScale
-                spacing: 12 * Appearance.effectiveScale
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: languageCard.rTopLeft
+                topRightRadius: languageCard.rTopRight
+                bottomLeftRadius: languageCard.rBottomLeft
+                bottomRightRadius: languageCard.rBottomRight
 
-                RowLayout {
+                property real comboClosedAt: 0
+
+                onClicked: {
+                    if (Date.now() - comboClosedAt < 250) return;
+                    langCombo.isOpened = !langCombo.isOpened;
+                }
+
+                Connections {
+                    target: langCombo
+                    function onIsOpenedChanged() {
+                        if (!langCombo.isOpened) languageClickArea.comboClosedAt = Date.now();
+                    }
+                }
+
+                StyledToolTip {
+                    extraVisibleCondition: parent.hovered || parent.realHovered
+                    text: I18nService.tr("Select your preferred UI language. Some strings may not yet be translated.")
+                }
+            }
+
+            RowLayout {
+                id: languageRow
+                anchors.fill: parent
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "language"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("UI Language")
+                    color: Appearance.colors.colOnLayer1
                     Layout.fillWidth: true
-                    spacing: 16 * Appearance.effectiveScale
+                }
 
-                    // Icon indicator
-                    MaterialSymbol {
-                        text: "language"
-                        iconSize: 24 * Appearance.effectiveScale
-                        color: Appearance.colors.colPrimary
-                    }
-
-                    ColumnLayout {
-                        spacing: 2 * Appearance.effectiveScale
-                        Layout.fillWidth: true
-
-                        StyledText {
-                            text: I18nService.tr("Localization Service")
-                            font.pixelSize: Appearance.font.pixelSize.normal
-                            font.weight: Font.Medium
-                            color: Appearance.colors.colOnLayer1
-                        }
-                        StyledText {
-                            text: I18nService.tr("Select your preferred UI language. Some strings may not yet be translated.")
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.colors.colSubtext
-                            wrapMode: Text.WordWrap
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    // Language selector dropdown
-                    StyledComboBox {
-                        Layout.preferredWidth: 220 * Appearance.effectiveScale
-                        model: root.languageDisplayModel
-                        text: root.langDisplay(root.currentLanguageCode)
-                        searchable: false
-                        placeholder: ""
-                        onAccepted: (value) => {
-                            const code = root.langCode(value);
-                            if (Config.ready) Config.options.language.ui = code;
-                        }
+                StyledComboBox {
+                    id: langCombo
+                    Layout.preferredWidth: 220 * Appearance.effectiveScale
+                    bgRadius: height / 2
+                    model: root.languageDisplayModel
+                    text: root.langDisplay(root.currentLanguageCode)
+                    searchable: false
+                    placeholder: ""
+                    onAccepted: (value) => {
+                        const code = root.langCode(value);
+                        if (Config.ready) Config.options.language.ui = code;
                     }
                 }
             }

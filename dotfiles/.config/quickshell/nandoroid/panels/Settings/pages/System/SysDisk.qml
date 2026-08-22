@@ -49,7 +49,7 @@ ColumnLayout {
                     required property var modelData
                     required property int index
                     Layout.fillWidth: true
-                    implicitHeight: 64 * Appearance.effectiveScale
+                    implicitHeight: diskRow.implicitHeight + (24 * Appearance.effectiveScale)
                     orientation: Qt.Vertical
                     smallRadius: 8 * Appearance.effectiveScale
                     fullRadius: 20 * Appearance.effectiveScale
@@ -57,21 +57,24 @@ ColumnLayout {
 
                     // Manual rounding for joined list
                     forceFirst: index === 0
-                    forceLast: false 
+                    forceLast: false
                     forceNotStandalone: true
 
                     RowLayout {
+                        id: diskRow
                         anchors.fill: parent
-                        anchors.leftMargin: 20 * Appearance.effectiveScale
-                        anchors.rightMargin: 12 * Appearance.effectiveScale
+                        anchors {
+                            leftMargin: 16 * Appearance.effectiveScale
+                            rightMargin: 12 * Appearance.effectiveScale
+                            topMargin: 12 * Appearance.effectiveScale
+                            bottomMargin: 12 * Appearance.effectiveScale
+                        }
                         spacing: 16 * Appearance.effectiveScale
 
                         ColumnLayout {
                             spacing: 2 * Appearance.effectiveScale
                             StyledText {
                                 text: modelData.alias !== "" ? modelData.alias : modelData.path
-                                font.pixelSize: Appearance.font.pixelSize.normal
-                                font.weight: Font.Medium
                                 color: Appearance.colors.colOnLayer1
                             }
                             StyledText {
@@ -114,12 +117,12 @@ ColumnLayout {
         SegmentedWrapper {
             Layout.fillWidth: true
             Layout.topMargin: 0 // Joined to above
-            implicitHeight: addDiskInner.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: addDiskInner.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             smallRadius: 8 * Appearance.effectiveScale
             fullRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
-            
+
             forceFirst: (Config.ready && Config.options.system) ? Config.options.system.monitoredDisks.length === 0 : true
             forceLast: true
             forceNotStandalone: true
@@ -127,7 +130,12 @@ ColumnLayout {
             ColumnLayout {
                 id: addDiskInner
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
                 spacing: 16 * Appearance.effectiveScale
 
                 RowLayout {
@@ -142,6 +150,7 @@ ColumnLayout {
                             id: addDiskPathInput
                             Layout.fillWidth: true
                             Layout.preferredHeight: 48 * Appearance.effectiveScale
+                            inputRadius: 24
                             placeholder: I18nService.tr("Mount path (e.g. /home)")
                         }
 
@@ -149,6 +158,7 @@ ColumnLayout {
                             id: addDiskAliasInput
                             Layout.fillWidth: true
                             Layout.preferredHeight: 48 * Appearance.effectiveScale
+                            inputRadius: 24
                             placeholder: I18nService.tr("Alias (e.g. Work)")
                         }
                     }

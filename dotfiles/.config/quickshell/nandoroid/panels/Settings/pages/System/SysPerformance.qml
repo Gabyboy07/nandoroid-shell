@@ -5,13 +5,12 @@ import "../../../../core/functions" as Functions
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import Qt5Compat.GraphicalEffects
 import Quickshell
 
 ColumnLayout {
     Layout.fillWidth: true
     spacing: 0
-    
+
     SearchHandler {
         searchString: "Performance"
         aliases: ["CPU", "RAM", "Monitoring", "Interval", "Update", "Refresh", "System Monitor"]
@@ -39,38 +38,48 @@ ColumnLayout {
 
         SegmentedWrapper {
             Layout.fillWidth: true
-            implicitHeight: intervalRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: intervalRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             color: Appearance.m3colors.m3surfaceContainerHigh
             smallRadius: 8 * Appearance.effectiveScale
             fullRadius: 20 * Appearance.effectiveScale
 
+            MouseArea {
+                id: intervalHoverArea
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                hoverEnabled: true
+                StyledToolTip {
+                    extraVisibleCondition: false
+                    alternativeVisibleCondition: intervalHoverArea.containsMouse
+                    text: I18nService.tr("How often to refresh system data (statusbar, quick settings, desktop widget).")
+                }
+            }
+
             RowLayout {
                 id: intervalRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Update Interval")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("How often to refresh system data (statusbar, quick settings, desktop widget).")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
+                spacing: 16 * Appearance.effectiveScale
 
-                Item { Layout.fillWidth: true }
+                MaterialSymbol {
+                    text: "speed"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Update Interval")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
 
                 StyledStepper {
                     id: intervalStepper
-                    Layout.alignment: Qt.AlignVCenter
                     value: Config.ready ? Config.options.appearance.systemMonitor.updateInterval : 3000
                     from: 1000; to: 10000; stepSize: 500
                     decimals: 0

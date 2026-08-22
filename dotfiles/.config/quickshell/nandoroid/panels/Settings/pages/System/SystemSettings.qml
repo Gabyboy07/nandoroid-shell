@@ -30,7 +30,7 @@ Flickable {
     ColumnLayout {
         id: mainCol
         width: parent.width - (24 * Appearance.effectiveScale)
-        spacing: 32 * Appearance.effectiveScale
+        spacing: 24 * Appearance.effectiveScale
 
         // ── Header ──
         ColumnLayout {
