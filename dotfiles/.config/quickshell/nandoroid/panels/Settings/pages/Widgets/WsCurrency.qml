@@ -10,12 +10,24 @@ Rectangle {
     visible: Config.ready && Config.options.appearance && Config.options.appearance.currencyWidget
     Layout.fillWidth: true
     implicitHeight: 120 * Appearance.effectiveScale
-    radius: 24 * Appearance.effectiveScale
+    radius: 20 * Appearance.effectiveScale
     color: Appearance.m3colors.m3surfaceContainerHigh
 
     SearchHandler { 
         searchString: "Currency Tracker"
         aliases: ["Widget", "Currency", "Money", "Rates", "IDR", "USD", "Finance"]
+    }
+
+    // Whole-tile click toggles the widget
+    RippleButton {
+        anchors.fill: parent
+        buttonRadius: parent.radius
+        colBackground: "transparent"
+        onClicked: {
+            if (Config.ready && Config.options.appearance && Config.options.appearance.currencyWidget) {
+                Config.options.appearance.currencyWidget.showOnDesktop = !Config.options.appearance.currencyWidget.showOnDesktop
+            }
+        }
     }
 
     // Top row container (Icon & Toggle)
@@ -65,8 +77,6 @@ Rectangle {
             
             StyledText {
                 text: I18nService.tr("Currency Tracker")
-                font.pixelSize: Appearance.font.pixelSize.normal
-                font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }
             StyledText {

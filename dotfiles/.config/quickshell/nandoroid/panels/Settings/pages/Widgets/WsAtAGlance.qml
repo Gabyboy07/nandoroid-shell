@@ -10,19 +10,19 @@ ColumnLayout {
     Layout.fillWidth: true
     spacing: 0
 
-    SearchHandler { 
+    SearchHandler {
         searchString: "At a Glance"
         aliases: ["Widget", "Glance", "Greeting", "Date", "Quote"]
     }
 
     ColumnLayout {
         Layout.fillWidth: true
-        spacing: 16 * Appearance.effectiveScale
-        
+        spacing: 4 * Appearance.effectiveScale
+
         // Section Header
         RowLayout {
             spacing: 12 * Appearance.effectiveScale
-            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            Layout.bottomMargin: 8 * Appearance.effectiveScale
             MaterialSymbol {
                 text: "widgets"
                 iconSize: 24 * Appearance.effectiveScale
@@ -64,12 +64,36 @@ ColumnLayout {
             spacing: 4 * Appearance.effectiveScale
             visible: Config.ready && Config.options.appearance.atAGlance.show
 
+            // Show Greeting (whole card clickable)
             SegmentedWrapper {
-                Layout.fillWidth: true; implicitHeight: 64 * Appearance.effectiveScale; color: Appearance.m3colors.m3surfaceContainerHigh
+                id: greetingCard
+                Layout.fillWidth: true
+                implicitHeight: greetingRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
+                color: Appearance.m3colors.m3surfaceContainerHigh
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: greetingCard.rTopLeft
+                    topRightRadius: greetingCard.rTopRight
+                    bottomLeftRadius: greetingCard.rBottomLeft
+                    bottomRightRadius: greetingCard.rBottomRight
+                    onClicked: if (Config.ready) Config.options.appearance.atAGlance.showGreeting = !Config.options.appearance.atAGlance.showGreeting
+                }
+
                 RowLayout {
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    id: greetingRow
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "waving_hand"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Show Greeting"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -77,12 +101,36 @@ ColumnLayout {
                 }
             }
 
+            // Show Date (whole card clickable)
             SegmentedWrapper {
-                Layout.fillWidth: true; implicitHeight: 64 * Appearance.effectiveScale; color: Appearance.m3colors.m3surfaceContainerHigh
+                id: dateCard
+                Layout.fillWidth: true
+                implicitHeight: dateShowRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
+                color: Appearance.m3colors.m3surfaceContainerHigh
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: dateCard.rTopLeft
+                    topRightRadius: dateCard.rTopRight
+                    bottomLeftRadius: dateCard.rBottomLeft
+                    bottomRightRadius: dateCard.rBottomRight
+                    onClicked: if (Config.ready) Config.options.appearance.atAGlance.showDate = !Config.options.appearance.atAGlance.showDate
+                }
+
                 RowLayout {
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    id: dateShowRow
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "calendar_month"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Show Date"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -90,12 +138,36 @@ ColumnLayout {
                 }
             }
 
+            // Show Quotes (whole card clickable)
             SegmentedWrapper {
-                Layout.fillWidth: true; implicitHeight: 64 * Appearance.effectiveScale; color: Appearance.m3colors.m3surfaceContainerHigh
+                id: quoteCard
+                Layout.fillWidth: true
+                implicitHeight: quoteShowRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
+                color: Appearance.m3colors.m3surfaceContainerHigh
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: quoteCard.rTopLeft
+                    topRightRadius: quoteCard.rTopRight
+                    bottomLeftRadius: quoteCard.rBottomLeft
+                    bottomRightRadius: quoteCard.rBottomRight
+                    onClicked: if (Config.ready) Config.options.appearance.atAGlance.showQuote = !Config.options.appearance.atAGlance.showQuote
+                }
+
                 RowLayout {
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    id: quoteShowRow
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "format_quote"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Show Quotes"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -103,25 +175,31 @@ ColumnLayout {
                 }
             }
 
-
             // Alignment
             SegmentedWrapper {
                 Layout.fillWidth: true
-                implicitHeight: alignmentRow.implicitHeight + (32 * Appearance.effectiveScale)
+                implicitHeight: alignmentRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 RowLayout {
                     id: alignmentRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "format_align_left"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Alignment"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
-                    
+
                     Row {
-                        spacing: 4 * Appearance.effectiveScale
+                        spacing: 2 * Appearance.effectiveScale
                         SegmentedButton {
-                            width: 64 * Appearance.effectiveScale; height: 32 * Appearance.effectiveScale
+                            width: 64 * Appearance.effectiveScale
+                            Layout.fillHeight: true
                             iconName: "format_align_left"
                             isHighlighted: Config.ready && Config.options.appearance.atAGlance.alignment === "left"
                             colActive: Appearance.m3colors.m3primary
@@ -130,7 +208,8 @@ ColumnLayout {
                             onClicked: if (Config.ready) Config.options.appearance.atAGlance.alignment = "left"
                         }
                         SegmentedButton {
-                            width: 64 * Appearance.effectiveScale; height: 32 * Appearance.effectiveScale
+                            width: 64 * Appearance.effectiveScale
+                            Layout.fillHeight: true
                             iconName: "format_align_center"
                             isHighlighted: Config.ready && Config.options.appearance.atAGlance.alignment === "center"
                             colActive: Appearance.m3colors.m3primary
@@ -139,7 +218,8 @@ ColumnLayout {
                             onClicked: if (Config.ready) Config.options.appearance.atAGlance.alignment = "center"
                         }
                         SegmentedButton {
-                            width: 64 * Appearance.effectiveScale; height: 32 * Appearance.effectiveScale
+                            width: 64 * Appearance.effectiveScale
+                            Layout.fillHeight: true
                             iconName: "format_align_right"
                             isHighlighted: Config.ready && Config.options.appearance.atAGlance.alignment === "right"
                             colActive: Appearance.m3colors.m3primary
@@ -150,31 +230,63 @@ ColumnLayout {
                     }
                 }
             }
-            // Font Family
+
+            // Font Family (whole card opens the combo)
             SegmentedWrapper {
+                id: fontFamilyCard
                 Layout.fillWidth: true
-                implicitHeight: fontRow.implicitHeight + (32 * Appearance.effectiveScale)
+                implicitHeight: fontRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
-                RowLayout {
-                    id: fontRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-                    spacing: 16 * Appearance.effectiveScale
-                    
-                    RowLayout {
-                        spacing: 16 * Appearance.effectiveScale
-                        Layout.preferredWidth: 70 * Appearance.effectiveScale
-                        MaterialSymbol { text: "text_fields"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                        StyledText {
-                            text: I18nService.tr("Font Family")
-                            color: Appearance.colors.colOnLayer1
-                            Layout.fillWidth: true
+
+                RippleButton {
+                    id: fontFamilyClickArea
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: fontFamilyCard.rTopLeft
+                    topRightRadius: fontFamilyCard.rTopRight
+                    bottomLeftRadius: fontFamilyCard.rBottomLeft
+                    bottomRightRadius: fontFamilyCard.rBottomRight
+
+                    property real comboClosedAt: 0
+
+                    onClicked: {
+                        if (Date.now() - comboClosedAt < 250) return;
+                        glanceFontCombo.isOpened = !glanceFontCombo.isOpened;
+                    }
+
+                    Connections {
+                        target: glanceFontCombo
+                        function onIsOpenedChanged() {
+                            if (!glanceFontCombo.isOpened) fontFamilyClickArea.comboClosedAt = Date.now();
                         }
                     }
-                    Item { Layout.fillWidth: true }
+                }
+
+                RowLayout {
+                    id: fontRow
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
+                    spacing: 16 * Appearance.effectiveScale
+
+                    MaterialSymbol { text: "text_fields"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText {
+                        text: I18nService.tr("Font Family")
+                        color: Appearance.colors.colOnLayer1
+                        Layout.fillWidth: true
+                    }
                     StyledComboBox {
+                        id: glanceFontCombo
                         Layout.preferredWidth: 300 * Appearance.effectiveScale
+                        bgRadius: height / 2
                         model: SystemFonts.all
                         text: {
                             if (!Config.ready) return I18nService.tr("Default");
@@ -192,27 +304,28 @@ ColumnLayout {
             // Font Size
             SegmentedWrapper {
                 Layout.fillWidth: true
-                implicitHeight: fontSizeRow.implicitHeight + (32 * Appearance.effectiveScale)
+                implicitHeight: fontSizeRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 RowLayout {
                     id: fontSizeRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
-                    
-                    RowLayout {
-                        spacing: 16 * Appearance.effectiveScale
-                        Layout.preferredWidth: 70 * Appearance.effectiveScale
-                        MaterialSymbol { text: "format_size"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                        StyledText {
-                            text: I18nService.tr("Font Size")
-                            color: Appearance.colors.colOnLayer1
-                            Layout.fillWidth: true
-                        }
+
+                    MaterialSymbol { text: "format_size"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText {
+                        text: I18nService.tr("Font Size")
+                        color: Appearance.colors.colOnLayer1
+                        Layout.fillWidth: true
                     }
                     StyledStepper {
-                        Layout.alignment: Qt.AlignVCenter
                         value: Config.ready ? Config.options.appearance.atAGlance.fontSize : 24
                         from: 12; to: 72
                         stepSize: 1
@@ -225,28 +338,29 @@ ColumnLayout {
             // Greeting Color
             SegmentedWrapper {
                 Layout.fillWidth: true
-                implicitHeight: greetingColorRow.implicitHeight + (32 * Appearance.effectiveScale)
+                implicitHeight: greetingColorRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 RowLayout {
                     id: greetingColorRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-                    spacing: 16 * Appearance.effectiveScale
-                    
-                    RowLayout {
-                        spacing: 16 * Appearance.effectiveScale
-                        Layout.preferredWidth: 70 * Appearance.effectiveScale
-                        MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                        StyledText {
-                            text: I18nService.tr("Greeting Color")
-                            color: Appearance.colors.colOnLayer1
-                            Layout.fillWidth: true
-                        }
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
                     }
-                    Item { Layout.fillWidth: true }
+                    spacing: 16 * Appearance.effectiveScale
+
+                    MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText {
+                        text: I18nService.tr("Greeting Color")
+                        color: Appearance.colors.colOnLayer1
+                        Layout.fillWidth: true
+                    }
                     Row {
-                        Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
+                        spacing: 2 * Appearance.effectiveScale
                         Repeater {
                             model: ["primary", "secondary", "tertiary", "error", "surface", "onSurface", "onLayer1"]
                             delegate: ColorPickerButton {
@@ -263,28 +377,29 @@ ColumnLayout {
             // Date Color
             SegmentedWrapper {
                 Layout.fillWidth: true
-                implicitHeight: dateColorRow.implicitHeight + (32 * Appearance.effectiveScale)
+                implicitHeight: dateColorRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 RowLayout {
                     id: dateColorRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-                    spacing: 16 * Appearance.effectiveScale
-                    
-                    RowLayout {
-                        spacing: 16 * Appearance.effectiveScale
-                        Layout.preferredWidth: 70 * Appearance.effectiveScale
-                        MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                        StyledText {
-                            text: I18nService.tr("Date Color")
-                            color: Appearance.colors.colOnLayer1
-                            Layout.fillWidth: true
-                        }
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
                     }
-                    Item { Layout.fillWidth: true }
+                    spacing: 16 * Appearance.effectiveScale
+
+                    MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText {
+                        text: I18nService.tr("Date Color")
+                        color: Appearance.colors.colOnLayer1
+                        Layout.fillWidth: true
+                    }
                     Row {
-                        Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
+                        spacing: 2 * Appearance.effectiveScale
                         Repeater {
                             model: ["primary", "secondary", "tertiary", "error", "surface", "onSurface", "onLayer1"]
                             delegate: ColorPickerButton {
@@ -301,28 +416,29 @@ ColumnLayout {
             // Quote Color
             SegmentedWrapper {
                 Layout.fillWidth: true
-                implicitHeight: quoteColorRow.implicitHeight + (32 * Appearance.effectiveScale)
+                implicitHeight: quoteColorRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 RowLayout {
                     id: quoteColorRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-                    spacing: 16 * Appearance.effectiveScale
-                    
-                    RowLayout {
-                        spacing: 16 * Appearance.effectiveScale
-                        Layout.preferredWidth: 70 * Appearance.effectiveScale
-                        MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                        StyledText {
-                            text: I18nService.tr("Quote Color")
-                            color: Appearance.colors.colOnLayer1
-                            Layout.fillWidth: true
-                        }
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
                     }
-                    Item { Layout.fillWidth: true }
+                    spacing: 16 * Appearance.effectiveScale
+
+                    MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText {
+                        text: I18nService.tr("Quote Color")
+                        color: Appearance.colors.colOnLayer1
+                        Layout.fillWidth: true
+                    }
                     Row {
-                        Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
+                        spacing: 2 * Appearance.effectiveScale
                         Repeater {
                             model: ["primary", "secondary", "tertiary", "error", "surface", "onSurface", "onLayer1"]
                             delegate: ColorPickerButton {

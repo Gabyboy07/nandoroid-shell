@@ -10,13 +10,25 @@ Rectangle {
     visible: Config.ready && Config.options.appearance && Config.options.appearance.mediaWidget
     Layout.fillWidth: true
     implicitHeight: 120 * Appearance.effectiveScale
-    radius: 24 * Appearance.effectiveScale
+    radius: 20 * Appearance.effectiveScale
     color: Appearance.m3colors.m3surfaceContainerHigh
 
     SearchHandler { 
         searchString: "Media Player"
         visible: rootMediaWidget.visible
         aliases: ["Widget", "Media", "Player", "Music", "Spotify"]
+    }
+
+    // Whole-tile click toggles the widget
+    RippleButton {
+        anchors.fill: parent
+        buttonRadius: parent.radius
+        colBackground: "transparent"
+        onClicked: {
+            if (Config.ready && Config.options.appearance && Config.options.appearance.mediaWidget) {
+                Config.options.appearance.mediaWidget.showOnDesktop = !Config.options.appearance.mediaWidget.showOnDesktop
+            }
+        }
     }
 
     // Top row container (Icon & Toggle)
@@ -66,8 +78,6 @@ Rectangle {
             
             StyledText {
                 text: I18nService.tr("Media Player")
-                font.pixelSize: Appearance.font.pixelSize.normal
-                font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }
             StyledText {

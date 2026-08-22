@@ -14,13 +14,25 @@ Rectangle {
     Behavior on opacity { NumberAnimation { duration: 200 } }
     Layout.fillWidth: true
     implicitHeight: 120 * Appearance.effectiveScale
-    radius: 24 * Appearance.effectiveScale
+    radius: 20 * Appearance.effectiveScale
     color: Appearance.m3colors.m3surfaceContainerHigh
 
     SearchHandler { 
         searchString: "Weather"
         visible: rootWeatherSettings.visible
         aliases: ["Widget", "Weather", "Cuaca", "Temp", "Temperature"]
+    }
+
+    // Whole-tile click toggles the widget
+    RippleButton {
+        anchors.fill: parent
+        buttonRadius: parent.radius
+        colBackground: "transparent"
+        onClicked: {
+            if (Config.ready && Config.options.appearance && Config.options.appearance.weatherWidget) {
+                Config.options.appearance.weatherWidget.showOnDesktop = !Config.options.appearance.weatherWidget.showOnDesktop
+            }
+        }
     }
 
     // Top row container (Icon & Toggle)
@@ -72,8 +84,6 @@ Rectangle {
             
             StyledText {
                 text: I18nService.tr("Weather")
-                font.pixelSize: Appearance.font.pixelSize.normal
-                font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }
             StyledText {

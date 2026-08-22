@@ -10,13 +10,25 @@ Rectangle {
     visible: Config.ready && Config.options.appearance && Config.options.appearance.systemMonitor
     Layout.fillWidth: true
     implicitHeight: 120 * Appearance.effectiveScale
-    radius: 24 * Appearance.effectiveScale
+    radius: 20 * Appearance.effectiveScale
     color: Appearance.m3colors.m3surfaceContainerHigh
 
     SearchHandler { 
         searchString: "System Monitor"
         visible: rootSystemMonitorSettings.visible
         aliases: ["Widget", "System", "Monitor", "CPU", "RAM", "Battery", "Disk"]
+    }
+
+    // Whole-tile click toggles the widget
+    RippleButton {
+        anchors.fill: parent
+        buttonRadius: parent.radius
+        colBackground: "transparent"
+        onClicked: {
+            if (Config.ready && Config.options.appearance && Config.options.appearance.systemMonitor) {
+                Config.options.appearance.systemMonitor.showOnDesktop = !Config.options.appearance.systemMonitor.showOnDesktop
+            }
+        }
     }
 
     // Top row container (Icon & Toggle)
@@ -66,8 +78,6 @@ Rectangle {
             
             StyledText {
                 text: I18nService.tr("Resources")
-                font.pixelSize: Appearance.font.pixelSize.normal
-                font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }
             StyledText {
