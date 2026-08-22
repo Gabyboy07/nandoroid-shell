@@ -12,8 +12,8 @@ ColumnLayout {
     id: root
     Layout.fillWidth: true
     spacing: 0
-    
-    SearchHandler { 
+
+    SearchHandler {
         searchString: "Network Status"
         aliases: ["Speed Meter", "Bandwidth", "Internet", "Ethernet"]
     }
@@ -38,37 +38,59 @@ ColumnLayout {
             }
         }
 
+        // Show Network Speed (whole card clickable)
         SegmentedWrapper {
+            id: netSpeedCard
             Layout.fillWidth: true
-            implicitHeight: netSpeedRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: netSpeedRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             color: Appearance.m3colors.m3surfaceContainerHigh
             smallRadius: 8 * Appearance.effectiveScale
             fullRadius: 20 * Appearance.effectiveScale
-            
+
+            RippleButton {
+                anchors.fill: parent
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: netSpeedCard.rTopLeft
+                topRightRadius: netSpeedCard.rTopRight
+                bottomLeftRadius: netSpeedCard.rBottomLeft
+                bottomRightRadius: netSpeedCard.rBottomRight
+                onClicked: {
+                    if (Config.ready && Config.options.bar) {
+                        Config.options.bar.show_network_speed = !Config.options.bar.show_network_speed;
+                    }
+                }
+
+                StyledToolTip {
+                    extraVisibleCondition: parent.hovered || parent.realHovered
+                    text: I18nService.tr("Display real-time upload and download speeds in the status bar.")
+                }
+            }
+
             RowLayout {
                 id: netSpeedRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Show Network Speed")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Display real-time upload and download speeds in the status bar.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
-                
-                Item { Layout.fillWidth: true }
-                
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "speed"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Show Network Speed")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
+
                 AndroidToggle {
                     checked: (Config.ready && Config.options.bar && Config.options.bar.show_network_speed)
                     onToggled: {
@@ -80,59 +102,71 @@ ColumnLayout {
             }
         }
 
+        // Starting Unit
         SegmentedWrapper {
+            id: netUnitCard
             Layout.fillWidth: true
-            implicitHeight: netUnitRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: netUnitRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             color: Appearance.m3colors.m3surfaceContainerHigh
             smallRadius: 8 * Appearance.effectiveScale
             fullRadius: 20 * Appearance.effectiveScale
-            
+
             opacity: (Config.ready && Config.options.bar && Config.options.bar.show_network_speed) ? 1.0 : 0.4
             enabled: (Config.ready && Config.options.bar && Config.options.bar.show_network_speed)
             Behavior on opacity { NumberAnimation { duration: 200 } }
 
+            MouseArea {
+                id: netUnitHoverArea
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                hoverEnabled: true
+                StyledToolTip {
+                    extraVisibleCondition: false
+                    alternativeVisibleCondition: netUnitHoverArea.containsMouse
+                    text: I18nService.tr("Select the default unit for speed measurements.")
+                }
+            }
+
             RowLayout {
                 id: netUnitRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Starting Unit")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Select the default unit for speed measurements.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
-                
-                Item { Layout.fillWidth: true }
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "swap_horiz"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Starting Unit")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
 
                 RowLayout {
-                    spacing: 4 * Appearance.effectiveScale
-                    Layout.preferredHeight: 40 * Appearance.effectiveScale
-                    
+                    spacing: 2 * Appearance.effectiveScale
+
                     Repeater {
                         model: ["B", "KB", "MB"]
                         delegate: SegmentedButton {
+                            required property var modelData
                             isHighlighted: (Config.ready && Config.options.bar) ? Config.options.bar.network_speed_unit === modelData : false
-                            Layout.fillHeight: true
-                            
+
                             buttonText: modelData
-                            leftPadding: 32 * Appearance.effectiveScale
-                            rightPadding: 32 * Appearance.effectiveScale
-                            
+                            leftPadding: 16 * Appearance.effectiveScale
+                            rightPadding: 16 * Appearance.effectiveScale
+
                             colActive: Appearance.m3colors.m3primary
                             colActiveText: Appearance.m3colors.m3onPrimary
                             colInactive: Appearance.m3colors.m3surfaceContainerLow
-                            
+
                             onClicked: {
                                 if (Config.ready && Config.options.bar) {
                                     Config.options.bar.network_speed_unit = modelData;
@@ -144,44 +178,55 @@ ColumnLayout {
             }
         }
 
+        // Update Interval
         SegmentedWrapper {
+            id: netIntervalCard
             Layout.fillWidth: true
-            implicitHeight: netIntervalRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: netIntervalRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             color: Appearance.m3colors.m3surfaceContainerHigh
             smallRadius: 8 * Appearance.effectiveScale
             fullRadius: 20 * Appearance.effectiveScale
-            
+
             opacity: (Config.ready && Config.options.bar && Config.options.bar.show_network_speed) ? 1.0 : 0.4
             enabled: (Config.ready && Config.options.bar && Config.options.bar.show_network_speed)
             Behavior on opacity { NumberAnimation { duration: 200 } }
 
+            MouseArea {
+                id: netIntervalHoverArea
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                hoverEnabled: true
+                StyledToolTip {
+                    extraVisibleCondition: false
+                    alternativeVisibleCondition: netIntervalHoverArea.containsMouse
+                    text: I18nService.tr("How often to poll network speeds.")
+                }
+            }
+
             RowLayout {
                 id: netIntervalRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
+                spacing: 16 * Appearance.effectiveScale
 
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Update Interval")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("How often to poll network speeds.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                MaterialSymbol {
+                    text: "schedule"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Update Interval")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
                 }
 
-                Item { Layout.fillWidth: true }
-
                 StyledStepper {
-                    id: intervalStepper
-                    Layout.alignment: Qt.AlignVCenter
                     value: Config.ready ? Config.options.bar.networkSpeedInterval : 3000
                     from: 1000; to: 10000; stepSize: 500
                     decimals: 0

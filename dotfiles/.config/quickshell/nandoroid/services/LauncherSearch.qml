@@ -430,6 +430,12 @@ Singleton {
         function onValuesChanged() { triggerUpdate() }
     }
 
+    // Re-sort immediately when usage tracking is toggled
+    Connections {
+        target: Config.options.search
+        function onEnableUsageTrackingChanged() { triggerUpdate() }
+    }
+
     function updateAppModel() {
         const apps = Array.from(DesktopEntries.applications.values);
         if (apps.length === 0) return;
@@ -502,7 +508,7 @@ Singleton {
                 smartScore: smartScore
             };
         }).sort((a, b) => {
-            if (b.smartScore !== a.smartScore) return b.smartScore - a.smartScore;
+            if (Config.options.search.enableUsageTracking && b.smartScore !== a.smartScore) return b.smartScore - a.smartScore;
             return a.name.localeCompare(b.name);
         });
         

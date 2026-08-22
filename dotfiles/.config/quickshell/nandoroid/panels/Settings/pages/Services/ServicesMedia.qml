@@ -11,7 +11,7 @@ import Quickshell
 ColumnLayout {
     Layout.fillWidth: true
     spacing: 0
-    
+
     SearchHandler { searchString: "Media Controls" }
 
     ColumnLayout {
@@ -34,124 +34,169 @@ ColumnLayout {
             }
         }
 
+        // Media Player Priority (whole card focuses the input)
         SegmentedWrapper {
+            id: priorityCard
             Layout.fillWidth: true
-            implicitHeight: mediaRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: mediaRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
 
+            RippleButton {
+                anchors.fill: parent
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: priorityCard.rTopLeft
+                topRightRadius: priorityCard.rTopRight
+                bottomLeftRadius: priorityCard.rBottomLeft
+                bottomRightRadius: priorityCard.rBottomRight
+                onClicked: priorityInput.forceActiveFocus()
+
+                StyledToolTip {
+                    extraVisibleCondition: parent.hovered || parent.realHovered
+                    text: I18nService.tr("Prioritize specific players. Put highest priority first (e.g. 'spotify, firefox'). Case-insensitive.")
+                }
+            }
+
             RowLayout {
                 id: mediaRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    Layout.maximumWidth: 400 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Media Player Priority")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Prioritize specific players. Put highest priority first (e.g. 'spotify, firefox'). Case-insensitive.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                        wrapMode: Text.Wrap
-                        Layout.fillWidth: true
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
-                Item { Layout.fillWidth: true }
-                
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "sort"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Media Player Priority")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
+
                 StyledTextInput {
                     id: priorityInput
                     Layout.preferredWidth: 200 * Appearance.effectiveScale
-                    Layout.preferredHeight: 48 * Appearance.effectiveScale
+                    inputRadius: 24
                     text: (Config.ready && Config.options.media) ? Config.options.media.priority : ""
                     onEditingFinished: { if (Config.ready && Config.options.media) Config.options.media.priority = text; }
                 }
             }
         }
 
-        // --- Dynamic Island Hover Toggle ---
+        // Dynamic Island Hover (whole card clickable)
         SegmentedWrapper {
+            id: islandHoverCard
             Layout.fillWidth: true
-            implicitHeight: dynamicIslandHoverRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: dynamicIslandHoverRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
 
+            RippleButton {
+                anchors.fill: parent
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: islandHoverCard.rTopLeft
+                topRightRadius: islandHoverCard.rTopRight
+                bottomLeftRadius: islandHoverCard.rBottomLeft
+                bottomRightRadius: islandHoverCard.rBottomRight
+                onClicked: {
+                    if (Config.ready && Config.options.media) {
+                        Config.options.media.enableMediaHover = !Config.options.media.enableMediaHover;
+                    }
+                }
+
+                StyledToolTip {
+                    extraVisibleCondition: parent.hovered || parent.realHovered
+                    text: I18nService.tr("Show the media controls popup when hovering over the Dynamic Island.")
+                }
+            }
+
             RowLayout {
                 id: dynamicIslandHoverRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    Layout.maximumWidth: 400 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Dynamic Island Hover")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Show the media controls popup when hovering over the Dynamic Island.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                        wrapMode: Text.Wrap
-                        Layout.fillWidth: true
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
-                Item { Layout.fillWidth: true }
+                spacing: 16 * Appearance.effectiveScale
 
-                // Custom Switch
+                MaterialSymbol {
+                    text: "touch_app"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Dynamic Island Hover")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
+
                 AndroidToggle {
-                        checked: (Config.ready && Config.options.media && Config.options.media.enableMediaHover)
-                        onToggled: {
-                            if (Config.ready && Config.options.media) {
-                                Config.options.media.enableMediaHover = !Config.options.media.enableMediaHover;
-                    }
+                    checked: (Config.ready && Config.options.media && Config.options.media.enableMediaHover)
+                    onToggled: {
+                        if (Config.ready && Config.options.media) {
+                            Config.options.media.enableMediaHover = !Config.options.media.enableMediaHover;
+                        }
                     }
                 }
             }
         }
 
-        // --- Notch Media Style (Only visible if Hover is enabled) ---
+        // Notch Media Style
         SegmentedWrapper {
+            id: notchStyleCard
             Layout.fillWidth: true
-            implicitHeight: notchMediaStyleRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: notchMediaStyleRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
             visible: Config.ready && Config.options.media && Config.options.media.enableMediaHover
 
+            MouseArea {
+                id: notchStyleHoverArea
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                hoverEnabled: true
+                StyledToolTip {
+                    extraVisibleCondition: false
+                    alternativeVisibleCondition: notchStyleHoverArea.containsMouse
+                    text: I18nService.tr("Choose between a compact mini HUD or a full-featured media card.")
+                }
+            }
+
             RowLayout {
                 id: notchMediaStyleRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
+                spacing: 16 * Appearance.effectiveScale
 
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
+                MaterialSymbol {
+                    text: "style"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Notch Media Style")
+                    color: Appearance.colors.colOnLayer1
                     Layout.fillWidth: true
-                    StyledText {
-                        text: I18nService.tr("Notch Media Style")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Choose between a compact mini HUD or a full-featured media card.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                        wrapMode: Text.Wrap
-                        Layout.fillWidth: true
-                    }
                 }
 
                 RowLayout {

@@ -11,8 +11,8 @@ import Quickshell
 ColumnLayout {
     Layout.fillWidth: true
     spacing: 0
-    
-    SearchHandler { 
+
+    SearchHandler {
         searchString: "Weather"
         aliases: ["Forecast", "Temperature", "Climate"]
     }
@@ -37,37 +37,59 @@ ColumnLayout {
             }
         }
 
+        // Enable Weather Service (whole card clickable)
         SegmentedWrapper {
+            id: weatherEnableCard
             Layout.fillWidth: true
-            implicitHeight: weatherEnableRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: weatherEnableRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             color: Appearance.m3colors.m3surfaceContainerHigh
             smallRadius: 8 * Appearance.effectiveScale
             fullRadius: 20 * Appearance.effectiveScale
-            
+
+            RippleButton {
+                anchors.fill: parent
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: weatherEnableCard.rTopLeft
+                topRightRadius: weatherEnableCard.rTopRight
+                bottomLeftRadius: weatherEnableCard.rBottomLeft
+                bottomRightRadius: weatherEnableCard.rBottomRight
+                onClicked: {
+                    if (Config.ready && Config.options.weather) {
+                        Config.options.weather.enable = !Config.options.weather.enable;
+                    }
+                }
+
+                StyledToolTip {
+                    extraVisibleCondition: parent.hovered || parent.realHovered
+                    text: I18nService.tr("Fetch weather data for the notification center, desktop widget, and lock screen.")
+                }
+            }
+
             RowLayout {
                 id: weatherEnableRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Enable Weather Service")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Fetch weather data for the notification center, desktop widget, and lock screen.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
-                
-                Item { Layout.fillWidth: true }
-                
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "cloud"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Enable Weather Service")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
+
                 AndroidToggle {
                     checked: (Config.ready && Config.options.weather && Config.options.weather.enable)
                     onToggled: {
@@ -79,63 +101,74 @@ ColumnLayout {
             }
         }
 
-        // 2. Weather Provider Card
+        // Weather Provider
         SegmentedWrapper {
+            id: providerCard
             Layout.fillWidth: true
-            implicitHeight: weatherProviderRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: weatherProviderRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             color: Appearance.m3colors.m3surfaceContainerHigh
             smallRadius: 8 * Appearance.effectiveScale
             fullRadius: 20 * Appearance.effectiveScale
-            
+
             enabled: Config.ready && Config.options.weather && Config.options.weather.enable
             opacity: enabled ? 1.0 : 0.5
             Behavior on opacity { NumberAnimation { duration: 200 } }
-            
+
+            MouseArea {
+                id: providerHoverArea
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                hoverEnabled: true
+                StyledToolTip {
+                    extraVisibleCondition: false
+                    alternativeVisibleCondition: providerHoverArea.containsMouse
+                    text: I18nService.tr("Choose the weather data service to use.")
+                }
+            }
+
             RowLayout {
                 id: weatherProviderRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Weather Provider")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Choose the weather data service to use.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
-                
-                Item { Layout.fillWidth: true }
-                
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "dns"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Weather Provider")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
+
                 RowLayout {
-                    spacing: 4 * Appearance.effectiveScale
-                    Layout.preferredHeight: 40 * Appearance.effectiveScale
-                    
+                    spacing: 2 * Appearance.effectiveScale
+
                     Repeater {
                         model: [
                             { label: "Open-Meteo", value: "open-meteo" },
                             { label: "wttr.in", value: "wttr.in" }
                         ]
                         delegate: SegmentedButton {
+                            required property var modelData
                             isHighlighted: (Config.ready && Config.options.weather) ? Config.options.weather.provider === modelData.value : false
-                            Layout.fillHeight: true
-                            
+
                             buttonText: modelData.label
                             leftPadding: 16 * Appearance.effectiveScale
                             rightPadding: 16 * Appearance.effectiveScale
-                            
+
                             colActive: Appearance.m3colors.m3primary
                             colActiveText: Appearance.m3colors.m3onPrimary
                             colInactive: Appearance.m3colors.m3surfaceContainerLow
-                            
+
                             onClicked: {
                                 if (Config.ready && Config.options.weather) {
                                     Config.options.weather.provider = modelData.value;
@@ -147,63 +180,74 @@ ColumnLayout {
             }
         }
 
-        // 3. Location settings card
+        // Location Settings
         SegmentedWrapper {
+            id: locationCard
             Layout.fillWidth: true
-            implicitHeight: locationRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: locationRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             color: Appearance.m3colors.m3surfaceContainerHigh
             smallRadius: 8 * Appearance.effectiveScale
             fullRadius: 20 * Appearance.effectiveScale
-            
+
             enabled: Config.ready && Config.options.weather && Config.options.weather.enable
             opacity: enabled ? 1.0 : 0.5
             Behavior on opacity { NumberAnimation { duration: 200 } }
-            
+
+            MouseArea {
+                id: locationHoverArea
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                hoverEnabled: true
+                StyledToolTip {
+                    extraVisibleCondition: false
+                    alternativeVisibleCondition: locationHoverArea.containsMouse
+                    text: I18nService.tr("Automatically detect location or set a city name manually.")
+                }
+            }
+
             RowLayout {
                 id: locationRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Location Settings")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Automatically detect location or set a city name manually.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
-                
-                Item { Layout.fillWidth: true }
-                
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "location_on"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Location Settings")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
+
                 RowLayout {
-                    spacing: 4 * Appearance.effectiveScale
-                    Layout.preferredHeight: 40 * Appearance.effectiveScale
-                    
+                    spacing: 2 * Appearance.effectiveScale
+
                     Repeater {
                         model: [
                             { label: I18nService.tr("Auto"), value: true },
                             { label: I18nService.tr("Manual"), value: false }
                         ]
                         delegate: SegmentedButton {
+                            required property var modelData
                             isHighlighted: (Config.ready && Config.options.weather) ? Config.options.weather.autoLocation === modelData.value : false
-                            Layout.fillHeight: true
-                            
+
                             buttonText: modelData.label
                             leftPadding: 16 * Appearance.effectiveScale
                             rightPadding: 16 * Appearance.effectiveScale
-                            
+
                             colActive: Appearance.m3colors.m3primary
                             colActiveText: Appearance.m3colors.m3onPrimary
                             colInactive: Appearance.m3colors.m3surfaceContainerLow
-                            
+
                             onClicked: {
                                 if (Config.ready && Config.options.weather) {
                                     Config.options.weather.autoLocation = modelData.value;
@@ -215,40 +259,61 @@ ColumnLayout {
             }
         }
 
-        // 3b. Manual city name (geocoded by Weather service — same idea as end4)
+        // Manual City Name (whole card focuses the input)
         SegmentedWrapper {
+            id: cityCard
             Layout.fillWidth: true
-            implicitHeight: manualLocationInner.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: cityRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             color: Appearance.m3colors.m3surfaceContainerHigh
             smallRadius: 8 * Appearance.effectiveScale
             fullRadius: 20 * Appearance.effectiveScale
-            
-            visible: Config.ready && Config.options.weather && Config.options.weather.enable && !Config.options.weather.autoLocation
-            
-            ColumnLayout {
-                id: manualLocationInner
-                anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 8 * Appearance.effectiveScale
 
-                StyledText {
-                    text: I18nService.tr("City name")
-                    font.pixelSize: Appearance.font.pixelSize.normal
-                    font.weight: Font.Medium
-                    color: Appearance.colors.colOnLayer1
+            visible: Config.ready && Config.options.weather && Config.options.weather.enable && !Config.options.weather.autoLocation
+
+            RippleButton {
+                anchors.fill: parent
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: cityCard.rTopLeft
+                topRightRadius: cityCard.rTopRight
+                bottomLeftRadius: cityCard.rBottomLeft
+                bottomRightRadius: cityCard.rBottomRight
+                onClicked: cityInput.forceActiveFocus()
+
+                StyledToolTip {
+                    extraVisibleCondition: parent.hovered || parent.realHovered
+                    text: I18nService.tr("Used to resolve coordinates via geocoding (e.g. Jakarta).")
+                }
+            }
+
+            RowLayout {
+                id: cityRow
+                anchors.fill: parent
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "location_city"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
                 }
                 StyledText {
-                    text: I18nService.tr("Used to resolve coordinates via geocoding (e.g. Jakarta).")
-                    font.pixelSize: Appearance.font.pixelSize.small
-                    color: Appearance.colors.colSubtext
+                    text: I18nService.tr("City name")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
                 }
 
                 StyledTextInput {
                     id: cityInput
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 40 * Appearance.effectiveScale
-                    inputRadius: 8
+                    Layout.preferredWidth: 250 * Appearance.effectiveScale
+                    inputRadius: 24
                     text: (Config.ready && Config.options.weather) ? Config.options.weather.location : ""
                     onEditingFinished: {
                         if (Config.ready && Config.options.weather)
@@ -258,110 +323,142 @@ ColumnLayout {
             }
         }
 
-        // 4. Daily Forecast Card
+        // Show Daily Forecast (whole card clickable)
         SegmentedWrapper {
+            id: dailyForecastCard
             Layout.fillWidth: true
-            implicitHeight: weatherDailyRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: weatherDailyRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             color: Appearance.m3colors.m3surfaceContainerHigh
             smallRadius: 8 * Appearance.effectiveScale
             fullRadius: 20 * Appearance.effectiveScale
-            
+
             enabled: Config.ready && Config.options.weather && Config.options.weather.enable
             opacity: enabled ? 1.0 : 0.5
             Behavior on opacity { NumberAnimation { duration: 200 } }
-            
+
+            RippleButton {
+                anchors.fill: parent
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: dailyForecastCard.rTopLeft
+                topRightRadius: dailyForecastCard.rTopRight
+                bottomLeftRadius: dailyForecastCard.rBottomLeft
+                bottomRightRadius: dailyForecastCard.rBottomRight
+                onClicked: {
+                    if (Config.ready && Config.options.weather) {
+                        Config.options.weather.showDailyForecast = !Config.options.weather.showDailyForecast;
+                    }
+                }
+
+                StyledToolTip {
+                    extraVisibleCondition: parent.hovered || parent.realHovered
+                    text: I18nService.tr("Display weather forecast for the upcoming days.")
+                }
+            }
+
             RowLayout {
                 id: weatherDailyRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Show Daily Forecast")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Display weather forecast for the upcoming days.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
-                
-                Item { Layout.fillWidth: true }
-                
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "date_range"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Show Daily Forecast")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
+
                 AndroidToggle {
-                        checked: (Config.ready && Config.options.weather && Config.options.weather.showDailyForecast)
-                        onToggled: {
-                            if (Config.ready && Config.options.weather) {
-                                Config.options.weather.showDailyForecast = !Config.options.weather.showDailyForecast;
-                    }
+                    checked: (Config.ready && Config.options.weather && Config.options.weather.showDailyForecast)
+                    onToggled: {
+                        if (Config.ready && Config.options.weather) {
+                            Config.options.weather.showDailyForecast = !Config.options.weather.showDailyForecast;
+                        }
                     }
                 }
             }
         }
 
-        // 5. Temperature unit
+        // Temperature Unit
         SegmentedWrapper {
+            id: unitCard
             Layout.fillWidth: true
-            implicitHeight: weatherUnitRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: weatherUnitRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             color: Appearance.m3colors.m3surfaceContainerHigh
             smallRadius: 8 * Appearance.effectiveScale
             fullRadius: 20 * Appearance.effectiveScale
-            
+
             enabled: Config.ready && Config.options.weather && Config.options.weather.enable
             opacity: enabled ? 1.0 : 0.5
             Behavior on opacity { NumberAnimation { duration: 200 } }
-            
+
+            MouseArea {
+                id: unitHoverArea
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                hoverEnabled: true
+                StyledToolTip {
+                    extraVisibleCondition: false
+                    alternativeVisibleCondition: unitHoverArea.containsMouse
+                    text: I18nService.tr("Choose Celsius or Fahrenheit for weather temperatures.")
+                }
+            }
+
             RowLayout {
                 id: weatherUnitRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Temperature Unit")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Choose Celsius or Fahrenheit for weather temperatures.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
-                
-                Item { Layout.fillWidth: true }
-                
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "device_thermostat"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Temperature Unit")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
+
                 RowLayout {
-                    spacing: 4 * Appearance.effectiveScale
-                    Layout.preferredHeight: 40 * Appearance.effectiveScale
-                    
+                    spacing: 2 * Appearance.effectiveScale
+
                     Repeater {
                         model: [
                             { label: "°C", value: "C" },
                             { label: "°F", value: "F" }
                         ]
                         delegate: SegmentedButton {
+                            required property var modelData
                             isHighlighted: (Config.ready && Config.options.weather) ? Config.options.weather.unit === modelData.value : false
-                            Layout.fillHeight: true
-                            
+
                             buttonText: modelData.label
                             leftPadding: 16 * Appearance.effectiveScale
                             rightPadding: 16 * Appearance.effectiveScale
-                            
+
                             colActive: Appearance.m3colors.m3primary
                             colActiveText: Appearance.m3colors.m3onPrimary
                             colInactive: Appearance.m3colors.m3surfaceContainerLow
-                            
+
                             onClicked: {
                                 if (Config.ready && Config.options.weather) {
                                     Config.options.weather.unit = modelData.value;
@@ -373,60 +470,89 @@ ColumnLayout {
             }
         }
 
-        // 6. Update Interval Card (Bottom)
+        // Update Interval (whole card opens the combo)
         SegmentedWrapper {
+            id: intervalCard
             Layout.fillWidth: true
-            implicitHeight: intervalRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: intervalRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             color: Appearance.m3colors.m3surfaceContainerHigh
             smallRadius: 8 * Appearance.effectiveScale
             fullRadius: 20 * Appearance.effectiveScale
-            
+
             enabled: Config.ready && Config.options.weather && Config.options.weather.enable
             opacity: enabled ? 1.0 : 0.5
             Behavior on opacity { NumberAnimation { duration: 200 } }
-            
+
+            RippleButton {
+                id: intervalClickArea
+                anchors.fill: parent
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: intervalCard.rTopLeft
+                topRightRadius: intervalCard.rTopRight
+                bottomLeftRadius: intervalCard.rBottomLeft
+                bottomRightRadius: intervalCard.rBottomRight
+
+                property real comboClosedAt: 0
+
+                onClicked: {
+                    if (Date.now() - comboClosedAt < 250) return;
+                    weatherIntervalCombo.isOpened = !weatherIntervalCombo.isOpened;
+                }
+
+                Connections {
+                    target: weatherIntervalCombo
+                    function onIsOpenedChanged() {
+                        if (!weatherIntervalCombo.isOpened) intervalClickArea.comboClosedAt = Date.now();
+                    }
+                }
+
+                StyledToolTip {
+                    extraVisibleCondition: parent.hovered || parent.realHovered
+                    text: I18nService.tr("How often to refresh weather data.")
+                }
+            }
+
             RowLayout {
                 id: intervalRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Update Interval")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("How often to refresh weather data.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
-                
-                Item { Layout.fillWidth: true }
-                
-                RowLayout {
-                    spacing: 8 * Appearance.effectiveScale
-                    
-                    StyledComboBox {
-                        implicitWidth: 140 * Appearance.effectiveScale
-                        searchable: false
-                        text: (Config.ready && Config.options.weather) ? (Config.options.weather.updateInterval + " mins") : "30 mins"
-                        model: ["15 mins", "30 mins", "1 hour", "2 hours", "4 hours"]
-                        onAccepted: (val) => {
-                            if (Config.ready && Config.options.weather) {
-                                let mins = 30;
-                                if (val === "15 mins") mins = 15;
-                                else if (val === "30 mins") mins = 30;
-                                else if (val === "1 hour") mins = 60;
-                                else if (val === "2 hours") mins = 120;
-                                else if (val === "4 hours") mins = 240;
-                                Config.options.weather.updateInterval = mins;
-                            }
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "schedule"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Update Interval")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
+
+                StyledComboBox {
+                    id: weatherIntervalCombo
+                    implicitWidth: 140 * Appearance.effectiveScale
+                    bgRadius: height / 2
+                    searchable: false
+                    text: (Config.ready && Config.options.weather) ? (Config.options.weather.updateInterval + " mins") : "30 mins"
+                    model: ["15 mins", "30 mins", "1 hour", "2 hours", "4 hours"]
+                    onAccepted: (val) => {
+                        if (Config.ready && Config.options.weather) {
+                            let mins = 30;
+                            if (val === "15 mins") mins = 15;
+                            else if (val === "30 mins") mins = 30;
+                            else if (val === "1 hour") mins = 60;
+                            else if (val === "2 hours") mins = 120;
+                            else if (val === "4 hours") mins = 240;
+                            Config.options.weather.updateInterval = mins;
                         }
                     }
                 }

@@ -15,6 +15,72 @@ ColumnLayout {
 
     SearchHandler { searchString: "Search Engine" }
 
+    // Reusable prefix row (whole card focuses its input)
+    component PrefixCard: SegmentedWrapper {
+        id: prefixCardRoot
+        required property string icon
+        required property string title
+        required property string description
+        required property string placeholderText
+        property alias input: prefixInput
+
+        Layout.fillWidth: true
+        implicitHeight: prefixRow.implicitHeight + (24 * Appearance.effectiveScale)
+        orientation: Qt.Vertical
+        maxRadius: 20 * Appearance.effectiveScale
+        color: Appearance.m3colors.m3surfaceContainerHigh
+
+        RippleButton {
+            anchors.fill: parent
+            colBackground: Appearance.m3colors.m3surfaceContainerHigh
+            colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+            buttonRadius: 0
+            topLeftRadius: prefixCardRoot.rTopLeft
+            topRightRadius: prefixCardRoot.rTopRight
+            bottomLeftRadius: prefixCardRoot.rBottomLeft
+            bottomRightRadius: prefixCardRoot.rBottomRight
+            onClicked: prefixInput.forceActiveFocus()
+
+            StyledToolTip {
+                extraVisibleCondition: parent.hovered || parent.realHovered
+                text: prefixCardRoot.description
+            }
+        }
+
+        RowLayout {
+            id: prefixRow
+            anchors.fill: parent
+            anchors {
+                leftMargin: 16 * Appearance.effectiveScale
+                rightMargin: 16 * Appearance.effectiveScale
+                topMargin: 12 * Appearance.effectiveScale
+                bottomMargin: 12 * Appearance.effectiveScale
+            }
+            spacing: 16 * Appearance.effectiveScale
+
+            MaterialSymbol {
+                text: prefixCardRoot.icon
+                iconSize: 24 * Appearance.effectiveScale
+                color: Appearance.colors.colPrimary
+            }
+            StyledText {
+                text: prefixCardRoot.title
+                color: Appearance.colors.colOnLayer1
+                Layout.fillWidth: true
+            }
+
+            StyledTextInput {
+                id: prefixInput
+                Layout.preferredWidth: 120 * Appearance.effectiveScale
+                implicitHeight: 40 * Appearance.effectiveScale
+                inputRadius: height / (2 * Appearance.effectiveScale)
+                horizontalAlignment: TextInput.AlignHCenter
+                text: prefixCardRoot.value
+                placeholder: prefixCardRoot.placeholderText
+            }
+        }
+    }
+
     ColumnLayout {
         Layout.fillWidth: true
         spacing: 4 * Appearance.effectiveScale
@@ -35,328 +101,130 @@ ColumnLayout {
             }
         }
 
-        SegmentedWrapper {
-            Layout.fillWidth: true
-            implicitHeight: mathRow.implicitHeight + 40 * Appearance.effectiveScale
-            orientation: Qt.Vertical
-            maxRadius: 20 * Appearance.effectiveScale
-            color: Appearance.m3colors.m3surfaceContainerHigh
-
-            RowLayout {
-                id: mathRow
-                anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Math Prefix")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Prefix to trigger mathematical evaluations.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
-                }
-                Item { Layout.fillWidth: true }
-                
-                StyledTextInput {
-                    id: mathInput
-                    width: 120 * Appearance.effectiveScale
-                    height: 48 * Appearance.effectiveScale
-                    horizontalAlignment: TextInput.AlignHCenter
-                    text: (Config.ready && Config.options.search) ? Config.options.search.mathPrefix : "="
-                    onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.mathPrefix = text; }
-                }
-            }
+        PrefixCard {
+            icon: "calculate"
+            title: I18nService.tr("Math Prefix")
+            description: I18nService.tr("Prefix to trigger mathematical evaluations.")
+            placeholderText: "="
+            input.text: (Config.ready && Config.options.search) ? Config.options.search.mathPrefix : "="
+            input.onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.mathPrefix = input.text; }
         }
 
-        // 2. Web Search Prefix Card
-        SegmentedWrapper {
-            Layout.fillWidth: true
-            implicitHeight: webRow.implicitHeight + 40 * Appearance.effectiveScale
-            orientation: Qt.Vertical
-            maxRadius: 20 * Appearance.effectiveScale
-            color: Appearance.m3colors.m3surfaceContainerHigh
-
-            RowLayout {
-                id: webRow
-                anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Web Search Prefix")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Prefix to trigger a Google search.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
-                }
-                Item { Layout.fillWidth: true }
-                
-                StyledTextInput {
-                    id: webInput
-                    width: 120 * Appearance.effectiveScale
-                    height: 48 * Appearance.effectiveScale
-                    horizontalAlignment: TextInput.AlignHCenter
-                    text: (Config.ready && Config.options.search) ? Config.options.search.webPrefix : "!"
-                    onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.webPrefix = text; }
-                }
-            }
+        PrefixCard {
+            icon: "public"
+            title: I18nService.tr("Web Search Prefix")
+            description: I18nService.tr("Prefix to trigger a Google search.")
+            placeholderText: "!"
+            input.text: (Config.ready && Config.options.search) ? Config.options.search.webPrefix : "!"
+            input.onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.webPrefix = input.text; }
         }
 
-        // 3. Emoji Prefix Card
-        SegmentedWrapper {
-            Layout.fillWidth: true
-            implicitHeight: emojiRow.implicitHeight + 40 * Appearance.effectiveScale
-            orientation: Qt.Vertical
-            maxRadius: 20 * Appearance.effectiveScale
-            color: Appearance.m3colors.m3surfaceContainerHigh
-
-            RowLayout {
-                id: emojiRow
-                anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Emoji Prefix")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Prefix to search and copy emojis.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
-                }
-                Item { Layout.fillWidth: true }
-                
-                StyledTextInput {
-                    id: emojiInput
-                    width: 120 * Appearance.effectiveScale
-                    height: 48 * Appearance.effectiveScale
-                    horizontalAlignment: TextInput.AlignHCenter
-                    text: (Config.ready && Config.options.search) ? Config.options.search.emojiPrefix : ":"
-                    onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.emojiPrefix = text; }
-                }
-            }
+        PrefixCard {
+            icon: "mood"
+            title: I18nService.tr("Emoji Prefix")
+            description: I18nService.tr("Prefix to search and copy emojis.")
+            placeholderText: ":"
+            input.text: (Config.ready && Config.options.search) ? Config.options.search.emojiPrefix : ":"
+            input.onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.emojiPrefix = input.text; }
         }
 
-        // 4. Clipboard Prefix Card
-        SegmentedWrapper {
-            Layout.fillWidth: true
-            implicitHeight: clipRow.implicitHeight + 40 * Appearance.effectiveScale
-            orientation: Qt.Vertical
-            maxRadius: 20 * Appearance.effectiveScale
-            color: Appearance.m3colors.m3surfaceContainerHigh
-
-            RowLayout {
-                id: clipRow
-                anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Clipboard Prefix")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Prefix to search clipboard history.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
-                }
-                Item { Layout.fillWidth: true }
-                
-                StyledTextInput {
-                    id: clipInput
-                    width: 120 * Appearance.effectiveScale
-                    height: 48 * Appearance.effectiveScale
-                    horizontalAlignment: TextInput.AlignHCenter
-                    text: (Config.ready && Config.options.search) ? Config.options.search.clipboardPrefix : ";"
-                    onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.clipboardPrefix = text; }
-                }
-            }
+        PrefixCard {
+            icon: "content_paste"
+            title: I18nService.tr("Clipboard Prefix")
+            description: I18nService.tr("Prefix to search clipboard history.")
+            placeholderText: ";"
+            input.text: (Config.ready && Config.options.search) ? Config.options.search.clipboardPrefix : ";"
+            input.onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.clipboardPrefix = input.text; }
         }
 
-        // 5. File Search Prefix Card
-        SegmentedWrapper {
-            Layout.fillWidth: true
-            implicitHeight: fileRow.implicitHeight + 40 * Appearance.effectiveScale
-            orientation: Qt.Vertical
-            maxRadius: 20 * Appearance.effectiveScale
-            color: Appearance.m3colors.m3surfaceContainerHigh
-
-            RowLayout {
-                id: fileRow
-                anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("File Search Prefix")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Prefix to trigger local file searching.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
-                }
-                Item { Layout.fillWidth: true }
-                
-                StyledTextInput {
-                    id: fileInput
-                    width: 120 * Appearance.effectiveScale
-                    height: 48 * Appearance.effectiveScale
-                    horizontalAlignment: TextInput.AlignHCenter
-                    text: (Config.ready && Config.options.search) ? Config.options.search.filePrefix : "?"
-                    onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.filePrefix = text; }
-                }
-            }
+        PrefixCard {
+            icon: "folder_open"
+            title: I18nService.tr("File Search Prefix")
+            description: I18nService.tr("Prefix to trigger local file searching.")
+            placeholderText: "?"
+            input.text: (Config.ready && Config.options.search) ? Config.options.search.filePrefix : "?"
+            input.onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.filePrefix = input.text; }
         }
 
-        // 6. Command Prefix Card
-        SegmentedWrapper {
-            Layout.fillWidth: true
-            implicitHeight: cmdRow.implicitHeight + 40 * Appearance.effectiveScale
-            orientation: Qt.Vertical
-            maxRadius: 20 * Appearance.effectiveScale
-            color: Appearance.m3colors.m3surfaceContainerHigh
-
-            RowLayout {
-                id: cmdRow
-                anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Command Prefix")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Prefix to trigger shell commands and quick actions.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
-                }
-                Item { Layout.fillWidth: true }
-                
-                StyledTextInput {
-                    id: cmdInput
-                    width: 120 * Appearance.effectiveScale
-                    height: 48 * Appearance.effectiveScale
-                    horizontalAlignment: TextInput.AlignHCenter
-                    text: (Config.ready && Config.options.search) ? Config.options.search.commandPrefix : ">"
-                    onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.commandPrefix = text; }
-                }
-            }
+        PrefixCard {
+            icon: "terminal"
+            title: I18nService.tr("Command Prefix")
+            description: I18nService.tr("Prefix to trigger shell commands and quick actions.")
+            placeholderText: ">"
+            input.text: (Config.ready && Config.options.search) ? Config.options.search.commandPrefix : ">"
+            input.onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.commandPrefix = input.text; }
         }
 
-        // 7. Settings Search Prefix Card
-        SegmentedWrapper {
-            Layout.fillWidth: true
-            implicitHeight: settingsRow.implicitHeight + 40 * Appearance.effectiveScale
-            orientation: Qt.Vertical
-            maxRadius: 20 * Appearance.effectiveScale
-            color: Appearance.m3colors.m3surfaceContainerHigh
-
-            RowLayout {
-                id: settingsRow
-                anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Settings Search Prefix")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Prefix to search and jump to a setting.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
-                }
-                Item { Layout.fillWidth: true }
-                
-                StyledTextInput {
-                    id: settingsInput
-                    width: 120 * Appearance.effectiveScale
-                    height: 48 * Appearance.effectiveScale
-                    horizontalAlignment: TextInput.AlignHCenter
-                    text: (Config.ready && Config.options.search) ? Config.options.search.settingsPrefix : "<"
-                    onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.settingsPrefix = text; }
-                }
-            }
+        PrefixCard {
+            icon: "settings"
+            title: I18nService.tr("Settings Search Prefix")
+            description: I18nService.tr("Prefix to search and jump to a setting.")
+            placeholderText: "<"
+            input.text: (Config.ready && Config.options.search) ? Config.options.search.settingsPrefix : "<"
+            input.onEditingFinished: { if (Config.ready && Config.options.search) Config.options.search.settingsPrefix = input.text; }
         }
 
-        // 8. App Usage Tracking Toggle
+        // App Usage Tracking (whole card clickable)
         SegmentedWrapper {
+            id: usageCard
             Layout.fillWidth: true
-            implicitHeight: usageRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: usageRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
+
+            RippleButton {
+                anchors.fill: parent
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: usageCard.rTopLeft
+                topRightRadius: usageCard.rTopRight
+                bottomLeftRadius: usageCard.rBottomLeft
+                bottomRightRadius: usageCard.rBottomRight
+                onClicked: {
+                    if (Config.ready && Config.options.search) {
+                        Config.options.search.enableUsageTracking = !Config.options.search.enableUsageTracking;
+                    }
+                }
+
+                StyledToolTip {
+                    extraVisibleCondition: parent.hovered || parent.realHovered
+                    text: I18nService.tr("Prioritize frequently used apps in search results.")
+                }
+            }
 
             RowLayout {
                 id: usageRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("App Usage Tracking")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Prioritize frequently used apps in search results.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
-                Item { Layout.fillWidth: true }
-                
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "timeline"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("App Usage Tracking")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
+
                 AndroidToggle {
                     checked: (Config.ready && Config.options.search) ? Config.options.search.enableUsageTracking : true
-                    onToggled: { if (Config.ready && Config.options.search) Config.options.search.enableUsageTracking = checked; }
+                    onToggled: {
+                        if (Config.ready && Config.options.search) {
+                            Config.options.search.enableUsageTracking = !Config.options.search.enableUsageTracking;
+                        }
+                    }
                 }
             }
         }
     }
 }
-

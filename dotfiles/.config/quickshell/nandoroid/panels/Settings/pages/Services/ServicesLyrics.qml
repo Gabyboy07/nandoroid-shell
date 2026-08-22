@@ -11,8 +11,8 @@ import Quickshell
 ColumnLayout {
     Layout.fillWidth: true
     spacing: 0
-    
-    SearchHandler { 
+
+    SearchHandler {
         searchString: "Lyrics"
         aliases: ["Text", "Karaoke", "Song"]
     }
@@ -37,27 +37,61 @@ ColumnLayout {
             }
         }
 
-        // 1. Font Family
+        // Font Family (whole card opens the combo)
         SegmentedWrapper {
+            id: fontFamilyCard
             Layout.fillWidth: true
-            implicitHeight: 64 * Appearance.effectiveScale
+            implicitHeight: fontFamilyRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
-            
-            RowLayout {
+
+            RippleButton {
+                id: fontFamilyClickArea
                 anchors.fill: parent
-                anchors.leftMargin: 16 * Appearance.effectiveScale
-                anchors.rightMargin: 16 * Appearance.effectiveScale
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: fontFamilyCard.rTopLeft
+                topRightRadius: fontFamilyCard.rTopRight
+                bottomLeftRadius: fontFamilyCard.rBottomLeft
+                bottomRightRadius: fontFamilyCard.rBottomRight
+
+                property real comboClosedAt: 0
+
+                onClicked: {
+                    if (Date.now() - comboClosedAt < 250) return;
+                    lyricsFontCombo.isOpened = !lyricsFontCombo.isOpened;
+                }
+
+                Connections {
+                    target: lyricsFontCombo
+                    function onIsOpenedChanged() {
+                        if (!lyricsFontCombo.isOpened) fontFamilyClickArea.comboClosedAt = Date.now();
+                    }
+                }
+            }
+
+            RowLayout {
+                id: fontFamilyRow
+                anchors.fill: parent
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
                 spacing: 16 * Appearance.effectiveScale
-                
+
                 MaterialSymbol { text: "text_fields"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                StyledText { 
+                StyledText {
                     text: I18nService.tr("Lyrics Font Family")
-                    Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 
+                    Layout.fillWidth: true; color: Appearance.colors.colOnLayer1
                 }
                 StyledComboBox {
+                    id: lyricsFontCombo
                     Layout.preferredWidth: 300 * Appearance.effectiveScale
+                    bgRadius: height / 2
                     model: SystemFonts.all
                     text: {
                         if (!Config.ready) return I18nService.tr("Default");
@@ -72,33 +106,33 @@ ColumnLayout {
             }
         }
 
-        // 2. Font Size
+        // Base Font Size
         SegmentedWrapper {
             Layout.fillWidth: true
-            implicitHeight: fontSizeRow.implicitHeight + (36 * Appearance.effectiveScale)
+            implicitHeight: fontSizeRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
-            
+
             RowLayout {
                 id: fontSizeRow
                 anchors.fill: parent
-                anchors.margins: 16 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
+                spacing: 16 * Appearance.effectiveScale
 
-                RowLayout {
-                    spacing: 16 * Appearance.effectiveScale
-                    Layout.preferredWidth: 70 * Appearance.effectiveScale
-                    MaterialSymbol { text: "format_size"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { 
-                        text: I18nService.tr("Base Font Size")
-                        color: Appearance.colors.colOnLayer1
-                        Layout.fillWidth: true
-                    }
+                MaterialSymbol { text: "format_size"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                StyledText {
+                    text: I18nService.tr("Base Font Size")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
                 }
 
                 StyledStepper {
-                    Layout.alignment: Qt.AlignVCenter
                     value: (Config.ready && Config.options.appearance.lyrics) ? Config.options.appearance.lyrics.fontSize : 36
                     from: 16; to: 84; stepSize: 1
                     decimals: 0
@@ -108,33 +142,33 @@ ColumnLayout {
             }
         }
 
-        // 3. Context Lines
+        // Context Lines
         SegmentedWrapper {
             Layout.fillWidth: true
-            implicitHeight: contextLinesRow.implicitHeight + (36 * Appearance.effectiveScale)
+            implicitHeight: contextLinesRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
-            
+
             RowLayout {
                 id: contextLinesRow
                 anchors.fill: parent
-                anchors.margins: 16 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
+                spacing: 16 * Appearance.effectiveScale
 
-                RowLayout {
-                    spacing: 16 * Appearance.effectiveScale
-                    Layout.preferredWidth: 70 * Appearance.effectiveScale
-                    MaterialSymbol { text: "subject"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { 
-                        text: I18nService.tr("Context Lines")
-                        color: Appearance.colors.colOnLayer1
-                        Layout.fillWidth: true
-                    }
+                MaterialSymbol { text: "subject"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                StyledText {
+                    text: I18nService.tr("Context Lines")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
                 }
 
                 StyledStepper {
-                    Layout.alignment: Qt.AlignVCenter
                     value: (Config.ready && Config.options.appearance.lyrics) ? Config.options.appearance.lyrics.contextLines : 3
                     from: 1; to: 7; stepSize: 1
                     decimals: 0
