@@ -4,25 +4,29 @@ import QtQuick
 import QtQuick.Layouts
 
 SegmentedWrapper {
+    id: infoRowRoot
     property string label
     property string value
     Layout.fillWidth: true
-    Layout.preferredHeight: 52 * Appearance.effectiveScale
+    implicitHeight: infoRow.implicitHeight + (24 * Appearance.effectiveScale)
     orientation: Qt.Vertical
     maxRadius: 20 * Appearance.effectiveScale
     color: Appearance.m3colors.m3surfaceContainerHigh
-    
+
     RowLayout {
+        id: infoRow
         anchors.fill: parent
-        anchors.leftMargin: 20 * Appearance.effectiveScale
-        anchors.rightMargin: 20 * Appearance.effectiveScale
-        spacing: 20 * Appearance.effectiveScale
+        anchors {
+            leftMargin: 16 * Appearance.effectiveScale
+            rightMargin: 16 * Appearance.effectiveScale
+            topMargin: 12 * Appearance.effectiveScale
+            bottomMargin: 12 * Appearance.effectiveScale
+        }
+        spacing: 16 * Appearance.effectiveScale
 
         StyledText {
             text: label
-            font.pixelSize: Appearance.font.pixelSize.normal
-            font.weight: Font.Medium
-            color: Appearance.colors.colOnLayer0
+            color: Appearance.colors.colOnLayer1
             Layout.fillWidth: true
         }
         StyledText {

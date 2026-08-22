@@ -16,7 +16,7 @@ ColumnLayout {
     property bool updateAvailable: VersionService.updateAvailable
 
 
-            spacing: 32 * Appearance.effectiveScale
+            spacing: 24 * Appearance.effectiveScale
 
             // ── Top Branding & Distro Cards (50:50) ──
             RowLayout {
@@ -67,18 +67,17 @@ ColumnLayout {
                     
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 20 * Appearance.effectiveScale
+                        anchors.leftMargin: 16 * Appearance.effectiveScale
                         anchors.rightMargin: 16 * Appearance.effectiveScale
                         spacing: 16 * Appearance.effectiveScale
                         MaterialSymbol {
                             text: "system_update"
-                            iconSize: 22 * Appearance.effectiveScale
+                            iconSize: 24 * Appearance.effectiveScale
                             color: Appearance.colors.colPrimary
                         }
                         StyledText {
                             Layout.fillWidth: true
                             text: I18nService.tr("Shell Update")
-                            font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }
                         StyledText {
@@ -109,18 +108,17 @@ ColumnLayout {
                     
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 20 * Appearance.effectiveScale
+                        anchors.leftMargin: 16 * Appearance.effectiveScale
                         anchors.rightMargin: 16 * Appearance.effectiveScale
                         spacing: 16 * Appearance.effectiveScale
                         MaterialSymbol {
                             text: "verified"
-                            iconSize: 22 * Appearance.effectiveScale
+                            iconSize: 24 * Appearance.effectiveScale
                             color: Appearance.colors.colPrimary
                         }
                         StyledText {
                             Layout.fillWidth: true
                             text: I18nService.tr("Dependency Check")
-                            font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }
 
@@ -247,7 +245,7 @@ ColumnLayout {
                     SegmentedWrapper {
                         id: onboardingLinkWrapper
                         Layout.fillWidth: true
-                        implicitHeight: 52 * Appearance.effectiveScale
+                        implicitHeight: onboardLinkRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
@@ -259,12 +257,12 @@ ColumnLayout {
                                 GlobalStates.settingsOpen = false;
                                 GlobalStates.onboardingOpen = true;
                             }
-                            
+
                             SearchHandler {
                                 searchString: "Onboarding"
                                 aliases: ["Tour", "Guide"]
                             }
-                            
+
                             // Explicitly inherit radii from SegmentedWrapper for hover alignment
                             topLeftRadius: onboardingLinkWrapper.rTopLeft
                             topRightRadius: onboardingLinkWrapper.rTopRight
@@ -272,21 +270,25 @@ ColumnLayout {
                             bottomRightRadius: onboardingLinkWrapper.rBottomRight
 
                             RowLayout {
+                                id: onboardLinkRow
                                 anchors.fill: parent
-                                anchors.leftMargin: 20 * Appearance.effectiveScale
-                                anchors.rightMargin: 12 * Appearance.effectiveScale
-                                spacing: 12 * Appearance.effectiveScale
-                                
+                                anchors {
+                                    leftMargin: 16 * Appearance.effectiveScale
+                                    rightMargin: 16 * Appearance.effectiveScale
+                                    topMargin: 12 * Appearance.effectiveScale
+                                    bottomMargin: 12 * Appearance.effectiveScale
+                                }
+                                spacing: 16 * Appearance.effectiveScale
+
                                 MaterialSymbol {
                                     text: "explore"
-                                    iconSize: 20 * Appearance.effectiveScale
+                                    iconSize: 24 * Appearance.effectiveScale
                                     color: Appearance.colors.colPrimary
                                 }
                                 StyledText {
                                     Layout.fillWidth: true
                                     text: I18nService.tr("Start Onboarding Tour")
-                                    font.pixelSize: Appearance.font.pixelSize.normal
-                                    color: Appearance.colors.colOnLayer0
+                                    color: Appearance.colors.colOnLayer1
                                 }
                                 MaterialSymbol {
                                     text: "chevron_right"
@@ -300,7 +302,7 @@ ColumnLayout {
                     SegmentedWrapper {
                         id: ipcLinkWrapper
                         Layout.fillWidth: true
-                        implicitHeight: 52 * Appearance.effectiveScale
+                        implicitHeight: ipcLinkRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
@@ -313,12 +315,12 @@ ColumnLayout {
                                 GlobalStates.onboardingStep = 5; // Jump to IPC step
                                 GlobalStates.onboardingOpen = true;
                             }
-                            
+
                             SearchHandler {
                                 searchString: "IPC Guide"
                                 aliases: ["IPC", "API", "Integration"]
                             }
-                            
+
                             // Explicitly inherit radii from SegmentedWrapper for hover alignment
                             topLeftRadius: ipcLinkWrapper.rTopLeft
                             topRightRadius: ipcLinkWrapper.rTopRight
@@ -326,21 +328,25 @@ ColumnLayout {
                             bottomRightRadius: ipcLinkWrapper.rBottomRight
 
                             RowLayout {
+                                id: ipcLinkRow
                                 anchors.fill: parent
-                                anchors.leftMargin: 20 * Appearance.effectiveScale
-                                anchors.rightMargin: 12 * Appearance.effectiveScale
-                                spacing: 12 * Appearance.effectiveScale
-                                
+                                anchors {
+                                    leftMargin: 16 * Appearance.effectiveScale
+                                    rightMargin: 16 * Appearance.effectiveScale
+                                    topMargin: 12 * Appearance.effectiveScale
+                                    bottomMargin: 12 * Appearance.effectiveScale
+                                }
+                                spacing: 16 * Appearance.effectiveScale
+
                                 MaterialSymbol {
                                     text: "terminal"
-                                    iconSize: 20 * Appearance.effectiveScale
+                                    iconSize: 24 * Appearance.effectiveScale
                                     color: Appearance.colors.colPrimary
                                 }
                                 StyledText {
                                     Layout.fillWidth: true
                                     text: I18nService.tr("IPC Integration Guide")
-                                    font.pixelSize: Appearance.font.pixelSize.normal
-                                    color: Appearance.colors.colOnLayer0
+                                    color: Appearance.colors.colOnLayer1
                                 }
                                 MaterialSymbol {
                                     text: "chevron_right"
@@ -354,7 +360,7 @@ ColumnLayout {
                     SegmentedWrapper {
                         id: sourceLinkWrapper
                         Layout.fillWidth: true
-                        implicitHeight: 52 * Appearance.effectiveScale
+                        implicitHeight: sourceLinkRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
@@ -363,7 +369,7 @@ ColumnLayout {
                             anchors.fill: parent
                             colBackground: "transparent"
                             onClicked: Qt.openUrlExternally("https://github.com/na-ive/nandoroid-shell")
-                            
+
                             // Explicitly inherit radii from SegmentedWrapper for hover alignment
                             topLeftRadius: sourceLinkWrapper.rTopLeft
                             topRightRadius: sourceLinkWrapper.rTopRight
@@ -371,21 +377,25 @@ ColumnLayout {
                             bottomRightRadius: sourceLinkWrapper.rBottomRight
 
                             RowLayout {
+                                id: sourceLinkRow
                                 anchors.fill: parent
-                                anchors.leftMargin: 20 * Appearance.effectiveScale
-                                anchors.rightMargin: 20 * Appearance.effectiveScale
-                                spacing: 12 * Appearance.effectiveScale
-                                
+                                anchors {
+                                    leftMargin: 16 * Appearance.effectiveScale
+                                    rightMargin: 16 * Appearance.effectiveScale
+                                    topMargin: 12 * Appearance.effectiveScale
+                                    bottomMargin: 12 * Appearance.effectiveScale
+                                }
+                                spacing: 16 * Appearance.effectiveScale
+
                                 MaterialSymbol {
                                     text: "code"
-                                    iconSize: 20 * Appearance.effectiveScale
+                                    iconSize: 24 * Appearance.effectiveScale
                                     color: Appearance.colors.colPrimary
                                 }
                                 StyledText {
                                     Layout.fillWidth: true
                                     text: I18nService.tr("Source Code")
-                                    font.pixelSize: Appearance.font.pixelSize.normal
-                                    color: Appearance.colors.colOnLayer0
+                                    color: Appearance.colors.colOnLayer1
                                 }
                                 StyledText {
                                     text: I18nService.tr("GitHub Repository")
@@ -399,7 +409,7 @@ ColumnLayout {
                     SegmentedWrapper {
                         id: creditsLinkWrapper
                         Layout.fillWidth: true
-                        implicitHeight: 52 * Appearance.effectiveScale
+                        implicitHeight: creditsLinkRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
@@ -408,12 +418,12 @@ ColumnLayout {
                             anchors.fill: parent
                             colBackground: "transparent"
                             onClicked: pushView("credits")
-                            
+
                             SearchHandler {
                                 searchString: "Special Thanks"
                                 aliases: ["Credits", "Kredit"]
                             }
-                            
+
                             // Explicitly inherit radii from SegmentedWrapper for hover alignment
                             topLeftRadius: creditsLinkWrapper.rTopLeft
                             topRightRadius: creditsLinkWrapper.rTopRight
@@ -421,21 +431,25 @@ ColumnLayout {
                             bottomRightRadius: creditsLinkWrapper.rBottomRight
 
                             RowLayout {
+                                id: creditsLinkRow
                                 anchors.fill: parent
-                                anchors.leftMargin: 20 * Appearance.effectiveScale
-                                anchors.rightMargin: 12 * Appearance.effectiveScale
-                                spacing: 12 * Appearance.effectiveScale
-                                
+                                anchors {
+                                    leftMargin: 16 * Appearance.effectiveScale
+                                    rightMargin: 16 * Appearance.effectiveScale
+                                    topMargin: 12 * Appearance.effectiveScale
+                                    bottomMargin: 12 * Appearance.effectiveScale
+                                }
+                                spacing: 16 * Appearance.effectiveScale
+
                                 MaterialSymbol {
                                     text: "favorite"
-                                    iconSize: 20 * Appearance.effectiveScale
+                                    iconSize: 24 * Appearance.effectiveScale
                                     color: "#ff4081"
                                 }
                                 StyledText {
                                     Layout.fillWidth: true
                                     text: I18nService.tr("Special Thanks")
-                                    font.pixelSize: Appearance.font.pixelSize.normal
-                                    color: Appearance.colors.colOnLayer0
+                                    color: Appearance.colors.colOnLayer1
                                 }
                                 MaterialSymbol {
                                     text: "chevron_right"

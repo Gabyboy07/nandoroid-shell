@@ -81,10 +81,10 @@ ColumnLayout {
         property color accentColor
 
         Layout.fillWidth: true
-        Layout.preferredHeight: layoutCol.implicitHeight + (40 * Appearance.effectiveScale)
-        radius: 28 * Appearance.effectiveScale
+        Layout.preferredHeight: layoutCol.implicitHeight + (24 * Appearance.effectiveScale)
+        radius: 20 * Appearance.effectiveScale
         color: Appearance.m3colors.m3surfaceContainerHigh
-        
+
         RippleButton {
             anchors.fill: parent
             buttonRadius: parent.radius
@@ -95,7 +95,12 @@ ColumnLayout {
         ColumnLayout {
             id: layoutCol
             anchors.fill: parent
-            anchors.margins: 20 * Appearance.effectiveScale
+            anchors {
+                leftMargin: 16 * Appearance.effectiveScale
+                rightMargin: 16 * Appearance.effectiveScale
+                topMargin: 12 * Appearance.effectiveScale
+                bottomMargin: 12 * Appearance.effectiveScale
+            }
             spacing: 16 * Appearance.effectiveScale
 
             RowLayout {
@@ -107,13 +112,13 @@ ColumnLayout {
                     Layout.preferredHeight: 64 * Appearance.effectiveScale
                     fillMode: Image.PreserveAspectFit
                 }
-                
+
                 ColumnLayout {
                     spacing: 2 * Appearance.effectiveScale
                     StyledText {
                         text: projRoot.title
                         font.pixelSize: Appearance.font.pixelSize.large
-                        font.weight: Font.DemiBold
+                        font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {

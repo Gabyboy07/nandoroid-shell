@@ -27,59 +27,90 @@ ColumnLayout {
 
     // --- 1. Channel Selector ---
     SegmentedWrapper {
+        id: channelCard
         Layout.fillWidth: true
-        implicitHeight: channelRow.implicitHeight + (32 * Appearance.effectiveScale)
+        implicitHeight: channelRow.implicitHeight + (24 * Appearance.effectiveScale)
         orientation: Qt.Vertical
         maxRadius: 20 * Appearance.effectiveScale
         color: Appearance.m3colors.m3surfaceContainerHigh
-        
+
+        RippleButton {
+            id: channelClickArea
+            anchors.fill: parent
+            colBackground: Appearance.m3colors.m3surfaceContainerHigh
+            colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+            buttonRadius: 0
+            topLeftRadius: channelCard.rTopLeft
+            topRightRadius: channelCard.rTopRight
+            bottomLeftRadius: channelCard.rBottomLeft
+            bottomRightRadius: channelCard.rBottomRight
+            onClicked: {
+                const next = installState.channel === "stable" ? "canary" : "stable";
+                installState.channel = next;
+                installStateView.writeAdapter();
+                gitLogProc.running = false
+                gitTagProc.running = false
+                gitLogProc.running = true
+                gitTagProc.running = true
+            }
+        }
+
         RowLayout {
             id: channelRow
             anchors.fill: parent
-            anchors.margins: 16 * Appearance.effectiveScale
+            anchors {
+                leftMargin: 16 * Appearance.effectiveScale
+                rightMargin: 16 * Appearance.effectiveScale
+                topMargin: 12 * Appearance.effectiveScale
+                bottomMargin: 12 * Appearance.effectiveScale
+            }
             spacing: 16 * Appearance.effectiveScale
+
+            MaterialSymbol {
+                text: "sync_alt"
+                iconSize: 24 * Appearance.effectiveScale
+                color: Appearance.colors.colPrimary
+            }
 
             ColumnLayout {
                 spacing: 2 * Appearance.effectiveScale
+                Layout.fillWidth: true
+
                 StyledText {
                     text: I18nService.tr("Update Channel")
-                    font.pixelSize: Appearance.font.pixelSize.normal
-                    font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
                 }
                 StyledText {
-                    text: I18nService.tr("Choose between Release (Tags) and Latest (Commits).\nLatest is highly recommended for the fastest bug fixes.")
+                    text: I18nService.tr("Choose between Release (Tags) and Latest (Commits).")
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colSubtext
+                    Layout.fillWidth: true
                 }
             }
-            
-            Item { Layout.fillWidth: true }
-            
+
             RowLayout {
-                spacing: 4 * Appearance.effectiveScale
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                
+                spacing: 2 * Appearance.effectiveScale
+
                 Repeater {
                     model: [
                         { label: I18nService.tr("Release"), value: "stable" },
                         { label: I18nService.tr("Latest"), value: "canary" }
                     ]
                     delegate: SegmentedButton {
+                        required property var modelData
                         isHighlighted: installState.channel === modelData.value
-                        
+
                         buttonText: modelData.label
-                        leftPadding: 24 * Appearance.effectiveScale
-                        rightPadding: 24 * Appearance.effectiveScale
-                        
+                        leftPadding: 16 * Appearance.effectiveScale
+                        rightPadding: 16 * Appearance.effectiveScale
+
                         colActive: Appearance.m3colors.m3primary
                         colActiveText: Appearance.m3colors.m3onPrimary
                         colInactive: Appearance.m3colors.m3surfaceContainerLow
-                        
+
                         onClicked: {
                             installState.channel = modelData.value;
                             installStateView.writeAdapter();
-                            checkUpdateCollector.clear()
                             gitLogProc.running = false
                             gitTagProc.running = false
                             gitLogProc.running = true
@@ -94,7 +125,7 @@ ColumnLayout {
     // --- 2. Check for Updates Status Row ---
     Rectangle {
         Layout.fillWidth: true
-        Layout.preferredHeight: 64 * Appearance.effectiveScale
+        implicitHeight: statusRow.implicitHeight + (24 * Appearance.effectiveScale)
         radius: 20 * Appearance.effectiveScale
         color: Appearance.m3colors.m3surfaceContainerHigh
         visible: installState.install_dir !== ""
@@ -135,25 +166,43 @@ ColumnLayout {
             stdout: StdioCollector { id: checkUpdateCollector }
         }
 
-        RowLayout {
+        RippleButton {
+            id: statusClickArea
             anchors.fill: parent
-            anchors.leftMargin: 16 * Appearance.effectiveScale
-            anchors.rightMargin: 16 * Appearance.effectiveScale
+            buttonRadius: parent.radius
+            colBackground: "transparent"
+            onClicked: {
+                checkUpdateProc.running = false
+                checkUpdateProc.running = true
+                gitLogProc.running = false
+                gitTagProc.running = false
+                gitLogProc.running = true
+                gitTagProc.running = true
+            }
+        }
+
+        RowLayout {
+            id: statusRow
+            anchors.fill: parent
+            anchors {
+                leftMargin: 16 * Appearance.effectiveScale
+                rightMargin: 16 * Appearance.effectiveScale
+                topMargin: 12 * Appearance.effectiveScale
+                bottomMargin: 12 * Appearance.effectiveScale
+            }
             spacing: 16 * Appearance.effectiveScale
-            
+
             MaterialSymbol {
                 text: (checkUpdateCollector.text && checkUpdateCollector.text.includes("Available")) ? "update" : "published_with_changes"
                 iconSize: 24 * Appearance.effectiveScale
-                color: (checkUpdateCollector.text && checkUpdateCollector.text.includes("Available")) ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
+                color: Appearance.colors.colPrimary
             }
-            
+
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 2 * Appearance.effectiveScale
                 StyledText {
                     text: I18nService.tr("Update Status")
-                    font.pixelSize: Appearance.font.pixelSize.normal
-                    font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer1
                 }
                 StyledText {
@@ -228,8 +277,8 @@ ColumnLayout {
             }
             RowLayout {
                 anchors.fill: parent
-                anchors.leftMargin: 20 * Appearance.effectiveScale
-                anchors.rightMargin: 20 * Appearance.effectiveScale
+                anchors.leftMargin: 16 * Appearance.effectiveScale
+                anchors.rightMargin: 16 * Appearance.effectiveScale
                 spacing: 16 * Appearance.effectiveScale
                 MaterialSymbol {
                     text: "system_update_alt"
@@ -239,8 +288,6 @@ ColumnLayout {
                 StyledText {
                     Layout.fillWidth: true
                     text: I18nService.tr("Update Shell Only")
-                    font.weight: Font.Medium
-                    font.pixelSize: Appearance.font.pixelSize.normal
                     color: Appearance.colors.colOnLayer1
                 }
                 MaterialSymbol {
@@ -264,8 +311,8 @@ ColumnLayout {
             }
             RowLayout {
                 anchors.fill: parent
-                anchors.leftMargin: 20 * Appearance.effectiveScale
-                anchors.rightMargin: 20 * Appearance.effectiveScale
+                anchors.leftMargin: 16 * Appearance.effectiveScale
+                anchors.rightMargin: 16 * Appearance.effectiveScale
                 spacing: 16 * Appearance.effectiveScale
                 MaterialSymbol {
                     text: "downloading"
@@ -275,8 +322,6 @@ ColumnLayout {
                 StyledText {
                     Layout.fillWidth: true
                     text: I18nService.tr("Update All Files")
-                    font.weight: Font.Medium
-                    font.pixelSize: Appearance.font.pixelSize.normal
                     color: Appearance.colors.colError
                 }
                 MaterialSymbol {
@@ -299,7 +344,7 @@ ColumnLayout {
             Layout.fillWidth: true
             Layout.preferredWidth: 1
             Layout.preferredHeight: 250 * Appearance.effectiveScale
-            radius: 24 * Appearance.effectiveScale
+            radius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
 
             Process {
@@ -353,7 +398,7 @@ ColumnLayout {
             Layout.fillWidth: true
             Layout.preferredWidth: 1
             Layout.preferredHeight: 250 * Appearance.effectiveScale
-            radius: 24 * Appearance.effectiveScale
+            radius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
 
             Process {

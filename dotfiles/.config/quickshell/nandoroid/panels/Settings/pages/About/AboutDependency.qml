@@ -24,18 +24,40 @@ ColumnLayout {
         SysCheckService.check();
     }
 
-    // ── Dependency Scanner Banner (SegmentedWrapper matching SysLanguage.qml) ──
+    // ── Dependency Scanner Banner ──
     SegmentedWrapper {
+        id: scannerCard
         Layout.fillWidth: true
-        implicitHeight: scannerLayout.implicitHeight + (32 * Appearance.effectiveScale)
+        implicitHeight: scannerLayout.implicitHeight + (24 * Appearance.effectiveScale)
         orientation: Qt.Vertical
         maxRadius: 20 * Appearance.effectiveScale
         color: Appearance.m3colors.m3surfaceContainerHigh
 
+        RippleButton {
+            id: scannerClickArea
+            anchors.fill: parent
+            colBackground: Appearance.m3colors.m3surfaceContainerHigh
+            colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+            buttonRadius: 0
+            topLeftRadius: scannerCard.rTopLeft
+            topRightRadius: scannerCard.rTopRight
+            bottomLeftRadius: scannerCard.rBottomLeft
+            bottomRightRadius: scannerCard.rBottomRight
+            onClicked: {
+                if (SysCheckService.isChecking) SysCheckService.cancel();
+                else dependencyRoot.scanDependencies();
+            }
+        }
+
         ColumnLayout {
             id: scannerLayout
             anchors.fill: parent
-            anchors.margins: 16 * Appearance.effectiveScale
+            anchors {
+                leftMargin: 16 * Appearance.effectiveScale
+                rightMargin: 16 * Appearance.effectiveScale
+                topMargin: 12 * Appearance.effectiveScale
+                bottomMargin: 12 * Appearance.effectiveScale
+            }
             spacing: 12 * Appearance.effectiveScale
 
             RowLayout {
@@ -54,8 +76,6 @@ ColumnLayout {
 
                     StyledText {
                         text: I18nService.tr("Dependency Scanner")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
