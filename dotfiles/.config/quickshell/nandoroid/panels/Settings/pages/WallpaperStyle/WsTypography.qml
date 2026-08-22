@@ -84,6 +84,7 @@ ColumnLayout {
                             StyledText { text: I18nService.tr("Main Font"); font.weight: Font.Medium; color: Appearance.colors.colOnLayer1 }
                             StyledComboBox {
                                 id: mainCombo
+                                bgRadius: height / 2
                                 Layout.fillWidth: true
                                 text: Config.options.appearance.fonts.main
                                 model: SystemFonts.all
@@ -99,6 +100,7 @@ ColumnLayout {
                             StyledText { text: I18nService.tr("Title Font"); font.weight: Font.Medium; color: Appearance.colors.colOnLayer1 }
                             StyledComboBox {
                                 id: titleCombo
+                                bgRadius: height / 2
                                 Layout.fillWidth: true
                                 text: Config.options.appearance.fonts.title
                                 model: SystemFonts.all
@@ -114,6 +116,7 @@ ColumnLayout {
                             StyledText { text: I18nService.tr("Numbers Font"); font.weight: Font.Medium; color: Appearance.colors.colOnLayer1 }
                             StyledComboBox {
                                 id: numbersCombo
+                                bgRadius: height / 2
                                 Layout.fillWidth: true
                                 text: Config.options.appearance.fonts.numbers
                                 model: SystemFonts.all
@@ -129,6 +132,7 @@ ColumnLayout {
                             StyledText { text: I18nService.tr("Monospace Font"); font.weight: Font.Medium; color: Appearance.colors.colOnLayer1 }
                             StyledComboBox {
                                 id: monoCombo
+                                bgRadius: height / 2
                                 Layout.fillWidth: true
                                 text: Config.options.appearance.fonts.monospace
                                 model: SystemFonts.mono

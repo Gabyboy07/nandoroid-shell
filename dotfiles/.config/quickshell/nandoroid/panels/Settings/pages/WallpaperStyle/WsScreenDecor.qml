@@ -47,13 +47,19 @@ ColumnLayout {
     
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: screenCornerToggleRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: screenCornerToggleRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
                             id: screenCornerToggleRow
-                            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                            anchors.fill: parent
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "rounded_corner"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Rounded screen corners"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -82,14 +88,20 @@ ColumnLayout {
     
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: screenCornerRadRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: screenCornerRadRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         visible: Config.ready && (Config.options.appearance.screenCorners ? Config.options.appearance.screenCorners.mode : 1) > 0
                         RowLayout {
                             id: screenCornerRadRow
-                            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                            anchors.fill: parent
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             
                             RowLayout {

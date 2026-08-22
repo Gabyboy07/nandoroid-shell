@@ -35,36 +35,49 @@ ColumnLayout {
 
     // ── Cycle Toggle ────────────
     SegmentedWrapper {
+        id: cycleCard
         Layout.fillWidth: true
-        implicitHeight: cycleMainRow.implicitHeight + (36 * Appearance.effectiveScale)
+        implicitHeight: cycleMainRow.implicitHeight + (24 * Appearance.effectiveScale)
         orientation: Qt.Vertical
         maxRadius: 20 * Appearance.effectiveScale
         pillOnActive: false
         color: Appearance.m3colors.m3surfaceContainerHigh
         active: Config.ready && Config.options.appearance.background.autoCycleEnabled
-        
+
+        RippleButton {
+            anchors.fill: parent
+            colBackground: "transparent"
+            buttonRadius: 0
+            topLeftRadius: cycleCard.rTopLeft
+            topRightRadius: cycleCard.rTopRight
+            bottomLeftRadius: cycleCard.rBottomLeft
+            bottomRightRadius: cycleCard.rBottomRight
+            onClicked: {
+                if (Config.ready) Wallpapers.setAutoCycle(!Config.options.appearance.background.autoCycleEnabled)
+            }
+        }
+
         RowLayout {
             id: cycleMainRow
             anchors.fill: parent
-            anchors.margins: 16 * Appearance.effectiveScale
-            spacing: 20 * Appearance.effectiveScale
-
-            RowLayout {
-                spacing: 16 * Appearance.effectiveScale
-                Layout.preferredWidth: 70 * Appearance.effectiveScale
-                MaterialSymbol {
-                    text: "auto_mode"
-                    iconSize: 24 * Appearance.effectiveScale
-                    color: Appearance.colors.colPrimary
-                }
-                StyledText {
-                    text: I18nService.tr("Desktop wallpaper slideshow")
-                    color: Appearance.colors.colOnLayer1
-                    Layout.fillWidth: true
-                }
+            anchors {
+                leftMargin: 16 * Appearance.effectiveScale
+                rightMargin: 16 * Appearance.effectiveScale
+                topMargin: 12 * Appearance.effectiveScale
+                bottomMargin: 12 * Appearance.effectiveScale
             }
+            spacing: 16 * Appearance.effectiveScale
 
-            Item { Layout.fillWidth: true }
+            MaterialSymbol {
+                text: "auto_mode"
+                iconSize: 24 * Appearance.effectiveScale
+                color: Appearance.colors.colPrimary
+            }
+            StyledText {
+                text: I18nService.tr("Desktop wallpaper slideshow")
+                color: Appearance.colors.colOnLayer1
+                Layout.fillWidth: true
+            }
 
             AndroidToggle {
                 checked: Config.ready && Config.options.appearance.background.autoCycleEnabled
@@ -76,25 +89,27 @@ ColumnLayout {
     // ── Expanded Cycle Settings ────
     SegmentedWrapper {
         Layout.fillWidth: true
-        implicitHeight: intervalRow.implicitHeight + (36 * Appearance.effectiveScale)
+        implicitHeight: intervalRow.implicitHeight + (24 * Appearance.effectiveScale)
         orientation: Qt.Vertical
         maxRadius: 20 * Appearance.effectiveScale
         color: Appearance.m3colors.m3surfaceContainerHigh
         visible: Config.ready && Config.options.appearance.background.autoCycleEnabled
         RowLayout {
             id: intervalRow
-            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-            spacing: 20 * Appearance.effectiveScale
+            anchors.fill: parent
+            anchors {
+                leftMargin: 16 * Appearance.effectiveScale
+                rightMargin: 16 * Appearance.effectiveScale
+                topMargin: 12 * Appearance.effectiveScale
+                bottomMargin: 12 * Appearance.effectiveScale
+            }
+            spacing: 16 * Appearance.effectiveScale
 
-            RowLayout {
-                spacing: 16 * Appearance.effectiveScale
-                Layout.preferredWidth: 70 * Appearance.effectiveScale
-                MaterialSymbol { text: "schedule"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                StyledText { 
-                    text: I18nService.tr("Interval")
-                    Layout.fillWidth: true
-                    color: Appearance.colors.colOnLayer1 
-                }
+            MaterialSymbol { text: "schedule"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+            StyledText {
+                text: I18nService.tr("Interval")
+                Layout.fillWidth: true
+                color: Appearance.colors.colOnLayer1
             }
 
             StyledStepper {
@@ -110,33 +125,35 @@ ColumnLayout {
 
     SegmentedWrapper {
         Layout.fillWidth: true
-        implicitHeight: directoryRow.implicitHeight + (36 * Appearance.effectiveScale)
+        implicitHeight: directoryRow.implicitHeight + (24 * Appearance.effectiveScale)
         orientation: Qt.Vertical
         maxRadius: 20 * Appearance.effectiveScale
         color: Appearance.m3colors.m3surfaceContainerHigh
         visible: Config.ready && Config.options.appearance.background.autoCycleEnabled
         RowLayout {
             id: directoryRow
-            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-            spacing: 20 * Appearance.effectiveScale
-            RowLayout {
-                spacing: 16 * Appearance.effectiveScale
-                Layout.preferredWidth: 70 * Appearance.effectiveScale
-                MaterialSymbol { text: "folder_open"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                ColumnLayout {
-                    Layout.fillWidth: true; spacing: 0
-                    StyledText { text: I18nService.tr("Source folder"); color: Appearance.colors.colOnLayer1 }
-                    StyledText {
-                        text: {
-                            const dir = Config.ready ? Config.options.appearance.background.autoCycleDirectory : "";
-                            if (dir === "" || dir === undefined) return I18nService.tr("Not selected");
-                            return Functions.FileUtils.shortenHomePath(dir);
-                        }
-                        font.pixelSize: (Appearance.font && Appearance.font.pixelSize) ? Appearance.font.pixelSize.smallest : 10 * Appearance.effectiveScale
-                        color: Appearance.colors.colSubtext
-                        elide: Text.ElideMiddle
-                        Layout.fillWidth: true
+            anchors.fill: parent
+            anchors {
+                leftMargin: 16 * Appearance.effectiveScale
+                rightMargin: 16 * Appearance.effectiveScale
+                topMargin: 12 * Appearance.effectiveScale
+                bottomMargin: 12 * Appearance.effectiveScale
+            }
+            spacing: 16 * Appearance.effectiveScale
+            MaterialSymbol { text: "folder_open"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+            ColumnLayout {
+                Layout.fillWidth: true; spacing: 0
+                StyledText { text: I18nService.tr("Source folder"); color: Appearance.colors.colOnLayer1 }
+                StyledText {
+                    text: {
+                        const dir = Config.ready ? Config.options.appearance.background.autoCycleDirectory : "";
+                        if (dir === "" || dir === undefined) return I18nService.tr("Not selected");
+                        return Functions.FileUtils.shortenHomePath(dir);
                     }
+                    font.pixelSize: (Appearance.font && Appearance.font.pixelSize) ? Appearance.font.pixelSize.smallest : 10 * Appearance.effectiveScale
+                    color: Appearance.colors.colSubtext
+                    elide: Text.ElideMiddle
+                    Layout.fillWidth: true
                 }
             }
             M3IconButton {

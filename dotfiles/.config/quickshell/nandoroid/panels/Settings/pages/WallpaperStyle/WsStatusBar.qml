@@ -443,7 +443,7 @@ ColumnLayout {
     ColumnLayout {
         id: mainSectionCol
         Layout.fillWidth: true
-        spacing: 16 * Appearance.effectiveScale
+        spacing: 4 * Appearance.effectiveScale
     
                 readonly property bool isM3Style: Config.ready && Config.options.statusBar && (Config.options.statusBar.moduleStyle === "m3")
 
@@ -463,7 +463,7 @@ ColumnLayout {
                 // Section Header
                 RowLayout {
                     spacing: 12 * Appearance.effectiveScale
-                    Layout.bottomMargin: 4 * Appearance.effectiveScale
+                    Layout.bottomMargin: 8 * Appearance.effectiveScale
                     MaterialSymbol {
                         text: "view_compact"
                         iconSize: 24 * Appearance.effectiveScale
@@ -520,14 +520,35 @@ ColumnLayout {
 
                     // ── Auto Hide ──────────────────────────────────────────────
                     SegmentedWrapper {
+                        id: autoHideCard
                         Layout.fillWidth: true
-                        implicitHeight: autoHideRow.implicitHeight + (32 * Appearance.effectiveScale)
+                        implicitHeight: autoHideRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
+
+                        RippleButton {
+                            anchors.fill: parent
+                            colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                            colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                            buttonRadius: 0
+                            topLeftRadius: autoHideCard.rTopLeft
+                            topRightRadius: autoHideCard.rTopRight
+                            bottomLeftRadius: autoHideCard.rBottomLeft
+                            bottomRightRadius: autoHideCard.rBottomRight
+                            onClicked: if (Config.ready && Config.options.statusBar)
+                                Config.options.statusBar.autoHide = !Config.options.statusBar.autoHide
+                        }
+
                         RowLayout {
                             id: autoHideRow
-                            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                            anchors.fill: parent
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "visibility_off"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Auto hide"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -543,7 +564,7 @@ ColumnLayout {
                     SegmentedWrapper {
                         visible: !sbSettingsCol.parent.isM3Style
                         Layout.fillWidth: true
-                        implicitHeight: statusBarTextRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: statusBarTextRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
@@ -552,7 +573,12 @@ ColumnLayout {
                         RowLayout {
                             id: statusBarTextRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Text color"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -584,17 +610,39 @@ ColumnLayout {
     
                     // ── Use Gradient (disabled ONLY when background is ALWAYS active) ──────────────
                     SegmentedWrapper {
+                        id: sbGradientCard
                         visible: !sbSettingsCol.parent.isM3Style
                         Layout.fillWidth: true
-                        implicitHeight: statusBarGradientRow.implicitHeight + (32 * Appearance.effectiveScale)
+                        implicitHeight: statusBarGradientRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         opacity: sbSettingsCol.parent.sbAlwaysSolid ? 0.4 : 1.0
                         Behavior on opacity { NumberAnimation { duration: 200 } }
+
+                        RippleButton {
+                            anchors.fill: parent
+                            colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                            colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                            buttonRadius: 0
+                            topLeftRadius: sbGradientCard.rTopLeft
+                            topRightRadius: sbGradientCard.rTopRight
+                            bottomLeftRadius: sbGradientCard.rBottomLeft
+                            bottomRightRadius: sbGradientCard.rBottomRight
+                            enabled: !sbSettingsCol.parent.sbAlwaysSolid
+                            onClicked: if (Config.ready && Config.options.statusBar && !sbSettingsCol.parent.sbAlwaysSolid)
+                                Config.options.statusBar.useGradient = !Config.options.statusBar.useGradient
+                        }
+
                         RowLayout {
                             id: statusBarGradientRow
-                            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                            anchors.fill: parent
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "gradient"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Use gradient"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -610,14 +658,19 @@ ColumnLayout {
                     SegmentedWrapper {
                         visible: !sbSettingsCol.parent.isM3Style
                         Layout.fillWidth: true
-                        implicitHeight: statusBarBgRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: statusBarBgRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
                             id: statusBarBgRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "rectangle"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Background"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -649,25 +702,27 @@ ColumnLayout {
                      // ── Corner radius (visible when ANY background style is active) ──
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: sbCornerRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: sbCornerRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         visible: sbSettingsCol.parent.sbAnyBgStyle && !sbSettingsCol.parent.isM3Style
                         RowLayout {
                             id: sbCornerRow
-                            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-                            spacing: 20 * Appearance.effectiveScale
+                            anchors.fill: parent
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
+                            spacing: 16 * Appearance.effectiveScale
 
-                            RowLayout {
-                                spacing: 16 * Appearance.effectiveScale
-                                Layout.preferredWidth: 70 * Appearance.effectiveScale
-                                MaterialSymbol { text: "rounded_corner"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                                StyledText { 
-                                    text: I18nService.tr("Corner radius")
-                                    Layout.fillWidth: true
-                                    color: Appearance.colors.colOnLayer1 
-                                }
+                            MaterialSymbol { text: "rounded_corner"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                            StyledText {
+                                text: I18nService.tr("Corner radius")
+                                Layout.fillWidth: true
+                                color: Appearance.colors.colOnLayer1
                             }
 
                             StyledStepper {
@@ -686,14 +741,19 @@ ColumnLayout {
                     SegmentedWrapper {
                         visible: !sbSettingsCol.parent.isM3Style
                         Layout.fillWidth: true
-                        implicitHeight: layoutStyleRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: layoutStyleRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
                             id: layoutStyleRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "center_focus_strong"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Layout Style"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -740,14 +800,19 @@ ColumnLayout {
                     // ── Center Module (Clock / None) ────────────
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: centerModuleRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: centerModuleRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
                             id: centerModuleRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "view_agenda"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Center Module"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -805,7 +870,7 @@ ColumnLayout {
                     // ── Left Cluster Modules (Dynamic Drag/Reorder & Add) ────────────
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: leftModsCol.implicitHeight + (32 * Appearance.effectiveScale)
+                        implicitHeight: leftModsCol.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
@@ -813,7 +878,12 @@ ColumnLayout {
                         ColumnLayout {
                             id: leftModsCol
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 12 * Appearance.effectiveScale
 
                             RowLayout {
@@ -973,7 +1043,7 @@ ColumnLayout {
                     // ── Right Cluster Modules (Dynamic Drag/Reorder & Add) ────────────
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: rightModsCol.implicitHeight + (32 * Appearance.effectiveScale)
+                        implicitHeight: rightModsCol.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
@@ -981,7 +1051,12 @@ ColumnLayout {
                         ColumnLayout {
                             id: rightModsCol
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 12 * Appearance.effectiveScale
 
                             RowLayout {
@@ -1142,14 +1217,19 @@ ColumnLayout {
                     // ── Notification Unread Attachment (Distro Icon vs Status Icons) ────────────
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: notifPositionRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: notifPositionRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
                             id: notifPositionRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "notifications"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Notification Unread Badge Host"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -1180,14 +1260,19 @@ ColumnLayout {
                     // ── Notification Counter Style ────────────
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: notifCounterStyleRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: notifCounterStyleRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
                             id: notifCounterStyleRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "mark_chat_unread"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Notification Counter"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -1219,7 +1304,7 @@ ColumnLayout {
                     // ── System Monitor Options ────────────
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: sysMonRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: sysMonRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
@@ -1230,7 +1315,12 @@ ColumnLayout {
                         RowLayout {
                             id: sysMonRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "memory"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("System Monitor Options"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -1285,7 +1375,7 @@ ColumnLayout {
                     // ── System Monitor Style ────────────
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: sysMonStyleRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: sysMonStyleRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
@@ -1296,7 +1386,12 @@ ColumnLayout {
                         RowLayout {
                             id: sysMonStyleRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "style"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("System Monitor Style"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -1327,25 +1422,27 @@ ColumnLayout {
                     // ── Centered Width (only visible when centered is active) ──
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: centeredWidthRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: centeredWidthRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         visible: Config.ready && Config.options.statusBar && Config.options.statusBar.layoutStyle === "centered" && !sbSettingsCol.parent.isM3Style
                         RowLayout {
                             id: centeredWidthRow
-                            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-                            spacing: 20 * Appearance.effectiveScale
+                            anchors.fill: parent
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
+                            spacing: 16 * Appearance.effectiveScale
 
-                            RowLayout {
-                                spacing: 16 * Appearance.effectiveScale
-                                Layout.preferredWidth: 70 * Appearance.effectiveScale // Ramped down to give maximum space to slider
-                                MaterialSymbol { text: "width_full"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                                StyledText { 
-                                    text: I18nService.tr("Centered width")
-                                    Layout.fillWidth: true
-                                    color: Appearance.colors.colOnLayer1 
-                                }
+                            MaterialSymbol { text: "width_full"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                            StyledText {
+                                text: I18nService.tr("Centered width")
+                                Layout.fillWidth: true
+                                color: Appearance.colors.colOnLayer1
                             }
 
                             StyledStepper {
@@ -1379,14 +1476,19 @@ ColumnLayout {
                     SegmentedWrapper {
                         visible: !sbSettingsCol.parent.isM3Style
                         Layout.fillWidth: true
-                        implicitHeight: wsStyleRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: wsStyleRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
                             id: wsStyleRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "layers"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Indicator Shape"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -1417,14 +1519,19 @@ ColumnLayout {
                     // ── Workspace Style (Label) ──
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: wsLabelRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: wsLabelRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
                             id: wsLabelRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "format_list_numbered"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Indicator Label"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -1458,14 +1565,19 @@ ColumnLayout {
                     SegmentedWrapper {
                         visible: !sbSettingsCol.parent.isM3Style
                         Layout.fillWidth: true
-                        implicitHeight: islandStyleRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: islandStyleRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
                             id: islandStyleRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "animation"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Island Style"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -1496,14 +1608,19 @@ ColumnLayout {
                     // ── Tray Style ──
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: trayStyleRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: trayStyleRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
                             id: trayStyleRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "apps"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Tray Style"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -1534,14 +1651,35 @@ ColumnLayout {
 
                     // ── Volume Indicator ──
                     SegmentedWrapper {
+                        id: volumeIndicatorCard
                         Layout.fillWidth: true
-                        implicitHeight: volumeIndicatorRow.implicitHeight + (32 * Appearance.effectiveScale)
+                        implicitHeight: volumeIndicatorRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
+
+                        RippleButton {
+                            anchors.fill: parent
+                            colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                            colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                            buttonRadius: 0
+                            topLeftRadius: volumeIndicatorCard.rTopLeft
+                            topRightRadius: volumeIndicatorCard.rTopRight
+                            bottomLeftRadius: volumeIndicatorCard.rBottomLeft
+                            bottomRightRadius: volumeIndicatorCard.rBottomRight
+                            onClicked: if (Config.ready && Config.options.statusBar)
+                                Config.options.statusBar.showVolumeIndicator = !Config.options.statusBar.showVolumeIndicator
+                        }
+
                         RowLayout {
                             id: volumeIndicatorRow
-                            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                            anchors.fill: parent
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "volume_up"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Volume Indicator"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -1556,13 +1694,19 @@ ColumnLayout {
                     // ── Workspace count ──────────────────────────────────────────
                     SegmentedWrapper {
                         Layout.fillWidth: true
-                        implicitHeight: sbWorkspaceRow.implicitHeight + (32 * Appearance.effectiveScale)
+                        implicitHeight: sbWorkspaceRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
                             id: sbWorkspaceRow
-                            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                            anchors.fill: parent
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "grid_view"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Workspace count"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }

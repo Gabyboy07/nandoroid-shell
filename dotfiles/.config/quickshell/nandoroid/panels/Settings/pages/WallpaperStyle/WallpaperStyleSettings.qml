@@ -272,7 +272,7 @@ Flickable {
     ColumnLayout {
         id: mainCol
         width: parent.width - (24 * Appearance.effectiveScale)
-        spacing: 32 * Appearance.effectiveScale
+        spacing: 24 * Appearance.effectiveScale
         anchors.margins: 4 * Appearance.effectiveScale
         visible: Config.ready
         opacity: visible ? 1 : 0
@@ -316,20 +316,52 @@ Flickable {
 
             // ── Use Same Wallpaper for Lock Screen ──
             SegmentedWrapper {
+                id: syncCard
                 Layout.fillWidth: true
-                implicitHeight: syncToggleRow.implicitHeight + (40 * Appearance.effectiveScale)
+                implicitHeight: syncToggleRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
-                
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: syncCard.rTopLeft
+                    topRightRadius: syncCard.rTopRight
+                    bottomLeftRadius: syncCard.rBottomLeft
+                    bottomRightRadius: syncCard.rBottomRight
+                    onClicked: {
+                        if (Config.ready && Config.options.lock) {
+                            const current = Config.options.lock.useSeparateWallpaper
+                            Config.options.lock.useSeparateWallpaper = !current
+                            if (current) {
+                                let targetPath = Config.options.appearance.background.wallpaperPath;
+                                if (WallpaperEngineService.active) {
+                                    targetPath = "file://" + WallpaperEngineService.screenshotPath;
+                                } else if (MpvpaperService.active) {
+                                    targetPath = "file://" + MpvpaperService.framePath;
+                                }
+                                Wallpapers.selectForLockscreen(targetPath, false)
+                            }
+                        }
+                    }
+                }
+
                 RowLayout {
                     id: syncToggleRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-                    spacing: 20 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
+                    spacing: 16 * Appearance.effectiveScale
 
                     RowLayout {
                         spacing: 16 * Appearance.effectiveScale
-                        Layout.preferredWidth: 70 * Appearance.effectiveScale
                         MaterialSymbol {
                             text: "sync"
                             iconSize: 24 * Appearance.effectiveScale
@@ -341,8 +373,6 @@ Flickable {
                             Layout.fillWidth: true
                         }
                     }
-
-                    Item { Layout.fillWidth: true }
 
                     AndroidToggle {
                         id: syncToggle

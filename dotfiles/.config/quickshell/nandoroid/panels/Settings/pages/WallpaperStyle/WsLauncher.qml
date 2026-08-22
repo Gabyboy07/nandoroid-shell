@@ -53,14 +53,35 @@ ColumnLayout {
 
             // ── App Grouping Toggle ──────────────
             SegmentedWrapper {
+                id: groupingCard
                 Layout.fillWidth: true
-                implicitHeight: groupingRow.implicitHeight + (36 * Appearance.effectiveScale)
+                implicitHeight: groupingRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: groupingCard.rTopLeft
+                    topRightRadius: groupingCard.rTopRight
+                    bottomLeftRadius: groupingCard.rBottomLeft
+                    bottomRightRadius: groupingCard.rBottomRight
+                    onClicked: if (Config.ready && Config.options.search)
+                        Config.options.search.enableGrouping = !Config.options.search.enableGrouping
+                }
+
                 RowLayout {
                     id: groupingRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "category"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Enable App Grouping"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }

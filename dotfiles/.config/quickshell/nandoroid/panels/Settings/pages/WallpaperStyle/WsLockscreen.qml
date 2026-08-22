@@ -56,14 +56,34 @@ ColumnLayout {
     
                     // ── Show Weather ──────────────
                     SegmentedWrapper {
+                        id: showWeatherCard
                         Layout.fillWidth: true
-                        implicitHeight: showWeatherRow.implicitHeight + (32 * Appearance.effectiveScale)
+                        implicitHeight: showWeatherRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
+
+                        RippleButton {
+                            anchors.fill: parent
+                            colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                            colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                            buttonRadius: 0
+                            topLeftRadius: showWeatherCard.rTopLeft
+                            topRightRadius: showWeatherCard.rTopRight
+                            bottomLeftRadius: showWeatherCard.rBottomLeft
+                            bottomRightRadius: showWeatherCard.rBottomRight
+                            onClicked: if(Config.ready) Config.options.lock.showWeather = !Config.options.lock.showWeather
+                        }
+
                         RowLayout {
                             id: showWeatherRow
-                            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                            anchors.fill: parent
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "cloud"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Show Weather Text"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -78,14 +98,19 @@ ColumnLayout {
                     SegmentedWrapper {
                         Layout.fillWidth: true
                         visible: Config.ready && (Config.options.lock?.showWeather ?? true)
-                        implicitHeight: weatherTextRow.implicitHeight + (36 * Appearance.effectiveScale)
+                        implicitHeight: weatherTextRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
                         RowLayout {
                             id: weatherTextRow
                             anchors.fill: parent
-                            anchors.margins: 16 * Appearance.effectiveScale
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Weather text color"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -114,36 +139,36 @@ ColumnLayout {
                         }
                     }
 
-                    // ── Show Date ──────────────
-                    SegmentedWrapper {
-                        Layout.fillWidth: true
-                        implicitHeight: showLockscreenDateRow.implicitHeight + (32 * Appearance.effectiveScale)
-                        orientation: Qt.Vertical
-                        maxRadius: 20 * Appearance.effectiveScale
-                        color: Appearance.m3colors.m3surfaceContainerHigh
-                        RowLayout {
-                            id: showLockscreenDateRow
-                            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-                            spacing: 16 * Appearance.effectiveScale
-                            MaterialSymbol { text: "event"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { text: I18nService.tr("Show date on lockscreen"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
-                            AndroidToggle {
-                                checked: Config.ready && Config.options.appearance.clock.showLockscreenDate
-                                onToggled: if(Config.ready) Config.options.appearance.clock.showLockscreenDate = !Config.options.appearance.clock.showLockscreenDate
-                            }
-                        }
-                    }
-
                     // ── Show Media Controls ──────────────
                     SegmentedWrapper {
+                        id: showMediaCard
                         Layout.fillWidth: true
-                        implicitHeight: showMediaRow.implicitHeight + (32 * Appearance.effectiveScale)
+                        implicitHeight: showMediaRow.implicitHeight + (24 * Appearance.effectiveScale)
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
+
+                        RippleButton {
+                            anchors.fill: parent
+                            colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                            colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                            buttonRadius: 0
+                            topLeftRadius: showMediaCard.rTopLeft
+                            topRightRadius: showMediaCard.rTopRight
+                            bottomLeftRadius: showMediaCard.rBottomLeft
+                            bottomRightRadius: showMediaCard.rBottomRight
+                            onClicked: if(Config.ready) Config.options.lock.showMediaCard = !Config.options.lock.showMediaCard
+                        }
+
                         RowLayout {
                             id: showMediaRow
-                            anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                            anchors.fill: parent
+                            anchors {
+                                leftMargin: 16 * Appearance.effectiveScale
+                                rightMargin: 16 * Appearance.effectiveScale
+                                topMargin: 12 * Appearance.effectiveScale
+                                bottomMargin: 12 * Appearance.effectiveScale
+                            }
                             spacing: 16 * Appearance.effectiveScale
                             MaterialSymbol { text: "movie"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                             StyledText { text: I18nService.tr("Show Media Controls"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }

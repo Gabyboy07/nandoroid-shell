@@ -44,26 +44,27 @@ ColumnLayout {
                 // Rows
                 SegmentedWrapper {
                     Layout.fillWidth: true
-                    implicitHeight: overviewRowsRow.implicitHeight + (36 * Appearance.effectiveScale)
+                    implicitHeight: overviewRowsRow.implicitHeight + (24 * Appearance.effectiveScale)
                     orientation: Qt.Vertical
                     maxRadius: 20 * Appearance.effectiveScale
                     color: Appearance.m3colors.m3surfaceContainerHigh
-                    
+
                     RowLayout {
                         id: overviewRowsRow
                         anchors.fill: parent
-                        anchors.margins: 16 * Appearance.effectiveScale
-                        spacing: 20 * Appearance.effectiveScale
-    
-                        RowLayout {
-                            spacing: 16 * Appearance.effectiveScale
-                            Layout.preferredWidth: 70 * Appearance.effectiveScale
-                            MaterialSymbol { text: "reorder"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { 
-                                text: I18nService.tr("Rows")
-                                color: Appearance.colors.colOnLayer1
-                                Layout.fillWidth: true
-                            }
+                        anchors {
+                            leftMargin: 16 * Appearance.effectiveScale
+                            rightMargin: 16 * Appearance.effectiveScale
+                            topMargin: 12 * Appearance.effectiveScale
+                            bottomMargin: 12 * Appearance.effectiveScale
+                        }
+                        spacing: 16 * Appearance.effectiveScale
+
+                        MaterialSymbol { text: "reorder"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                        StyledText {
+                            text: I18nService.tr("Rows")
+                            color: Appearance.colors.colOnLayer1
+                            Layout.fillWidth: true
                         }
 
                         StyledStepper {
@@ -79,26 +80,27 @@ ColumnLayout {
                 // Columns
                 SegmentedWrapper {
                     Layout.fillWidth: true
-                    implicitHeight: overviewColsRow.implicitHeight + (36 * Appearance.effectiveScale)
+                    implicitHeight: overviewColsRow.implicitHeight + (24 * Appearance.effectiveScale)
                     orientation: Qt.Vertical
                     maxRadius: 20 * Appearance.effectiveScale
                     color: Appearance.m3colors.m3surfaceContainerHigh
-                    
+
                     RowLayout {
                         id: overviewColsRow
                         anchors.fill: parent
-                        anchors.margins: 16 * Appearance.effectiveScale
-                        spacing: 20 * Appearance.effectiveScale
-    
-                        RowLayout {
-                            spacing: 16 * Appearance.effectiveScale
-                            Layout.preferredWidth: 70 * Appearance.effectiveScale
-                            MaterialSymbol { text: "view_week"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { 
-                                text: I18nService.tr("Columns")
-                                color: Appearance.colors.colOnLayer1
-                                Layout.fillWidth: true
-                            }
+                        anchors {
+                            leftMargin: 16 * Appearance.effectiveScale
+                            rightMargin: 16 * Appearance.effectiveScale
+                            topMargin: 12 * Appearance.effectiveScale
+                            bottomMargin: 12 * Appearance.effectiveScale
+                        }
+                        spacing: 16 * Appearance.effectiveScale
+
+                        MaterialSymbol { text: "view_week"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                        StyledText {
+                            text: I18nService.tr("Columns")
+                            color: Appearance.colors.colOnLayer1
+                            Layout.fillWidth: true
                         }
 
                         StyledStepper {
@@ -114,26 +116,27 @@ ColumnLayout {
                 // Scale
                 SegmentedWrapper {
                     Layout.fillWidth: true
-                    implicitHeight: overviewScaleRow.implicitHeight + (36 * Appearance.effectiveScale)
+                    implicitHeight: overviewScaleRow.implicitHeight + (24 * Appearance.effectiveScale)
                     orientation: Qt.Vertical
                     maxRadius: 20 * Appearance.effectiveScale
                     color: Appearance.m3colors.m3surfaceContainerHigh
-                    
+
                     RowLayout {
                         id: overviewScaleRow
                         anchors.fill: parent
-                        anchors.margins: 16 * Appearance.effectiveScale
-                        spacing: 20 * Appearance.effectiveScale
-    
-                        RowLayout {
-                            spacing: 16 * Appearance.effectiveScale
-                            Layout.preferredWidth: 70 * Appearance.effectiveScale
-                            MaterialSymbol { text: "zoom_in"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { 
-                                text: I18nService.tr("Window Scale")
-                                color: Appearance.colors.colOnLayer1
-                                Layout.fillWidth: true
-                            }
+                        anchors {
+                            leftMargin: 16 * Appearance.effectiveScale
+                            rightMargin: 16 * Appearance.effectiveScale
+                            topMargin: 12 * Appearance.effectiveScale
+                            bottomMargin: 12 * Appearance.effectiveScale
+                        }
+                        spacing: 16 * Appearance.effectiveScale
+
+                        MaterialSymbol { text: "zoom_in"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                        StyledText {
+                            text: I18nService.tr("Window Scale")
+                            color: Appearance.colors.colOnLayer1
+                            Layout.fillWidth: true
                         }
 
                         StyledStepper {
@@ -150,26 +153,27 @@ ColumnLayout {
                 // Workspace Spacing
                 SegmentedWrapper {
                     Layout.fillWidth: true
-                    implicitHeight: overviewSpacingRow.implicitHeight + (36 * Appearance.effectiveScale)
+                    implicitHeight: overviewSpacingRow.implicitHeight + (24 * Appearance.effectiveScale)
                     orientation: Qt.Vertical
                     maxRadius: 20 * Appearance.effectiveScale
                     color: Appearance.m3colors.m3surfaceContainerHigh
-                    
+
                     RowLayout {
                         id: overviewSpacingRow
                         anchors.fill: parent
-                        anchors.margins: 16 * Appearance.effectiveScale
-                        spacing: 20 * Appearance.effectiveScale
-    
-                        RowLayout {
-                            spacing: 16 * Appearance.effectiveScale
-                            Layout.preferredWidth: 70 * Appearance.effectiveScale
-                            MaterialSymbol { text: "space_dashboard"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                            StyledText { 
-                                text: I18nService.tr("Workspace Spacing")
-                                color: Appearance.colors.colOnLayer1
-                                Layout.fillWidth: true
-                            }
+                        anchors {
+                            leftMargin: 16 * Appearance.effectiveScale
+                            rightMargin: 16 * Appearance.effectiveScale
+                            topMargin: 12 * Appearance.effectiveScale
+                            bottomMargin: 12 * Appearance.effectiveScale
+                        }
+                        spacing: 16 * Appearance.effectiveScale
+
+                        MaterialSymbol { text: "space_dashboard"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                        StyledText {
+                            text: I18nService.tr("Workspace Spacing")
+                            color: Appearance.colors.colOnLayer1
+                            Layout.fillWidth: true
                         }
 
                         StyledStepper {

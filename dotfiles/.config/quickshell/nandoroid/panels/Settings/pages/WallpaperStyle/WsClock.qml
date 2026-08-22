@@ -92,11 +92,11 @@ ColumnLayout {
         Row {
             Layout.fillWidth: true
             Layout.preferredHeight: 52 * Appearance.effectiveScale
-            spacing: 4 * Appearance.effectiveScale
+            spacing: 2 * Appearance.effectiveScale
             visible: !rootClock.isDedicatedContext && Config.ready && !Config.options.appearance.clock.useSameStyle
-            
+
             SegmentedButton {
-                width: (parent.width - (4 * Appearance.effectiveScale)) / 2
+                width: (parent.width - (2 * Appearance.effectiveScale)) / 2
                 height: parent.height
                 buttonText: I18nService.tr("Desktop")
                 isHighlighted: clockStyleSection.activeContext === "desktop"
@@ -105,7 +105,7 @@ ColumnLayout {
                 colActiveText: Appearance.m3colors.m3onPrimary
             }
             SegmentedButton {
-                width: (parent.width - (4 * Appearance.effectiveScale)) / 2
+                width: (parent.width - (2 * Appearance.effectiveScale)) / 2
                 height: parent.height
                 buttonText: I18nService.tr("Lockscreen")
                 isHighlighted: clockStyleSection.activeContext === "lock"
@@ -382,13 +382,25 @@ ColumnLayout {
                             onValueChanged: advancedPanel.analogCfg.sides = Math.round(value)
                         }
                     }
-                    StyledText { text: I18nService.tr("Constantly Rotate"); color: Appearance.colors.colOnLayer1 }
+                    StyledText {
+                        text: I18nService.tr("Constantly Rotate"); color: Appearance.colors.colOnLayer1
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: advancedPanel.analogCfg.constantlyRotate = !advancedPanel.analogCfg.constantlyRotate }
+                    }
                     AndroidToggle { Layout.alignment: Qt.AlignRight; checked: Config.ready && advancedPanel.analogCfg.constantlyRotate; onToggled: advancedPanel.analogCfg.constantlyRotate = !advancedPanel.analogCfg.constantlyRotate }
-                    StyledText { text: I18nService.tr("Time Indicators"); color: Appearance.colors.colOnLayer1 }
+                    StyledText {
+                        text: I18nService.tr("Time Indicators"); color: Appearance.colors.colOnLayer1
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: advancedPanel.analogCfg.timeIndicators = !advancedPanel.analogCfg.timeIndicators }
+                    }
                     AndroidToggle { Layout.alignment: Qt.AlignRight; checked: Config.ready && advancedPanel.analogCfg.timeIndicators; onToggled: advancedPanel.analogCfg.timeIndicators = !advancedPanel.analogCfg.timeIndicators }
-                    StyledText { text: I18nService.tr("Hour Marks"); color: Appearance.colors.colOnLayer1 }
+                    StyledText {
+                        text: I18nService.tr("Hour Marks"); color: Appearance.colors.colOnLayer1
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: advancedPanel.analogCfg.hourMarks = !advancedPanel.analogCfg.hourMarks }
+                    }
                     AndroidToggle { Layout.alignment: Qt.AlignRight; checked: Config.ready && advancedPanel.analogCfg.hourMarks; onToggled: advancedPanel.analogCfg.hourMarks = !advancedPanel.analogCfg.hourMarks }
-                    StyledText { text: I18nService.tr("Show Marks"); color: Appearance.colors.colOnLayer1 }
+                    StyledText {
+                        text: I18nService.tr("Show Marks"); color: Appearance.colors.colOnLayer1
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: advancedPanel.analogCfg.showMarks = !advancedPanel.analogCfg.showMarks }
+                    }
                     AndroidToggle { Layout.alignment: Qt.AlignRight; checked: Config.ready && advancedPanel.analogCfg.showMarks; onToggled: advancedPanel.analogCfg.showMarks = !advancedPanel.analogCfg.showMarks }
                     StyledText { text: I18nService.tr("Dial Style"); color: Appearance.colors.colOnLayer1; visible: Config.ready && advancedPanel.analogCfg.showMarks }
                     Row {
@@ -730,7 +742,10 @@ ColumnLayout {
                         SegmentedButton { buttonText: I18nService.tr("Horizontal"); isHighlighted: Config.ready && !advancedPanel.pillCfg.isVertical; onClicked: advancedPanel.pillCfg.isVertical = false }
                         SegmentedButton { buttonText: I18nService.tr("Vertical"); isHighlighted: Config.ready && advancedPanel.pillCfg.isVertical; onClicked: advancedPanel.pillCfg.isVertical = true }
                     }
-                    StyledText { text: I18nService.tr("Show Background"); color: Appearance.colors.colOnLayer1 }
+                    StyledText {
+                        text: I18nService.tr("Show Background"); color: Appearance.colors.colOnLayer1
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: advancedPanel.pillCfg.showBackground = !advancedPanel.pillCfg.showBackground }
+                    }
                     AndroidToggle { Layout.alignment: Qt.AlignRight; checked: Config.ready && advancedPanel.pillCfg.showBackground; onToggled: advancedPanel.pillCfg.showBackground = !advancedPanel.pillCfg.showBackground }
                     StyledText { text: I18nService.tr("Clock Size"); color: Appearance.colors.colOnLayer1 }
                     RowLayout {
@@ -770,6 +785,7 @@ ColumnLayout {
                         Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 
                     }
                     StyledComboBox {
+                        bgRadius: height / 2
                         Layout.preferredWidth: 300 * Appearance.effectiveScale
                         model: SystemFonts.all
                         text: {
@@ -790,18 +806,19 @@ ColumnLayout {
                 Layout.fillWidth: true; implicitHeight: 64 * Appearance.effectiveScale; color: Appearance.m3colors.m3surfaceContainerHigh
                 topLeftRadius: (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
                 topRightRadius: (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
-                bottomLeftRadius: rootClock.dedicatedIsLock ? 20 * Appearance.effectiveScale : (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
-                bottomRightRadius: rootClock.dedicatedIsLock ? 20 * Appearance.effectiveScale : (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
+                bottomLeftRadius: (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
+                bottomRightRadius: (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
                 z: 1
                 RowLayout {
                     anchors.fill: parent; anchors.leftMargin: 16 * Appearance.effectiveScale; anchors.rightMargin: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "calendar_month"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                    StyledText { 
+                    StyledText {
                         text: Config.options.appearance.clock.useSameStyle ? I18nService.tr("Date Font") : (clockStyleSection.activeContext === "desktop" ? I18nService.tr("Desktop Date Font") : I18nService.tr("Lockscreen Date Font"))
-                        Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 
+                        Layout.fillWidth: true; color: Appearance.colors.colOnLayer1
                     }
                     StyledComboBox {
+                        bgRadius: height / 2
                         Layout.preferredWidth: 300 * Appearance.effectiveScale
                         model: SystemFonts.all
                         text: {
@@ -819,6 +836,36 @@ ColumnLayout {
             }
 
             Rectangle {
+                visible: rootClock.dedicatedIsLock
+                Layout.fillWidth: true; implicitHeight: 64 * Appearance.effectiveScale; color: Appearance.m3colors.m3surfaceContainerHigh
+                topLeftRadius: (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
+                topRightRadius: (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
+                bottomLeftRadius: rootClock.dedicatedIsLock ? 20 * Appearance.effectiveScale : (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
+                bottomRightRadius: rootClock.dedicatedIsLock ? 20 * Appearance.effectiveScale : (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
+                z: 0
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: parent.topLeftRadius
+                    topRightRadius: parent.topRightRadius
+                    bottomLeftRadius: parent.bottomLeftRadius
+                    bottomRightRadius: parent.bottomRightRadius
+                    onClicked: if(Config.ready) Config.options.appearance.clock.showLockscreenDate = !Config.options.appearance.clock.showLockscreenDate
+                }
+
+                RowLayout {
+                    anchors.fill: parent; anchors.leftMargin: 16 * Appearance.effectiveScale; anchors.rightMargin: 16 * Appearance.effectiveScale
+                    spacing: 16 * Appearance.effectiveScale
+                    MaterialSymbol { text: "event"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText { text: I18nService.tr("Show date on lockscreen"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    AndroidToggle { checked: Config.ready && Config.options.appearance.clock.showLockscreenDate; onToggled: if(Config.ready) Config.options.appearance.clock.showLockscreenDate = !Config.options.appearance.clock.showLockscreenDate }
+                }
+            }
+
+            Rectangle {
                 visible: !rootClock.dedicatedIsLock
                 Layout.fillWidth: true; implicitHeight: 64 * Appearance.effectiveScale; color: Appearance.m3colors.m3surfaceContainerHigh
                 topLeftRadius: (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
@@ -826,6 +873,19 @@ ColumnLayout {
                 bottomLeftRadius: 20 * Appearance.effectiveScale
                 bottomRightRadius: 20 * Appearance.effectiveScale
                 z: 0
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: parent.topLeftRadius
+                    topRightRadius: parent.topRightRadius
+                    bottomLeftRadius: parent.bottomLeftRadius
+                    bottomRightRadius: parent.bottomRightRadius
+                    onClicked: if(Config.ready) Config.options.appearance.clock.showDesktopDate = !Config.options.appearance.clock.showDesktopDate
+                }
+
                 RowLayout {
                     anchors.fill: parent; anchors.leftMargin: 16 * Appearance.effectiveScale; anchors.rightMargin: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
@@ -842,11 +902,35 @@ ColumnLayout {
             spacing: 4 * Appearance.effectiveScale
             visible: !rootClock.dedicatedIsLock
             SegmentedWrapper {
-                Layout.fillWidth: true; implicitHeight: 64 * Appearance.effectiveScale; color: Appearance.m3colors.m3surfaceContainerHigh
+                id: syncStylesCard
+                Layout.fillWidth: true
+                implicitHeight: syncStylesRow.implicitHeight + (24 * Appearance.effectiveScale)
+                color: Appearance.m3colors.m3surfaceContainerHigh
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: syncStylesCard.rTopLeft
+                    topRightRadius: syncStylesCard.rTopRight
+                    bottomLeftRadius: syncStylesCard.rBottomLeft
+                    bottomRightRadius: syncStylesCard.rBottomRight
+                    onClicked: if (Config.ready)
+                        Config.options.appearance.clock.useSameStyle = !Config.options.appearance.clock.useSameStyle
+                }
+
                 RowLayout {
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    id: syncStylesRow
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "sync"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Sync desktop with lockscreen"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }

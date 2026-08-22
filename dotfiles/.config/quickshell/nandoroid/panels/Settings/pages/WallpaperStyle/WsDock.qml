@@ -21,12 +21,12 @@ ColumnLayout {
     // ── Dock Section ──
     ColumnLayout {
         Layout.fillWidth: true
-        spacing: 16 * Appearance.effectiveScale
-        
+        spacing: 4 * Appearance.effectiveScale
+
         // Section Header
         RowLayout {
             spacing: 12 * Appearance.effectiveScale
-            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            Layout.bottomMargin: 8 * Appearance.effectiveScale
             MaterialSymbol {
                 text: "bottom_panel_open"
                 iconSize: 24 * Appearance.effectiveScale
@@ -47,14 +47,35 @@ ColumnLayout {
 
             // ── Enable Dock ──────────────
             SegmentedWrapper {
+                id: enableCard
                 Layout.fillWidth: true
-                implicitHeight: enableRow.implicitHeight + (36 * Appearance.effectiveScale)
+                implicitHeight: enableRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: enableCard.rTopLeft
+                    topRightRadius: enableCard.rTopRight
+                    bottomLeftRadius: enableCard.rBottomLeft
+                    bottomRightRadius: enableCard.rBottomRight
+                    onClicked: if (Config.ready && Config.options.dock)
+                        Config.options.dock.enable = !Config.options.dock.enable
+                }
+
                 RowLayout {
                     id: enableRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "visibility"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Enable Dock"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -68,20 +89,41 @@ ColumnLayout {
 
             // ── Show only in Desktop ──────────────
             SegmentedWrapper {
+                id: showDesktopCard
                 Layout.fillWidth: true
-                implicitHeight: showDesktopRow.implicitHeight + (36 * Appearance.effectiveScale)
+                implicitHeight: showDesktopRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 enabled: Config.ready && Config.options.dock && Config.options.dock.enable
                 opacity: enabled ? 1 : 0.5
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: showDesktopCard.rTopLeft
+                    topRightRadius: showDesktopCard.rTopRight
+                    bottomLeftRadius: showDesktopCard.rBottomLeft
+                    bottomRightRadius: showDesktopCard.rBottomRight
+                    onClicked: showDesktopToggle.toggled()
+                }
+
                 RowLayout {
                     id: showDesktopRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "desktop_windows"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Show Only in Desktop"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     AndroidToggle {
+                        id: showDesktopToggle
                         checked: Config.ready && Config.options.dock ? Config.options.dock.showOnlyInDesktop : false
                         onToggled: {
                             if (Config.ready && Config.options.dock) {
@@ -99,7 +141,7 @@ ColumnLayout {
             // ── Auto Hide Mode ──────────────
             SegmentedWrapper {
                 Layout.fillWidth: true
-                implicitHeight: autoHideRow.implicitHeight + (36 * Appearance.effectiveScale)
+                implicitHeight: autoHideRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
@@ -107,7 +149,13 @@ ColumnLayout {
                 opacity: enabled ? 1 : 0.5
                 RowLayout {
                     id: autoHideRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "visibility_off"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Auto Hide"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -140,7 +188,7 @@ ColumnLayout {
             // ── Background Style ──────────────
             SegmentedWrapper {
                 Layout.fillWidth: true
-                implicitHeight: bgStyleRow.implicitHeight + (36 * Appearance.effectiveScale)
+                implicitHeight: bgStyleRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
@@ -148,7 +196,13 @@ ColumnLayout {
                 opacity: enabled ? 1 : 0.5
                 RowLayout {
                     id: bgStyleRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "layers"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Background"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -170,16 +224,37 @@ ColumnLayout {
 
             // ── Themed Icons ──────────────
             SegmentedWrapper {
+                id: monoCard
                 Layout.fillWidth: true
-                implicitHeight: monoRow.implicitHeight + (36 * Appearance.effectiveScale)
+                implicitHeight: monoRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 enabled: Config.ready && Config.options.dock && Config.options.dock.enable
                 opacity: enabled ? 1 : 0.5
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: monoCard.rTopLeft
+                    topRightRadius: monoCard.rTopRight
+                    bottomLeftRadius: monoCard.rBottomLeft
+                    bottomRightRadius: monoCard.rBottomRight
+                    onClicked: if (Config.ready && Config.options.dock)
+                        Config.options.dock.monochromeIcons = !Config.options.dock.monochromeIcons
+                }
+
                 RowLayout {
                     id: monoRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "palette"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Themed Icons"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -194,7 +269,7 @@ ColumnLayout {
             // ── Dock Scale ──────────────
             SegmentedWrapper {
                 Layout.fillWidth: true
-                implicitHeight: scaleRow.implicitHeight + (32 * Appearance.effectiveScale)
+                implicitHeight: scaleRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
@@ -202,15 +277,17 @@ ColumnLayout {
                 opacity: enabled ? 1 : 0.5
                 RowLayout {
                     id: scaleRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-                    spacing: 20 * Appearance.effectiveScale
-
-                    RowLayout {
-                        spacing: 16 * Appearance.effectiveScale
-                        Layout.preferredWidth: 70 * Appearance.effectiveScale
-                        MaterialSymbol { text: "open_in_full"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                        StyledText { text: I18nService.tr("Scale"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; elide: Text.ElideRight }
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
                     }
+                    spacing: 16 * Appearance.effectiveScale
+
+                    MaterialSymbol { text: "open_in_full"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText { text: I18nService.tr("Scale"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1; elide: Text.ElideRight }
 
                     StyledStepper {
                         Layout.alignment: Qt.AlignVCenter
@@ -226,16 +303,37 @@ ColumnLayout {
 
             // ── Show App Launcher ──────────────
             SegmentedWrapper {
+                id: launcherCard
                 Layout.fillWidth: true
-                implicitHeight: launcherRow.implicitHeight + (36 * Appearance.effectiveScale)
+                implicitHeight: launcherRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 enabled: Config.ready && Config.options.dock && Config.options.dock.enable
                 opacity: enabled ? 1 : 0.5
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: launcherCard.rTopLeft
+                    topRightRadius: launcherCard.rTopRight
+                    bottomLeftRadius: launcherCard.rBottomLeft
+                    bottomRightRadius: launcherCard.rBottomRight
+                    onClicked: if (Config.ready && Config.options.dock)
+                        Config.options.dock.showLauncher = !Config.options.dock.showLauncher
+                }
+
                 RowLayout {
                     id: launcherRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "widgets"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Show App Launcher"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -249,16 +347,37 @@ ColumnLayout {
 
             // ── Show Overview Button ──────────────
             SegmentedWrapper {
+                id: overviewCard
                 Layout.fillWidth: true
-                implicitHeight: overviewRow.implicitHeight + (36 * Appearance.effectiveScale)
+                implicitHeight: overviewRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 enabled: Config.ready && Config.options.dock && Config.options.dock.enable
                 opacity: enabled ? 1 : 0.5
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: overviewCard.rTopLeft
+                    topRightRadius: overviewCard.rTopRight
+                    bottomLeftRadius: overviewCard.rBottomLeft
+                    bottomRightRadius: overviewCard.rBottomRight
+                    onClicked: if (Config.ready && Config.options.dock)
+                        Config.options.dock.showOverview = !Config.options.dock.showOverview
+                }
+
                 RowLayout {
                     id: overviewRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "grid_view"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Show Overview Button"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }

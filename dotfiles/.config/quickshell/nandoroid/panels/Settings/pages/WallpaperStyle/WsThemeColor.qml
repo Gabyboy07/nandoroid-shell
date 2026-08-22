@@ -24,33 +24,45 @@ ColumnLayout {
         spacing: 16 * Appearance.effectiveScale
 
         SegmentedWrapper {
+            id: darkModeCard
             Layout.fillWidth: true
-            implicitHeight: themeToggleRow.implicitHeight + (36 * Appearance.effectiveScale)
+            implicitHeight: themeToggleRow.implicitHeight + (24 * Appearance.effectiveScale)
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
+
+            RippleButton {
+                anchors.fill: parent
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: darkModeCard.rTopLeft
+                topRightRadius: darkModeCard.rTopRight
+                bottomLeftRadius: darkModeCard.rBottomLeft
+                bottomRightRadius: darkModeCard.rBottomRight
+                onClicked: Wallpapers.toggleDarkMode()
+            }
 
             RowLayout {
                 id: themeToggleRow
                 anchors.fill: parent
-                anchors.margins: 16 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                RowLayout {
-                    spacing: 16 * Appearance.effectiveScale
-                    Layout.preferredWidth: 70 * Appearance.effectiveScale
-                    MaterialSymbol {
-                        text: Config.options.appearance.background.darkmode ? "dark_mode" : "light_mode"
-                        iconSize: 24 * Appearance.effectiveScale
-                        color: Appearance.colors.colPrimary
-                    }
-                    StyledText {
-                        text: I18nService.tr("Dark theme")
-                        color: Appearance.colors.colOnLayer1
-                        Layout.fillWidth: true
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
+                spacing: 16 * Appearance.effectiveScale
 
-                Item { Layout.fillWidth: true }
+                MaterialSymbol {
+                    text: Config.options.appearance.background.darkmode ? "dark_mode" : "light_mode"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Dark theme")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
 
                 AndroidToggle {
                     checked: Config.ready && (Config.options.appearance && Config.options.appearance.background ? Config.options.appearance.background.darkmode : false)
@@ -72,7 +84,7 @@ ColumnLayout {
                 id: colorSwitcherRow
                 Layout.fillWidth: true
                 Layout.preferredHeight: 52 * Appearance.effectiveScale
-                spacing: 4 * Appearance.effectiveScale
+                spacing: 2 * Appearance.effectiveScale
                 property string currentTab: "wallpaper"
 
                 Component.onCompleted: {

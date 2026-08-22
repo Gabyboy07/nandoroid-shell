@@ -18,12 +18,12 @@ ColumnLayout {
     // ── Visualizer Section ──
     ColumnLayout {
         Layout.fillWidth: true
-        spacing: 16 * Appearance.effectiveScale
+        spacing: 4 * Appearance.effectiveScale
 
         // Section Header
         RowLayout {
             spacing: 12 * Appearance.effectiveScale
-            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            Layout.bottomMargin: 8 * Appearance.effectiveScale
 
             MaterialSymbol {
                 text: "equalizer"
@@ -45,14 +45,34 @@ ColumnLayout {
 
             // --- Desktop Visualizer Toggle ---
             SegmentedWrapper {
+                id: desktopCavaCard
                 Layout.fillWidth: true
-                implicitHeight: desktopCavaRow.implicitHeight + (32 * Appearance.effectiveScale)
+                implicitHeight: desktopCavaRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: desktopCavaCard.rTopLeft
+                    topRightRadius: desktopCavaCard.rTopRight
+                    bottomLeftRadius: desktopCavaCard.rBottomLeft
+                    bottomRightRadius: desktopCavaCard.rBottomRight
+                    onClicked: if(Config.ready) Config.options.appearance.background.showCava = !Config.options.appearance.background.showCava
+                }
+
                 RowLayout {
                     id: desktopCavaRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "desktop_windows"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Show on desktop"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -67,20 +87,23 @@ ColumnLayout {
             SegmentedWrapper {
                 Layout.fillWidth: true
                 visible: Config.ready && Config.options.appearance.background.showCava
-                implicitHeight: desktopOpacityRow.implicitHeight + (32 * Appearance.effectiveScale)
+                implicitHeight: desktopOpacityRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 RowLayout {
                     id: desktopOpacityRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-                    spacing: 20 * Appearance.effectiveScale
-                    RowLayout {
-                        spacing: 16 * Appearance.effectiveScale
-                        Layout.preferredWidth: 70 * Appearance.effectiveScale
-                        MaterialSymbol { text: "opacity"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                        StyledText { text: I18nService.tr("Desktop opacity"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
                     }
+                    spacing: 16 * Appearance.effectiveScale
+
+                    MaterialSymbol { text: "opacity"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText { text: I18nService.tr("Desktop opacity"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     StyledStepper {
                         Layout.alignment: Qt.AlignVCenter
                         from: 0.05; to: 0.5; stepSize: 0.01
@@ -95,14 +118,34 @@ ColumnLayout {
 
             // --- Lockscreen Visualizer Toggle ---
             SegmentedWrapper {
+                id: lockCavaCard
                 Layout.fillWidth: true
-                implicitHeight: lockCavaRow.implicitHeight + (32 * Appearance.effectiveScale)
+                implicitHeight: lockCavaRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
+
+                RippleButton {
+                    anchors.fill: parent
+                    colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                    buttonRadius: 0
+                    topLeftRadius: lockCavaCard.rTopLeft
+                    topRightRadius: lockCavaCard.rTopRight
+                    bottomLeftRadius: lockCavaCard.rBottomLeft
+                    bottomRightRadius: lockCavaCard.rBottomRight
+                    onClicked: if(Config.ready) Config.options.lock.showCava = !Config.options.lock.showCava
+                }
+
                 RowLayout {
                     id: lockCavaRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
                     spacing: 16 * Appearance.effectiveScale
                     MaterialSymbol { text: "lock"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
                     StyledText { text: I18nService.tr("Show on lock screen"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
@@ -117,20 +160,23 @@ ColumnLayout {
             SegmentedWrapper {
                 Layout.fillWidth: true
                 visible: Config.ready && Config.options.lock.showCava
-                implicitHeight: lockOpacityRow.implicitHeight + (32 * Appearance.effectiveScale)
+                implicitHeight: lockOpacityRow.implicitHeight + (24 * Appearance.effectiveScale)
                 orientation: Qt.Vertical
                 maxRadius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 RowLayout {
                     id: lockOpacityRow
-                    anchors.fill: parent; anchors.margins: 16 * Appearance.effectiveScale
-                    spacing: 20 * Appearance.effectiveScale
-                    RowLayout {
-                        spacing: 16 * Appearance.effectiveScale
-                        Layout.preferredWidth: 70 * Appearance.effectiveScale
-                        MaterialSymbol { text: "opacity"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                        StyledText { text: I18nService.tr("Lock screen opacity"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
                     }
+                    spacing: 16 * Appearance.effectiveScale
+
+                    MaterialSymbol { text: "opacity"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText { text: I18nService.tr("Lock screen opacity"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                     StyledStepper {
                         Layout.alignment: Qt.AlignVCenter
                         from: 0.05; to: 0.5; stepSize: 0.01

@@ -44,35 +44,65 @@ ColumnLayout {
     }
 
     SegmentedWrapper {
+        id: transitionCard
         Layout.fillWidth: true
-        implicitHeight: transitionRow.implicitHeight + (36 * Appearance.effectiveScale)
+        implicitHeight: transitionRow.implicitHeight + (24 * Appearance.effectiveScale)
         orientation: Qt.Vertical
         maxRadius: 20 * Appearance.effectiveScale
         color: Appearance.m3colors.m3surfaceContainerHigh
 
+        RippleButton {
+            id: transitionClickArea
+            anchors.fill: parent
+            colBackground: Appearance.m3colors.m3surfaceContainerHigh
+            colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+            buttonRadius: 0
+            topLeftRadius: transitionCard.rTopLeft
+            topRightRadius: transitionCard.rTopRight
+            bottomLeftRadius: transitionCard.rBottomLeft
+            bottomRightRadius: transitionCard.rBottomRight
+
+            property real comboClosedAt: 0
+
+            onClicked: {
+                if (Date.now() - comboClosedAt < 250) return;
+                transitionCombo.isOpened = !transitionCombo.isOpened;
+            }
+
+            Connections {
+                target: transitionCombo
+                function onIsOpenedChanged() {
+                    if (!transitionCombo.isOpened) transitionClickArea.comboClosedAt = Date.now();
+                }
+            }
+        }
+
         RowLayout {
             id: transitionRow
             anchors.fill: parent
-            anchors.margins: 16 * Appearance.effectiveScale
+            anchors {
+                leftMargin: 16 * Appearance.effectiveScale
+                rightMargin: 16 * Appearance.effectiveScale
+                topMargin: 12 * Appearance.effectiveScale
+                bottomMargin: 12 * Appearance.effectiveScale
+            }
             spacing: 16 * Appearance.effectiveScale
 
-            RowLayout {
-                spacing: 16 * Appearance.effectiveScale
-                Layout.preferredWidth: 70 * Appearance.effectiveScale
-                MaterialSymbol {
-                    text: "animation"
-                    iconSize: 24 * Appearance.effectiveScale
-                    color: Appearance.colors.colPrimary
-                }
-                StyledText {
-                    text: I18nService.tr("Wallpaper transition")
-                    color: Appearance.colors.colOnLayer1
-                    Layout.fillWidth: true
-                }
+            MaterialSymbol {
+                text: "animation"
+                iconSize: 24 * Appearance.effectiveScale
+                color: Appearance.colors.colPrimary
+            }
+            StyledText {
+                text: I18nService.tr("Wallpaper transition")
+                color: Appearance.colors.colOnLayer1
+                Layout.fillWidth: true
             }
 
             StyledComboBox {
+                id: transitionCombo
                 Layout.preferredWidth: 220 * Appearance.effectiveScale
+                bgRadius: height / 2
                 model: root.transitionOptions.map(o => o.name)
                 text: Config.ready ? root.displayForValue(Config.options.appearance.background.wallpaperTransition) : "Random"
                 onAccepted: (val) => {
