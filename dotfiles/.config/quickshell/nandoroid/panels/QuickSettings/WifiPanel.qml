@@ -533,7 +533,7 @@ Item {
                         leftMargin: 0
                         rightMargin: 0
                         font.pixelSize: Appearance.font.pixelSize.normal
-                        onAccepted: connectBtn.click()
+                        onAccepted: if (text.length > 0) connectBtn.click()
                         Keys.onEscapePressed: {
                             root.passwordDialogOpen = false;
                             root.connectingNetwork = null;
