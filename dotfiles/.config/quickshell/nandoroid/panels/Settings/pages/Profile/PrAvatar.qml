@@ -77,7 +77,7 @@ ColumnLayout {
 
         RowLayout {
             spacing: 12 * Appearance.effectiveScale
-            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            Layout.bottomMargin: 8 * Appearance.effectiveScale
             MaterialSymbol {
                 text: "person"
                 iconSize: 24 * Appearance.effectiveScale
@@ -92,8 +92,9 @@ ColumnLayout {
         }
 
         SegmentedWrapper {
+            id: avatarCard
             Layout.fillWidth: true
-            implicitHeight: avatarRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: avatarRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
@@ -101,8 +102,13 @@ ColumnLayout {
             RowLayout {
                 id: avatarRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
+                spacing: 16 * Appearance.effectiveScale
 
                 Item {
                     Layout.preferredWidth: 64 * Appearance.effectiveScale
@@ -154,8 +160,6 @@ ColumnLayout {
 
                     StyledText {
                         text: I18nService.tr("Avatar Picture")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
 
@@ -249,7 +253,7 @@ ColumnLayout {
     // ── Banner Image ──
     ColumnLayout {
         Layout.fillWidth: true
-        Layout.topMargin: 16 * Appearance.effectiveScale
+        Layout.topMargin: 24 * Appearance.effectiveScale
         spacing: 4 * Appearance.effectiveScale
 
         SearchHandler {
@@ -259,7 +263,7 @@ ColumnLayout {
 
         RowLayout {
             spacing: 12 * Appearance.effectiveScale
-            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            Layout.bottomMargin: 8 * Appearance.effectiveScale
             MaterialSymbol {
                 text: "panorama"
                 iconSize: 24 * Appearance.effectiveScale
@@ -274,8 +278,9 @@ ColumnLayout {
         }
 
         SegmentedWrapper {
+            id: bannerCard
             Layout.fillWidth: true
-            implicitHeight: bannerRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: bannerRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
@@ -283,8 +288,13 @@ ColumnLayout {
             RowLayout {
                 id: bannerRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
+                spacing: 16 * Appearance.effectiveScale
 
                 Item {
                     Layout.preferredWidth: 80 * Appearance.effectiveScale
@@ -335,8 +345,6 @@ ColumnLayout {
 
                     StyledText {
                         text: I18nService.tr("Quick Settings Banner")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
 
@@ -487,7 +495,7 @@ ColumnLayout {
     // ── Custom Distro Icon ──
     ColumnLayout {
         Layout.fillWidth: true
-        Layout.topMargin: 16 * Appearance.effectiveScale
+        Layout.topMargin: 24 * Appearance.effectiveScale
         spacing: 4 * Appearance.effectiveScale
 
         SearchHandler {
@@ -497,7 +505,7 @@ ColumnLayout {
 
         RowLayout {
             spacing: 12 * Appearance.effectiveScale
-            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            Layout.bottomMargin: 8 * Appearance.effectiveScale
             MaterialSymbol {
                 text: "computer"
                 iconSize: 24 * Appearance.effectiveScale
@@ -512,8 +520,9 @@ ColumnLayout {
         }
 
         SegmentedWrapper {
+            id: distroCard
             Layout.fillWidth: true
-            implicitHeight: distroMainCol.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: distroMainCol.implicitHeight + (24 * Appearance.effectiveScale)
             Behavior on implicitHeight {
                 NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
             }
@@ -524,12 +533,17 @@ ColumnLayout {
             ColumnLayout {
                 id: distroMainCol
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
                 spacing: 16 * Appearance.effectiveScale
 
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: 20 * Appearance.effectiveScale
+                    spacing: 16 * Appearance.effectiveScale
 
                     Item {
                         Layout.preferredWidth: 48 * Appearance.effectiveScale
@@ -562,8 +576,6 @@ ColumnLayout {
 
                         StyledText {
                             text: I18nService.tr("Status Bar Distro Icon")
-                            font.pixelSize: Appearance.font.pixelSize.normal
-                            font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }
 
@@ -624,7 +636,7 @@ ColumnLayout {
 
                 Flow {
                     Layout.fillWidth: true
-                    spacing: 4 * Appearance.effectiveScale
+                    spacing: 2 * Appearance.effectiveScale
                     opacity: root.distroIconsReady ? 1 : 0
                     Behavior on opacity {
                         NumberAnimation { duration: 250; easing.type: Easing.OutCubic }

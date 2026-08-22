@@ -25,7 +25,7 @@ ColumnLayout {
 
         RowLayout {
             spacing: 12 * Appearance.effectiveScale
-            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            Layout.bottomMargin: 8 * Appearance.effectiveScale
             MaterialSymbol {
                 text: "wall_art"
                 iconSize: 24 * Appearance.effectiveScale
@@ -40,56 +40,78 @@ ColumnLayout {
         }
 
         SegmentedWrapper {
+            id: saveCard
             Layout.fillWidth: true
-            implicitHeight: saveRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: saveRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
 
+            RippleButton {
+                id: saveClickArea
+                anchors.fill: parent
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: saveCard.rTopLeft
+                topRightRadius: saveCard.rTopRight
+                bottomLeftRadius: saveCard.rBottomLeft
+                bottomRightRadius: saveCard.rBottomRight
+                onClicked: presetNameInput.forceActiveFocus()
+
+                StyledToolTip {
+                    extraVisibleCondition: parent.hovered || parent.realHovered
+                    text: I18nService.tr("Save a snapshot of your current config.")
+                }
+            }
+
             RowLayout {
                 id: saveRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
                 spacing: 16 * Appearance.effectiveScale
 
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Save Current Config")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Save a snapshot of your current config.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                        wrapMode: Text.WordWrap
-                    }
+                MaterialSymbol {
+                    text: "save"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Save Current Config")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
                 }
 
-                Item { Layout.fillWidth: true }
+                RowLayout {
+                    spacing: 4 * Appearance.effectiveScale
 
-                StyledTextInput {
-                    id: presetNameInput
-                    placeholder: I18nService.tr("Preset name")
-                    onEditingFinished: savePreset()
-                }
-
-                RippleButton {
-                    implicitWidth: 48 * Appearance.effectiveScale
-                    implicitHeight: 48 * Appearance.effectiveScale
-                    buttonRadius: 24 * Appearance.effectiveScale
-                    colBackground: Appearance.m3colors.m3primaryContainer
-                    enabled: presetNameInput.text.trim().replace(/\s/g, "_").length > 0
-
-                    MaterialSymbol {
-                        anchors.centerIn: parent
-                        text: "save"
-                        iconSize: 22 * Appearance.effectiveScale
-                        color: parent.enabled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colSubtext
+                    StyledTextInput {
+                        id: presetNameInput
+                        inputRadius: 24
+                        placeholder: I18nService.tr("Preset name")
+                        onEditingFinished: savePreset()
                     }
-                    onClicked: savePreset()
+
+                    RippleButton {
+                        implicitWidth: 48 * Appearance.effectiveScale
+                        implicitHeight: 48 * Appearance.effectiveScale
+                        buttonRadius: 24 * Appearance.effectiveScale
+                        colBackground: Appearance.m3colors.m3primaryContainer
+                        enabled: presetNameInput.text.trim().replace(/\s/g, "_").length > 0
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: "save"
+                            iconSize: 22 * Appearance.effectiveScale
+                            color: parent.enabled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colSubtext
+                        }
+                        onClicked: savePreset()
+                    }
                 }
             }
         }

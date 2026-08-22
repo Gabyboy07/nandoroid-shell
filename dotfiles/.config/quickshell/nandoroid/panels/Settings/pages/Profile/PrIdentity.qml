@@ -23,7 +23,7 @@ ColumnLayout {
 
         RowLayout {
             spacing: 12 * Appearance.effectiveScale
-            Layout.bottomMargin: 4 * Appearance.effectiveScale
+            Layout.bottomMargin: 8 * Appearance.effectiveScale
             MaterialSymbol {
                 text: "badge"
                 iconSize: 24 * Appearance.effectiveScale
@@ -39,38 +39,57 @@ ColumnLayout {
 
         // Display Name
         SegmentedWrapper {
+            id: displayNameCard
             Layout.fillWidth: true
-            implicitHeight: displayNameRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: displayNameRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
 
+            RippleButton {
+                id: displayNameClickArea
+                anchors.fill: parent
+                colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                colBackgroundHover: Appearance.m3colors.m3surfaceContainerHigh
+                buttonRadius: 0
+                topLeftRadius: displayNameCard.rTopLeft
+                topRightRadius: displayNameCard.rTopRight
+                bottomLeftRadius: displayNameCard.rBottomLeft
+                bottomRightRadius: displayNameCard.rBottomRight
+                onClicked: displayNameInput.forceActiveFocus()
+
+                StyledToolTip {
+                    extraVisibleCondition: parent.hovered || parent.realHovered
+                    text: I18nService.tr("Leave empty to use system real name.")
+                }
+            }
+
             RowLayout {
                 id: displayNameRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
-
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Display Name")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Leave empty to use system real name.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
                 }
+                spacing: 16 * Appearance.effectiveScale
 
-                Item { Layout.fillWidth: true }
+                MaterialSymbol {
+                    text: "person"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Display Name")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
 
                 StyledTextInput {
                     id: displayNameInput
                     Layout.preferredWidth: 250 * Appearance.effectiveScale
+                    inputRadius: 24
                     text: Config.options.profile.displayName
                     placeholder: SystemInfo.realName || SystemInfo.username
 
@@ -90,39 +109,49 @@ ColumnLayout {
 
         // Description Text
         SegmentedWrapper {
+            id: descriptionCard
             Layout.fillWidth: true
-            implicitHeight: descRow.implicitHeight + 40 * Appearance.effectiveScale
+            implicitHeight: descRow.implicitHeight + (24 * Appearance.effectiveScale)
             orientation: Qt.Vertical
-            forceFirst: false
-            forceLast: true
             maxRadius: 20 * Appearance.effectiveScale
             color: Appearance.m3colors.m3surfaceContainerHigh
+
+            MouseArea {
+                id: descriptionHoverArea
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                hoverEnabled: true
+                StyledToolTip {
+                    extraVisibleCondition: false
+                    alternativeVisibleCondition: descriptionHoverArea.containsMouse
+                    text: I18nService.tr("Shown below your display name.")
+                }
+            }
 
             RowLayout {
                 id: descRow
                 anchors.fill: parent
-                anchors.margins: 20 * Appearance.effectiveScale
-                spacing: 20 * Appearance.effectiveScale
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
+                spacing: 16 * Appearance.effectiveScale
 
-                ColumnLayout {
-                    spacing: 2 * Appearance.effectiveScale
-                    StyledText {
-                        text: I18nService.tr("Description Text")
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnLayer1
-                    }
-                    StyledText {
-                        text: I18nService.tr("Shown below your display name.")
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
-                    }
+                MaterialSymbol {
+                    text: "subject"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Description Text")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
                 }
 
-                Item { Layout.fillWidth: true }
-
                 RowLayout {
-                    spacing: 4 * Appearance.effectiveScale
+                    spacing: 2 * Appearance.effectiveScale
 
                     Repeater {
                         model: [
@@ -131,6 +160,7 @@ ColumnLayout {
                         ]
 
                         delegate: SegmentedButton {
+                            required property var modelData
                             isHighlighted: Config.options.profile.descriptionText === modelData.value
                             buttonText: modelData.label
                             colActive: Appearance.m3colors.m3primary
