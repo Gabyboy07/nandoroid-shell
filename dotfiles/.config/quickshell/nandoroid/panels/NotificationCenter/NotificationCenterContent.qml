@@ -83,28 +83,48 @@ FocusScope {
         root.navInButtons = false;
         if (!g.expanded) g.toggleExpanded();
         root.navInGroup = true;
-        if (g.notifList && g.notifList.count > 0) {
-            g.notifList.currentIndex = 0;
-            Qt.callLater(() => {
-                if (g.notifList && g.notifList.count > 0)
-                    g.notifList.positionViewAtIndex(g.notifList.currentIndex, ListView.Contain);
-                root.ensureInnerVisible(g);
+        root.syncNavHighlight();
+        Qt.callLater(() => {
+            if (!g || !g.notifList || g.notifList.count === 0) return;
+            // Expanding rebuilds the inner model; validate the selection
+            // before positioning or it may remain stale/reset mid-rebuild.
+            if (g.notifList.currentIndex < 0 || g.notifList.currentIndex >= g.notifList.count)
+                g.notifList.currentIndex = 0;
+            g.notifList.positionViewAtIndex(g.notifList.currentIndex, ListView.Contain);
+            root.ensureInnerVisible(g);
+            // A single-notification group gains nothing from the
+            // text-focus level — jump straight to its action buttons.
+            if (root.navInGroup && g.notificationCount === 1)
+                root.enterButtons();
+            else
                 root.syncNavHighlight();
-            });
-        } else {
-            root.syncNavHighlight();
-        }
+        });
     }
 
     function enterButtons() {
         var item = root.currentNotif();
-        if (!item || !item.keyboardButtons || item.keyboardButtons().length === 0) return;
+        if (!item || !item.keyboardButtons || item.keyboardButtons().length === 0) {
+            root.syncNavHighlight();
+            return;
+        }
         root.navInButtons = true;
         root.navButtonIndex = 0;
         Qt.callLater(() => {
             root.setButtonIndex(0);
             root.syncNavHighlight();
         });
+    }
+
+    // Leaving the buttons level: single-notification groups have no useful
+    // text-focus level either, so collapse straight back to the list.
+    function leaveButtonsOrGroup() {
+        root.navInButtons = false;
+        var g = root.currentGroup();
+        if (g && g.notificationCount === 1) {
+            root.navInGroup = false;
+            if (g.expanded) g.toggleExpanded();
+        }
+        root.syncNavHighlight();
     }
 
     function actNotification(n) {
@@ -156,18 +176,21 @@ FocusScope {
     function navUp() {
         root.navEngaged = true;
         if (root.navInButtons) {
-            root.navInButtons = false;
-            root.syncNavHighlight();
+            root.leaveButtonsOrGroup();
         } else if (root.navInGroup) {
-            var g = root.currentGroup();
-            if (g && g.notifList && g.notifList.count > 0) {
-                if (g.notifList.currentIndex > 0) {
-                    g.notifList.currentIndex--;
-                    g.notifList.positionViewAtIndex(g.notifList.currentIndex, ListView.Contain);
-                    root.ensureInnerVisible(g);
+            var gu = root.currentGroup();
+            var innerCountU = (gu && gu.notifList)
+                ? Math.max(gu.notifList.count, gu.notificationCount ?? 0) : 0;
+            if (innerCountU > 0) {
+                var idxU = gu.notifList.currentIndex;
+                if (idxU < 0 || idxU >= innerCountU) idxU = innerCountU - 1; // repair stale selection
+                if (idxU > 0) {
+                    gu.notifList.currentIndex = idxU - 1;
+                    gu.notifList.positionViewAtIndex(gu.notifList.currentIndex, ListView.Contain);
+                    root.ensureInnerVisible(gu);
                 } else {
                     root.navInGroup = false;
-                    if (g.expanded) g.toggleExpanded();
+                    if (gu.expanded) gu.toggleExpanded();
                 }
                 root.syncNavHighlight();
             }
@@ -181,13 +204,19 @@ FocusScope {
     function navDown() {
         root.navEngaged = true;
         if (root.navInButtons) {
-            root.navInButtons = false;
-            root.syncNavHighlight();
+            root.leaveButtonsOrGroup();
         } else if (root.navInGroup) {
             var g = root.currentGroup();
-            if (g && g.notifList && g.notifList.count > 0) {
-                if (g.notifList.currentIndex < g.notifList.count - 1) {
-                    g.notifList.currentIndex++;
+            // Use the group's real data count: notifList.count can lag behind
+            // during the expand animation's model rebuild, which used to make
+            // the first Down/Up look like "skip to the next app".
+            var innerCount = (g && g.notifList)
+                ? Math.max(g.notifList.count, g.notificationCount ?? 0) : 0;
+            if (innerCount > 0) {
+                var idx = g.notifList.currentIndex;
+                if (idx < 0 || idx >= innerCount) idx = 0; // repair stale selection
+                if (idx < innerCount - 1) {
+                    g.notifList.currentIndex = idx + 1;
                     g.notifList.positionViewAtIndex(g.notifList.currentIndex, ListView.Contain);
                     root.ensureInnerVisible(g);
                     root.syncNavHighlight();
@@ -216,8 +245,7 @@ FocusScope {
                 root.setButtonIndex(root.navButtonIndex);
                 root.syncNavHighlight();
             } else {
-                root.navInButtons = false;
-                root.syncNavHighlight();
+                root.leaveButtonsOrGroup();
             }
         } else if (root.navInGroup) {
             var g = root.currentGroup();
@@ -404,12 +432,15 @@ FocusScope {
                     root.scrollToCurrent();
                 }
                 if (root.navInGroup) {
+                    // Transient inner-model rebuilds (e.g. right after expand)
+                    // can report an empty/short list — never drop the group
+                    // state over that, just clamp once data is available.
                     var g = root.currentGroup();
                     if (g && g.notifList && g.notifList.count > 0) {
                         if (g.notifList.currentIndex >= g.notifList.count)
                             g.notifList.currentIndex = g.notifList.count - 1;
-                    } else {
-                        root.navInGroup = false;
+                        else if (g.notifList.currentIndex < 0)
+                            g.notifList.currentIndex = 0;
                     }
                 }
             } else {
