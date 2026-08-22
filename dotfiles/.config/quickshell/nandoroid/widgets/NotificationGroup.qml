@@ -305,7 +305,10 @@ MouseArea { // Notification group area
         }
     }
 
-    // Keyboard focus ring — shown while the host panel navigates the list
+    // Keyboard focus ring — shown while the host panel navigates the list.
+    // Mirrors the background's segmented corner radii so stacked groups with
+    // squared-off inner corners get a matching outline instead of a smaller,
+    // fully-rounded one.
     Rectangle {
         anchors.fill: parent
         visible: root.keyboardFocused
@@ -314,7 +317,11 @@ MouseArea { // Notification group area
         color: "transparent"
         border.width: Math.max(1, 2 * Appearance.effectiveScale)
         border.color: Appearance.m3colors.m3primary
-        radius: 20 * Appearance.effectiveScale
+        radius: background.maxRadius || 24 * Appearance.effectiveScale
+        topLeftRadius: background.rTopLeft || radius
+        topRightRadius: background.rTopRight || radius
+        bottomLeftRadius: background.rBottomLeft || radius
+        bottomRightRadius: background.rBottomRight || radius
         opacity: 0.9
         Behavior on border.color { ColorAnimation { duration: 120 } }
         Behavior on opacity { NumberAnimation { duration: 120 } }

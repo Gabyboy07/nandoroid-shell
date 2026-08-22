@@ -70,7 +70,17 @@ Item { // Notification item area
     property double _kbScroll: actionsFlickable ? actionsFlickable.contentX : 0
     readonly property point kbButtonPos: {
         root._kbScroll;
-        return root.kbButton ? root.kbButton.mapToItem(root, 0, 0) : Qt.point(0, 0);
+        if (!root.kbButton) return Qt.point(0, 0);
+        // Walk up the parent chain reading x/y directly so the binding stays
+        // reactive to layout animations (e.g. group expansion) — mapToItem
+        // would only capture a single non-tracked snapshot.
+        var x = 0;
+        var y = 0;
+        for (var it = root.kbButton; it && it !== root; it = it.parent) {
+            x += it.x;
+            y += it.y;
+        }
+        return Qt.point(x, y);
     }
 
     function ensureButtonVisible() {
@@ -540,14 +550,21 @@ Item { // Notification item area
         color: "transparent"
         border.width: Math.max(1, 2 * Appearance.effectiveScale)
         border.color: Appearance.m3colors.m3primary
-        radius: 8 * Appearance.effectiveScale
+        // Mirror the wrapped button's own corner shape (+ the ring's gap) so
+        // they stay concentric instead of a hardcoded radius.
+        radius: {
+            const r = (root.kbButton && root.kbButton.buttonRadius !== undefined)
+                ? root.kbButton.buttonRadius + 3 * Appearance.effectiveScale
+                : 8 * Appearance.effectiveScale;
+            return Math.min(r, height / 2);
+        }
         opacity: 0.9
         x: root.kbButtonPos.x - 3 * Appearance.effectiveScale
         y: root.kbButtonPos.y - 3 * Appearance.effectiveScale
         width: (root.kbButton ? root.kbButton.width : 0) + 6 * Appearance.effectiveScale
         height: (root.kbButton ? root.kbButton.height : 0) + 6 * Appearance.effectiveScale
-        Behavior on x { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
-        Behavior on y { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+        // No x/y Behaviors — the reactive position must track layout
+        // animations 1:1 or the ring trails behind the expanding card.
         Behavior on border.color { ColorAnimation { duration: 120 } }
         Behavior on opacity { NumberAnimation { duration: 120 } }
     }
