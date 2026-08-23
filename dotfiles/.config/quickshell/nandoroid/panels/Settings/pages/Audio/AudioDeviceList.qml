@@ -6,42 +6,55 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
-Rectangle {
+/**
+ * Auto-height list of audio devices.
+ * Selecting an entry makes it the default sink/source via the `selected` signal.
+ */
+Column {
+    id: root
+
     property var model
     property bool isSink: true
     signal selected(var node)
-    
-    Layout.fillWidth: true
-    implicitHeight: 300 * Appearance.effectiveScale
-    radius: 16 * Appearance.effectiveScale
-    color: Appearance.colors.colLayer1
-    clip: true
 
-    ListView {
-        id: audioList
-        anchors.fill: parent
-        anchors.margins: 8 * Appearance.effectiveScale
-        model: parent.model
-        spacing: 4 * Appearance.effectiveScale
-        clip: true
+    spacing: 2 * Appearance.effectiveScale
+
+    StyledText {
+        visible: !root.model || root.model.length === 0
+        text: I18nService.tr("No devices found")
+        font.pixelSize: Appearance.font.pixelSize.small
+        color: Appearance.colors.colSubtext
+        leftPadding: 12 * Appearance.effectiveScale
+        topPadding: 8 * Appearance.effectiveScale
+        bottomPadding: 8 * Appearance.effectiveScale
+    }
+
+    Repeater {
+        model: root.model
 
         delegate: RippleButton {
             id: audioItem
-            width: audioList.width
-            implicitHeight: 56 * Appearance.effectiveScale
-            buttonRadius: 12 * Appearance.effectiveScale
 
-            readonly property bool isActive: parent.parent.parent.isSink 
+            required property var modelData
+
+            readonly property bool isActive: root.isSink
                 ? (Audio.sink === modelData)
                 : (Audio.source === modelData)
 
-            colBackground: audioItem.isActive 
-                ? Functions.ColorUtils.transparentize(Appearance.colors.colPrimary, 0.85) 
-                : "transparent"
-            
-            onClicked: parent.parent.parent.parent.selected(modelData)
+            width: root.width
+            implicitHeight: 44 * Appearance.effectiveScale
+            buttonRadius: 10 * Appearance.effectiveScale
 
-            RowLayout {
+            colBackground: audioItem.isActive
+                ? Functions.ColorUtils.transparentize(Appearance.colors.colPrimary, 0.85)
+                : "transparent"
+            colBackgroundHover: audioItem.isActive
+                ? Functions.ColorUtils.transparentize(Appearance.colors.colPrimary, 0.75)
+                : Appearance.colors.colLayer2
+
+            onClicked: root.selected(audioItem.modelData)
+
+            contentItem: RowLayout {
                 anchors.fill: parent
                 anchors.leftMargin: 12 * Appearance.effectiveScale
                 anchors.rightMargin: 12 * Appearance.effectiveScale
@@ -49,29 +62,31 @@ Rectangle {
 
                 MaterialSymbol {
                     text: {
-                        if (!parent.parent.parent.parent.parent.isSink) return "mic"
-                        const desc = modelData.description.toLowerCase()
+                        if (!root.isSink) return "mic"
+                        const desc = audioItem.modelData.description.toLowerCase();
                         if (desc.includes("headset") || desc.includes("headphone")) return "headphones"
                         if (desc.includes("hdmi") || desc.includes("tv")) return "tv"
                         return "speaker"
                     }
                     iconSize: 20 * Appearance.effectiveScale
-                    color: audioItem.isActive ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
+                    fill: audioItem.isActive ? 1 : 0
+                    color: audioItem.isActive ? Appearance.colors.colPrimary : Appearance.m3colors.m3onSurfaceVariant
                 }
 
                 StyledText {
-                    text: Audio.friendlyDeviceName(modelData)
+                    Layout.fillWidth: true
+                    text: Audio.friendlyDeviceName(audioItem.modelData)
                     font.pixelSize: Appearance.font.pixelSize.small
                     font.weight: audioItem.isActive ? Font.DemiBold : Font.Normal
                     color: Appearance.colors.colOnLayer1
                     elide: Text.ElideRight
-                    Layout.fillWidth: true
                 }
 
                 MaterialSymbol {
                     visible: audioItem.isActive
-                    text: "check"
-                    iconSize: 20 * Appearance.effectiveScale
+                    text: "check_circle"
+                    iconSize: 18 * Appearance.effectiveScale
+                    fill: 1
                     color: Appearance.colors.colPrimary
                 }
             }
