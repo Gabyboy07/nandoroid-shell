@@ -280,10 +280,14 @@ ColumnLayout {
                     Layout.fillWidth: true; Layout.fillHeight: true; clip: true
                     TextArea {
                         id: resultText
-                        text: TranslationService.translatedText || ""
+                        text: TranslationService.status === "failed" ? "" : (TranslationService.translatedText || "")
                         readOnly: true
-                        placeholderText: TranslationService.isTranslating ? I18nService.tr("Translating...") : I18nService.tr("Translation will appear here...")
-                        placeholderTextColor: Appearance.colors.colSubtext
+                        placeholderText: {
+                            if (TranslationService.isTranslating) return I18nService.tr("Translating...");
+                            if (TranslationService.status === "failed") return I18nService.tr("Rate limited or unavailable on all engines. Please try again later.");
+                            return I18nService.tr("Translation will appear here...");
+                        }
+                        placeholderTextColor: TranslationService.status === "failed" ? Appearance.m3colors.m3error : Appearance.colors.colSubtext
                         color: Appearance.colors.colOnLayer1
                         font.family: Appearance.font.family.main
                         font.pixelSize: Math.round(18 * Appearance.effectiveScale)
@@ -296,6 +300,25 @@ ColumnLayout {
 
                 RowLayout {
                     Layout.fillWidth: true
+                    spacing: 8 * Appearance.effectiveScale
+
+                    RowLayout {
+                        id: engineBadge
+                        visible: TranslationService.status === "ok" && TranslationService.lastEngine !== "" && TranslationService.lastEngine !== "google"
+                        spacing: 4 * Appearance.effectiveScale
+
+                        MaterialSymbol {
+                            text: "public"
+                            iconSize: 14 * Appearance.effectiveScale
+                            color: Appearance.colors.colSubtext
+                        }
+                        StyledText {
+                            text: I18nService.tr("Translated with") + " " + ((TranslationService.engineDisplayNames && TranslationService.engineDisplayNames[TranslationService.lastEngine]) || TranslationService.lastEngine)
+                            font.pixelSize: 12 * Appearance.effectiveScale
+                            color: Appearance.colors.colSubtext
+                        }
+                    }
+
                     Item { Layout.fillWidth: true } // Spacer
                     
                     RippleButton {

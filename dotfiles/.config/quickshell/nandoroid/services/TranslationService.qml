@@ -9,6 +9,10 @@ import "../core/functions" as Functions
 /**
  * TranslationService.qml
  * Ported logic from ii: handles text translation using 'translate-shell' (trans).
+ *
+ * Uses an engine fallback system: the request is attempted with each engine
+ * in order until one succeeds. If Google is rate limited (trans exits 0 but
+ * returns nothing), the next engine (e.g. Bing) is tried automatically.
  */
 Singleton {
     id: root
@@ -22,12 +26,73 @@ Singleton {
     // Track current active query to prevent race conditions on clear
     property string currentQuery: ""
 
+    // --- Engine fallback ---
+    // Ordered by preference; on failure/rate limit the next engine is tried.
+    // Bing is the only dependable free fallback; yandex/apertium are broken
+    // or too limited to be worth the added latency.
+    readonly property var engines: ["google", "bing"]
+    readonly property var engineDisplayNames: ({ "google": "Google", "bing": "Bing" })
+    // Engine that last succeeded; tried first on subsequent requests ("sticky")
+    property string preferredEngine: "google"
+    // Engine that produced the latest successful result ("" if none)
+    property string lastEngine: ""
+
+    // Request status feedback for UI: "idle" | "ok" | "failed"
+    property string status: "idle"
+
+    // Internal: params of the in-flight request
+    property string pendingSource: ""
+    property string pendingTarget: ""
+    property int requestId: 0
+
+    function engineOrder() {
+        const preferred = root.engines.includes(root.preferredEngine) ? root.preferredEngine : root.engines[0];
+        return [preferred, ...root.engines.filter(e => e !== preferred)];
+    }
+
+    /**
+     * Builds a bash script that loops over the engines in order.
+     * Protocol on stdout:
+     *   Line 1: "__OK__:<engine>" or "__FAIL__"
+     *   Line 2 (only when source is auto): detected language code
+     *   Remaining lines: the translation itself
+     */
+    function buildCommand(text, source, target) {
+        const esc = Functions.StringUtils.shellSingleQuoteEscape;
+        const qText = `'${esc(text)}'`;
+        const qSource = `'${esc(source)}'`;
+        const qTarget = `'${esc(target)}'`;
+        const order = root.engineOrder();
+
+        let lines = [];
+        if (source === "auto") {
+            lines.push(`DET_CODE=''`);
+        }
+        for (let i = 0; i < order.length; i++) {
+            const eng = `'${esc(order[i])}'`;
+            if (source === "auto") {
+                lines.push(`if [ -z "$DET_CODE" ]; then DET_CODE=$(trans -e ${eng} -identify -no-ansi -- ${qText} 2>/dev/null | awk '/Code/{print $2; exit}'); fi`);
+            }
+            lines.push(`RES=$(trans -brief -e ${eng} -s ${qSource} -t ${qTarget} -- ${qText} 2>/dev/null)`);
+            lines.push(`RC=$?`);
+            // trans exits 0 even when rate limited, so also require a non-empty result
+            lines.push(`if [ $RC -eq 0 ] && [ -n "$RES" ]; then printf '__OK__:${order[i]}\\n'; if [ -n "$DET_CODE" ]; then printf '%s\\n' "$DET_CODE"; fi; printf '%s\\n' "$RES"; exit 0; fi`);
+        }
+        lines.push(`printf '__FAIL__\\n'`);
+        lines.push(`exit 1`);
+
+        return ["bash", "-c", lines.join("\n")];
+    }
+
     function translate(text, source, target) {
         const cleanText = (text || "").trim();
         root.currentQuery = cleanText;
         if (cleanText.length === 0) {
             if (translateProc.running) translateProc.running = false;
             root.translatedText = "";
+            root.detectedLanguage = "";
+            root.lastEngine = "";
+            root.status = "idle";
             return;
         }
         
@@ -36,16 +101,18 @@ Singleton {
         const s = source || "auto";
         const t = target || "en";
 
-        // If source is auto, we also identify the language code and print it first
-        let cmd = "";
-        if (s === "auto") {
-            cmd = `res=$(trans -brief -s 'auto' -t '${Functions.StringUtils.shellSingleQuoteEscape(t)}' '${Functions.StringUtils.shellSingleQuoteEscape(cleanText)}'); code=$(trans -identify -no-ansi '${Functions.StringUtils.shellSingleQuoteEscape(cleanText)}' | awk '/Code/{print $2}'); echo -e "$code\\n$res"`;
-        } else {
-            cmd = `echo -e "${s}\\n$(trans -brief -s '${Functions.StringUtils.shellSingleQuoteEscape(s)}' -t '${Functions.StringUtils.shellSingleQuoteEscape(t)}' '${Functions.StringUtils.shellSingleQuoteEscape(cleanText)}')"`
-        }
+        root.requestId++;
+        translateProc.requestId = root.requestId;
+        root.pendingSource = s;
+        root.pendingTarget = t;
+        root.detectedLanguage = "";
+        root.status = "idle";
 
-        translateProc.command = ["bash", "-c", cmd];
+        translateProc.command = buildCommand(cleanText, s, t);
         translateProc.buffer = "";
+        translateProc.succeeded = false;
+        translateProc.headerDone = false;
+        translateProc.expectCode = false;
         
         translateProc.running = true;
     }
@@ -55,19 +122,31 @@ Singleton {
         command: []
         running: false
         property string buffer: ""
+        property int requestId: -1
+        property bool succeeded: false
+        property bool headerDone: false
+        property bool expectCode: false
         stdout: SplitParser {
             onRead: (line) => {
                 const textLine = line.toString();
-                if (translateProc.buffer === "") {
-                    // First line is the detected/source language code
-                    root.detectedLanguage = textLine.trim();
-                    translateProc.buffer = "\n"; // Mark that we've read the first line
-                } else {
-                    if (translateProc.buffer === "\n") {
-                        translateProc.buffer = textLine; // First line of actual translation
-                    } else {
-                        translateProc.buffer += "\n" + textLine;
+                if (!translateProc.headerDone) {
+                    translateProc.headerDone = true;
+                    if (textLine.startsWith("__OK__:")) {
+                        translateProc.succeeded = true;
+                        root.lastEngine = textLine.substring("__OK__:".length);
+                        translateProc.expectCode = (root.pendingSource === "auto");
                     }
+                    return;
+                }
+                if (translateProc.expectCode) {
+                    translateProc.expectCode = false;
+                    root.detectedLanguage = textLine.trim();
+                    return;
+                }
+                if (translateProc.buffer === "") {
+                    translateProc.buffer = textLine;
+                } else {
+                    translateProc.buffer += "\n" + textLine;
                 }
             }
         }
@@ -79,10 +158,17 @@ Singleton {
             }
         }
         onExited: (exitCode, exitStatus) => {
-            if (exitCode === 0 && root.currentQuery.length > 0) {
-                root.translatedText = (translateProc.buffer === "\n" ? "" : translateProc.buffer).trim();
-            } else if (exitCode !== 0 && exitCode !== 15 && exitCode !== 9 && root.currentQuery.length > 0) {
-                console.error("[TranslationService] Process exited with code:", exitCode);
+            // Ignore stale exits from cancelled/older requests
+            if (translateProc.requestId !== root.requestId || root.currentQuery.length === 0) return;
+
+            if (translateProc.succeeded && exitCode === 0) {
+                root.translatedText = translateProc.buffer.trim();
+                if (root.lastEngine !== "") root.preferredEngine = root.lastEngine;
+                root.status = "ok";
+            } else {
+                console.error("[TranslationService] All engines failed (rate limit or unavailable). Exit code:", exitCode);
+                root.translatedText = "";
+                root.status = "failed";
             }
         }
     }
