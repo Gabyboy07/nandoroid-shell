@@ -173,13 +173,13 @@ Item {
                 // Sizing
                 implicitWidth: isPill
                     ? (showLabel
-                        ? (isActive ? 28 : (isHovered ? 20 : (isOccupied ? 8 : 6)))
-                        : (isActive ? 16 : (isOccupied ? 8 : 6))) * Appearance.effectiveScale
+                        ? (isActive ? 28 : (isHovered ? 20 : 8))
+                        : (isActive ? 16 : 8)) * Appearance.effectiveScale
                     : root._tabDotSize
                 implicitHeight: isPill
                     ? (showLabel
-                        ? (isActive ? 18 : (isHovered ? 18 : (isOccupied ? 8 : 6)))
-                        : (isActive ? 8 : (isOccupied ? 8 : 6))) * Appearance.effectiveScale
+                        ? (isActive ? 18 : (isHovered ? 18 : 8))
+                        : 8) * Appearance.effectiveScale
                     : root._tabDotSize
 
                 anchors.verticalCenter: parent.verticalCenter
