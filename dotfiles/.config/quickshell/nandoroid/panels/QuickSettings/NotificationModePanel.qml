@@ -282,7 +282,6 @@ Item {
                                         Layout.fillWidth: true
                                         text: modelData.name
                                         font.pixelSize: Appearance.font.pixelSize.normal
-                                        font.weight: isSelected ? Font.DemiBold : Font.Normal
                                         color: isSelected ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer1
                                         elide: Text.ElideRight
                                     }
