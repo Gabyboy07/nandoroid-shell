@@ -247,8 +247,9 @@ Singleton {
             if (root.mode !== 2) {
                 newNotif.popup = true;
                 root.activePopup = newNotif;
-                // Play notification sound only in normal mode (silent & DND stay quiet)
-                if (root.mode === 0) Audio.playNotificationSound();
+                // Play sound only in normal mode, and only for internal
+                // notifications — external apps bring their own sounds
+                if (root.mode === 0 && appNameLower === "nandoroid") Audio.playNotificationSound();
                 if (notification.expireTimeout !== 0) {
                     newNotif.timer = notifTimerComponent.createObject(root, {
                         "notificationId": newNotif.notificationId,
