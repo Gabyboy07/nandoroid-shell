@@ -82,6 +82,10 @@ Scope {
                         z: -1
                     }
 
+                    // Block click-through: clicks on the card body must not
+                    // reach the scrim's dismiss MouseArea
+                    MouseArea { anchors.fill: parent }
+
                     ColumnLayout {
                         id: contentCol
                         anchors.fill: parent
