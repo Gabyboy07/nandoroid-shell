@@ -33,7 +33,8 @@ Scope {
 
                 color: "transparent"
                 WlrLayershell.namespace: "nandoroid:dialog"
-                WlrLayershell.keyboardFocus: (DialogService.active && isActive) ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+                // Exclusive: guarantees the dialog owns keyboard focus so ESC works
+                WlrLayershell.keyboardFocus: (DialogService.active && isActive) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
                 WlrLayershell.layer: (DialogService.active && isActive) ? WlrLayer.Overlay : WlrLayer.Background
                 exclusionMode: ExclusionMode.Ignore
 
@@ -53,13 +54,25 @@ Scope {
                     color: Functions.ColorUtils.applyAlpha(Appearance.colors.colLayer0, 0.6)
                     opacity: (DialogService.active && isActive) ? 1 : 0
                     Behavior on opacity { NumberAnimation { duration: 200 } }
+
+                    // Click backdrop to dismiss (nested overlays like the alarm
+                    // time picker reparent above this, so they intercept first)
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: DialogService.cancel()
+                    }
                 }
 
                 // ── Auth Dialog ──
                 Rectangle {
                     id: dialog
                     anchors.centerIn: parent
-                    width: Math.max(280 * Appearance.effectiveScale, Math.min(parent.width - 48 * Appearance.effectiveScale, 560 * Appearance.effectiveScale))
+                    width: {
+                        const maxW = Math.min(parent.width - 48 * Appearance.effectiveScale, 560 * Appearance.effectiveScale);
+                        if (DialogService.contentComponent !== null && DialogService.contentWidth > 0)
+                            return Math.max(280 * Appearance.effectiveScale, Math.min(maxW, DialogService.contentWidth * Appearance.effectiveScale));
+                        return Math.max(280 * Appearance.effectiveScale, maxW);
+                    }
                     implicitHeight: contentCol.implicitHeight + (48 * Appearance.effectiveScale)
                     radius: 28 * Appearance.effectiveScale
                     color: Appearance.m3colors.m3surfaceContainerHigh
@@ -75,13 +88,20 @@ Scope {
                         anchors.margins: 24 * Appearance.effectiveScale
                         spacing: 0
 
+                        // ── Custom content mode ──
+                        Loader {
+                            Layout.fillWidth: true
+                            active: DialogService.contentComponent !== null
+                            sourceComponent: DialogService.contentComponent
+                        }
+
                         // Icon
                         MaterialSymbol {
                             Layout.alignment: Qt.AlignHCenter
                             text: DialogService.iconText
                             iconSize: 24 * Appearance.effectiveScale
                             color: Appearance.m3colors.m3secondary
-                            visible: text !== ""
+                            visible: DialogService.contentComponent === null && text !== ""
                         }
 
                         // Title
@@ -94,6 +114,7 @@ Scope {
                             font.weight: Font.Normal
                             color: Appearance.colors.colOnLayer1
                             wrapMode: Text.Wrap
+                            visible: DialogService.contentComponent === null
                         }
 
                         // Message
@@ -106,11 +127,13 @@ Scope {
                             color: Appearance.m3colors.m3onSurfaceVariant
                             wrapMode: Text.Wrap
                             lineHeight: 1.4
+                            visible: DialogService.contentComponent === null
                         }
                         
                         Item {
                             Layout.fillWidth: true
                             Layout.preferredHeight: 4 * Appearance.effectiveScale
+                            visible: DialogService.contentComponent === null
                         }
 
                         // Buttons
@@ -118,6 +141,7 @@ Scope {
                             Layout.fillWidth: true
                             Layout.topMargin: 24 * Appearance.effectiveScale
                             spacing: 8 * Appearance.effectiveScale
+                            visible: DialogService.contentComponent === null
 
                             Item { Layout.fillWidth: true } // spacer
 
@@ -146,20 +170,33 @@ Scope {
                     // Key Handling
                     Keys.onPressed: event => {
                         if (event.key === Qt.Key_Escape) {
-                            DialogService.cancel();
+                            if (DialogService.escapeHandler !== null) DialogService.escapeHandler();
+                            else DialogService.cancel();
                             event.accepted = true;
                         } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
-                            DialogService.submit();
+                            // Custom content handles its own submission
+                            if (DialogService.contentComponent === null)
+                                DialogService.submit();
                             event.accepted = true;
                         }
                     }
-                    
+
+                    // Window-scoped fallback: works even if the item never got focus
+                    Shortcut {
+                        sequence: "Escape"
+                        onActivated: {
+                            if (DialogService.escapeHandler !== null) DialogService.escapeHandler();
+                            else DialogService.cancel();
+                        }
+                    }
+
                     // Focus handling
                     onVisibleChanged: {
                         if (visible) {
                             forceActiveFocus()
                         }
                     }
+                    Component.onCompleted: if (visible) forceActiveFocus()
                 }
             }
         }

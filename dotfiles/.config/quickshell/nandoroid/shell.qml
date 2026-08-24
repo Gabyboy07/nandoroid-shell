@@ -147,10 +147,10 @@ ShellRoot {
 
     // ── Phase 13: Polkit Agent & Date / Time Pickers ──
     PolkitPanel {}
+    DialogPanel {}
     DatePickerPanel {}
     TimePickerPanel {}
     AddNetworkPanel {}
-    DialogPanel {}
 
     IpcHandler {
         target: "launcher"
