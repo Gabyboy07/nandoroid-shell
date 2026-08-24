@@ -99,7 +99,9 @@ Singleton {
                 return ["bash", "-c", `'${recordScript}' --fullscreen --sound --path '${shellEscape(recPathF)}'`]
 
             case ScreenshotAction.Action.QRCode:
-                return ["bash", "-c", `${cropInPlace} && zbarimg --raw '${shellEscape(screenshotPath)}' | wl-copy && notify-send "QR Code" "Content copied to clipboard" && ${cleanup}`]
+                // pipefail so a failed zbarimg (no QR found) surfaces as non-zero exit
+                // instead of silently copying nothing; feedback is shown by the shell snackbar
+                return ["bash", "-c", `set -o pipefail; ${cropInPlace} && zbarimg --raw '${shellEscape(screenshotPath)}' | wl-copy && ${cleanup}`]
                 
             default:
 

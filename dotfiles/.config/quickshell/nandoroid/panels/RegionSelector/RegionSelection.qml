@@ -155,6 +155,11 @@ PanelWindow {
         onExited: (exitCode, exitStatus) => {
             if (root.action === actionCopy || root.action === actionEdit) {
                 GlobalStates.screenshotTaken(root.screenshotPath);
+            } else if (root.action === actionQRCode) {
+                if (exitCode === 0)
+                    SnackbarService.show(I18nService.tr("Content copied to clipboard"));
+                else
+                    SnackbarService.show(I18nService.tr("Couldn't read QR code"));
             }
             root.dismiss();
         }

@@ -340,7 +340,7 @@ ColumnLayout {
 
                         onClicked: {
                             Quickshell.execDetached(["wl-copy", modelData.cmd]);
-                            Quickshell.execDetached(["notify-send", "-a", "NAnDoroid", "-i", "edit-copy", I18nService.tr("Copied"), I18nService.tr("IPC Command copied to clipboard!")]);
+                            SnackbarService.show(I18nService.tr("IPC Command copied to clipboard!"));
                         }
                     }
                 }

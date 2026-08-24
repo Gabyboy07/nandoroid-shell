@@ -13,7 +13,6 @@ Singleton {
     id: root
 
     property string wallpaperDir: Functions.FileUtils.trimFileProtocol(Directories.pictures) + "/Wallpapers"
-    readonly property string nandoroidIcon: Directories.home.replace("file://", "") + "/.config/quickshell/nandoroid/assets/icons/NAnDoroid.svg"
     readonly property alias results: wallhavenModel
     property bool loading: false
     property string lastQuery: ""
@@ -98,67 +97,52 @@ Singleton {
         const fileName = "wallhaven-" + id + "." + ext;
         const fullPath = root.wallpaperDir + "/" + fileName;
 
+        const applyWallpaper = () => {
+            if (GlobalStates.wallpaperSelectorTarget === "desktop") {
+                Wallpapers.select("file://" + fullPath);
+            } else {
+                Wallpapers.selectForLockscreen("file://" + fullPath);
+            }
+        };
+
         Quickshell.execDetached(["mkdir", "-p", root.wallpaperDir]);
 
         // Check if file exists first to save bandwidth and time
         const checkProc = createProcess.createObject(null, {
             command: ["sh", "-c", 'if [ -f "$1" ]; then exit 0; else exit 1; fi', "sh", fullPath]
         });
-        
+
         checkProc.exited.connect((exitCode) => {
             if (exitCode === 0) {
                 // File exists
                 if (apply) {
-                    if (GlobalStates.wallpaperSelectorTarget === "desktop") {
-                        Wallpapers.select("file://" + fullPath);
-                    } else {
-                        Wallpapers.selectForLockscreen("file://" + fullPath);
-                    }
-                    root.sendNotification("Wallhaven", "Already exists. Applied!");
+                    applyWallpaper();
+                    SnackbarService.show("Already existed. Wallpaper applied!");
                 } else {
-                    root.sendNotification("Wallhaven", "Already downloaded: " + fileName);
+                    SnackbarService.show("Already downloaded: " + fileName);
                 }
                 checkProc.destroy();
             } else {
                 // File does not exist, proceed to download
                 checkProc.destroy();
-                if (apply) {
-                    const p = createProcess.createObject(null, {
-                        command: ["sh", "-c", 'curl -L "$1" -o "$2"', "sh", url, fullPath]
-                    });
-                    p.exited.connect((exitCode) => {
-                        if (exitCode === 0) {
-                            if (GlobalStates.wallpaperSelectorTarget === "desktop") {
-                                Wallpapers.select("file://" + fullPath);
-                            } else {
-                                Wallpapers.selectForLockscreen("file://" + fullPath);
-                            }
-                            root.sendNotification("Wallhaven", "Wallpaper applied successfully!");
-                        } else {
-                            root.sendNotification("Wallhaven", "Download failed.");
-                        }
-                        p.destroy();
-                    });
-                    p.running = true;
-                } else {
-                    Quickshell.execDetached([
-                        "sh", "-c", 
-                        'curl -L "$1" -o "$2" && notify-send -a "NAnDoroid" -i "$3" -- "Wallhaven" "Downloaded: $4"',
-                        "sh", url, fullPath, root.nandoroidIcon, fileName
-                    ]);
-                }
+                const p = createProcess.createObject(null, {
+                    command: ["sh", "-c", 'curl -L "$1" -o "$2"', "sh", url, fullPath]
+                });
+                p.exited.connect((code) => {
+                    if (code !== 0) {
+                        SnackbarService.show("Download failed.");
+                    } else if (apply) {
+                        applyWallpaper();
+                        SnackbarService.show("Wallpaper applied successfully!");
+                    } else {
+                        SnackbarService.show("Downloaded: " + fileName, "Set as wallpaper", applyWallpaper);
+                    }
+                    p.destroy();
+                });
+                p.running = true;
             }
         });
         checkProc.running = true;
-    }
-
-    function sendNotification(title, body) {
-        Quickshell.execDetached([
-            "notify-send", 
-            "-a", "NAnDoroid", 
-            "-i", root.nandoroidIcon, 
-            "--", title, body
-        ]);
     }
 
     Component {

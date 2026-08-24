@@ -55,7 +55,7 @@ Singleton {
                 musicRecognizedProc.running = true
             }
         } catch(e) {
-            Quickshell.execDetached(["notify-send", "-a", "NAnDoroid", "-i", root.nandoroidIcon, "--", "Couldn't recognize music", "Perhaps what you're listening to is too niche"])
+            SnackbarService.show(I18nService.tr("Couldn't recognize music") + " — " + I18nService.tr("Perhaps what you're listening to is too niche"));
         }
     }
 
@@ -76,7 +76,7 @@ Singleton {
         }
         onExited: (exitCode, exitStatus) => {
             if (exitCode === 1) {
-                Quickshell.execDetached(["notify-send", "-a", "NAnDoroid", "-i", root.nandoroidIcon, "--", "Couldn't recognize music", "Make sure you have songrec installed"])
+                SnackbarService.show(I18nService.tr("Couldn't recognize music") + " — " + I18nService.tr("Make sure you have songrec installed"));
             }
         }
     }
