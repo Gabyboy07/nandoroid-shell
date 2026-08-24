@@ -30,6 +30,18 @@ Singleton {
     onModeChanged: {
         if (mode === 2 && !silent) silent = true;
         if (mode !== 2 && silent) silent = false;
+        // Persist full mode (0=Normal, 1=Silent, 2=DND) — dndActive only covers DND
+        if (Config.ready && Config.options.system) Config.options.system.notificationMode = mode;
+    }
+
+    // Restore persisted mode once config is available
+    Connections {
+        target: Config
+        function onReadyChanged() {
+            if (!Config.ready || !Config.options.system) return;
+            if (Config.options.system.notificationMode !== undefined)
+                root.mode = Config.options.system.notificationMode;
+        }
     }
     onSilentChanged: {
         if (silent && mode !== 2) mode = 2;
