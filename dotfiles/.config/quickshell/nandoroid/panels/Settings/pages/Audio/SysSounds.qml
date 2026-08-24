@@ -41,13 +41,17 @@ ColumnLayout {
 
     function _baseName(path) { return path.split("/").pop() || path; }
 
-    // Resolve .oga/.ogg at runtime for theme defaults (oxygen ships only .ogg)
+    // Resolve .oga/.ogg at runtime for theme defaults (oxygen ships only .ogg).
+    // ~/.local/share/sounds wins over /usr/share/sounds; falls back to the
+    // freedesktop theme when a custom theme lacks the sound.
     function previewCommand(kind) {
         const custom = kind === "notification" ? root.notificationSound : root.ringtoneSound;
         if (custom !== "") return ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", custom];
         const name = kind === "notification" ? "message-new-instant" : "alarm-clock-elapsed";
-        const base = `/usr/share/sounds/${Audio.audioTheme}/stereo/${name}`;
-        return ["bash", "-c", `f='${base}.oga'; [ -f "$f" ] || f='${base}.ogg'; exec ffplay -nodisp -autoexit -loglevel quiet "$f"`];
+        const local = `${Directories.home.replace("file://", "")}/.local/share/sounds/${Audio.audioTheme}/stereo/${name}`;
+        const system = `/usr/share/sounds/${Audio.audioTheme}/stereo/${name}`;
+        const freedesktop = `/usr/share/sounds/freedesktop/stereo/${name}`;
+        return ["bash", "-c", `f='${local}.oga'; [ -f "$f" ] || f='${local}.ogg'; [ -f "$f" ] || f='${system}.oga'; [ -f "$f" ] || f='${system}.ogg'; [ -f "$f" ] || f='${freedesktop}.oga'; [ -f "$f" ] || f='${freedesktop}.ogg'; exec ffplay -nodisp -autoexit -loglevel quiet "$f"`];
     }
 
     // Toggle preview: play once, or stop the running one so sounds never stack
@@ -105,7 +109,7 @@ ColumnLayout {
 
             StyledToolTip {
                 extraVisibleCondition: themeClickArea.hovered || themeClickArea.realHovered
-                text: I18nService.tr("System sounds source (/usr/share/sounds)")
+                text: I18nService.tr("System sounds source (~/.local/share/sounds, /usr/share/sounds)")
             }
         }
 
@@ -181,38 +185,96 @@ ColumnLayout {
                 }
             }
 
-            M3IconButton {
-                iconName: root.previewing === "notification" ? "stop" : "play_arrow"
-                iconSize: 20 * Appearance.effectiveScale
-                implicitWidth: 36 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: Appearance.colors.colPrimary
-                color: Appearance.colors.colOnPrimary
-                onClicked: root.togglePreview("notification")
-            }
+            RowLayout {
+                spacing: 8 * Appearance.effectiveScale
+                Layout.alignment: Qt.AlignVCenter
 
-            M3IconButton {
-                iconName: "folder_open"
-                iconSize: 20 * Appearance.effectiveScale
-                implicitWidth: 36 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: Appearance.colors.colPrimary
-                color: Appearance.colors.colOnPrimary
-                onClicked: soundPickerProc.open("notification")
-            }
+                RippleButton {
+                    implicitWidth: 120 * Appearance.effectiveScale
+                    implicitHeight: 36 * Appearance.effectiveScale
+                    buttonRadius: 18 * Appearance.effectiveScale
+                    colBackground: Appearance.m3colors.m3primaryContainer
 
-            M3IconButton {
-                visible: root.notificationSound !== ""
-                iconName: "restart_alt"
-                iconSize: 20 * Appearance.effectiveScale
-                implicitWidth: 36 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: "transparent"
-                color: Appearance.colors.colError
-                onClicked: if (Config.ready) Config.options.sounds.notification = ""
+                    RowLayout {
+                        anchors.centerIn: parent
+                        spacing: 6 * Appearance.effectiveScale
+                        MaterialSymbol {
+                            text: root.previewing === "notification" ? "stop" : "play_arrow"
+                            iconSize: 16 * Appearance.effectiveScale
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
+                        StyledText {
+                            text: root.previewing === "notification" ? I18nService.tr("Stop") : I18nService.tr("Preview")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
+                    }
+
+                    onClicked: root.togglePreview("notification")
+                }
+
+                RippleButton {
+                    implicitWidth: 120 * Appearance.effectiveScale
+                    implicitHeight: 36 * Appearance.effectiveScale
+                    buttonRadius: 18 * Appearance.effectiveScale
+                    colBackground: Appearance.m3colors.m3primaryContainer
+
+                    RowLayout {
+                        anchors.centerIn: parent
+                        spacing: 6 * Appearance.effectiveScale
+                        MaterialSymbol {
+                            text: "folder_open"
+                            iconSize: 16 * Appearance.effectiveScale
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
+                        StyledText {
+                            text: I18nService.tr("Browse")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
+                    }
+
+                    onClicked: soundPickerProc.open("notification")
+                }
+
+                Item {
+                    visible: root.notificationSound !== ""
+                    implicitWidth: 120 * Appearance.effectiveScale
+                    implicitHeight: 36 * Appearance.effectiveScale
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 18 * Appearance.effectiveScale
+                        color: "transparent"
+                        border.width: 1 * Appearance.effectiveScale
+                        border.color: Appearance.colors.colError
+                        opacity: notifClearArea.containsMouse ? 0.8 : 1
+                        Behavior on opacity { NumberAnimation { duration: 150 } }
+                    }
+
+                    RowLayout {
+                        anchors.centerIn: parent
+                        spacing: 6 * Appearance.effectiveScale
+                        MaterialSymbol {
+                            text: "close"
+                            iconSize: 16 * Appearance.effectiveScale
+                            color: Appearance.colors.colError
+                        }
+                        StyledText {
+                            text: I18nService.tr("Clear")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            color: Appearance.colors.colError
+                        }
+                    }
+
+                    MouseArea {
+                        id: notifClearArea
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        hoverEnabled: true
+                        onClicked: if (Config.ready) Config.options.sounds.notification = ""
+                    }
+                }
             }
         }
     }
@@ -254,38 +316,96 @@ ColumnLayout {
                 }
             }
 
-            M3IconButton {
-                iconName: root.previewing === "ringtone" ? "stop" : "play_arrow"
-                iconSize: 20 * Appearance.effectiveScale
-                implicitWidth: 36 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: Appearance.colors.colPrimary
-                color: Appearance.colors.colOnPrimary
-                onClicked: root.togglePreview("ringtone")
-            }
+            RowLayout {
+                spacing: 8 * Appearance.effectiveScale
+                Layout.alignment: Qt.AlignVCenter
 
-            M3IconButton {
-                iconName: "folder_open"
-                iconSize: 20 * Appearance.effectiveScale
-                implicitWidth: 36 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: Appearance.colors.colPrimary
-                color: Appearance.colors.colOnPrimary
-                onClicked: soundPickerProc.open("ringtone")
-            }
+                RippleButton {
+                    implicitWidth: 120 * Appearance.effectiveScale
+                    implicitHeight: 36 * Appearance.effectiveScale
+                    buttonRadius: 18 * Appearance.effectiveScale
+                    colBackground: Appearance.m3colors.m3primaryContainer
 
-            M3IconButton {
-                visible: root.ringtoneSound !== ""
-                iconName: "restart_alt"
-                iconSize: 20 * Appearance.effectiveScale
-                implicitWidth: 36 * Appearance.effectiveScale
-                implicitHeight: 36 * Appearance.effectiveScale
-                buttonRadius: 18 * Appearance.effectiveScale
-                colBackground: "transparent"
-                color: Appearance.colors.colError
-                onClicked: if (Config.ready) Config.options.sounds.ringtone = ""
+                    RowLayout {
+                        anchors.centerIn: parent
+                        spacing: 6 * Appearance.effectiveScale
+                        MaterialSymbol {
+                            text: root.previewing === "ringtone" ? "stop" : "play_arrow"
+                            iconSize: 16 * Appearance.effectiveScale
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
+                        StyledText {
+                            text: root.previewing === "ringtone" ? I18nService.tr("Stop") : I18nService.tr("Preview")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
+                    }
+
+                    onClicked: root.togglePreview("ringtone")
+                }
+
+                RippleButton {
+                    implicitWidth: 120 * Appearance.effectiveScale
+                    implicitHeight: 36 * Appearance.effectiveScale
+                    buttonRadius: 18 * Appearance.effectiveScale
+                    colBackground: Appearance.m3colors.m3primaryContainer
+
+                    RowLayout {
+                        anchors.centerIn: parent
+                        spacing: 6 * Appearance.effectiveScale
+                        MaterialSymbol {
+                            text: "folder_open"
+                            iconSize: 16 * Appearance.effectiveScale
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
+                        StyledText {
+                            text: I18nService.tr("Browse")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            color: Appearance.m3colors.m3onPrimaryContainer
+                        }
+                    }
+
+                    onClicked: soundPickerProc.open("ringtone")
+                }
+
+                Item {
+                    visible: root.ringtoneSound !== ""
+                    implicitWidth: 120 * Appearance.effectiveScale
+                    implicitHeight: 36 * Appearance.effectiveScale
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 18 * Appearance.effectiveScale
+                        color: "transparent"
+                        border.width: 1 * Appearance.effectiveScale
+                        border.color: Appearance.colors.colError
+                        opacity: ringClearArea.containsMouse ? 0.8 : 1
+                        Behavior on opacity { NumberAnimation { duration: 150 } }
+                    }
+
+                    RowLayout {
+                        anchors.centerIn: parent
+                        spacing: 6 * Appearance.effectiveScale
+                        MaterialSymbol {
+                            text: "close"
+                            iconSize: 16 * Appearance.effectiveScale
+                            color: Appearance.colors.colError
+                        }
+                        StyledText {
+                            text: I18nService.tr("Clear")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            color: Appearance.colors.colError
+                        }
+                    }
+
+                    MouseArea {
+                        id: ringClearArea
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        hoverEnabled: true
+                        onClicked: if (Config.ready) Config.options.sounds.ringtone = ""
+                    }
+                }
             }
         }
     }
@@ -317,8 +437,9 @@ ColumnLayout {
     Process {
         id: themeListProc
         property var output: ["freedesktop"]
-        // NOTE: plain string (not template literal) — ${d} must reach bash verbatim
-        command: ["bash", "-c", "for d in /usr/share/sounds/*/; do [ -d \"${d}stereo\" ] && basename \"$d\"; done"]
+        // NOTE: plain string (not template literal) — ${d} must reach bash verbatim.
+        // XDG data dir (~/.local/share/sounds, where KDE installs) is scanned first
+        command: ["bash", "-c", "for d in \"$HOME\"/.local/share/sounds/*/ /usr/share/sounds/*/; do [ -d \"${d}stereo\" ] && basename \"$d\"; done | awk '!seen[$0]++'"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {

@@ -119,9 +119,13 @@ Singleton {
 
     function playSystemSound(soundName) {
         // Resolve .oga/.ogg at runtime — themes ship different variants
-        // (freedesktop has both: firing two ffplay would double the sound)
-        const base = `/usr/share/sounds/${root.audioTheme}/stereo/${soundName}`;
-        const script = `f='${base}.oga'; [ -f "$f" ] || f='${base}.ogg'; exec ffplay -nodisp -autoexit "$f"`;
+        // (freedesktop has both: firing two ffplay would double the sound).
+        // ~/.local/share/sounds wins over /usr/share/sounds; falls back to
+        // the freedesktop theme when a custom theme lacks the sound.
+        const local = `${Directories.home.replace("file://", "")}/.local/share/sounds/${root.audioTheme}/stereo/${soundName}`;
+        const system = `/usr/share/sounds/${root.audioTheme}/stereo/${soundName}`;
+        const freedesktop = `/usr/share/sounds/freedesktop/stereo/${soundName}`;
+        const script = `f='${local}.oga'; [ -f "$f" ] || f='${local}.ogg'; [ -f "$f" ] || f='${system}.oga'; [ -f "$f" ] || f='${system}.ogg'; [ -f "$f" ] || f='${freedesktop}.oga'; [ -f "$f" ] || f='${freedesktop}.ogg'; exec ffplay -nodisp -autoexit "$f"`;
         Quickshell.execDetached(["bash", "-c", script]);
     }
 

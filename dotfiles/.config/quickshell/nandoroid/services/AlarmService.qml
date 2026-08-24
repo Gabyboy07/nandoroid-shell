@@ -43,15 +43,21 @@ Singleton {
     readonly property int defaultSnoozeMinutes: 5
     readonly property int maxRingMinutes: 5 // auto-dismiss after this long
 
-    readonly property string defaultRingtoneBase: `/usr/share/sounds/${Audio.audioTheme}/stereo/alarm-clock-elapsed`
+    // Theme default ringtone — ~/.local/share/sounds first, then /usr/share/sounds;
+    // final fallback to the freedesktop theme (custom themes may lack the sound)
+    readonly property var defaultRingtoneCommand: {
+        const local = `${Directories.home.replace("file://", "")}/.local/share/sounds/${Audio.audioTheme}/stereo/alarm-clock-elapsed`;
+        const system = `/usr/share/sounds/${Audio.audioTheme}/stereo/alarm-clock-elapsed`;
+        const freedesktop = "/usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed";
+        return ["bash", "-c", `f='${local}.oga'; [ -f "$f" ] || f='${local}.ogg'; [ -f "$f" ] || f='${system}.oga'; [ -f "$f" ] || f='${system}.ogg'; [ -f "$f" ] || f='${freedesktop}.oga'; [ -f "$f" ] || f='${freedesktop}.ogg'; exec ffplay -nodisp -autoexit -loop 0 "$f"`];
+    }
     readonly property string ringtonePath: {
         const custom = (Config.ready && Config.options.sounds) ? Config.options.sounds.ringtone : "";
         return custom !== "" ? custom : "";
     }
-    // Resolve .oga/.ogg at runtime for theme defaults (oxygen ships only .ogg)
     readonly property var ringtoneCommand: root.ringtonePath !== ""
         ? ["ffplay", "-nodisp", "-autoexit", "-loop", "0", root.ringtonePath]
-        : ["bash", "-c", `f='${root.defaultRingtoneBase}.oga'; [ -f "$f" ] || f='${root.defaultRingtoneBase}.ogg'; exec ffplay -nodisp -autoexit -loop 0 "$f"`]
+        : root.defaultRingtoneCommand
 
     property var _pendingAlarm: null
 
