@@ -125,9 +125,12 @@ Singleton {
             fireTimer.running = false;
             return;
         }
-        // Fires late after suspend — the handler still rings the missed target
+        // Fires late after suspend — the handler still rings the missed target.
+        // restart() (not running = true): an already-running timer must be
+        // re-armed for the NEW target, or it fires on the old schedule while
+        // the handler reads the new one → rings a minute (or more) early.
         fireTimer.interval = Math.max(250, best.getTime() - Date.now());
-        fireTimer.running = true;
+        fireTimer.restart();
     }
 
     function ring(alarm) {
@@ -175,6 +178,14 @@ Singleton {
             // guarded by lastFiredKey against double-firing
             if (root._scheduledTarget !== null && !root.ringing) {
                 const target = root._scheduledTarget;
+                // Qt timers can fire tens of ms early (coalescing/drift) —
+                // never ring before the target instant; re-arm instead
+                const remaining = target.getTime() - Date.now();
+                if (remaining > 0) {
+                    fireTimer.interval = Math.max(remaining, 50);
+                    fireTimer.restart();
+                    return;
+                }
                 const timeStr = Qt.formatTime(target, "HH:mm");
                 const key = Qt.formatDate(target, "yyyy-MM-dd") + " " + timeStr;
 

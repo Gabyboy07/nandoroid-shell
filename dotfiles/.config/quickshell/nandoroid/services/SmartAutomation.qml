@@ -396,40 +396,48 @@ Singleton {
 
     // Actionable alarm notification: Dismiss skips the occurrence (repeating)
     // or turns the alarm off (one-shot). notify-send prints the clicked
-    // action identifier to stdout, collected by alarmNotifProc.
-    function sendAlarmNotification(alarmId, occurrenceKey, title, body) {
-        const iconPath = Directories.home.replace("file://", "") + "/.config/quickshell/nandoroid/assets/icons/NAnDoroid.svg";
-        alarmNotifProc.targetAlarmId = alarmId;
-        alarmNotifProc.targetKey = occurrenceKey;
-        alarmNotifProc.command = [
-            "notify-send",
-            "-a", "NAnDoroid",
-            "-i", iconPath,
-            "-t", "60000",
-            "-A", "dismiss=Dismiss",
-            title,
-            body
-        ];
-        alarmNotifProc.running = true;
-    }
-
-    Process {
-        id: alarmNotifProc
-        property string targetAlarmId: ""
-        property string targetKey: ""
-        command: []
-        stdout: StdioCollector {
-            onStreamFinished: {
-                if (this.text.trim() !== "dismiss") return;
-                const a = AlarmService.alarms.find(x => x.id === alarmNotifProc.targetAlarmId);
-                if (!a) return;
-                if (!a.days || a.days.length === 0) {
-                    AlarmService.updateAlarm(a.id, { enabled: false });
-                } else if (alarmNotifProc.targetKey !== "") {
-                    AlarmService.updateAlarm(a.id, { lastFiredKey: alarmNotifProc.targetKey });
+    // action identifier to stdout, collected by the notification's own
+    // process instance. One instance per notification: a shared Process
+    // drops sends while busy (notify-send -A runs until click/timeout)
+    // and its shared target state could misroute Dismiss actions.
+    Component {
+        id: alarmNotifProcess
+        Process {
+            property string targetAlarmId: ""
+            property string targetKey: ""
+            command: []
+            stdout: StdioCollector {
+                onStreamFinished: {
+                    if (this.text.trim() !== "dismiss") return;
+                    const a = AlarmService.alarms.find(x => x.id === targetAlarmId);
+                    if (!a) return;
+                    if (!a.days || a.days.length === 0) {
+                        AlarmService.updateAlarm(a.id, { enabled: false });
+                    } else if (targetKey !== "") {
+                        AlarmService.updateAlarm(a.id, { lastFiredKey: targetKey });
+                    }
                 }
             }
+            onExited: Qt.callLater(destroy)
         }
+    }
+
+    function sendAlarmNotification(alarmId, occurrenceKey, title, body) {
+        const iconPath = Directories.home.replace("file://", "") + "/.config/quickshell/nandoroid/assets/icons/NAnDoroid.svg";
+        const proc = alarmNotifProcess.createObject(root, {
+            targetAlarmId: alarmId,
+            targetKey: occurrenceKey,
+            command: [
+                "notify-send",
+                "-a", "NAnDoroid",
+                "-i", iconPath,
+                "-t", "60000",
+                "-A", "dismiss=Dismiss",
+                title,
+                body
+            ]
+        });
+        proc.running = true;
     }
 
     Process {
