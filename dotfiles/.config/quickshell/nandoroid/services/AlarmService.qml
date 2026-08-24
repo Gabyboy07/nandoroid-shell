@@ -27,6 +27,8 @@ Singleton {
     id: root
 
     property var alarms: []
+    onAlarmsChanged: root._scheduleNext()
+
     readonly property string storagePath: Directories.home.replace("file://", "") + "/.cache/nandoroid/alarms.json"
 
     // "" | "ringing" | "snoozed"
@@ -79,23 +81,40 @@ Singleton {
         updateAlarm(id, { enabled: !a.enabled, lastFiredKey: "" });
     }
 
-    // ── Firing ──
-    function _checkAlarms() {
-        if (root.ringing) return;
-        const now = new Date();
-        const timeStr = Qt.formatTime(now, "HH:mm");
-        const key = Qt.formatDate(now, "yyyy-MM-dd") + " " + timeStr;
+    // ── Firing: event-driven single-shot scheduling (zero periodic polling) ──
+    // The timer is armed exactly for the earliest upcoming occurrence and
+    // re-armed whenever alarms change, after a ring, or after a snooze.
+    property var _scheduledTarget: null
 
+    function _nextOccurrence(alarm, from) {
+        const now = from || new Date();
+        const parts = String(alarm.time || "").split(":").map(Number);
+        for (let i = 0; i < 8; i++) {
+            const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, parts[0] || 0, parts[1] || 0);
+            if (d <= now) continue;
+            if (alarm.days && alarm.days.length > 0 && !alarm.days.includes(d.getDay())) continue;
+            const key = Qt.formatDate(d, "yyyy-MM-dd") + " " + Qt.formatTime(d, "HH:mm");
+            if (alarm.lastFiredKey && alarm.lastFiredKey === key) continue;
+            return d;
+        }
+        return null;
+    }
+
+    function _scheduleNext() {
+        let best = null;
         for (let i = 0; i < root.alarms.length; i++) {
-            const a = root.alarms[i];
-            if (!a.enabled || a.time !== timeStr || a.lastFiredKey === key) continue;
-            if (a.days && a.days.length > 0 && !a.days.includes(now.getDay())) continue;
-
-            const isOneShot = !a.days || a.days.length === 0;
-            updateAlarm(a.id, { lastFiredKey: key, enabled: isOneShot ? false : a.enabled });
-            root.ring(a);
+            if (!root.alarms[i].enabled) continue;
+            const d = root._nextOccurrence(root.alarms[i], new Date());
+            if (d !== null && (best === null || d < best)) best = d;
+        }
+        root._scheduledTarget = best;
+        if (best === null) {
+            fireTimer.running = false;
             return;
         }
+        // Fires late after suspend — the handler still rings the missed target
+        fireTimer.interval = Math.max(250, best.getTime() - Date.now());
+        fireTimer.running = true;
     }
 
     function ring(alarm) {
@@ -131,12 +150,32 @@ Singleton {
     }
 
     Timer {
-        id: firingTimer
-        interval: 10000
-        repeat: true
-        running: true
-        triggeredOnStart: true
-        onTriggered: root._checkAlarms()
+        id: fireTimer
+        interval: 60000
+        repeat: false
+        running: false
+        onTriggered: {
+            // Ring the scheduled target regardless of lateness (suspend-safe),
+            // guarded by lastFiredKey against double-firing
+            if (root._scheduledTarget !== null && !root.ringing) {
+                const target = root._scheduledTarget;
+                const timeStr = Qt.formatTime(target, "HH:mm");
+                const key = Qt.formatDate(target, "yyyy-MM-dd") + " " + timeStr;
+
+                for (let i = 0; i < root.alarms.length; i++) {
+                    const a = root.alarms[i];
+                    if (!a.enabled || a.time !== timeStr) continue;
+                    if (a.days && a.days.length > 0 && !a.days.includes(target.getDay())) continue;
+                    if (a.lastFiredKey === key) continue;
+
+                    const isOneShot = !a.days || a.days.length === 0;
+                    updateAlarm(a.id, { lastFiredKey: key, enabled: isOneShot ? false : a.enabled });
+                    root.ring(a);
+                    break;
+                }
+            }
+            root._scheduleNext();
+        }
     }
 
     Timer {
