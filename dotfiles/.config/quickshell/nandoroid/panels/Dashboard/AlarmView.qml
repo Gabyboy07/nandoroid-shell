@@ -474,7 +474,10 @@ Item {
                         readonly property bool isRinging: AlarmService.ringing && AlarmService._pendingAlarm !== null && AlarmService._pendingAlarm.id === alarm.id
                         readonly property var timeParts: root.formatTimeParts(alarm.time)
                         readonly property var nextRing: root.nextRingDate(alarm, root.nowDate)
-                        readonly property bool dismissible: isEnabled && nextRing !== null
+                        // One-shot alarms get no Dismiss — the notification
+                        // action handles them (dismiss = turn off)
+                        readonly property bool dismissible: isEnabled && alarm.days && alarm.days.length > 0
+                            && nextRing !== null
                             && (nextRing.getTime() - root.nowDate.getTime()) <= 7200000
                         Layout.fillWidth: true
                         // 24 top + summary + 2 gap + time + 24 bottom — content-driven
