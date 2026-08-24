@@ -386,5 +386,8 @@ Flickable {
                 }
             }
         }
+
+        // ── Sounds (theme, notification & ringtone) ──
+        SysSounds { Layout.fillWidth: true }
     }
 }

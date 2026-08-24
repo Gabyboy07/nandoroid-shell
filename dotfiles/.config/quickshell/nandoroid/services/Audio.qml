@@ -118,10 +118,20 @@ Singleton {
     }
 
     function playSystemSound(soundName) {
-        const ogaPath = `/usr/share/sounds/${root.audioTheme}/stereo/${soundName}.oga`;
-        const oggPath = `/usr/share/sounds/${root.audioTheme}/stereo/${soundName}.ogg`;
+        // Resolve .oga/.ogg at runtime — themes ship different variants
+        // (freedesktop has both: firing two ffplay would double the sound)
+        const base = `/usr/share/sounds/${root.audioTheme}/stereo/${soundName}`;
+        const script = `f='${base}.oga'; [ -f "$f" ] || f='${base}.ogg'; exec ffplay -nodisp -autoexit "$f"`;
+        Quickshell.execDetached(["bash", "-c", script]);
+    }
 
-        Quickshell.execDetached(["ffplay", "-nodisp", "-autoexit", ogaPath]);
-        Quickshell.execDetached(["ffplay", "-nodisp", "-autoexit", oggPath]);
+    // Plays the configured notification sound; falls back to the theme default.
+    function playNotificationSound() {
+        const custom = (Config.ready && Config.options.sounds) ? Config.options.sounds.notification : "";
+        if (custom !== "") {
+            Quickshell.execDetached(["ffplay", "-nodisp", "-autoexit", custom]);
+            return;
+        }
+        playSystemSound("message-new-instant");
     }
 }

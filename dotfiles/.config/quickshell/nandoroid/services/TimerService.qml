@@ -2,11 +2,22 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../core"
 import "../services"
 
 
 Singleton {
     id: root
+
+    readonly property string defaultRingtoneBase: `/usr/share/sounds/${Audio.audioTheme}/stereo/alarm-clock-elapsed`
+    readonly property string ringtonePath: {
+        const custom = (Config.ready && Config.options.sounds) ? Config.options.sounds.ringtone : "";
+        return custom !== "" ? custom : "";
+    }
+    // Resolve .oga/.ogg at runtime for theme defaults (oxygen ships only .ogg)
+    readonly property var ringtoneCommand: root.ringtonePath !== ""
+        ? ["ffplay", "-nodisp", "-autoexit", "-loop", "0", root.ringtonePath]
+        : ["bash", "-c", `f='${root.defaultRingtoneBase}.oga'; [ -f "$f" ] || f='${root.defaultRingtoneBase}.ogg'; exec ffplay -nodisp -autoexit -loop 0 "$f"`]
 
     property bool active: false
     property bool overflowing: false
@@ -97,6 +108,7 @@ Singleton {
             
             if (root.remainingMs <= 0 && !root.overflowing) {
                 root.overflowing = true;
+                alarmProcess.command = root.ringtoneCommand;
                 alarmProcess.running = true;
             }
         }
@@ -104,6 +116,7 @@ Singleton {
 
     Process {
         id: alarmProcess
-        command: ["ffplay", "-nodisp", "-autoexit", "-loop", "0", `/usr/share/sounds/${Audio.audioTheme}/stereo/alarm-clock-elapsed.oga`]
+        command: []
+        running: false
     }
 }

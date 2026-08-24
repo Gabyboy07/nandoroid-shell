@@ -546,6 +546,13 @@ property JsonObject background: JsonObject {
                 property list<var> monitoredDisks: [ { "path": "/", "alias": "System" } ]
             }
 
+            // --- Sounds ---
+            property JsonObject sounds: JsonObject {
+                property string theme: "freedesktop" // sound theme name in /usr/share/sounds
+                property string notification: "" // custom notification sound file; empty = theme default
+                property string ringtone: "" // custom ringtone/alarm sound file; empty = theme default
+            }
+
             // --- Media ---
             property JsonObject media: JsonObject {
                 property string priority: ""

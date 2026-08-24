@@ -247,6 +247,8 @@ Singleton {
             if (root.mode !== 2) {
                 newNotif.popup = true;
                 root.activePopup = newNotif;
+                // Play notification sound only in normal mode (silent & DND stay quiet)
+                if (root.mode === 0) Audio.playNotificationSound();
                 if (notification.expireTimeout !== 0) {
                     newNotif.timer = notifTimerComponent.createObject(root, {
                         "notificationId": newNotif.notificationId,
@@ -257,11 +259,6 @@ Singleton {
                 }
                 root.unread++;
             }
-
-            if (root.mode === 0) {
-                Audio.playSystemSound("message");
-            }
-
 
             notifFileView.setText(stringifyList(root.list));
         }

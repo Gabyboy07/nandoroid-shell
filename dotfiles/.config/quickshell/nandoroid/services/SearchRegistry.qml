@@ -36,6 +36,7 @@ Item {
             { file: "panels/Settings/pages/Network/NetworkWiredView.qml", pageIndex: 0 },
             { file: "panels/Settings/pages/Bluetooth/BluetoothSettings.qml", pageIndex: 1 },
             { file: "panels/Settings/pages/Audio/AudioSettings.qml", pageIndex: 2 },
+{ file: "panels/Settings/pages/Audio/SysSounds.qml", pageIndex: 2 },
             { file: "panels/Settings/pages/Display/DisplaySettings.qml", pageIndex: 3 },
             { file: "panels/Settings/pages/Display/DisplayEyeCare.qml", pageIndex: 3 },
             { file: "panels/Settings/pages/WallpaperStyle/WsWallpaperCycle.qml", pageIndex: 4 },
@@ -63,8 +64,8 @@ Item {
             // System Page components (pageIndex: 6)
             { file: "panels/Settings/pages/System/SystemSettings.qml", pageIndex: 6 },
             { file: "panels/Settings/pages/System/SysDateTime.qml", pageIndex: 6 },
-            { file: "panels/Settings/pages/System/SysLanguage.qml", pageIndex: 6 },
-            { file: "panels/Settings/pages/System/SysScreenshot.qml", pageIndex: 6 },
+{ file: "panels/Settings/pages/System/SysLanguage.qml", pageIndex: 6 },
+{ file: "panels/Settings/pages/System/SysScreenshot.qml", pageIndex: 6 },
             { file: "panels/Settings/pages/System/SysPerformance.qml", pageIndex: 6 },
             { file: "panels/Settings/pages/System/SysPower.qml", pageIndex: 6 },
             { file: "panels/Settings/pages/System/SysDisk.qml", pageIndex: 6 },
