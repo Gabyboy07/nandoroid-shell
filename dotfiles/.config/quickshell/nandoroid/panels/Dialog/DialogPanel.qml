@@ -91,6 +91,12 @@ Scope {
                         // ── Custom content mode ──
                         Loader {
                             Layout.fillWidth: true
+                            // An unloaded Loader keeps the last item's implicit
+                            // size, which would stretch a follow-up standard
+                            // dialog (e.g. confirm opened from custom content)
+                            // with a big empty gap — pin the height to 0 while
+                            // inactive
+                            Layout.preferredHeight: active ? implicitHeight : 0
                             active: DialogService.contentComponent !== null
                             sourceComponent: DialogService.contentComponent
                         }
