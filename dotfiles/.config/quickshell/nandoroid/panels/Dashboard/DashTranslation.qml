@@ -333,6 +333,7 @@ ColumnLayout {
                         
                         onClicked: {
                             Quickshell.clipboardText = resultText.text;
+                            SnackbarService.show(I18nService.tr("Translation copied to clipboard"));
                         }
                         StyledToolTip { text: I18nService.tr("Copy to clipboard"); extraVisibleCondition: copyBtn.realHovered }
                     }

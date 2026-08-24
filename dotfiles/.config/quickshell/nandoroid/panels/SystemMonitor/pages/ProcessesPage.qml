@@ -506,7 +506,10 @@ Item {
         StyledMenuItem {
             text: I18nService.tr("Copy PID")
             itemIcon: "content_copy"
-            onTriggered: Quickshell.clipboardText = processMenu.targetPid.toString()
+            onTriggered: {
+                Quickshell.clipboardText = processMenu.targetPid.toString()
+                SnackbarService.show(I18nService.tr("PID copied to clipboard"))
+            }
         }
     }
 }

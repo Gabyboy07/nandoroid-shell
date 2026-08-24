@@ -155,6 +155,7 @@ PanelWindow {
                     visible: Config.ready && !Config.options.screenshot.autoCopy
                     onClicked: {
                         Quickshell.execDetached(["bash", "-c", `cat "${root.imagePath}" | wl-copy --type image/png`]);
+                        SnackbarService.show(I18nService.tr("Image copied to clipboard"));
                         root.imagePath = "";
                     }
                 }

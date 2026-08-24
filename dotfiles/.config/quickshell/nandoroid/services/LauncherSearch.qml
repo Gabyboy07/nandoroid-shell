@@ -644,6 +644,7 @@ Singleton {
     function useEmoji(item) {
         if (!item) return;
         Quickshell.clipboardText = item.emoji;
+        SnackbarService.show(I18nService.tr("Emoji copied to clipboard"));
         root.recordEmojiUse(item);
         root.closeAll();
     }
@@ -687,7 +688,7 @@ Singleton {
                     name: "Math Result",
                     subtitle: mathExpr + " = " + (mathProc.result || "..."),
                     id: "math-result", icon: "calculate", isPlugin: true, emoji: "",
-                    execute: () => { Quickshell.clipboardText = mathProc.result; root.closeAll(); }
+                    execute: () => { Quickshell.clipboardText = mathProc.result; SnackbarService.show(I18nService.tr("Result copied to clipboard")); root.closeAll(); }
                 });
             }
         } else if (strippedQuery.startsWith(Config.options.search.webPrefix)) {
