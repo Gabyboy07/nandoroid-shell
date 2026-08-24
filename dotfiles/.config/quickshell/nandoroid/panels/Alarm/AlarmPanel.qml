@@ -18,22 +18,33 @@ Scope {
     id: root
 
     property var focusedScreen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0]
-    readonly property string timeFormat: (Config.ready && Config.options.time) ? Config.options.time.format : "hh:mm"
-    property string currentTime: Qt.formatTime(new Date(), timeFormat)
-    onTimeFormatChanged: currentTime = Qt.formatTime(new Date(), timeFormat)
+    // Follows Config timeStyle; 12-hour shows plain digits without AM/PM text (Android style).
+    // Qt only renders "hh" as 12-hour when the format contains ap/AP — so compute it manually.
+    function formatClock(d) {
+        const is24 = (Config.ready && Config.options.time) ? Config.options.time.timeStyle === "24H" : true;
+        if (is24) return Qt.formatTime(d, "HH:mm");
+        let h = d.getHours() % 12;
+        if (h === 0) h = 12;
+        return String(h).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    }
+
+    // Change notifier so currentTime re-syncs when the time style config changes
+    readonly property string timeStyle: (Config.ready && Config.options.time) ? Config.options.time.timeStyle : "24H"
+    property string currentTime: formatClock(new Date())
+    onTimeStyleChanged: currentTime = formatClock(new Date())
 
     Timer {
         interval: 1000
         repeat: true
         running: AlarmService.ringing
-        onTriggered: root.currentTime = Qt.formatTime(new Date(), root.timeFormat)
+        onTriggered: root.currentTime = root.formatClock(new Date())
     }
 
     // Sync immediately when the alarm starts ringing (initial value may be stale)
     Connections {
         target: AlarmService
         function onRingingChanged() {
-            if (AlarmService.ringing) root.currentTime = Qt.formatTime(new Date(), root.timeFormat);
+            if (AlarmService.ringing) root.currentTime = root.formatClock(new Date());
         }
     }
 
