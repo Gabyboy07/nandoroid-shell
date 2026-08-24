@@ -15,6 +15,7 @@ Item {
     property var items: []
     // List of Kanban cards
     property string _editingId: ""
+    property string _editText: ""
     property string hoveredStatus: ""
     property string hoveredTargetId: ""
     property string draggedTaskId: ""
@@ -147,6 +148,13 @@ Item {
         save();
     }
 
+    // ── Edit Dialog ──
+    function openEditor(id, content) {
+        root._editingId = id;
+        root._editText = content;
+        DialogService.requestCustom(taskEditContent, 400);
+    }
+
     Component.onCompleted: todoFile.reload()
 
     // ── File I/O ──
@@ -257,11 +265,7 @@ Item {
                     id: cardDragArea
 
                     anchors.fill: parent
-                    onClicked: {
-                        root._editingId = delegateRoot.modelData.id;
-                        editTaskInput.text = delegateRoot.modelData.content;
-                        editPopup.open();
-                    }
+                    onClicked: root.openEditor(delegateRoot.modelData.id, delegateRoot.modelData.content)
                     cursorShape: delegateRoot.dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
                     drag.target: delegateRoot.dragging ? cardRect : null
                     drag.threshold: 0
@@ -508,10 +512,8 @@ Item {
                                             root.items = [t].concat(root.items);
                                             root.save();
                                             
-                                            // Auto-open popup for editing
-                                            root._editingId = newId;
-                                            editTaskInput.text = t.content;
-                                            editPopup.open();
+                                            // Auto-open dialog for editing
+                                            root.openEditor(newId, t.content);
                                         }
 
                                         MaterialSymbol {
@@ -596,80 +598,77 @@ Item {
 
     Connections {
         function onDashboardOpenChanged() {
-            if (!GlobalStates.dashboardOpen)
-                editPopup.close();
+            if (!GlobalStates.dashboardOpen && DialogService.contentComponent === taskEditContent)
+                DialogService.cancel();
 
         }
 
         target: GlobalStates
     }
 
-    Item {
-        id: editPopup
+    // ── Edit Task Dialog (DialogService custom content, like the alarm dialog) ──
+    Component {
+        id: taskEditContent
 
-        property string editingId: ""
+        Item {
+            id: editRoot
 
-        function open() {
-            visible = true;
-            editTaskInput.forceActiveFocus();
-            editTaskInput.selectAll();
-        }
+            readonly property string editingId: root._editingId
+            property bool confirming: false
 
-        function close() {
-            visible = false;
-        }
+            implicitHeight: editCol.implicitHeight
 
-        anchors.fill: parent
-        visible: false
-        z: 1000
-
-        MouseArea {
-            // No background color to remove the backdrop effect
-
-            anchors.fill: parent
-            onClicked: editPopup.close()
-        }
-
-        Rectangle {
-            width: Math.min(360 * Appearance.effectiveScale, root.width - 48 * Appearance.effectiveScale)
-            height: Math.min(260 * Appearance.effectiveScale, root.height - 48 * Appearance.effectiveScale)
-            anchors.centerIn: parent
-            radius: 28 * Appearance.effectiveScale // M3 Dialogs have 28dp radius
-            color: Appearance.m3colors.m3surfaceContainerHigh // Standard M3 dialog color
-
-            // Consume clicks inside the modal so they don't pass through to the background MouseArea
-            MouseArea {
-                anchors.fill: parent
+            // ESC closes the nested confirm first, then the dialog itself
+            function handleEscape() {
+                if (editRoot.confirming) editRoot.closeConfirm();
+                else DialogService.cancel();
             }
 
-            StyledRectangularShadow {
-                target: parent
-                visible: true
-                z: -1
+            function closeConfirm() {
+                editRoot.confirming = false;
+                editTaskInput.forceActiveFocus();
             }
+
+            // Deferred focus: DialogPanel's shell grabs focus to itself after
+            // the content completes, so the input takes it back on the next
+            // event loop pass. Lives inside the content on purpose — ids are
+            // only resolvable in this scope, and if the dialog is destroyed
+            // first the timer dies with it (a Qt.callLater closure would
+            // outlive the context and throw).
+            Timer {
+                id: focusTimer
+
+                interval: 0
+                onTriggered: {
+                    editTaskInput.forceActiveFocus();
+                    editTaskInput.selectAll();
+                }
+
+            }
+
+            Component.onCompleted: {
+                DialogService.escapeHandler = editRoot.handleEscape;
+                focusTimer.restart();
+            }
+            Component.onDestruction: if (DialogService.escapeHandler === editRoot.handleEscape) DialogService.escapeHandler = null
 
             ColumnLayout {
+                id: editCol
+
                 anchors.fill: parent
-                anchors.margins: 24 * Appearance.effectiveScale
                 spacing: 16 * Appearance.effectiveScale
 
-                // Header Row
-                RowLayout {
-                    Layout.fillWidth: true
-
-                    StyledText {
-                        text: I18nService.tr("Edit task")
-                        font.pixelSize: Appearance.font.pixelSize.huge
-                        font.weight: Font.Normal
-                        color: Appearance.colors.colOnLayer1
-                        Layout.fillWidth: true
-                    }
+                StyledText {
+                    text: I18nService.tr("Edit task")
+                    font.pixelSize: Appearance.font.pixelSize.huge
+                    font.weight: Font.Normal
+                    color: Appearance.colors.colOnLayer1
                 }
 
                 // M3 Outlined Text Field lookalike
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    Layout.preferredHeight: 120 * Appearance.effectiveScale
                     color: "transparent"
                     border.width: editTaskInput.activeFocus ? 2 * Appearance.effectiveScale : 1 * Appearance.effectiveScale
                     border.color: editTaskInput.activeFocus ? Appearance.m3colors.m3primary : Appearance.m3colors.m3outline
@@ -693,6 +692,8 @@ Item {
                             wrapMode: TextEdit.Wrap
                             selectionColor: Appearance.colors.colPrimaryContainer
                             selectedTextColor: Appearance.colors.colOnPrimaryContainer
+                            text: root._editText
+                            onTextChanged: root._editText = text
                             onCursorRectangleChanged: {
                                 const margin = 8 * Appearance.effectiveScale;
                                 if (cursorRectangle.y < editTaskFlickable.contentY)
@@ -714,7 +715,6 @@ Item {
                 // Bottom Buttons (M3 Text Buttons)
                 RowLayout {
                     Layout.fillWidth: true
-                    Layout.topMargin: 8 * Appearance.effectiveScale
                     spacing: 8 * Appearance.effectiveScale
 
                     // Delete (Text Button)
@@ -724,17 +724,7 @@ Item {
                         buttonRadius: 20 * Appearance.effectiveScale
                         colBackground: "transparent"
                         colBackgroundHover: Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.08)
-                        onClicked: {
-                            DialogService.requestConfirmation({
-                                "titleText": I18nService.tr("Delete Task?"),
-                                "messageText": I18nService.tr("Are you sure you want to delete this task? This action cannot be undone."),
-                                "iconText": "delete",
-                                "isDestructive": true
-                            }, () => {
-                                editPopup.close();
-                                return root.deleteTask(root._editingId);
-                            });
-                        }
+                        onClicked: editRoot.confirming = true
 
                         StyledText {
                             id: deleteText
@@ -757,7 +747,7 @@ Item {
                         buttonRadius: 20 * Appearance.effectiveScale
                         colBackground: "transparent"
                         colBackgroundHover: Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.08)
-                        onClicked: editPopup.close()
+                        onClicked: DialogService.cancel()
 
                         StyledText {
                             id: cancelText
@@ -781,7 +771,7 @@ Item {
                         onClicked: {
                             const newText = editTaskInput.text.trim() === "" ? I18nService.tr("New task") : editTaskInput.text.trim();
                             const item = root.items.find((i) => {
-                                return i.id === root._editingId;
+                                return i.id === editRoot.editingId;
                             });
                             if (item) {
                                 item.content = newText;
@@ -789,7 +779,7 @@ Item {
                                 root.items = root.items.slice();
                                 root.save();
                             }
-                            editPopup.close();
+                            DialogService.submit();
                         }
 
                         StyledText {
@@ -806,6 +796,127 @@ Item {
 
                 }
 
+            }
+
+            // ── Nested delete confirmation — reparented to the window root so
+            //    the scrim covers the whole screen while the editor stays
+            //    alive underneath (like the nested time picker in AlarmView).
+            //    No DialogService swap: no unload/reload, no focus loss. ──
+            Rectangle {
+                id: confirmScrim
+                z: 90 // explicit: completion order of siblings is not guaranteed
+                visible: editRoot.confirming
+                color: Functions.ColorUtils.applyAlpha(Appearance.colors.colLayer0, 0.6)
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true // consume hover so nothing below reacts
+                    onClicked: editRoot.closeConfirm()
+                }
+
+                Component.onCompleted: {
+                    let r = editRoot;
+                    while (r.parent) r = r.parent;
+                    confirmScrim.parent = r;
+                    confirmScrim.anchors.fill = r;
+                }
+            }
+
+            Rectangle {
+                id: confirmBox
+                z: 100 // always above the scrim
+                visible: editRoot.confirming
+                anchors.centerIn: parent
+                width: Math.max(280 * Appearance.effectiveScale, Math.min(parent.width - 48 * Appearance.effectiveScale, 560 * Appearance.effectiveScale))
+                implicitHeight: confirmCol.implicitHeight + 48 * Appearance.effectiveScale
+                radius: 28 * Appearance.effectiveScale
+                color: Appearance.m3colors.m3surfaceContainerHigh
+
+                StyledRectangularShadow {
+                    target: confirmBox
+                    z: -1
+                }
+
+                MouseArea {
+                    anchors.fill: parent // block clicks
+                }
+
+                ColumnLayout {
+                    id: confirmCol
+                    anchors.fill: parent
+                    anchors.margins: 24 * Appearance.effectiveScale
+                    spacing: 0
+
+                    MaterialSymbol {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: "delete"
+                        iconSize: 24 * Appearance.effectiveScale
+                        color: Appearance.m3colors.m3secondary
+                    }
+
+                    StyledText {
+                        Layout.fillWidth: true
+                        Layout.topMargin: 16 * Appearance.effectiveScale
+                        horizontalAlignment: Text.AlignHCenter
+                        text: I18nService.tr("Delete Task?")
+                        font.pixelSize: Appearance.font.pixelSize.huge || 24 * Appearance.effectiveScale
+                        font.weight: Font.Normal
+                        color: Appearance.colors.colOnLayer1
+                        wrapMode: Text.Wrap
+                    }
+
+                    StyledText {
+                        Layout.fillWidth: true
+                        Layout.topMargin: 16 * Appearance.effectiveScale
+                        horizontalAlignment: Text.AlignHCenter
+                        text: I18nService.tr("Are you sure you want to delete this task? This action cannot be undone.")
+                        font.pixelSize: Appearance.font.pixelSize.small || 14 * Appearance.effectiveScale
+                        color: Appearance.m3colors.m3onSurfaceVariant
+                        wrapMode: Text.Wrap
+                        lineHeight: 1.4
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.topMargin: 24 * Appearance.effectiveScale
+                        spacing: 8 * Appearance.effectiveScale
+
+                        Item {
+                            Layout.fillWidth: true
+                        }
+
+                        RippleButton {
+                            implicitHeight: 40 * Appearance.effectiveScale
+                            buttonRadius: 20 * Appearance.effectiveScale
+                            buttonText: I18nService.tr("Cancel")
+                            colBackground: "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer2Hover
+                            colText: Appearance.m3colors.m3primary
+                            onClicked: editRoot.closeConfirm()
+                        }
+
+                        RippleButton {
+                            implicitHeight: 40 * Appearance.effectiveScale
+                            buttonRadius: 20 * Appearance.effectiveScale
+                            buttonText: I18nService.tr("OK")
+                            colBackground: "transparent"
+                            colBackgroundHover: Appearance.colors.colLayer2Hover
+                            colText: Appearance.m3colors.m3primary
+                            onClicked: {
+                                root.deleteTask(editRoot.editingId);
+                                DialogService.cancel();
+                            }
+                        }
+
+                    }
+
+                }
+
+                Component.onCompleted: {
+                    let r = editRoot;
+                    while (r.parent) r = r.parent;
+                    confirmBox.parent = r;
+                }
             }
 
         }
