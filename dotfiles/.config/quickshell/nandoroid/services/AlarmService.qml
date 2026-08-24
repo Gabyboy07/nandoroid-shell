@@ -17,10 +17,13 @@ import "../core"
  *   label        : string   — optional name shown on the alarm panel
  *   time         : string   — "HH:MM" (24h)
  *   enabled      : bool
- *   days         : number[] — 0=Sun..6=Sat; empty = one-shot (auto-disables after ring)
+ *   days         : number[] — 0=Mon..6=Sun (matches firstDayOfWeek default); empty = one-shot (auto-disables after ring)
  *   lastFiredKey : string   — "YYYY-MM-DD HH:MM" guard against double-firing
  *   lastNotifiedKey : string — "YYYY-MM-DD HH:MM" guard against duplicate 2h-before notifications
  * }
+ *
+ * Storage: {"version": 2, "alarms": [...]}. A bare array is the legacy v1
+ * format with Sun-based days; it is migrated (shifted) on load.
  *
  * Note: accurate only while the system is awake (no wake-from-suspend yet).
  */
@@ -63,7 +66,7 @@ Singleton {
 
     // ── CRUD ──
     function save() {
-        alarmFile.setText(JSON.stringify(root.alarms, null, 2));
+        alarmFile.setText(JSON.stringify({ version: 2, alarms: root.alarms }, null, 2));
     }
 
     function addAlarm(alarm) {
@@ -101,7 +104,8 @@ Singleton {
         for (let i = 0; i < 8; i++) {
             const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, parts[0] || 0, parts[1] || 0);
             if (d <= now) continue;
-            if (alarm.days && alarm.days.length > 0 && !alarm.days.includes(d.getDay())) continue;
+            // days are Mon-based (0=Mon..6=Sun); Date.getDay() is Sun-based
+            if (alarm.days && alarm.days.length > 0 && !alarm.days.includes((d.getDay() + 6) % 7)) continue;
             const key = Qt.formatDate(d, "yyyy-MM-dd") + " " + Qt.formatTime(d, "HH:mm");
             if (alarm.lastFiredKey && alarm.lastFiredKey === key) continue;
             return d;
@@ -177,7 +181,7 @@ Singleton {
                 for (let i = 0; i < root.alarms.length; i++) {
                     const a = root.alarms[i];
                     if (!a.enabled || a.time !== timeStr) continue;
-                    if (a.days && a.days.length > 0 && !a.days.includes(target.getDay())) continue;
+                    if (a.days && a.days.length > 0 && !a.days.includes((target.getDay() + 6) % 7)) continue;
                     if (a.lastFiredKey === key) continue;
 
                     const isOneShot = !a.days || a.days.length === 0;
@@ -223,7 +227,15 @@ Singleton {
                 const content = alarmFile.text();
                 if (content && content.trim() !== "") {
                     const parsed = JSON.parse(content);
-                    if (Array.isArray(parsed)) root.alarms = parsed;
+                    if (Array.isArray(parsed)) {
+                        // Legacy v1: bare array with Sun-based days → shift to Mon-based
+                        root.alarms = parsed.map(a => (a.days && a.days.length > 0)
+                            ? Object.assign({}, a, { days: a.days.map(d => (d + 6) % 7) })
+                            : a);
+                        root.save();
+                    } else if (parsed && Array.isArray(parsed.alarms)) {
+                        root.alarms = parsed.alarms;
+                    }
                 }
             } catch (e) {
                 console.warn("AlarmService: failed to parse alarms.json:", e);

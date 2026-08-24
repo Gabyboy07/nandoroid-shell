@@ -15,7 +15,14 @@ import "../../services"
 Item {
     id: root
 
-    readonly property var dayLetters: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => I18nService.tr(d).charAt(0))
+    // Alarm days are stored Mon-based (0=Mon..6=Sun); chips follow the same
+    // firstDayOfWeek config as the dashboard calendar
+    readonly property var dayNames: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    readonly property var dayLetters: root.dayNames.map(d => I18nService.tr(d).charAt(0))
+    readonly property int weekStartMon: {
+        const fdow = (Config.ready && Config.options.time && Config.options.time.firstDayOfWeek !== undefined) ? Config.options.time.firstDayOfWeek : 1;
+        return (fdow + 6) % 7;
+    }
     property var settingsAlarm: null // alarm being edited in the dialog
     property date nowDate: new Date() // drives Dismiss visibility, refreshed periodically
 
@@ -58,7 +65,7 @@ Item {
         for (let i = 0; i < 8; i++) {
             const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, parts[0] || 0, parts[1] || 0);
             if (d <= now) continue;
-            if (alarm.days && alarm.days.length > 0 && !alarm.days.includes(d.getDay())) continue;
+            if (alarm.days && alarm.days.length > 0 && !alarm.days.includes((d.getDay() + 6) % 7)) continue;
             const key = Qt.formatDate(d, "yyyy-MM-dd") + " " + Qt.formatTime(d, "HH:mm");
             if (alarm.lastFiredKey && alarm.lastFiredKey === key) continue;
             return d;
@@ -116,9 +123,10 @@ Item {
         if (!days || days.length === 0) return I18nService.tr("Once");
         if (days.length === 7) return I18nService.tr("Every day");
         const sorted = [...days].sort((a, b) => a - b);
-        if (sorted.join(",") === "1,2,3,4,5") return I18nService.tr("Weekdays");
-        if (sorted.join(",") === "0,6") return I18nService.tr("Weekend");
-        return sorted.map(d => root.dayLetters[d]).join(" ");
+        if (sorted.join(",") === "0,1,2,3,4") return I18nService.tr("Weekdays");
+        if (sorted.join(",") === "5,6") return I18nService.tr("Weekend");
+        const rotated = [...sorted].sort((a, b) => ((a - root.weekStartMon + 7) % 7) - ((b - root.weekStartMon + 7) % 7));
+        return rotated.map(d => root.dayLetters[d]).join(" ");
     }
 
     // ── Add flow: FAB → TimePicker → active one-shot alarm (like Android) ──
@@ -257,7 +265,8 @@ Item {
                     delegate: RippleButton {
                         id: dayChip
                         required property int index
-                        readonly property bool selected: settingsCol.editDays.includes(index)
+                        readonly property int dayValue: (root.weekStartMon + dayChip.index) % 7
+                        readonly property bool selected: settingsCol.editDays.includes(dayChip.dayValue)
                         // 44×44 (1:1); selected = circle, unselected = rounded square
                         implicitWidth: 44 * Appearance.effectiveScale
                         implicitHeight: 44 * Appearance.effectiveScale
@@ -265,18 +274,18 @@ Item {
                         colBackground: selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3surfaceContainerHighest
 
                         onClicked: {
-                            if (selected) settingsCol.editDays = settingsCol.editDays.filter(d => d !== index);
-                            else settingsCol.editDays = [...settingsCol.editDays, index];
+                            if (selected) settingsCol.editDays = settingsCol.editDays.filter(d => d !== dayChip.dayValue);
+                            else settingsCol.editDays = [...settingsCol.editDays, dayChip.dayValue];
                         }
 
                         StyledText {
                             anchors.centerIn: parent
-                            text: root.dayLetters[dayChip.index]
+                            text: root.dayLetters[dayChip.dayValue]
                             font.pixelSize: 13 * Appearance.effectiveScale
                             font.weight: dayChip.selected ? Font.DemiBold : Font.Normal
                             color: dayChip.selected ? Appearance.m3colors.m3onPrimary : Appearance.colors.colSubtext
                         }
-                        StyledToolTip { text: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dayChip.index]; extraVisibleCondition: dayChip.realHovered }
+                        StyledToolTip { text: I18nService.tr(root.dayNames[dayChip.dayValue]); extraVisibleCondition: dayChip.realHovered }
                     }
                 }
             }
