@@ -14,9 +14,10 @@ Rectangle {
 
     property int currentTab: 0
     readonly property var tabModel: [
-        { name: I18nService.tr("Pomodoro"), icon: "alarm" },
+        { name: I18nService.tr("Pomodoro"), icon: "av_timer" },
         { name: I18nService.tr("Stopwatch"), icon: "timer" },
-        { name: I18nService.tr("Timer"), icon: "hourglass_bottom" }
+        { name: I18nService.tr("Timer"), icon: "hourglass_bottom" },
+        { name: I18nService.tr("Alarm"), icon: "access_alarms" }
     ]
 
 
@@ -57,6 +58,13 @@ Rectangle {
                 active: root.currentTab === 2
                 visible: active
                 sourceComponent: TimerView {}
+            }
+
+            Loader {
+                anchors.fill: parent
+                active: root.currentTab === 3
+                visible: active
+                sourceComponent: AlarmView {}
             }
         }
     }
