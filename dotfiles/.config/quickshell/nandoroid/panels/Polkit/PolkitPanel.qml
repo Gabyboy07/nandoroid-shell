@@ -47,6 +47,11 @@ Scope {
                     color: Functions.ColorUtils.applyAlpha(Appearance.colors.colLayer0, 0.6)
                     opacity: (PolkitService.active && isActive) ? 1 : 0
                     Behavior on opacity { NumberAnimation { duration: 200 } }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: PolkitService.cancel()
+                    }
                 }
 
                 // ── Auth Dialog ──
