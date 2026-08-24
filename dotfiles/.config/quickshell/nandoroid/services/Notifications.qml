@@ -262,10 +262,14 @@ Singleton {
                 // Play sound only in normal mode, and only for internal
                 // notifications — external apps bring their own sounds
                 if (root.mode === 0 && appNameLower === "nandoroid") Audio.playNotificationSound();
-                if (notification.expireTimeout !== 0) {
+                // Internal nandoroid notifications always follow the configured
+                // popup duration; senders' explicit -t values (e.g. 60s for
+                // actionable alarms) must not override the user's setting
+                const isInternal = appNameLower === "nandoroid";
+                if (isInternal || notification.expireTimeout !== 0) {
                     newNotif.timer = notifTimerComponent.createObject(root, {
                         "notificationId": newNotif.notificationId,
-                        "interval": notification.expireTimeout < 0
+                        "interval": (isInternal || notification.expireTimeout < 0)
                             ? Config.options.notifications.timeout_ms
                             : notification.expireTimeout,
                     });
