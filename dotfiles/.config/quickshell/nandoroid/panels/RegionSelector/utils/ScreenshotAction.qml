@@ -84,7 +84,9 @@ Singleton {
                 return ["bash", "-c", `${cropInPlace} && IMG_LINK=$(${uploadCmd}) && [ -n "$IMG_LINK" ] && xdg-open "${root.imageSearchEngineBaseUrl}$IMG_LINK" && ${cleanup}`]
                 
             case ScreenshotAction.Action.CharRecognition:
-                return ["bash", "-c", `${cropInPlace} && tesseract '${shellEscape(screenshotPath)}' stdout -l $(tesseract --list-langs | awk 'NR>1{print $1}' | tr '\\n' '+' | sed 's/\\+$/\\n/') | wl-copy && ${cleanup}`]
+                // pipefail mirrors the QRCode case: a failed tesseract surfaces
+                // as non-zero exit instead of silently copying nothing
+                return ["bash", "-c", `set -o pipefail; ${cropInPlace} && tesseract '${shellEscape(screenshotPath)}' stdout -l $(tesseract --list-langs | awk 'NR>1{print $1}' | tr '\\n' '+' | sed 's/\\+$/\\n/') | wl-copy && ${cleanup}`]
                 
             case ScreenshotAction.Action.Record:
                 const recPath = (Config.ready && Config.options.screenshot) ? Config.options.screenshot.recordPath : "~/Videos/Recordings";

@@ -92,6 +92,15 @@ FocusScope {
         onExited: (exitCode, exitStatus) => {
             if (exitCode === 0 && pendingFullScreenshotPath !== "") {
                 GlobalStates.screenshotTaken(pendingFullScreenshotPath);
+                // The preview overlay is its own success proof; only give a
+                // snackbar when it is disabled, matching what actually happened
+                const cfg = (Config.ready && Config.options.screenshot) ? Config.options.screenshot : null;
+                if (!(cfg && cfg.showPreview)) {
+                    if (cfg && !cfg.autoSave && cfg.autoCopy)
+                        SnackbarService.show(I18nService.tr("Screenshot copied to clipboard"));
+                    else if (!cfg || cfg.autoSave)
+                        SnackbarService.show(I18nService.tr("Screenshot saved"));
+                }
                 pendingFullScreenshotPath = "";
             }
         }

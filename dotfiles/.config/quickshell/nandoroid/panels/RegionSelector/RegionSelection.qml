@@ -160,6 +160,11 @@ PanelWindow {
                     SnackbarService.show(I18nService.tr("Content copied to clipboard"));
                 else
                     SnackbarService.show(I18nService.tr("Couldn't read QR code"));
+            } else if (root.action === actionOCR) {
+                if (exitCode === 0)
+                    SnackbarService.show(I18nService.tr("Text copied to clipboard"));
+                else
+                    SnackbarService.show(I18nService.tr("Couldn't read text"));
             }
             root.dismiss();
         }
