@@ -19,6 +19,7 @@ import "../core"
  *   enabled      : bool
  *   days         : number[] — 0=Sun..6=Sat; empty = one-shot (auto-disables after ring)
  *   lastFiredKey : string   — "YYYY-MM-DD HH:MM" guard against double-firing
+ *   lastNotifiedKey : string — "YYYY-MM-DD HH:MM" guard against duplicate 2h-before notifications
  * }
  *
  * Note: accurate only while the system is awake (no wake-from-suspend yet).
@@ -78,8 +79,9 @@ Singleton {
         const a = root.alarms.find(x => x.id === id);
         if (!a) return;
         // Clearing lastFiredKey restores the Dismiss affordance for the
-        // upcoming occurrence after an off→on cycle
-        updateAlarm(id, { enabled: !a.enabled, lastFiredKey: "" });
+        // upcoming occurrence after an off→on cycle; lastNotifiedKey lets
+        // the 2h-before notification fire again
+        updateAlarm(id, { enabled: !a.enabled, lastFiredKey: "", lastNotifiedKey: "" });
     }
 
     // ── Firing: event-driven single-shot scheduling (zero periodic polling) ──

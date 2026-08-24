@@ -87,6 +87,18 @@ Singleton {
         }
     }
 
+    Connections {
+        target: AlarmService
+        function onAlarmsChanged() {
+            if (_ready && !_cycleGuard) {
+                _cycleGuard = true;
+                scheduleNext();
+                runAutomationCycle();
+                _cycleGuard = false;
+            }
+        }
+    }
+
     function runThenSchedule() {
         runAutomationCycle();
         scheduleNext();
@@ -195,6 +207,18 @@ Singleton {
             const rDate = new Date(r.date + "T" + r.time);
             if (rDate > now)
                 nextMs = Math.min(nextMs, rDate.getTime() - now.getTime());
+        });
+
+        // Alarm "2h before" notification scheduling — same window as the
+        // Dismiss affordance in AlarmView (one-shot dismiss = turn off)
+        AlarmService.alarms.forEach(a => {
+            if (!a.enabled) return;
+            const occ = AlarmService._nextOccurrence(a, now);
+            if (occ === null) return;
+            const key = Qt.formatDate(occ, "yyyy-MM-dd") + " " + Qt.formatTime(occ, "HH:mm");
+            if (a.lastNotifiedKey === key) return;
+            const notifyIn = occ.getTime() - 7200000 - now.getTime();
+            nextMs = Math.min(nextMs, Math.max(notifyIn, 1000));
         });
 
         if (nextMs < Infinity) {
@@ -332,6 +356,20 @@ Singleton {
         });
         expiredReminderIds.forEach(id => ReminderService.deleteReminder(id));
 
+        // 8. Alarm "2h before" notifications — same window as AlarmView's
+        // Dismiss; one-shot alarms included (dismiss = turn off)
+        AlarmService.alarms.forEach(a => {
+            if (!a.enabled) return;
+            const occ = AlarmService._nextOccurrence(a, now);
+            if (occ === null) return;
+            const key = Qt.formatDate(occ, "yyyy-MM-dd") + " " + Qt.formatTime(occ, "HH:mm");
+            if (a.lastNotifiedKey === key) return;
+            if (occ.getTime() - now.getTime() > 7200000) return;
+            const label = (a.label && a.label !== "") ? a.label + " \u00b7 " : "";
+            root.sendAlarmNotification(a.id, key, "Upcoming Alarm", label + "Alarm set for " + a.time);
+            AlarmService.updateAlarm(a.id, { lastNotifiedKey: key });
+        });
+
         // Apply DND State
         if (root.scheduleDndActive !== anyEventActive) {
             root.scheduleDndActive = anyEventActive;
@@ -354,6 +392,44 @@ Singleton {
             body
         ];
         Quickshell.execDetached(cmd);
+    }
+
+    // Actionable alarm notification: Dismiss skips the occurrence (repeating)
+    // or turns the alarm off (one-shot). notify-send prints the clicked
+    // action identifier to stdout, collected by alarmNotifProc.
+    function sendAlarmNotification(alarmId, occurrenceKey, title, body) {
+        const iconPath = Directories.home.replace("file://", "") + "/.config/quickshell/nandoroid/assets/icons/NAnDoroid.svg";
+        alarmNotifProc.targetAlarmId = alarmId;
+        alarmNotifProc.targetKey = occurrenceKey;
+        alarmNotifProc.command = [
+            "notify-send",
+            "-a", "NAnDoroid",
+            "-i", iconPath,
+            "-t", "60000",
+            "-A", "dismiss=Dismiss",
+            title,
+            body
+        ];
+        alarmNotifProc.running = true;
+    }
+
+    Process {
+        id: alarmNotifProc
+        property string targetAlarmId: ""
+        property string targetKey: ""
+        command: []
+        stdout: StdioCollector {
+            onStreamFinished: {
+                if (this.text.trim() !== "dismiss") return;
+                const a = AlarmService.alarms.find(x => x.id === alarmNotifProc.targetAlarmId);
+                if (!a) return;
+                if (!a.days || a.days.length === 0) {
+                    AlarmService.updateAlarm(a.id, { enabled: false });
+                } else if (alarmNotifProc.targetKey !== "") {
+                    AlarmService.updateAlarm(a.id, { lastFiredKey: alarmNotifProc.targetKey });
+                }
+            }
+        }
     }
 
     Process {
