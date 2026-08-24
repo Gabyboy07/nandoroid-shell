@@ -14,7 +14,7 @@ ColumnLayout {
 
     SearchHandler {
         searchString: "System Interface"
-        aliases: ["Privacy Indicators", "Window Snapping", "Region Selector", "Desktop Gestures", "Desktop Interactions"]
+        aliases: ["Privacy Indicators", "Window Snapping", "Region Selector", "Desktop Gestures", "Desktop Interactions", "Notifications", "Notification Duration"]
     }
 
     ColumnLayout {
@@ -223,6 +223,47 @@ ColumnLayout {
                             Config.options.interactions.desktop.blockWhenWindowsOpen = !Config.options.interactions.desktop.blockWhenWindowsOpen;
                         }
                     }
+                }
+            }
+        }
+
+        // Notification Popup Duration
+        SegmentedWrapper {
+            Layout.fillWidth: true
+            implicitHeight: notifRow.implicitHeight + (24 * Appearance.effectiveScale)
+            orientation: Qt.Vertical
+            maxRadius: 20 * Appearance.effectiveScale
+            color: Appearance.m3colors.m3surfaceContainerHigh
+
+            RowLayout {
+                id: notifRow
+                anchors.fill: parent
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
+                spacing: 16 * Appearance.effectiveScale
+
+                MaterialSymbol {
+                    text: "notifications"
+                    iconSize: 24 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                StyledText {
+                    text: I18nService.tr("Notification Duration")
+                    color: Appearance.colors.colOnLayer1
+                    Layout.fillWidth: true
+                }
+
+                StyledStepper {
+                    Layout.alignment: Qt.AlignVCenter
+                    from: 1; to: 10; stepSize: 1
+                    decimals: 0
+                    suffix: "s"
+                    value: Config.ready ? Config.options.notifications.timeout_ms / 1000 : 2
+                    onValueChanged: if (Config.ready) Config.options.notifications.timeout_ms = value * 1000
                 }
             }
         }
