@@ -100,6 +100,7 @@ Singleton {
         }
         if (remainingMs > 0 && overflowing) {
             overflowing = false;
+            alarmProcess.running = false;
         }
     }
 
