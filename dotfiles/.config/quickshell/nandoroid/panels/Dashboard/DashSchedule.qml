@@ -200,7 +200,8 @@ Item {
         if (style === "24H")
             return String(h).padStart(2, "0") + ":00";
 
-        const ap = h >= 12 ? "PM" : "AM";
+        const upper = style === "12H_PM";
+        const ap = h >= 12 ? (upper ? "PM" : "pm") : (upper ? "AM" : "am");
         const h12 = h % 12 || 12;
         return h12 + " " + ap;
     }

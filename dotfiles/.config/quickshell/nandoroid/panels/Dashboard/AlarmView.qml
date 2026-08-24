@@ -105,7 +105,8 @@ Item {
         const mins = String(parts[1] || 0).padStart(2, "0");
         if (style !== "12H_pm" && style !== "12H_PM")
             return { main: String(parts[0] || 0).padStart(2, "0") + ":" + mins, suffix: "" };
-        const ap = parts[0] >= 12 ? "PM" : "AM";
+        const upper = style === "12H_PM";
+        const ap = parts[0] >= 12 ? (upper ? "PM" : "pm") : (upper ? "AM" : "am");
         const h12 = parts[0] % 12 === 0 ? 12 : parts[0] % 12;
         return { main: String(h12).padStart(2, "0") + ":" + mins, suffix: ap };
     }
