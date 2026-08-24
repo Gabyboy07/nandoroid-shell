@@ -151,6 +151,14 @@ Item {
         DialogService.requestCustom(alarmSettingsContent, 400);
     }
 
+    // Standalone time picker (no editor dialog) — quick time adjustment
+    function openTimePickerFor(alarm) {
+        const is24h = Config.ready && Config.options.time ? Config.options.time.timeStyle === "24H" : false;
+        GlobalStates.openTimePicker(alarm.time, function(timeStr) {
+            AlarmService.updateAlarm(alarm.id, { time: timeStr });
+        }, function() {}, is24h);
+    }
+
     // ── Settings dialog content (Android-style alarm options) ──
     Component {
         id: alarmSettingsContent
@@ -190,8 +198,22 @@ Item {
 
                 function deleteAlarm() {
                     if (!alarm) return;
+                    const idx = AlarmService.alarms.findIndex(a => a.id === alarm.id);
+                    if (idx === -1) return;
+                    const removed = AlarmService.alarms[idx];
                     AlarmService.deleteAlarm(alarm.id);
                     DialogService.cancel();
+                    SnackbarService.show(
+                        I18nService.tr("Alarm deleted"),
+                        I18nService.tr("Undo"),
+                        () => {
+                            const arr = AlarmService.alarms.slice();
+                            arr.splice(Math.min(idx, arr.length), 0, removed);
+                            AlarmService.alarms = arr;
+                            AlarmService.save();
+                        },
+                        SnackbarService.undoDuration
+                    );
                 }
 
                 function openTimeEdit() {
@@ -216,7 +238,7 @@ Item {
                         text: settingsCol.timeParts.main
                         font.family: Appearance.font.family.numbers
                         font.pixelSize: 44 * Appearance.effectiveScale
-                        font.weight: Font.Normal
+                        font.weight: Font.DemiBold
                         font.features: { "tnum": 1 }
                         color: Appearance.colors.colOnLayer1
                     }
@@ -230,6 +252,12 @@ Item {
                         font.pixelSize: 16 * Appearance.effectiveScale
                         font.weight: Font.Medium
                         color: Appearance.colors.colSubtext
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: settingsCol.openTimeEdit()
                     }
                 }
 
@@ -566,6 +594,13 @@ Item {
                             font.pixelSize: 14 * Appearance.effectiveScale
                             font.weight: Font.Medium
                             color: alarmCard.isEnabled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colSubtext
+                        }
+
+                        // Time click target — standalone time picker, no editor dialog
+                        MouseArea {
+                            anchors.fill: timeText
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.openTimePickerFor(alarmCard.alarm)
                         }
 
                         // ── Bottom-right: toggle, aligned with the time row ──
