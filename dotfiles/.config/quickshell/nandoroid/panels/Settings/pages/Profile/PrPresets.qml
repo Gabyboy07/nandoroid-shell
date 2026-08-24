@@ -271,15 +271,26 @@ ColumnLayout {
                                     colBackground: "transparent"
                                     colBackgroundHover: Appearance.colors.colLayer2Hover
                                     onClicked: {
-                                        DialogService.requestConfirmation({
-                                            titleText: I18nService.tr("Delete Preset?"),
-                                            messageText: I18nService.tr("Are you sure you want to delete this preset? This action cannot be undone."),
-                                            iconText: "delete",
-                                            isDestructive: true
-                                        }, () => {
-                                            deleteProc.command = ["bash", Directories.presetsScriptPath, "--remove", fileBaseName];
-                                            deleteProc.running = true;
-                                        });
+                                        // Capture everything now: the list refresh after deleteProc
+                                        // destroys this delegate, so the deferred Undo callback
+                                        // can only touch plain values and captured objects
+                                        const trashDir = Functions.FileUtils.trimFileProtocol(Directories.cache) + "/presets-trash";
+                                        const presetsDir = Directories.presetsPath;
+                                        const undoSource = trashDir + "/" + fileBaseName + ".json";
+                                        const proc = undoProc;
+                                        deleteProc.command = ["bash", "-c", 'mkdir -p "$2" && mv "$1" "$2/"', "sh",
+                                            presetsDir + "/" + fileBaseName + ".json", trashDir];
+                                        deleteProc.running = true;
+                                        SnackbarService.show(
+                                            I18nService.tr("Preset deleted"),
+                                            I18nService.tr("Undo"),
+                                            () => {
+                                                proc.command = ["bash", "-c", 'mkdir -p "$2" && mv "$1" "$2/" || true', "sh",
+                                                    undoSource, presetsDir];
+                                                proc.running = true;
+                                            },
+                                            SnackbarService.undoDuration
+                                        );
                                     }
                                     contentItem: StyledText {
                                         text: I18nService.tr("Delete")
@@ -352,6 +363,11 @@ ColumnLayout {
 
     Process {
         id: deleteProc
+        onExited: refreshTimer.restart()
+    }
+
+    Process {
+        id: undoProc
         onExited: refreshTimer.restart()
     }
 }

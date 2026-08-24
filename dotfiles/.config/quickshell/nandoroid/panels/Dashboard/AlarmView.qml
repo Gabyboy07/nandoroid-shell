@@ -90,7 +90,8 @@ Item {
         SnackbarService.show(
             I18nService.tr("Alarm dismissed for") + " " + when,
             I18nService.tr("Undo"),
-            () => AlarmService.updateAlarm(alarm.id, prev)
+            () => AlarmService.updateAlarm(alarm.id, prev),
+            SnackbarService.undoDuration
         );
     }
 

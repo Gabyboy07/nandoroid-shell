@@ -464,9 +464,25 @@ Item {
         if (!root._editingId)
             return ;
 
+        const idx = ScheduleService.events.findIndex(e => e.id === root._editingId);
+        if (idx === -1)
+            return;
+        const removed = ScheduleService.events[idx];
+
         ScheduleService.deleteEvent(root._editingId);
         root._editingId = "";
         root._view = "timeline";
+        SnackbarService.show(
+            I18nService.tr("Event deleted"),
+            I18nService.tr("Undo"),
+            () => {
+                const events = ScheduleService.events.slice();
+                events.splice(Math.min(idx, events.length), 0, removed);
+                ScheduleService.events = events;
+                ScheduleService.save();
+            },
+            SnackbarService.undoDuration
+        );
     }
 
     function clearForm() {
@@ -657,9 +673,25 @@ Item {
 
     function deleteEditingReminder() {
         if (!root._editingReminderId) return;
+
+        const idx = ReminderService.reminders.findIndex(r => r.id === root._editingReminderId);
+        if (idx === -1) return;
+        const removed = ReminderService.reminders[idx];
+
         ReminderService.deleteReminder(root._editingReminderId);
         root._editingReminderId = "";
         root._view = "timeline";
+        SnackbarService.show(
+            I18nService.tr("Reminder deleted"),
+            I18nService.tr("Undo"),
+            () => {
+                const reminders = ReminderService.reminders.slice();
+                reminders.splice(Math.min(idx, reminders.length), 0, removed);
+                ReminderService.reminders = reminders;
+                ReminderService.save();
+            },
+            SnackbarService.undoDuration
+        );
     }
 
     function openReminderDatePicker() {

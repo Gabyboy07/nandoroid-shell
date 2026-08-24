@@ -11,11 +11,13 @@ import "../core"
  * the notification pipeline (SmartAutomation/Notifications can't suppress it).
  *
  * Usage: SnackbarService.show("Text", "Action", () => { ... })
+ *        SnackbarService.show("Text", "Undo", cb, SnackbarService.undoDuration)
  */
 Singleton {
     id: root
 
     readonly property int duration: 4000
+    readonly property int undoDuration: 8000 // destructive/undoable actions need more reaction time
     property bool visible: false
     property string text: ""
     property string actionLabel: ""
@@ -24,11 +26,12 @@ Singleton {
     // Incremented per show()/dismiss(); stale timer ticks are ignored
     property int _generation: 0
 
-    function show(message, actionLabel, actionCallback) {
+    function show(message, actionLabel, actionCallback, durationMs) {
         root._generation++;
         root.text = message || "";
         root.actionLabel = actionLabel || "";
         root._actionCallback = (root.actionLabel !== "" && typeof actionCallback === "function") ? actionCallback : null;
+        dismissTimer.interval = (typeof durationMs === "number" && durationMs > 0) ? durationMs : root.duration;
         root.visible = true;
         dismissTimer.restart();
     }

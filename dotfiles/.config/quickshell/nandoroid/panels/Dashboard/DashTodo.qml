@@ -142,10 +142,27 @@ Item {
     }
 
     function deleteTask(id) {
+        const idx = root.items.findIndex((i) => {
+            return i.id === id;
+        });
+        if (idx === -1)
+            return;
+        const removed = root.items[idx];
         root.items = root.items.filter((i) => {
             return i.id !== id;
         });
         save();
+        SnackbarService.show(
+            I18nService.tr("Task deleted"),
+            I18nService.tr("Undo"),
+            () => {
+                const items = root.items.slice();
+                items.splice(Math.min(idx, items.length), 0, removed);
+                root.items = items;
+                save();
+            },
+            SnackbarService.undoDuration
+        );
     }
 
     // ── Edit Dialog ──
@@ -614,27 +631,12 @@ Item {
             id: editRoot
 
             readonly property string editingId: root._editingId
-            property bool confirming: false
 
             implicitHeight: editCol.implicitHeight
 
-            // ESC closes the nested confirm first, then the dialog itself
-            function handleEscape() {
-                if (editRoot.confirming) editRoot.closeConfirm();
-                else DialogService.cancel();
-            }
-
-            function closeConfirm() {
-                editRoot.confirming = false;
-                editTaskInput.forceActiveFocus();
-            }
-
             // Deferred focus: DialogPanel's shell grabs focus to itself after
             // the content completes, so the input takes it back on the next
-            // event loop pass. Lives inside the content on purpose — ids are
-            // only resolvable in this scope, and if the dialog is destroyed
-            // first the timer dies with it (a Qt.callLater closure would
-            // outlive the context and throw).
+            // event loop pass.
             Timer {
                 id: focusTimer
 
@@ -646,11 +648,7 @@ Item {
 
             }
 
-            Component.onCompleted: {
-                DialogService.escapeHandler = editRoot.handleEscape;
-                focusTimer.restart();
-            }
-            Component.onDestruction: if (DialogService.escapeHandler === editRoot.handleEscape) DialogService.escapeHandler = null
+            Component.onCompleted: focusTimer.restart()
 
             ColumnLayout {
                 id: editCol
@@ -724,7 +722,10 @@ Item {
                         buttonRadius: 20 * Appearance.effectiveScale
                         colBackground: "transparent"
                         colBackgroundHover: Functions.ColorUtils.applyAlpha(Appearance.colors.colPrimary, 0.08)
-                        onClicked: editRoot.confirming = true
+                        onClicked: {
+                            root.deleteTask(editRoot.editingId);
+                            DialogService.cancel();
+                        }
 
                         StyledText {
                             id: deleteText
@@ -796,127 +797,6 @@ Item {
 
                 }
 
-            }
-
-            // ── Nested delete confirmation — reparented to the window root so
-            //    the scrim covers the whole screen while the editor stays
-            //    alive underneath (like the nested time picker in AlarmView).
-            //    No DialogService swap: no unload/reload, no focus loss. ──
-            Rectangle {
-                id: confirmScrim
-                z: 90 // explicit: completion order of siblings is not guaranteed
-                visible: editRoot.confirming
-                color: Functions.ColorUtils.applyAlpha(Appearance.colors.colLayer0, 0.6)
-
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true // consume hover so nothing below reacts
-                    onClicked: editRoot.closeConfirm()
-                }
-
-                Component.onCompleted: {
-                    let r = editRoot;
-                    while (r.parent) r = r.parent;
-                    confirmScrim.parent = r;
-                    confirmScrim.anchors.fill = r;
-                }
-            }
-
-            Rectangle {
-                id: confirmBox
-                z: 100 // always above the scrim
-                visible: editRoot.confirming
-                anchors.centerIn: parent
-                width: Math.max(280 * Appearance.effectiveScale, Math.min(parent.width - 48 * Appearance.effectiveScale, 560 * Appearance.effectiveScale))
-                implicitHeight: confirmCol.implicitHeight + 48 * Appearance.effectiveScale
-                radius: 28 * Appearance.effectiveScale
-                color: Appearance.m3colors.m3surfaceContainerHigh
-
-                StyledRectangularShadow {
-                    target: confirmBox
-                    z: -1
-                }
-
-                MouseArea {
-                    anchors.fill: parent // block clicks
-                }
-
-                ColumnLayout {
-                    id: confirmCol
-                    anchors.fill: parent
-                    anchors.margins: 24 * Appearance.effectiveScale
-                    spacing: 0
-
-                    MaterialSymbol {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: "delete"
-                        iconSize: 24 * Appearance.effectiveScale
-                        color: Appearance.m3colors.m3secondary
-                    }
-
-                    StyledText {
-                        Layout.fillWidth: true
-                        Layout.topMargin: 16 * Appearance.effectiveScale
-                        horizontalAlignment: Text.AlignHCenter
-                        text: I18nService.tr("Delete Task?")
-                        font.pixelSize: Appearance.font.pixelSize.huge || 24 * Appearance.effectiveScale
-                        font.weight: Font.Normal
-                        color: Appearance.colors.colOnLayer1
-                        wrapMode: Text.Wrap
-                    }
-
-                    StyledText {
-                        Layout.fillWidth: true
-                        Layout.topMargin: 16 * Appearance.effectiveScale
-                        horizontalAlignment: Text.AlignHCenter
-                        text: I18nService.tr("Are you sure you want to delete this task? This action cannot be undone.")
-                        font.pixelSize: Appearance.font.pixelSize.small || 14 * Appearance.effectiveScale
-                        color: Appearance.m3colors.m3onSurfaceVariant
-                        wrapMode: Text.Wrap
-                        lineHeight: 1.4
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Layout.topMargin: 24 * Appearance.effectiveScale
-                        spacing: 8 * Appearance.effectiveScale
-
-                        Item {
-                            Layout.fillWidth: true
-                        }
-
-                        RippleButton {
-                            implicitHeight: 40 * Appearance.effectiveScale
-                            buttonRadius: 20 * Appearance.effectiveScale
-                            buttonText: I18nService.tr("Cancel")
-                            colBackground: "transparent"
-                            colBackgroundHover: Appearance.colors.colLayer2Hover
-                            colText: Appearance.m3colors.m3primary
-                            onClicked: editRoot.closeConfirm()
-                        }
-
-                        RippleButton {
-                            implicitHeight: 40 * Appearance.effectiveScale
-                            buttonRadius: 20 * Appearance.effectiveScale
-                            buttonText: I18nService.tr("OK")
-                            colBackground: "transparent"
-                            colBackgroundHover: Appearance.colors.colLayer2Hover
-                            colText: Appearance.m3colors.m3primary
-                            onClicked: {
-                                root.deleteTask(editRoot.editingId);
-                                DialogService.cancel();
-                            }
-                        }
-
-                    }
-
-                }
-
-                Component.onCompleted: {
-                    let r = editRoot;
-                    while (r.parent) r = r.parent;
-                    confirmBox.parent = r;
-                }
             }
 
         }

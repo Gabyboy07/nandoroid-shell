@@ -61,14 +61,7 @@ Item {
                 implicitHeight: 36 * Appearance.effectiveScale
                 buttonRadius: 18 * Appearance.effectiveScale
                 colBackground: Appearance.m3colors.m3surfaceContainer
-                onClicked: {
-                    DialogService.requestConfirmation({
-                        titleText: I18nService.tr("Delete Reminder?"),
-                        messageText: I18nService.tr("Are you sure you want to delete this reminder? This action cannot be undone."),
-                        iconText: "delete",
-                        isDestructive: true
-                    }, () => ctrl.deleteEditingReminder())
-                }
+                onClicked: ctrl.deleteEditingReminder()
 
                 MaterialSymbol {
                     anchors.centerIn: parent

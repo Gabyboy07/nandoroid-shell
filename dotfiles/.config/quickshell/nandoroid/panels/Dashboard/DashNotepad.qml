@@ -73,14 +73,27 @@ Item {
 
     function deleteCurrent() {
         if (!_editingId) return
-        root.items = root.items.filter(i => i.id !== _editingId)
-        save()
+        deleteItem(_editingId)
         goBack()
     }
 
     function deleteItem(itemId) {
+        const idx = items.findIndex(i => i.id === itemId)
+        if (idx === -1) return
+        const removed = items[idx]
         items = items.filter(i => i.id !== itemId)
         save()
+        SnackbarService.show(
+            I18nService.tr("Note deleted"),
+            I18nService.tr("Undo"),
+            () => {
+                const arr = items.slice()
+                arr.splice(Math.min(idx, arr.length), 0, removed)
+                items = arr
+                save()
+            },
+            SnackbarService.undoDuration
+        )
     }
 
     function togglePin(itemId) {
@@ -312,14 +325,7 @@ Item {
                             implicitHeight: 24 * Appearance.effectiveScale
                             buttonRadius: 12 * Appearance.effectiveScale
                             colBackground: "transparent"
-                            onClicked: {
-                                DialogService.requestConfirmation({
-                                    titleText: I18nService.tr("Delete Note?"),
-                                    messageText: I18nService.tr("Are you sure you want to delete this note? This action cannot be undone."),
-                                    iconText: "delete",
-                                    isDestructive: true
-                                }, () => root.deleteItem(modelData.id))
-                            }
+                            onClicked: root.deleteItem(modelData.id)
                             opacity: itemMouse.containsMouse || pinBtn.realHovered || delBtn.realHovered ? 1 : 0
                             Behavior on opacity { NumberAnimation { duration: 150 } }
                             MaterialSymbol {
@@ -604,14 +610,7 @@ Item {
                         buttonRadius: 12 * Appearance.effectiveScale
                         colBackground: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
                         colBackgroundHover: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.16)
-                        onClicked: {
-                            DialogService.requestConfirmation({
-                                titleText: I18nService.tr("Delete Note?"),
-                                messageText: I18nService.tr("Are you sure you want to delete this note? This action cannot be undone."),
-                                iconText: "delete",
-                                isDestructive: true
-                            }, () => root.deleteCurrent())
-                        }
+                        onClicked: root.deleteCurrent()
                         MaterialSymbol { anchors.centerIn: parent; text: "delete"; iconSize: 22 * Appearance.effectiveScale; color: Appearance.m3colors.m3onSurface }
                     }
                 }
