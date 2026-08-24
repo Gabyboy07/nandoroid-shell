@@ -14,7 +14,7 @@ ColumnLayout {
 
     SearchHandler {
         searchString: "Date & Time"
-        aliases: ["Time Format", "Date Format", "Clock", "12H", "24H", "Jam", "Tanggal", "Waktu"]
+        aliases: ["Time Format", "Date Format", "First Day of Week", "Clock", "12H", "24H"]
     }
 
     RowLayout {
@@ -137,6 +137,61 @@ ColumnLayout {
                         colActiveText: Appearance.m3colors.m3onPrimary
 
                         onClicked: if(Config.ready) Config.options.time.dateStyle = modelData.value
+                    }
+                }
+            }
+        }
+    }
+
+    // First Day of Week Card
+    SegmentedWrapper {
+        Layout.fillWidth: true
+        implicitHeight: weekRow.implicitHeight + (24 * Appearance.effectiveScale)
+        orientation: Qt.Vertical
+        maxRadius: 20 * Appearance.effectiveScale
+        color: Appearance.m3colors.m3surfaceContainerHigh
+
+        RowLayout {
+            id: weekRow
+            anchors.fill: parent
+            anchors {
+                leftMargin: 16 * Appearance.effectiveScale
+                rightMargin: 16 * Appearance.effectiveScale
+                topMargin: 12 * Appearance.effectiveScale
+                bottomMargin: 12 * Appearance.effectiveScale
+            }
+            spacing: 16 * Appearance.effectiveScale
+
+            MaterialSymbol { text: "calendar_view_day"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+            StyledText {
+                text: I18nService.tr("First Day of Week")
+                color: Appearance.colors.colOnLayer1
+                Layout.fillWidth: true
+            }
+
+            RowLayout {
+                spacing: 2 * Appearance.effectiveScale
+
+                Repeater {
+                    model: [
+                        { label: I18nService.tr("Saturday"), value: 6 },
+                        { label: I18nService.tr("Sunday"), value: 0 },
+                        { label: I18nService.tr("Monday"), value: 1 }
+                    ]
+                    delegate: SegmentedButton {
+                        required property var modelData
+                        isHighlighted: Config.ready && Config.options.time ? Config.options.time.firstDayOfWeek === modelData.value : false
+                        Layout.fillHeight: true
+
+                        buttonText: modelData.label
+                        leftPadding: 16 * Appearance.effectiveScale
+                        rightPadding: 16 * Appearance.effectiveScale
+
+                        colInactive: Appearance.m3colors.m3surfaceContainerLow
+                        colActive: Appearance.m3colors.m3primary
+                        colActiveText: Appearance.m3colors.m3onPrimary
+
+                        onClicked: if(Config.ready) Config.options.time.firstDayOfWeek = modelData.value
                     }
                 }
             }

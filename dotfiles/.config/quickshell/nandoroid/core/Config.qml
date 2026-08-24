@@ -95,6 +95,8 @@ Singleton {
                 property string longDateFormat: "dd/MM/yyyy"
                 property string timeStyle: "24H" 
                 property string dateStyle: "DMY" 
+                // First day of week (JS getDay convention): 0=Sunday, 1=Monday, 6=Saturday
+                property int firstDayOfWeek: 1
             }
 
             // --- Appearance ---
