@@ -59,7 +59,12 @@ Item {
     
     focus: true
     Keys.onPressed: (event) => {
-        if (root.passwordDialogOpen) return;
+        if (root.passwordDialogOpen) {
+            // While the password dialog is open, ESC closes only the dialog,
+            // never the panel behind it
+            if (event.key === Qt.Key_Escape) { root.closePasswordDialog(); event.accepted = true; }
+            return;
+        }
         if (event.key === Qt.Key_Escape) { root.dismiss(); event.accepted = true; return; }
         
         let maxListItems = Math.min(wifiList.count, 3);
@@ -147,6 +152,12 @@ Item {
     
     property bool passwordDialogOpen: false
     property var connectingNetwork: null
+    
+    function closePasswordDialog() {
+        root.passwordDialogOpen = false;
+        root.connectingNetwork = null;
+        root.forceActiveFocus();
+    }
     
     // Dimmed Scrim
     Rectangle {
@@ -433,10 +444,12 @@ Item {
         }
     }
     
-    // Password Dialog Scrim (dims the main panel)
+    // Password Dialog Scrim — covers the whole screen (like the nested alarm
+    // time picker) so clicking anywhere outside closes only the password
+    // dialog, never the wifi panel behind it
     Rectangle {
-        anchors.fill: dialogBg
-        radius: 28 * Appearance.effectiveScale
+        anchors.fill: parent
+        radius: Appearance.rounding.panel
         color: Functions.ColorUtils.applyAlpha(Appearance.colors.colLayer0, 0.4)
         opacity: root.passwordDialogOpen ? 1 : 0
         visible: opacity > 0
@@ -444,11 +457,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             hoverEnabled: true
-            onClicked: {
-                root.passwordDialogOpen = false;
-                root.connectingNetwork = null;
-                root.forceActiveFocus();
-            }
+            onClicked: root.closePasswordDialog()
             onWheel: (wheel) => wheel.accepted = true
         }
     }
@@ -534,11 +543,7 @@ Item {
                         rightMargin: 0
                         font.pixelSize: Appearance.font.pixelSize.normal
                         onAccepted: if (text.length > 0) connectBtn.click()
-                        Keys.onEscapePressed: {
-                            root.passwordDialogOpen = false;
-                            root.connectingNetwork = null;
-                            root.forceActiveFocus();
-                        }
+                        Keys.onEscapePressed: root.closePasswordDialog()
                     }
                     
                     RippleButton {
@@ -575,11 +580,7 @@ Item {
                     colBackground: "transparent"
                     colBackgroundHover: Appearance.colors.colLayer2Hover
                     colText: Appearance.m3colors.m3primary
-                    onClicked: {
-                        root.passwordDialogOpen = false;
-                        root.connectingNetwork = null;
-                        root.forceActiveFocus();
-                    }
+                    onClicked: root.closePasswordDialog()
                 }
                 
                 RippleButton {
