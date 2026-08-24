@@ -51,3 +51,4 @@ singleton GlobalFocusGrab GlobalFocusGrab.qml
 singleton VersionService VersionService.qml
 singleton DialogService DialogService.qml
 singleton ReminderService ReminderService.qml
+singleton SnackbarService SnackbarService.qml

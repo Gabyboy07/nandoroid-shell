@@ -15,6 +15,7 @@ import "panels/WallpaperSelector"
 import "panels/Background"
 import "panels/NotificationPopup"
 import "panels/OSD"
+import "panels/Snackbar"
 import "panels/Lock"
 import "panels/Session"
 import "panels/Launcher"
@@ -118,6 +119,9 @@ ShellRoot {
 
     // ── Phase 7: OSD ──
     OSD {}
+
+    // ── Phase 7.5: Snackbar ──
+    SnackbarPanel {}
 
     // ── Phase 8: Session Menu ──
     SessionPanel {}
