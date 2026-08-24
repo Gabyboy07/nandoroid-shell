@@ -40,6 +40,7 @@ Singleton {
     property string snoozeUntil: "" // HH:MM display of next ring
 
     readonly property int defaultSnoozeMinutes: 5
+    readonly property int maxRingMinutes: 5 // auto-dismiss after this long
 
     readonly property string defaultRingtoneBase: `/usr/share/sounds/${Audio.audioTheme}/stereo/alarm-clock-elapsed`
     readonly property string ringtonePath: {
@@ -124,11 +125,13 @@ Singleton {
         root.alarmState = "ringing";
         ringProc.command = root.ringtoneCommand;
         ringProc.running = true;
+        autoStopTimer.restart();
     }
 
     function stop() {
         ringProc.running = false;
         snoozeTimer.stop();
+        autoStopTimer.stop();
         root._pendingAlarm = null;
         root.alarmState = "";
         root.snoozeUntil = "";
@@ -139,6 +142,7 @@ Singleton {
         const until = new Date(Date.now() + mins * 60000);
         root.snoozeUntil = Qt.formatTime(until, "HH:mm");
         ringProc.running = false;
+        autoStopTimer.stop();
         root.alarmState = "snoozed";
         snoozeTimer.interval = mins * 60000;
         snoozeTimer.restart();
@@ -183,6 +187,13 @@ Singleton {
         interval: root.defaultSnoozeMinutes * 60000
         repeat: false
         onTriggered: root.ring(root._pendingAlarm)
+    }
+
+    Timer {
+        id: autoStopTimer
+        interval: root.maxRingMinutes * 60000
+        repeat: false
+        onTriggered: root.stop()
     }
 
     Process {
