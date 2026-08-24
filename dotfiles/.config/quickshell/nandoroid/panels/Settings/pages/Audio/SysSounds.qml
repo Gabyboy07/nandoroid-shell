@@ -16,7 +16,7 @@ ColumnLayout {
 
     SearchHandler {
         searchString: "Sounds"
-        aliases: ["Notification Sound", "Ringtone", "Alarm", "Audio Theme", "Suara", "Notifikasi"]
+        aliases: ["Notification Sound", "Ringtone", "Alarm", "Timer", "Audio Theme", "Suara", "Notifikasi"]
     }
 
     RowLayout {
@@ -36,8 +36,7 @@ ColumnLayout {
     }
 
     readonly property string notificationSound: (Config.ready && Config.options.sounds) ? Config.options.sounds.notification : ""
-    readonly property string ringtoneSound: (Config.ready && Config.options.sounds) ? Config.options.sounds.ringtone : ""
-    property string previewing: "" // "notification" | "ringtone" | ""
+    property string previewing: "" // "notification" | "alarm" | "ringtone" | ""
 
     function _baseName(path) { return path.split("/").pop() || path; }
 
@@ -45,31 +44,42 @@ ColumnLayout {
     // ~/.local/share/sounds wins over /usr/share/sounds; falls back to the
     // freedesktop theme when a custom theme lacks the sound.
     function previewCommand(kind) {
-        const custom = kind === "notification" ? root.notificationSound : root.ringtoneSound;
+        const custom = (Config.ready && Config.options.sounds) ? Config.options.sounds[kind] : "";
         if (custom !== "") return ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", custom];
-        const name = kind === "notification" ? "message-new-instant" : "alarm-clock-elapsed";
+        const name = kind === "notification" ? "message-new-instant"
+            : kind === "alarm" ? "alarm-clock-elapsed"
+            : "complete";
         const local = `${Directories.home.replace("file://", "")}/.local/share/sounds/${Audio.audioTheme}/stereo/${name}`;
         const system = `/usr/share/sounds/${Audio.audioTheme}/stereo/${name}`;
         const freedesktop = `/usr/share/sounds/freedesktop/stereo/${name}`;
         return ["bash", "-c", `f='${local}.oga'; [ -f "$f" ] || f='${local}.ogg'; [ -f "$f" ] || f='${system}.oga'; [ -f "$f" ] || f='${system}.ogg'; [ -f "$f" ] || f='${freedesktop}.oga'; [ -f "$f" ] || f='${freedesktop}.ogg'; exec ffplay -nodisp -autoexit -loglevel quiet "$f"`];
     }
 
-    // Toggle preview: play once, or stop the running one so sounds never stack
+    // Toggle preview: play once, or stop the running one so sounds never stack.
+    // Killing the process delivers onExited asynchronously — route it through a
+    // short timer so the exit of a REPLACED preview never clears the new one
     function togglePreview(kind) {
         if (root.previewing === kind) {
             previewProc.running = false;
             root.previewing = "";
             return;
         }
-        root.previewing = kind;
+        previewProc.running = false;
         previewProc.command = root.previewCommand(kind);
         previewProc.running = true;
+        root.previewing = kind;
     }
 
     Process {
         id: previewProc
         command: []
-        onExited: root.previewing = ""
+        onExited: previewClearTimer.restart()
+    }
+
+    Timer {
+        id: previewClearTimer
+        interval: 150
+        onTriggered: if (!previewProc.running) root.previewing = ""
     }
 
     // ── Sound Theme Card ──
@@ -279,131 +289,142 @@ ColumnLayout {
         }
     }
 
-    // ── Ringtone / Alarm Sound Card ──
-    SegmentedWrapper {
-        Layout.fillWidth: true
-        implicitHeight: ringRow.implicitHeight + (24 * Appearance.effectiveScale)
-        orientation: Qt.Vertical
-        maxRadius: 20 * Appearance.effectiveScale
-        color: Appearance.m3colors.m3surfaceContainerHigh
+    // ── Alarm / Timer Sound Cards (independent ringtones) ──
+    Repeater {
+        model: [
+            { kind: "alarm", icon: "alarm", title: I18nService.tr("Alarm Sound") },
+            { kind: "ringtone", icon: "timer", title: I18nService.tr("Timer Sound") }
+        ]
 
-        RowLayout {
-            id: ringRow
-            anchors.fill: parent
-            anchors {
-                leftMargin: 16 * Appearance.effectiveScale
-                rightMargin: 16 * Appearance.effectiveScale
-                topMargin: 12 * Appearance.effectiveScale
-                bottomMargin: 12 * Appearance.effectiveScale
-            }
-            spacing: 16 * Appearance.effectiveScale
-
-            MaterialSymbol { Layout.alignment: Qt.AlignVCenter; text: "alarm"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-
-            ColumnLayout {
-                spacing: 0
-                Layout.fillWidth: true
-                StyledText {
-                    text: I18nService.tr("Ringtone & Alarm")
-                    color: Appearance.colors.colOnLayer1
-                }
-                StyledText {
-                    text: root.ringtoneSound !== "" ? root._baseName(root.ringtoneSound) : I18nService.tr("Theme default")
-                    font.pixelSize: Appearance.font.pixelSize.small
-                    color: Appearance.colors.colSubtext
-                    elide: Text.ElideMiddle
-                    Layout.fillWidth: true
-                }
-            }
+        delegate: SegmentedWrapper {
+            id: soundCard
+            required property var modelData
+            readonly property string kind: modelData.kind
+            readonly property string soundPath: (Config.ready && Config.options.sounds) ? Config.options.sounds[kind] : ""
+            Layout.fillWidth: true
+            implicitHeight: soundRow.implicitHeight + (24 * Appearance.effectiveScale)
+            orientation: Qt.Vertical
+            maxRadius: 20 * Appearance.effectiveScale
+            color: Appearance.m3colors.m3surfaceContainerHigh
 
             RowLayout {
-                spacing: 8 * Appearance.effectiveScale
-                Layout.alignment: Qt.AlignVCenter
+                id: soundRow
+                anchors.fill: parent
+                anchors {
+                    leftMargin: 16 * Appearance.effectiveScale
+                    rightMargin: 16 * Appearance.effectiveScale
+                    topMargin: 12 * Appearance.effectiveScale
+                    bottomMargin: 12 * Appearance.effectiveScale
+                }
+                spacing: 16 * Appearance.effectiveScale
 
-                RippleButton {
-                    implicitWidth: 120 * Appearance.effectiveScale
-                    implicitHeight: 36 * Appearance.effectiveScale
-                    buttonRadius: 18 * Appearance.effectiveScale
-                    colBackground: Appearance.m3colors.m3primaryContainer
+                MaterialSymbol { Layout.alignment: Qt.AlignVCenter; text: soundCard.modelData.icon; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
 
-                    RowLayout {
-                        anchors.centerIn: parent
-                        spacing: 6 * Appearance.effectiveScale
-                        MaterialSymbol {
-                            text: root.previewing === "ringtone" ? "stop" : "play_arrow"
-                            iconSize: 16 * Appearance.effectiveScale
-                            color: Appearance.m3colors.m3onPrimaryContainer
-                        }
-                        StyledText {
-                            text: root.previewing === "ringtone" ? I18nService.tr("Stop") : I18nService.tr("Preview")
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.m3colors.m3onPrimaryContainer
-                        }
+                ColumnLayout {
+                    spacing: 0
+                    Layout.fillWidth: true
+                    StyledText {
+                        text: soundCard.modelData.title
+                        color: Appearance.colors.colOnLayer1
                     }
-
-                    onClicked: root.togglePreview("ringtone")
+                    StyledText {
+                        text: soundCard.soundPath !== "" ? root._baseName(soundCard.soundPath) : I18nService.tr("Theme default")
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: Appearance.colors.colSubtext
+                        elide: Text.ElideMiddle
+                        Layout.fillWidth: true
+                    }
                 }
 
-                RippleButton {
-                    implicitWidth: 120 * Appearance.effectiveScale
-                    implicitHeight: 36 * Appearance.effectiveScale
-                    buttonRadius: 18 * Appearance.effectiveScale
-                    colBackground: Appearance.m3colors.m3primaryContainer
+                RowLayout {
+                    spacing: 8 * Appearance.effectiveScale
+                    Layout.alignment: Qt.AlignVCenter
 
-                    RowLayout {
-                        anchors.centerIn: parent
-                        spacing: 6 * Appearance.effectiveScale
-                        MaterialSymbol {
-                            text: "folder_open"
-                            iconSize: 16 * Appearance.effectiveScale
-                            color: Appearance.m3colors.m3onPrimaryContainer
+                    RippleButton {
+                        implicitWidth: 120 * Appearance.effectiveScale
+                        implicitHeight: 36 * Appearance.effectiveScale
+                        buttonRadius: 18 * Appearance.effectiveScale
+                        colBackground: Appearance.m3colors.m3primaryContainer
+
+                        RowLayout {
+                            anchors.centerIn: parent
+                            spacing: 6 * Appearance.effectiveScale
+                            MaterialSymbol {
+                                text: root.previewing === soundCard.kind ? "stop" : "play_arrow"
+                                iconSize: 16 * Appearance.effectiveScale
+                                color: Appearance.m3colors.m3onPrimaryContainer
+                            }
+                            StyledText {
+                                text: root.previewing === soundCard.kind ? I18nService.tr("Stop") : I18nService.tr("Preview")
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                color: Appearance.m3colors.m3onPrimaryContainer
+                            }
                         }
-                        StyledText {
-                            text: I18nService.tr("Browse")
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.m3colors.m3onPrimaryContainer
-                        }
+
+                        onClicked: root.togglePreview(soundCard.kind)
                     }
 
-                    onClicked: soundPickerProc.open("ringtone")
-                }
+                    RippleButton {
+                        implicitWidth: 120 * Appearance.effectiveScale
+                        implicitHeight: 36 * Appearance.effectiveScale
+                        buttonRadius: 18 * Appearance.effectiveScale
+                        colBackground: Appearance.m3colors.m3primaryContainer
 
-                Item {
-                    visible: root.ringtoneSound !== ""
-                    implicitWidth: 120 * Appearance.effectiveScale
-                    implicitHeight: 36 * Appearance.effectiveScale
+                        RowLayout {
+                            anchors.centerIn: parent
+                            spacing: 6 * Appearance.effectiveScale
+                            MaterialSymbol {
+                                text: "folder_open"
+                                iconSize: 16 * Appearance.effectiveScale
+                                color: Appearance.m3colors.m3onPrimaryContainer
+                            }
+                            StyledText {
+                                text: I18nService.tr("Browse")
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                color: Appearance.m3colors.m3onPrimaryContainer
+                            }
+                        }
 
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 18 * Appearance.effectiveScale
-                        color: "transparent"
-                        border.width: 1 * Appearance.effectiveScale
-                        border.color: Appearance.colors.colError
-                        opacity: ringClearArea.containsMouse ? 0.8 : 1
-                        Behavior on opacity { NumberAnimation { duration: 150 } }
+                        onClicked: soundPickerProc.open(soundCard.kind)
                     }
 
-                    RowLayout {
-                        anchors.centerIn: parent
-                        spacing: 6 * Appearance.effectiveScale
-                        MaterialSymbol {
-                            text: "close"
-                            iconSize: 16 * Appearance.effectiveScale
-                            color: Appearance.colors.colError
-                        }
-                        StyledText {
-                            text: I18nService.tr("Clear")
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.colors.colError
-                        }
-                    }
+                    Item {
+                        visible: soundCard.soundPath !== ""
+                        implicitWidth: 120 * Appearance.effectiveScale
+                        implicitHeight: 36 * Appearance.effectiveScale
 
-                    MouseArea {
-                        id: ringClearArea
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        hoverEnabled: true
-                        onClicked: if (Config.ready) Config.options.sounds.ringtone = ""
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 18 * Appearance.effectiveScale
+                            color: "transparent"
+                            border.width: 1 * Appearance.effectiveScale
+                            border.color: Appearance.colors.colError
+                            opacity: clearArea.containsMouse ? 0.8 : 1
+                            Behavior on opacity { NumberAnimation { duration: 150 } }
+                        }
+
+                        RowLayout {
+                            anchors.centerIn: parent
+                            spacing: 6 * Appearance.effectiveScale
+                            MaterialSymbol {
+                                text: "close"
+                                iconSize: 16 * Appearance.effectiveScale
+                                color: Appearance.colors.colError
+                            }
+                            StyledText {
+                                text: I18nService.tr("Clear")
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                color: Appearance.colors.colError
+                            }
+                        }
+
+                        MouseArea {
+                            id: clearArea
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            hoverEnabled: true
+                            onClicked: if (Config.ready) Config.options.sounds[soundCard.kind] = ""
+                        }
                     }
                 }
             }
@@ -427,8 +448,7 @@ ColumnLayout {
             onStreamFinished: {
                 const path = this.text.trim();
                 if (path === "" || !Config.ready || !Config.options.sounds) return;
-                if (soundPickerProc.target === "ringtone") Config.options.sounds.ringtone = path;
-                else Config.options.sounds.notification = path;
+                Config.options.sounds[soundPickerProc.target] = path;
             }
         }
     }

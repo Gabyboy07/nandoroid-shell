@@ -9,12 +9,13 @@ import "../services"
 Singleton {
     id: root
 
-    // Theme default ringtone — ~/.local/share/sounds first, then /usr/share/sounds;
-    // final fallback to the freedesktop theme (custom themes may lack the sound)
+    // Theme default timer sound — ~/.local/share/sounds first, then /usr/share/sounds;
+    // final fallback to the freedesktop theme (custom themes may lack the sound).
+    // Uses "complete" so timers stay distinguishable from the alarm ringtone
     readonly property var defaultRingtoneCommand: {
-        const local = `${Directories.home.replace("file://", "")}/.local/share/sounds/${Audio.audioTheme}/stereo/alarm-clock-elapsed`;
-        const system = `/usr/share/sounds/${Audio.audioTheme}/stereo/alarm-clock-elapsed`;
-        const freedesktop = "/usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed";
+        const local = `${Directories.home.replace("file://", "")}/.local/share/sounds/${Audio.audioTheme}/stereo/complete`;
+        const system = `/usr/share/sounds/${Audio.audioTheme}/stereo/complete`;
+        const freedesktop = "/usr/share/sounds/freedesktop/stereo/complete";
         return ["bash", "-c", `f='${local}.oga'; [ -f "$f" ] || f='${local}.ogg'; [ -f "$f" ] || f='${system}.oga'; [ -f "$f" ] || f='${system}.ogg'; [ -f "$f" ] || f='${freedesktop}.oga'; [ -f "$f" ] || f='${freedesktop}.ogg'; exec ffplay -nodisp -autoexit -loop 0 "$f"`];
     }
     readonly property string ringtonePath: {

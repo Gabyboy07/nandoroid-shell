@@ -52,7 +52,7 @@ Singleton {
         return ["bash", "-c", `f='${local}.oga'; [ -f "$f" ] || f='${local}.ogg'; [ -f "$f" ] || f='${system}.oga'; [ -f "$f" ] || f='${system}.ogg'; [ -f "$f" ] || f='${freedesktop}.oga'; [ -f "$f" ] || f='${freedesktop}.ogg'; exec ffplay -nodisp -autoexit -loop 0 "$f"`];
     }
     readonly property string ringtonePath: {
-        const custom = (Config.ready && Config.options.sounds) ? Config.options.sounds.ringtone : "";
+        const custom = (Config.ready && Config.options.sounds) ? Config.options.sounds.alarm : "";
         return custom !== "" ? custom : "";
     }
     readonly property var ringtoneCommand: root.ringtonePath !== ""
