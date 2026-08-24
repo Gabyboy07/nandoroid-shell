@@ -20,7 +20,7 @@ Rectangle {
     SearchHandler { 
         searchString: "Weather"
         visible: rootWeatherSettings.visible
-        aliases: ["Widget", "Weather", "Cuaca", "Temp", "Temperature"]
+        aliases: ["Widget", "Weather", "Temp", "Temperature"]
     }
 
     // Whole-tile click toggles the widget

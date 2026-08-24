@@ -33,7 +33,7 @@ ColumnLayout {
 
     SearchHandler {
         searchString: "Language"
-        aliases: ["Translation", "Translate", "trans", "Bahasa", "Language Settings"]
+        aliases: ["Translation", "Translate", "trans", "Language Settings"]
     }
 
     ColumnLayout {

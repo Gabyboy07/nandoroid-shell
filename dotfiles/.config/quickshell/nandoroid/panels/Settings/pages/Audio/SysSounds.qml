@@ -16,7 +16,7 @@ ColumnLayout {
 
     SearchHandler {
         searchString: "Sounds"
-        aliases: ["Notification Sound", "Ringtone", "Alarm", "Timer", "Audio Theme", "Suara", "Notifikasi"]
+        aliases: ["Notification Sound", "Ringtone", "Alarm", "Timer", "Audio Theme"]
     }
 
     RowLayout {

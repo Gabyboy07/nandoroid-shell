@@ -62,7 +62,7 @@ ColumnLayout {
                     
                     SearchHandler {
                         searchString: "Shell Update"
-                        aliases: ["Update", "Perbarui"]
+                        aliases: ["Update"]
                     }
                     
                     RowLayout {
@@ -421,7 +421,7 @@ ColumnLayout {
 
                             SearchHandler {
                                 searchString: "Special Thanks"
-                                aliases: ["Credits", "Kredit"]
+                                aliases: ["Credits"]
                             }
 
                             // Explicitly inherit radii from SegmentedWrapper for hover alignment
