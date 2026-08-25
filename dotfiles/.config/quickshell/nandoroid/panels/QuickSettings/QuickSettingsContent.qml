@@ -1530,12 +1530,11 @@ Item {
                         spacing: 8 * Appearance.effectiveScale
                         StyledText { text: I18nService.tr("Resize"); font.pixelSize: Appearance.font.pixelSize.smallest; color: Appearance.colors.colOnLayer1 }
                         Rectangle {
-                            width: 44 * Appearance.effectiveScale; height: 18 * Appearance.effectiveScale; radius: 4 * Appearance.effectiveScale
+                            width: 74 * Appearance.effectiveScale; height: 18 * Appearance.effectiveScale; radius: 4 * Appearance.effectiveScale
                             color: Appearance.m3colors.m3surfaceVariant
-                            StyledText { anchors.centerIn: parent; text: "RClick"; font.pixelSize: Math.round(9 * Appearance.effectiveScale); font.weight: Font.DemiBold }
+                            StyledText { anchors.centerIn: parent; text: I18nService.tr("RClick / Drag"); font.pixelSize: Math.round(9 * Appearance.effectiveScale); font.weight: Font.DemiBold }
                         }
                     }
-
 
                     // Move
                     RowLayout {
