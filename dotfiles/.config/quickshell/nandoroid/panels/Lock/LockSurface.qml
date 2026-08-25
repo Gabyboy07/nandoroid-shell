@@ -11,6 +11,7 @@ import Quickshell.Services.UPower
 import Qt5Compat.GraphicalEffects
 import "../NotificationCenter"
 import "../StatusBar"
+import "../Alarm"
 
 /**
  * Nandoroid lock screen surface — M3 Android 16 style (ii clone).
@@ -34,24 +35,29 @@ MouseArea {
     function forceFieldFocus() { passwordInput.forceActiveFocus() }
     Connections {
         target: context
-        function onShouldReFocus() { root.forceFieldFocus() }
+        function onShouldReFocus() {
+            if (!AlarmService.ringing) root.forceFieldFocus()
+        }
     }
 
     hoverEnabled: true
     acceptedButtons: Qt.LeftButton
-    onPressed: forceFieldFocus()
-    onPositionChanged: forceFieldFocus()
+    // While the alarm rings, keyboard focus belongs to the alarm card —
+    // mouse activity must not yank focus back to the password field
+    onPressed: (mouse) => { if (!AlarmService.ringing) forceFieldFocus() }
+    onPositionChanged: (mouse) => { if (!AlarmService.ringing) forceFieldFocus() }
 
     property bool ctrlHeld: false
     Keys.onPressed: event => {
-        root.context.resetClearTimer()
         if (event.key === Qt.Key_Control) root.ctrlHeld = true
+        if (AlarmService.ringing) return // alarm card owns the keyboard while ringing
+        root.context.resetClearTimer()
         if (event.key === Qt.Key_Escape)  root.context.currentText = ""
         forceFieldFocus()
     }
     Keys.onReleased: event => {
         if (event.key === Qt.Key_Control) root.ctrlHeld = false
-        forceFieldFocus()
+        if (!AlarmService.ringing) forceFieldFocus()
     }
 
     // Animations
@@ -880,6 +886,33 @@ MouseArea {
         y: root.islandYOffset
         
         Behavior on opacity { NumberAnimation { duration: 300 } }
+    }
+
+    // ── Alarm Ringing Card ──
+    // Rendered inside the lock surface: a session-lock surface sits above every
+    // layer-shell surface, so the standalone AlarmPanel would be unreachable.
+    // Focus moves to the card while it rings (Esc = stop, S = snooze) and
+    // returns to the password field once the alarm is stopped or snoozed.
+    Loader {
+        id: alarmCardLoader
+        active: AlarmService.ringing
+        z: 40
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+            top: parent.top
+            topMargin: ((Config.options?.statusBar?.height ?? 40) * Appearance.effectiveScale) + (16 * Appearance.effectiveScale)
+        }
+        sourceComponent: AlarmCard {
+            isLockscreen: true
+        }
+        onLoaded: item.forceActiveFocus()
+    }
+
+    Connections {
+        target: AlarmService
+        function onRingingChanged() {
+            if (!AlarmService.ringing) root.forceFieldFocus();
+        }
     }
 
     // ── Bottom Island (Password Only) ──
