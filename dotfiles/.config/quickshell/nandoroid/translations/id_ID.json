@@ -1148,5 +1148,6 @@
     "Widget Style": "Gaya widget",
     "Alarm deleted": "Alarm dihapus",
     "First Day of Week": "Hari Awal Pekan",
-    "Notification Duration": "Durasi Notifikasi"
+    "Notification Duration": "Durasi Notifikasi",
+    "Alarm %1 skipped (Game Mode active)": "Alarm %1 dilewatkan (Game Mode aktif)"
 }

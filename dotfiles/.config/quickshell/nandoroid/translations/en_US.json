@@ -1148,5 +1148,6 @@
     "Widget Style": "Widget Style",
     "Alarm deleted": "Alarm deleted",
     "First Day of Week": "First Day of Week",
-    "Notification Duration": "Notification Duration"
+    "Notification Duration": "Notification Duration",
+    "Alarm %1 skipped (Game Mode active)": "Alarm %1 skipped (Game Mode active)"
 }

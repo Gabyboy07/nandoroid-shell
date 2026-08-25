@@ -133,7 +133,19 @@ Singleton {
         fireTimer.restart();
     }
 
+    function _skippedInGameMessage(alarm) {
+        const t = alarm ? alarm.time : Qt.formatTime(new Date(), "HH:mm");
+        return I18nService.tr("Alarm %1 skipped (Game Mode active)").replace("%1", t);
+    }
+
     function ring(alarm) {
+        // Game Mode owns the screen: no panel, no sound — leave a fully
+        // click-through notice instead. The fire handler has already marked
+        // the occurrence fired (one-shot stays disabled), so nothing re-rings.
+        if (GameMode.active) {
+            SnackbarService.showInert(_skippedInGameMessage(alarm));
+            return;
+        }
         root._pendingAlarm = alarm || null;
         root.message = alarm ? (alarm.label || "") : "";
         root.snoozeUntil = "";
@@ -141,6 +153,18 @@ Singleton {
         ringProc.command = root.ringtoneCommand;
         ringProc.running = true;
         autoStopTimer.restart();
+    }
+
+    // Game Mode activated mid-ring: close the panel, kill the sound, downgrade
+    // to the same click-through notice
+    Connections {
+        target: GameMode
+        function onActiveChanged() {
+            if (!GameMode.active || !root.ringing) return;
+            const a = root._pendingAlarm;
+            root.stop();
+            SnackbarService.showInert(_skippedInGameMessage(a));
+        }
     }
 
     function stop() {

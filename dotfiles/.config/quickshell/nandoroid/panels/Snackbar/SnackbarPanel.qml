@@ -36,8 +36,12 @@ Scope {
             function onFocusedScreenChanged() { window.screen = root.focusedScreen; }
         }
 
-        // Only the snackbar itself is interactive
-        mask: Region { item: snackbarCard }
+        // Interactive snackbars only accept clicks on the card itself;
+        // inert snackbars are fully click-through (game-safe)
+        mask: SnackbarService.interactive ? cardRegion : emptyRegion
+
+        Region { id: cardRegion; item: snackbarCard }
+        Region { id: emptyRegion }
 
         // While visible, clicks on the snackbar must NOT count as
         // "clicking outside" for HyprlandFocusGrab (which would close panels)
@@ -49,7 +53,7 @@ Scope {
         // Entry animation
         onVisibleChanged: {
             if (visible) {
-                GlobalFocusGrab.addPersistent(window);
+                if (SnackbarService.interactive) GlobalFocusGrab.addPersistent(window);
                 snackbarCard.opacity = 0;
                 snackbarSlide.y = 16 * Appearance.effectiveScale;
                 entryAnim.restart();
@@ -100,7 +104,7 @@ Scope {
                 }
 
                 RippleButton {
-                    visible: SnackbarService.actionLabel !== ""
+                    visible: SnackbarService.interactive && SnackbarService.actionLabel !== ""
                     implicitHeight: 36 * Appearance.effectiveScale
                     implicitWidth: actionText.implicitWidth + (16 * Appearance.effectiveScale)
                     buttonRadius: 18 * Appearance.effectiveScale
@@ -119,6 +123,7 @@ Scope {
                 }
 
                 RippleButton {
+                    visible: SnackbarService.interactive
                     implicitWidth: 32 * Appearance.effectiveScale
                     implicitHeight: 32 * Appearance.effectiveScale
                     buttonRadius: 16 * Appearance.effectiveScale
