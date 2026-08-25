@@ -132,8 +132,12 @@ Rectangle {
     implicitHeight: mainLayout.implicitHeight + 28 * Appearance.effectiveScale
     color: Appearance.colors.colLayer0
     radius: Appearance.rounding.panel
-    border.width: Math.max(1, 1 * Appearance.effectiveScale)
-    border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
+
+    StyledRectangularShadow {
+        target: standardOverviewRoot
+        radius: standardOverviewRoot.radius
+        z: -1
+    }
 
     ColumnLayout {
         id: mainLayout
@@ -195,13 +199,19 @@ Rectangle {
                     }
 
                     Keys.onPressed: (event) => {
+                        // Absolute workspace dispatch: relative r+1/r-1 is a
+                        // no-op on the last workspace (typically an empty one)
                         if (event.key === Qt.Key_Tab || event.key === Qt.Key_Down || event.key === Qt.Key_Right) {
-                            if (searchInput.text === "") Hyprland.dispatch(HyprlandCompat.dspWorkspace("r+1"));
-                            else standardOverviewRoot.selectNextMatch();
+                            if (searchInput.text === "") {
+                                const next = (Hyprland.focusedWorkspace?.id ?? 1) + 1;
+                                Hyprland.dispatch(HyprlandCompat.dspWorkspace(String(next)));
+                            } else standardOverviewRoot.selectNextMatch();
                             event.accepted = true;
                         } else if (event.key === Qt.Key_Backtab || event.key === Qt.Key_Up || event.key === Qt.Key_Left) {
-                            if (searchInput.text === "") Hyprland.dispatch(HyprlandCompat.dspWorkspace("r-1"));
-                            else standardOverviewRoot.selectPrevMatch();
+                            if (searchInput.text === "") {
+                                const prev = (Hyprland.focusedWorkspace?.id ?? 1) - 1;
+                                if (prev >= 1) Hyprland.dispatch(HyprlandCompat.dspWorkspace(String(prev)));
+                            } else standardOverviewRoot.selectPrevMatch();
                             event.accepted = true;
                         } else if (event.key === Qt.Key_Escape) {
                             if (searchInput.text !== "") searchInput.text = "";
@@ -224,13 +234,23 @@ Rectangle {
                     Connections {
                         target: GlobalStates
                         function onOverviewOpenChanged() {
-                            if (GlobalStates.overviewOpen) { 
+                            if (GlobalStates.overviewOpen) {
                                 HyprlandData.updateAll();
-                                searchInput.text = ""; 
+                                searchInput.text = "";
                                 searchInput.focus = true;
                                 searchFocusTimer.start();
                                 Qt.callLater(() => searchInput.forceActiveFocus());
                             }
+                        }
+                    }
+
+                    // Re-acquire keyboard focus after workspace switches: moving
+                    // to an empty workspace leaves the OnDemand layer surface
+                    // without a keyboard grab, killing arrow navigation
+                    Connections {
+                        target: Hyprland
+                        function onFocusedWorkspaceChanged() {
+                            if (GlobalStates.overviewOpen) searchFocusTimer.start();
                         }
                     }
                 }

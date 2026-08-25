@@ -33,7 +33,11 @@ Variants {
         color: "transparent"
 
         WlrLayershell.layer: (GlobalStates.overviewOpen && isActive) ? WlrLayer.Overlay : WlrLayer.Background
-        WlrLayershell.keyboardFocus: (GlobalStates.overviewOpen && isActive) ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+        // Exclusive: the overview is a modal surface (pinned by HyprlandFocusGrab,
+        // closed via Esc/click-outside). OnDemand only grants keyboard while the
+        // pointer hovers the surface, so arrow navigation died whenever the
+        // pointer left the panel — notably on empty workspaces.
+        WlrLayershell.keyboardFocus: (GlobalStates.overviewOpen && isActive) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
         exclusionMode: ExclusionMode.Ignore
 

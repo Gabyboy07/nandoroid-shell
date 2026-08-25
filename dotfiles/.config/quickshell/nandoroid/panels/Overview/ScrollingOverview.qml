@@ -169,11 +169,19 @@ Rectangle {
                         font: searchInput.font; color: scrollingOverviewRoot.matchingWindows.length > 0 ? Appearance.colors.colPrimary : Appearance.m3colors.m3error; opacity: 0.8
                     }
                     Keys.onPressed: (event) => {
+                        // Absolute workspace dispatch: relative r+1/r-1 is a
+                        // no-op on the last workspace (typically an empty one)
                         if (event.key === Qt.Key_Tab || event.key === Qt.Key_Down || event.key === Qt.Key_Right) {
-                            if (searchInput.text === "") Hyprland.dispatch(HyprlandCompat.dspWorkspace("r+1")); else scrollingOverviewRoot.selectNextMatch();
+                            if (searchInput.text === "") {
+                                const next = (Hyprland.focusedWorkspace?.id ?? 1) + 1;
+                                Hyprland.dispatch(HyprlandCompat.dspWorkspace(String(next)));
+                            } else scrollingOverviewRoot.selectNextMatch();
                             event.accepted = true;
                         } else if (event.key === Qt.Key_Backtab || event.key === Qt.Key_Up || event.key === Qt.Key_Left) {
-                            if (searchInput.text === "") Hyprland.dispatch(HyprlandCompat.dspWorkspace("r-1")); else scrollingOverviewRoot.selectPrevMatch();
+                            if (searchInput.text === "") {
+                                const prev = (Hyprland.focusedWorkspace?.id ?? 1) - 1;
+                                if (prev >= 1) Hyprland.dispatch(HyprlandCompat.dspWorkspace(String(prev)));
+                            } else scrollingOverviewRoot.selectPrevMatch();
                             event.accepted = true;
                         } else if (event.key === Qt.Key_Escape) {
                             if (searchInput.text !== "") searchInput.text = ""; else GlobalStates.closeAllPanels();
@@ -183,6 +191,10 @@ Rectangle {
                     Timer { id: searchFocusTimer; interval: 50; repeat: false; onTriggered: searchInput.forceActiveFocus() }
                     Component.onCompleted: { if (GlobalStates.overviewOpen) searchFocusTimer.start(); }
                     Connections { target: GlobalStates; function onOverviewOpenChanged() { if (GlobalStates.overviewOpen) { HyprlandData.updateAll(); searchInput.text = ""; searchInput.focus = true; searchFocusTimer.start(); Qt.callLater(() => searchInput.forceActiveFocus()); } } }
+                    // Re-acquire keyboard focus after workspace switches: moving
+                    // to an empty workspace leaves the OnDemand layer surface
+                    // without a keyboard grab, killing arrow navigation
+                    Connections { target: Hyprland; function onFocusedWorkspaceChanged() { if (GlobalStates.overviewOpen) searchFocusTimer.start(); } }
                 }
             }
         }
