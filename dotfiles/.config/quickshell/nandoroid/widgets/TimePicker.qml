@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Shapes
 import Qt5Compat.GraphicalEffects
 import "../core"
 import "../widgets"
@@ -538,20 +537,37 @@ Item {
                     }
 
                     // Role 10: Primary (Hand Line)
-                    Shape {
+                    Canvas {
+                        id: handLineCanvas
                         anchors.centerIn: parent
-                        width: 0
-                        height: 0
+                        width: root.dialSize
+                        height: root.dialSize
                         antialiasing: true
 
-                        ShapePath {
-                            strokeColor: Appearance.m3colors.m3primary
-                            strokeWidth: 2 * Appearance.effectiveScale
-                            fillColor: "transparent"
-                            capStyle: ShapePath.RoundCap
+                        onPaint: {
+                            const ctx = getContext("2d");
+                            ctx.clearRect(0, 0, width, height);
+                            ctx.beginPath();
+                            ctx.moveTo(root.dialCenter, root.dialCenter);
+                            ctx.lineTo(root.dialCenter, root.dialCenter - root.knobCenterRadius);
+                            ctx.strokeStyle = Appearance.m3colors.m3primary;
+                            ctx.lineWidth = 2 * Appearance.effectiveScale;
+                            ctx.lineCap = "round";
+                            ctx.stroke();
+                        }
 
-                            PathLine { x: 0; y: 0 }
-                            PathLine { x: 0; y: -root.knobCenterRadius }
+                        Component.onCompleted: handLineCanvas.requestPaint()
+                        onWidthChanged: handLineCanvas.requestPaint()
+                        onHeightChanged: handLineCanvas.requestPaint()
+
+                        Connections {
+                            target: root
+                            function onKnobCenterRadiusChanged() { handLineCanvas.requestPaint() }
+                        }
+
+                        Connections {
+                            target: Appearance.m3colors
+                            function onM3primaryChanged() { handLineCanvas.requestPaint() }
                         }
                     }
 
