@@ -436,7 +436,7 @@ Scope {
                                         selectByMouse: true
                                         text: I18nService.tr("Error loading page: ") + pageLoader.source + "\n\n" + (pageLoader.sourceComponent ? pageLoader.sourceComponent.errorString() : I18nService.tr("Unknown component error"))
                                         color: "#FF5555"
-                                        font.pixelSize: Math.round(14 * Appearance.effectiveScale)
+                                        font.pixelSize: Appearance.font.pixelSize.small
                                         font.family: "monospace"
                                     }
                                 }

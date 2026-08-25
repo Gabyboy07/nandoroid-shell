@@ -36,7 +36,7 @@ Item {
     
     TextMetrics {
         id: stopwatchMetrics
-        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+        font.pixelSize: Appearance.font.pixelSize.smaller
         font.weight: Font.DemiBold
         font.family: Appearance.font.family.numbers
         text: "00:00:00.00"
@@ -183,7 +183,7 @@ Item {
                 visible: islandState === "notification"
                 opacity: parent.parent.width > (30 * Appearance.effectiveScale) ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: 200 } }
-                font.pixelSize: Math.round(12 * Appearance.effectiveScale); font.weight: Font.Medium
+                font.pixelSize: Appearance.font.pixelSize.smaller; font.weight: Font.Medium
                 color: Appearance.colors.colNotchText
                 width: Math.min(implicitWidth, root.currentEarMaxWidth - (notifLogo.visible ? 28 * Appearance.effectiveScale : 8 * Appearance.effectiveScale))
                 elide: Text.ElideRight
@@ -248,7 +248,7 @@ Item {
                 id: mediaArtistLabel; text: I18nService.tr(MprisController.trackArtist || "Unknown Artist")
                 visible: islandState === "media"; opacity: parent.parent.width > (30 * Appearance.effectiveScale) ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: 200 } }
-                font.pixelSize: Math.round(12 * Appearance.effectiveScale); font.weight: Font.Medium; color: Appearance.colors.colNotchText
+                font.pixelSize: Appearance.font.pixelSize.smaller; font.weight: Font.Medium; color: Appearance.colors.colNotchText
                 width: Math.min(implicitWidth, parent.parent.width - (mediaLogo.visible ? 28 * Appearance.effectiveScale : 8 * Appearance.effectiveScale))
                 elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter
             }
@@ -259,7 +259,7 @@ Item {
             id: clockModeLabel; anchors.centerIn: parent
             text: pomodoroActive ? I18nService.tr(PomodoroService.modeName) : (stopwatchActive ? I18nService.tr("Stopwatch") : I18nService.tr("Timer"))
             opacity: parent.width > (20 * Appearance.effectiveScale) ? 1 : 0; Behavior on opacity { NumberAnimation { duration: 200 } }
-            font.pixelSize: Math.round(12 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colNotchText
+            font.pixelSize: Appearance.font.pixelSize.smaller; font.weight: Font.DemiBold; color: Appearance.colors.colNotchText
             visible: islandState === "clock"
         }
     }
@@ -295,7 +295,7 @@ Item {
             visible: islandState === "notification"
             opacity: parent.width > (20 * Appearance.effectiveScale) ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 200 } }
-            font.pixelSize: Math.round(12 * Appearance.effectiveScale); font.weight: Font.DemiBold
+            font.pixelSize: Appearance.font.pixelSize.smaller; font.weight: Font.DemiBold
             color: Appearance.colors.colNotchText
             width: Math.min(implicitWidth, root.currentEarMaxWidth - (8 * Appearance.effectiveScale))
             elide: Text.ElideRight
@@ -305,7 +305,7 @@ Item {
             id: recordTimeLabel; anchors.centerIn: parent
             text: Functions.General.formatDuration(ScreenRecord.seconds)
             opacity: parent.width > (10 * Appearance.effectiveScale) ? 1 : 0; Behavior on opacity { NumberAnimation { duration: 200 } }
-            font.pixelSize: Math.round(12 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colNotchText
+            font.pixelSize: Appearance.font.pixelSize.smaller; font.weight: Font.DemiBold; color: Appearance.colors.colNotchText
             font.family: Appearance.font.family.numbers; font.features: { "tnum": 1 }; visible: islandState === "recording"
         }
 
@@ -314,7 +314,7 @@ Item {
             text: MprisController.trackTitle || ""
             visible: text !== "" && islandState === "media"; opacity: parent.width > (20 * Appearance.effectiveScale) ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 200 } }
-            font.pixelSize: Math.round(12 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colNotchText
+            font.pixelSize: Appearance.font.pixelSize.smaller; font.weight: Font.DemiBold; color: Appearance.colors.colNotchText
             width: Math.min(implicitWidth, parent.width - (8 * Appearance.effectiveScale))
             elide: Text.ElideRight
         }
@@ -323,7 +323,7 @@ Item {
             id: clockTimeLabel; anchors.centerIn: parent
             text: pomodoroActive ? PomodoroService.timeString : (stopwatchActive ? StopwatchService.timeString : TimerService.timeString)
             opacity: parent.width > (10 * Appearance.effectiveScale) ? 1 : 0; Behavior on opacity { NumberAnimation { duration: 200 } }
-            font.pixelSize: Math.round(12 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: Appearance.colors.colNotchText
+            font.pixelSize: Appearance.font.pixelSize.smaller; font.weight: Font.DemiBold; color: Appearance.colors.colNotchText
             font.family: Appearance.font.family.numbers; font.features: { "tnum": 1 }; visible: islandState === "clock"
         }
     }

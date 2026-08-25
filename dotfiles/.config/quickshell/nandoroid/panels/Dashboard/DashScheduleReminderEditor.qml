@@ -49,6 +49,7 @@ Item {
             StyledText {
                 text: ctrl._editingReminderId ? I18nService.tr("Edit Reminder") : I18nService.tr("New Reminder")
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.family: Appearance.font.family.title
                 font.weight: Font.DemiBold
                 color: Appearance.m3colors.m3onSurface
                 Layout.fillWidth: true

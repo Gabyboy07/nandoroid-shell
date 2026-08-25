@@ -34,6 +34,7 @@ ColumnLayout {
             StyledText {
                 text: I18nService.tr("Presets")
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.family: Appearance.font.family.title
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
             }
@@ -243,6 +244,7 @@ ColumnLayout {
                                 Layout.fillWidth: true
                                 text: presetName
                                 font.pixelSize: Appearance.font.pixelSize.large
+                                font.family: Appearance.font.family.title
                                 font.weight: Font.Normal
                                 color: Appearance.colors.colOnLayer1
                                 elide: Text.ElideRight

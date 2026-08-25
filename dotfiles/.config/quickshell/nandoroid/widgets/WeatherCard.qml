@@ -77,6 +77,7 @@ Rectangle {
                     StyledText {
                         text: Weather.loading ? I18nService.tr("Updating...") : I18nService.tr(Weather.current.condition)
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: root.contentColor
                     }

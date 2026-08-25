@@ -63,6 +63,7 @@ Item {
                 StyledText {
                     text: I18nService.tr("Bluetooth")
                     font.pixelSize: Appearance.font.pixelSize.huge
+                    font.family: Appearance.font.family.title
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
                     Layout.fillWidth: true
@@ -117,6 +118,7 @@ Item {
             StyledText {
                 text: I18nService.tr("Saved devices")
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.family: Appearance.font.family.title
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
                 visible: BluetoothStatus.pairedButNotConnectedDevices.length + BluetoothStatus.connectedDevices.length > 0
@@ -376,6 +378,7 @@ Item {
                 horizontalAlignment: Text.AlignHCenter
                 text: I18nService.tr("Bluetooth is turned off")
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.family: Appearance.font.family.title
                 color: Appearance.colors.colSubtext
             }
             

@@ -29,6 +29,7 @@ Item {
                 Layout.alignment: Qt.AlignHCenter
                 text: I18nService.tr("You're All Set!")
                 font.pixelSize: Appearance.font.pixelSize.larger
+                font.family: Appearance.font.family.title
                 font.weight: Font.Bold
                 color: Appearance.colors.colOnLayer1
             }

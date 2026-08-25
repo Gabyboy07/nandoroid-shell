@@ -227,6 +227,7 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     text: I18nService.tr("Internet")
                     font.pixelSize: Appearance.font.pixelSize.huge
+                    font.family: Appearance.font.family.title
                     font.weight: Font.Normal
                     color: Appearance.colors.colOnLayer1
                 }
@@ -269,6 +270,7 @@ Item {
                     Layout.fillWidth: true
                     text: I18nService.tr("Wi-Fi")
                     font.pixelSize: Appearance.font.pixelSize.large // Increased font size
+                    font.family: Appearance.font.family.title
                     color: Appearance.colors.colOnLayer1
                 }
                 
@@ -492,6 +494,7 @@ Item {
                 text: root.connectingNetwork ? root.connectingNetwork.ssid : ""
                 horizontalAlignment: Text.AlignLeft
                 font.pixelSize: Appearance.font.pixelSize.huge || 24 * Appearance.effectiveScale
+                font.family: Appearance.font.family.title
                 font.weight: Font.Normal
                 color: Appearance.colors.colOnLayer1
                 wrapMode: Text.Wrap

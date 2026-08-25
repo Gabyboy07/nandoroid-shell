@@ -250,6 +250,7 @@ Item {
                 Layout.fillWidth: true
                 text: root.selectMode === 0 ? root.__formatHeaderDate(root.pendingDateStr) : I18nService.tr("Enter date")
                 font.pixelSize: Math.round(32 * Appearance.effectiveScale)
+                font.family: Appearance.font.family.numbers
                 font.weight: Font.Normal
                 color: Appearance.colors.colOnLayer1
             }
@@ -423,6 +424,7 @@ Item {
                                         horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
                                         text: cell.day.toString()
                                         font.pixelSize: Appearance.font.pixelSize.small
+                                        font.family: Appearance.font.family.numbers
                                         font.weight: Font.Normal
                                         color: isPending ? Appearance.m3colors.m3onPrimary
                                             : cell.today === -1 ? Appearance.colors.colOutlineVariant
@@ -484,6 +486,7 @@ Item {
                                         horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
                                         text: year.toString()
                                         font.pixelSize: Appearance.font.pixelSize.small
+                                        font.family: Appearance.font.family.numbers
                                         font.weight: Font.Normal
                                         color: isCurrent ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer1
                                     }

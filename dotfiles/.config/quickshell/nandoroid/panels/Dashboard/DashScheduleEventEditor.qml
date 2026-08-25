@@ -52,6 +52,7 @@ Item {
                 Layout.fillWidth: true
                 text: ctrl._editingId ? I18nService.tr("Edit Event") : I18nService.tr("New Event")
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.family: Appearance.font.family.title
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
                 elide: Text.ElideRight

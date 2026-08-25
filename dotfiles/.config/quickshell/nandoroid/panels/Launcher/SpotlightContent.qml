@@ -348,7 +348,7 @@ Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                         visible: rowData.type === "header"
                         text: rowData.type === "header" ? rowData.label : ""
-                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                        font.pixelSize: Appearance.font.pixelSize.smaller
                         font.weight: Font.DemiBold
                         color: Appearance.m3colors.m3primary
                         opacity: 0.9

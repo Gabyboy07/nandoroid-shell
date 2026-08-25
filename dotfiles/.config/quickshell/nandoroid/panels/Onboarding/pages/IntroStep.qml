@@ -32,6 +32,7 @@ Item {
                 Layout.alignment: Qt.AlignHCenter
                 text: I18nService.tr("Welcome to NAnDoroid Shell")
                 font.pixelSize: Appearance.font.pixelSize.larger
+                font.family: Appearance.font.family.title
                 font.weight: Font.Bold
                 color: Appearance.colors.colOnLayer1
             }
@@ -67,7 +68,7 @@ Item {
                     StyledText {
                         anchors.centerIn: parent
                         text: I18nService.tr("Skip")
-                        font.pixelSize: Math.round(14 * Appearance.effectiveScale)
+                        font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
@@ -88,7 +89,7 @@ Item {
                         
                         StyledText {
                             text: I18nService.tr("Start Tour")
-                            font.pixelSize: Math.round(14 * Appearance.effectiveScale)
+                            font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnPrimary
                         }

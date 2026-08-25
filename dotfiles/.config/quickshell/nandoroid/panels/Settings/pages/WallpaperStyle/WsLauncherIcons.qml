@@ -39,6 +39,7 @@ ColumnLayout {
                     StyledText {
                         text: I18nService.tr("Launcher Icons")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
@@ -88,7 +89,7 @@ ColumnLayout {
                                 StyledText {
                                     Layout.alignment: Qt.AlignHCenter
                                     text: modelData
-                                    font.pixelSize: Math.round(10 * Appearance.effectiveScale)
+                                    font.pixelSize: Appearance.font.pixelSize.smallest
                                     font.weight: shapeBtn.isSelected ? Font.DemiBold : Font.Normal
                                     color: shapeBtn.isSelected ? Appearance.colors.colNotchText : Appearance.m3colors.m3onSurface
                                 }

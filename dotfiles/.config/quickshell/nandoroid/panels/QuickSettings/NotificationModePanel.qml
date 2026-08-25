@@ -206,6 +206,7 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     text: I18nService.tr("Notification Mode")
                     font.pixelSize: Appearance.font.pixelSize.huge
+                    font.family: Appearance.font.family.title
                     font.weight: Font.Normal
                     color: Appearance.colors.colOnLayer1
                 }

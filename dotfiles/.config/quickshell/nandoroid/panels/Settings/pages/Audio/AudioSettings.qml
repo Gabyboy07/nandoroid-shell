@@ -31,6 +31,7 @@ Flickable {
             StyledText {
                 text: I18nService.tr("Audio")
                 font.pixelSize: Appearance.font.pixelSize.huge
+                font.family: Appearance.font.family.title
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }
@@ -65,6 +66,7 @@ Flickable {
                     StyledText {
                         text: I18nService.tr("Input")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                         Layout.fillWidth: true
@@ -235,6 +237,7 @@ Flickable {
                     StyledText {
                         text: I18nService.tr("Output")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                         Layout.fillWidth: true

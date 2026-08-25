@@ -76,6 +76,7 @@ Rectangle {
                 StyledText {
                     text: name
                     font.pixelSize: Appearance.font.pixelSize.large
+                    font.family: Appearance.font.family.title
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
                     elide: Text.ElideRight

@@ -212,7 +212,7 @@ Item {
                             if (root.indicatorLabel === "roman") return root.romanNumbers[actualIdx] || wsId.toString()
                             return wsId.toString()
                         }
-                        font.pixelSize: Math.round(10 * Appearance.effectiveScale)
+                        font.pixelSize: Appearance.font.pixelSize.smallest
                         font.weight: isActive ? Font.DemiBold : Font.Normal
                         color: isActive ? Appearance.colors.colNotchActive : Appearance.colors.colNotchSubtext
                         opacity: isPill ? ((isActive || isHovered) ? 1 : 0) : 1

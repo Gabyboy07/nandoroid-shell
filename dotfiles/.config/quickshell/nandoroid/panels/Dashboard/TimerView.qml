@@ -58,6 +58,7 @@ Item {
         StyledText {
             Layout.alignment: Qt.AlignHCenter
             text: root.inputDisplay
+            font.family: Appearance.font.family.numbers
             font.pixelSize: 32 * Appearance.effectiveScale
             font.weight: Font.Medium
             color: Appearance.colors.colOnLayer1
@@ -98,6 +99,7 @@ Item {
                             anchors.centerIn: parent
                             visible: modelData !== "DEL"
                             text: modelData
+                            font.family: modelData === "DEL" ? Appearance.font.family.main : Appearance.font.family.numbers
                             font.pixelSize: 18 * Appearance.effectiveScale
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
@@ -219,6 +221,7 @@ Item {
                 StyledText {
                     anchors.centerIn: parent
                     text: "+1:00"
+                    font.family: Appearance.font.family.numbers
                     font.pixelSize: 16 * Appearance.effectiveScale
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1

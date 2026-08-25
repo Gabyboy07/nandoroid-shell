@@ -67,6 +67,7 @@ Item {
                         return I18nService.tr("Network")
                     }
                     font.pixelSize: Appearance.font.pixelSize.huge
+                    font.family: Appearance.font.family.title
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
                     Layout.fillWidth: true

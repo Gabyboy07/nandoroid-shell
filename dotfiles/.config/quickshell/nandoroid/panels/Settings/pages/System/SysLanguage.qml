@@ -51,6 +51,7 @@ ColumnLayout {
             StyledText {
                 text: I18nService.tr("Language & Localization")
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.family: Appearance.font.family.title
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
             }

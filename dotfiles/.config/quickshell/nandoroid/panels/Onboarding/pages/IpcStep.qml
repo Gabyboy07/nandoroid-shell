@@ -93,6 +93,7 @@ ColumnLayout {
         StyledText {
             text: I18nService.tr("Step 4: Command Line & IPC Integration")
             font.pixelSize: Appearance.font.pixelSize.larger
+            font.family: Appearance.font.family.title
             font.weight: Font.DemiBold
             color: Appearance.colors.colOnLayer1
         }
@@ -176,7 +177,7 @@ ColumnLayout {
                     backgroundColor: "transparent"
                     borderInactiveWidth: 0
                     showActiveBorder: false
-                    font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                    font.pixelSize: Appearance.font.pixelSize.smaller
                     placeholder: I18nService.tr("Search IPC commands...")
                     placeholderColor: Appearance.colors.colSubtext
                     leftMargin: 0
@@ -291,7 +292,7 @@ ColumnLayout {
                         StyledText {
                             text: I18nService.tr(modelData.name)
                             font.weight: Font.DemiBold
-                            font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                            font.pixelSize: Appearance.font.pixelSize.smaller
                             color: Appearance.colors.colOnLayer1
                         }
                         Rectangle {
@@ -312,7 +313,7 @@ ColumnLayout {
                     StyledText {
                         text: modelData.cmd
                         font.family: "monospace"
-                        font.pixelSize: Math.round(10 * Appearance.effectiveScale)
+                        font.pixelSize: Appearance.font.pixelSize.smallest
                         color: Appearance.colors.colSubtext
                         elide: Text.ElideRight
                         Layout.fillWidth: true

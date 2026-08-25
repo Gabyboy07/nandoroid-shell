@@ -19,6 +19,7 @@ ColumnLayout {
         StyledText {
             text: I18nService.tr("Step 1: Customize")
             font.pixelSize: Appearance.font.pixelSize.larger
+            font.family: Appearance.font.family.title
             font.weight: Font.DemiBold
             color: Appearance.colors.colOnLayer1
         }

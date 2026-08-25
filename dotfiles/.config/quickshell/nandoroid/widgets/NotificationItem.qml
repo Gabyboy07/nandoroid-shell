@@ -355,7 +355,7 @@ Item { // Notification item area
                                         }
                                         StyledText {
                                             text: I18nService.tr("Restart")
-                                            font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                                            font.pixelSize: Appearance.font.pixelSize.smaller
                                             anchors.verticalCenter: parent.verticalCenter
                                             visible: parent.parent.parent.width > 60 * Appearance.effectiveScale
                                             color: Appearance.colors.colOnWarning
@@ -397,7 +397,7 @@ Item { // Notification item area
                                         }
                                         StyledText {
                                             text: I18nService.tr("View")
-                                            font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                                            font.pixelSize: Appearance.font.pixelSize.smaller
                                             anchors.verticalCenter: parent.verticalCenter
                                             visible: parent.parent.parent.width > 60 * Appearance.effectiveScale
                                             color: viewBtn.colText
@@ -437,7 +437,7 @@ Item { // Notification item area
                                         }
                                         StyledText {
                                             text: I18nService.tr("Close")
-                                            font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                                            font.pixelSize: Appearance.font.pixelSize.smaller
                                             anchors.verticalCenter: parent.verticalCenter
                                             visible: parent.parent.parent.width > 60 * Appearance.effectiveScale
                                             color: closeBtn.colText
@@ -510,7 +510,7 @@ Item { // Notification item area
                                         }
                                         StyledText {
                                             text: I18nService.tr("Copy")
-                                            font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                                            font.pixelSize: Appearance.font.pixelSize.smaller
                                             anchors.verticalCenter: parent.verticalCenter
                                             visible: parent.parent.parent.width > 60 * Appearance.effectiveScale
                                             color: copyBtn.colText

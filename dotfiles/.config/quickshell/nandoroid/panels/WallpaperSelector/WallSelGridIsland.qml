@@ -492,7 +492,7 @@ import Quickshell.Io
                                             width: resText.implicitWidth + (12 * Appearance.effectiveScale); height: 20 * Appearance.effectiveScale; radius: 10 * Appearance.effectiveScale; color: Qt.rgba(0,0,0, 0.5)
                                             StyledText {
                                                 id: resText; anchors.centerIn: parent; text: model.resolution || ""
-                                                font.pixelSize: Math.round(10 * Appearance.effectiveScale); font.weight: Font.DemiBold; color: "white"
+                                                font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.DemiBold; color: "white"
                                             }
                                         }
                                     }

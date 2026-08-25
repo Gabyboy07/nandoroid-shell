@@ -63,6 +63,7 @@ Item {
                 Layout.bottomMargin: 16 * Appearance.effectiveScale
                 text: "Keyboard Shortcuts"
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.family: Appearance.font.family.title
                 font.weight: Font.DemiBold
                 color: Appearance.m3colors.m3onSurface
             }

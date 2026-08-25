@@ -133,7 +133,7 @@ Rectangle {
                         id: catText
                         anchors.centerIn: parent
                         text: I18nService.tr(modelData)
-                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                        font.pixelSize: Appearance.font.pixelSize.smaller
                         font.weight: LauncherSearch.selectedCategory === modelData ? Font.DemiBold : Font.Normal
                         color: LauncherSearch.selectedCategory === modelData ? Appearance.m3colors.m3onPrimary : Appearance.m3colors.m3onSurface
                     }

@@ -30,7 +30,7 @@ Rectangle {
             id: input
             anchors.verticalCenter: parent.verticalCenter
             width: parent.width - searchIcon.width - parent.spacing
-            font.pixelSize: Math.round(16 * Appearance.effectiveScale)
+            font.pixelSize: Appearance.font.pixelSize.normal
             color: Appearance.m3colors.m3onSurface
             focus: true
 

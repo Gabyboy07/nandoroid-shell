@@ -332,6 +332,7 @@ MaterialShape {
                             Layout.fillWidth: true
                             text: root.displayName
                             font.pixelSize: Appearance.font.pixelSize.large
+                            font.family: Appearance.font.family.title
                             fontSizeMode: Text.HorizontalFit
                             minimumPixelSize: Appearance.font.pixelSize.smaller
                             font.weight: Font.Bold

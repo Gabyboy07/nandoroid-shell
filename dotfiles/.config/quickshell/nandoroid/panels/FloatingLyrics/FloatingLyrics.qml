@@ -131,7 +131,7 @@ PanelWindow {
                   ? I18nService.tr("Double click to change to original | Right click to lock") 
                   : I18nService.tr("Double click to change to romaji | Right click to lock")
             font.family: Config.options.appearance.fonts.main
-            font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+            font.pixelSize: Appearance.font.pixelSize.smaller
             color: "white"
             opacity: 0.6
             style: Text.Outline

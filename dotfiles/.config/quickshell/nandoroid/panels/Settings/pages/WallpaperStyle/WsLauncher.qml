@@ -41,6 +41,7 @@ ColumnLayout {
             StyledText {
                 text: I18nService.tr("Launcher")
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.family: Appearance.font.family.title
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
                 Layout.fillWidth: true
@@ -160,7 +161,7 @@ ColumnLayout {
                                 StyledText {
                                     Layout.alignment: Qt.AlignHCenter
                                     text: modelData
-                                    font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                                    font.pixelSize: Appearance.font.pixelSize.smaller
                                     font.weight: shapeBtn.isSelected ? Font.DemiBold : Font.Normal
                                     color: shapeBtn.isSelected ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer1
                                 }

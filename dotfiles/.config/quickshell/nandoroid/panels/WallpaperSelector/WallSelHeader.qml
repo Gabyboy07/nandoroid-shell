@@ -68,6 +68,7 @@ import Quickshell.Io
                                 StyledText {
                                     text: GlobalStates.wallpaperSelectorTarget === "desktop" ? "Desktop" : "Lockscreen"
                                     font.pixelSize: Appearance.font.pixelSize.large
+                                    font.family: Appearance.font.family.title
                                     font.weight: Font.Medium
                                     color: Appearance.colors.colOnLayer0
                                 }

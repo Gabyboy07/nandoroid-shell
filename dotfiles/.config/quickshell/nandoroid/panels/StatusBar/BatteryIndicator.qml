@@ -105,6 +105,7 @@ Item {
                 font.pixelSize: Math.round(11.5 * Appearance.effectiveScale)
                 font.weight: Font.DemiBold
                 text: Math.round(root.percentage * 100)
+                font.family: Appearance.font.family.numbers
                 color: root.textColor
                 font.letterSpacing: -0.5
             }

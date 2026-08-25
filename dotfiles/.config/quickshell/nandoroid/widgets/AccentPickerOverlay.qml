@@ -95,6 +95,7 @@ PanelWindow {
             StyledText {
                 text: I18nService.tr("Select a color from the wallpaper")
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.family: Appearance.font.family.title
                 font.weight: Font.Medium
                 color: "white"
             }

@@ -227,6 +227,7 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     text: I18nService.tr(root.panelTitle)
                     font.pixelSize: Appearance.font.pixelSize.huge
+                    font.family: Appearance.font.family.title
                     font.weight: Font.Normal
                     color: Appearance.colors.colOnLayer1
                 }
@@ -245,6 +246,7 @@ Item {
                     Layout.fillWidth: true
                     text: root.isSink ? I18nService.tr("Audio Output") : I18nService.tr("Microphone")
                     font.pixelSize: Appearance.font.pixelSize.large
+                    font.family: Appearance.font.family.title
                     color: Appearance.colors.colOnLayer1
                 }
                 

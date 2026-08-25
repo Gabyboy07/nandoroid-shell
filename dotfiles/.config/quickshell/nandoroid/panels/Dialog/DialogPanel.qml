@@ -121,6 +121,7 @@ Scope {
                             horizontalAlignment: DialogService.iconText !== "" ? Text.AlignHCenter : Text.AlignLeft
                             text: DialogService.titleText
                             font.pixelSize: Appearance.font.pixelSize.huge || 24 * Appearance.effectiveScale
+                            font.family: Appearance.font.family.title
                             font.weight: Font.Normal
                             color: Appearance.colors.colOnLayer1
                             wrapMode: Text.Wrap

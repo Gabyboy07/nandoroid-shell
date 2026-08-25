@@ -118,6 +118,7 @@ Item {
                 StyledText {
                     anchors.centerIn: parent
                     text: PomodoroService.rotations
+                    font.family: Appearance.font.family.numbers
                     font.pixelSize: 12 * Appearance.effectiveScale
                     font.weight: Font.DemiBold
                     color: Appearance.m3colors.m3onSecondaryContainer
@@ -145,7 +146,7 @@ Item {
                     anchors.centerIn: parent
                     spacing: 4 * Appearance.effectiveScale
                     MaterialSymbol { text: "alarm"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
-                    StyledText { text: root.formatDuration(PomodoroService.focusTime); font.pixelSize: 12 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: root.formatDuration(PomodoroService.focusTime); font.pixelSize: 12 * Appearance.effectiveScale; font.family: Appearance.font.family.numbers; color: Appearance.colors.colOnLayer1 }
                 }
                 StyledToolTip { text: I18nService.tr("Set Focus Time") }
             }
@@ -161,7 +162,7 @@ Item {
                     anchors.centerIn: parent
                     spacing: 4 * Appearance.effectiveScale
                     MaterialSymbol { text: "coffee"; iconSize: 14 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
-                    StyledText { text: root.formatDuration(PomodoroService.breakTime); font.pixelSize: 12 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
+                    StyledText { text: root.formatDuration(PomodoroService.breakTime); font.pixelSize: 12 * Appearance.effectiveScale; font.family: Appearance.font.family.numbers; color: Appearance.colors.colOnLayer1 }
                 }
                 StyledToolTip { text: I18nService.tr("Set Break Time") }
             }

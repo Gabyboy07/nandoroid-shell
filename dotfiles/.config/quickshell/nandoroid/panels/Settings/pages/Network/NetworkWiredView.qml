@@ -16,6 +16,7 @@ import Quickshell
                     StyledText {
                         text: I18nService.tr("Ethernet Connections")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.DemiBold
                         color: Appearance.colors.colOnLayer1
                     }
@@ -166,6 +167,7 @@ import Quickshell
                             Layout.alignment: Qt.AlignHCenter
                             text: I18nService.tr("No wired interfaces found")
                             font.pixelSize: Appearance.font.pixelSize.large
+                            font.family: Appearance.font.family.title
                             color: Appearance.colors.colSubtext
                         }
                     }

@@ -86,6 +86,7 @@ ColumnLayout {
             StyledText {
                 text: I18nService.tr("Avatar")
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.family: Appearance.font.family.title
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
             }
@@ -272,6 +273,7 @@ ColumnLayout {
             StyledText {
                 text: I18nService.tr("Banner Image")
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.family: Appearance.font.family.title
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
             }
@@ -514,6 +516,7 @@ ColumnLayout {
             StyledText {
                 text: I18nService.tr("Distro Icon")
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.family: Appearance.font.family.title
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnLayer1
             }

@@ -87,6 +87,7 @@ Item {
                 StyledText {
                     text: I18nService.tr("Processes")
                     font.pixelSize: Appearance.font.pixelSize.huge
+                    font.family: Appearance.font.family.title
                     font.weight: Font.DemiBold
                     color: Appearance.m3colors.m3onSurface
                 }
@@ -274,6 +275,7 @@ Item {
                     // CPU Usage Column
                     StyledText {
                         text: modelData.cpu.toFixed(1) + "%"
+                        font.family: Appearance.font.family.numbers
                         Layout.preferredWidth: 80 * Appearance.effectiveScale
                         horizontalAlignment: Text.AlignRight
                         font.pixelSize: Appearance.font.pixelSize.smaller
@@ -287,6 +289,7 @@ Item {
                     StyledText {
                         readonly property real memMB: modelData.memoryKB / 1024
                         text: memMB >= 1024 ? (memMB / 1024).toFixed(2) + " GB" : memMB.toFixed(1) + " MB"
+                        font.family: Appearance.font.family.numbers
                         Layout.preferredWidth: 95 * Appearance.effectiveScale
                         horizontalAlignment: Text.AlignRight
                         font.pixelSize: Appearance.font.pixelSize.smaller

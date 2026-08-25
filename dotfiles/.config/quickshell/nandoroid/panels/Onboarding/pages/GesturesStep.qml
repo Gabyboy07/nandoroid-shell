@@ -19,6 +19,7 @@ ColumnLayout {
         StyledText {
             text: I18nService.tr("Step 3: Desktop & Dock Gestures")
             font.pixelSize: Appearance.font.pixelSize.larger
+            font.family: Appearance.font.family.title
             font.weight: Font.DemiBold
             color: Appearance.colors.colOnLayer1
         }
@@ -76,7 +77,7 @@ ColumnLayout {
                     StyledText {
                         text: I18nService.tr("Right Click Desktop")
                         font.weight: Font.DemiBold
-                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                        font.pixelSize: Appearance.font.pixelSize.smaller
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
@@ -108,7 +109,7 @@ ColumnLayout {
                     StyledText {
                         text: I18nService.tr("Swipe Up on Desktop")
                         font.weight: Font.DemiBold
-                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                        font.pixelSize: Appearance.font.pixelSize.smaller
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
@@ -140,7 +141,7 @@ ColumnLayout {
                     StyledText {
                         text: I18nService.tr("Swipe Down on Desktop (3 Regions)")
                         font.weight: Font.DemiBold
-                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                        font.pixelSize: Appearance.font.pixelSize.smaller
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {
@@ -175,7 +176,7 @@ ColumnLayout {
                     StyledText {
                         text: I18nService.tr("Right Click on Dock")
                         font.weight: Font.DemiBold
-                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                        font.pixelSize: Appearance.font.pixelSize.smaller
                         color: Appearance.colors.colOnLayer1
                     }
                     StyledText {

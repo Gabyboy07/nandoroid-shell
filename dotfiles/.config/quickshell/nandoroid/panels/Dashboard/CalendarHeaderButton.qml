@@ -34,6 +34,7 @@ RippleButton {
         text: buttonText
         horizontalAlignment: Text.AlignHCenter
         font.pixelSize: Appearance.font.pixelSize.larger
+        font.family: Appearance.font.family.title
         color: Appearance.colors.colOnLayer1
     }
 

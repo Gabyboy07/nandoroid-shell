@@ -19,6 +19,7 @@ Item {
         StyledText {
             text: I18nService.tr("Network Activity")
             font.pixelSize: Appearance.font.pixelSize.huge
+            font.family: Appearance.font.family.title
             font.weight: Font.DemiBold
         }
 
@@ -39,7 +40,7 @@ Item {
                     Layout.bottomMargin: 20 * Appearance.effectiveScale
                     ColumnLayout {
                         spacing: 0
-                        StyledText { text: I18nService.tr("Network Bandwidth"); font.pixelSize: Appearance.font.pixelSize.large; font.weight: Font.Medium; color: Appearance.m3colors.m3onSurface }
+                        StyledText { text: I18nService.tr("Network Bandwidth"); font.pixelSize: Appearance.font.pixelSize.large; font.weight: Font.Medium; color: Appearance.m3colors.m3onSurface; font.family: Appearance.font.family.title }
                         StyledText { text: I18nService.tr("Total Activity: %1 MB/s").replace("%1", ((SystemData.networkTotalRate) / (1024 * 1024)).toFixed(2)); color: Appearance.colors.colSubtext; font.pixelSize: Appearance.font.pixelSize.smaller }
                     }
                     Item { Layout.fillWidth: true }
@@ -48,12 +49,12 @@ Item {
                         ColumnLayout {
                             spacing: 0
                             StyledText { text: I18nService.tr("DOWNLOAD"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: "#81C995" }
-                            StyledText { text: (SystemData.networkRxRate / (1024 * 1024)).toFixed(2) + " MB/s"; font.pixelSize: Appearance.font.pixelSize.normal; font.weight: Font.DemiBold; color: Appearance.m3colors.m3onSurface }
+                            StyledText { text: (SystemData.networkRxRate / (1024 * 1024)).toFixed(2) + " MB/s"; font.pixelSize: Appearance.font.pixelSize.normal; font.weight: Font.DemiBold; color: Appearance.m3colors.m3onSurface; font.family: Appearance.font.family.numbers }
                         }
                         ColumnLayout {
                             spacing: 0
                             StyledText { text: I18nService.tr("UPLOAD"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: "#FF8A65" }
-                            StyledText { text: (SystemData.networkTxRate / (1024 * 1024)).toFixed(2) + " MB/s"; font.pixelSize: Appearance.font.pixelSize.normal; font.weight: Font.DemiBold; color: Appearance.m3colors.m3onSurface; horizontalAlignment: Text.AlignRight }
+                            StyledText { text: (SystemData.networkTxRate / (1024 * 1024)).toFixed(2) + " MB/s"; font.pixelSize: Appearance.font.pixelSize.normal; font.weight: Font.DemiBold; color: Appearance.m3colors.m3onSurface; horizontalAlignment: Text.AlignRight; font.family: Appearance.font.family.numbers }
                         }
                     }
                 }

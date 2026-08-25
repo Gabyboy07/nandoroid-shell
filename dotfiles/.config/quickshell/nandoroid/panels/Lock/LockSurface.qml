@@ -274,7 +274,7 @@ MouseArea {
                 }
                 StyledText {
                     text: I18nService.tr("Locked")
-                    font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                    font.pixelSize: Appearance.font.pixelSize.smaller
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colNotchText
                 }
@@ -364,7 +364,7 @@ MouseArea {
                         const name = (displayName && displayName !== "") ? displayName : (SystemInfo.realName || SystemInfo.username);
                         return name + "  •  " + (Network.wifiEnabled ? (Network.networkName || I18nService.tr("Offline")) : I18nService.tr("WiFi Off"));
                     }
-                    font.pixelSize: Math.round(14 * Appearance.effectiveScale)
+                    font.pixelSize: Appearance.font.pixelSize.small
                     font.weight: Font.Medium
                     color: lockStatusBarContainer.contentColor
                 }
@@ -613,7 +613,7 @@ MouseArea {
                     }
                     StyledText {
                         text: I18nService.tr("Locked")
-                        font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                        font.pixelSize: Appearance.font.pixelSize.smaller
                         font.weight: Font.DemiBold
                         color: lockM3LockWrapper.contentColor
                     }

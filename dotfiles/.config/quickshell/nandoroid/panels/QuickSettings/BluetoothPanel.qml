@@ -195,6 +195,7 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     text: I18nService.tr("Bluetooth")
                     font.pixelSize: Appearance.font.pixelSize.huge
+                    font.family: Appearance.font.family.title
                     font.weight: Font.Normal
                     color: Appearance.colors.colOnLayer1
                 }
@@ -223,6 +224,7 @@ Item {
                     Layout.fillWidth: true
                     text: I18nService.tr("Use Bluetooth")
                     font.pixelSize: Appearance.font.pixelSize.large
+                    font.family: Appearance.font.family.title
                     color: Appearance.colors.colOnLayer1
                 }
                 

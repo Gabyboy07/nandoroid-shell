@@ -36,6 +36,7 @@ ColumnLayout {
                 StyledText {
                     text: I18nService.tr("Pair new device")
                     font.pixelSize: Appearance.font.pixelSize.huge
+                    font.family: Appearance.font.family.title
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
                 }
@@ -72,6 +73,7 @@ ColumnLayout {
                 StyledText {
                     text: I18nService.tr("Available devices")
                     font.pixelSize: Appearance.font.pixelSize.large
+                    font.family: Appearance.font.family.title
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
                     Layout.fillWidth: true

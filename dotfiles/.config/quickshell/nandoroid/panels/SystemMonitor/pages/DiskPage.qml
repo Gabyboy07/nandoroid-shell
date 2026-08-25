@@ -29,6 +29,7 @@ Item {
         StyledText {
             text: I18nService.tr("Disk Performance")
             font.pixelSize: Appearance.font.pixelSize.huge
+            font.family: Appearance.font.family.title
             font.weight: Font.DemiBold
         }
 
@@ -52,6 +53,7 @@ Item {
                         StyledText { 
                             text: ((SystemData.diskReadRate + SystemData.diskWriteRate) / (1024 * 1024)).toFixed(2) + " MB/s"
                             font.pixelSize: Appearance.font.pixelSize.huge
+                            font.family: Appearance.font.family.numbers
                             font.weight: Font.DemiBold
                             color: Appearance.m3colors.m3onSurface
                         }
@@ -73,6 +75,7 @@ Item {
                         StyledText { text: I18nService.tr("READ"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText { 
                             text: (SystemData.diskReadRate / (1024 * 1024)).toFixed(2) + " MB/s"
+                            font.family: Appearance.font.family.numbers
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.Medium
                             color: Appearance.m3colors.m3onSurface
@@ -86,6 +89,7 @@ Item {
                         StyledText { text: I18nService.tr("WRITE"); font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.Medium; color: Appearance.colors.colSubtext }
                         StyledText { 
                             text: (SystemData.diskWriteRate / (1024 * 1024)).toFixed(2) + " MB/s"
+                            font.family: Appearance.font.family.numbers
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.Medium
                             color: Appearance.m3colors.m3onSurface
@@ -101,6 +105,7 @@ Item {
             text: I18nService.tr("Disk Operations")
             Layout.topMargin: 12 * Appearance.effectiveScale
             font.pixelSize: Appearance.font.pixelSize.large
+            font.family: Appearance.font.family.title
             font.weight: Font.DemiBold
         }
 
@@ -176,6 +181,7 @@ Item {
                         Item { Layout.fillWidth: true }
                         StyledText {
                             text: (used / (1024*1024*1024)).toFixed(1) + " GB / " + (total / (1024*1024*1024)).toFixed(1) + " GB"
+                            font.family: Appearance.font.family.numbers
                             font.pixelSize: Appearance.font.pixelSize.smaller
                             color: Appearance.colors.colSubtext
                         }

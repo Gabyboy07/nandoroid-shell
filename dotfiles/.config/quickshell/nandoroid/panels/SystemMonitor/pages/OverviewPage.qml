@@ -39,6 +39,7 @@ Item {
                 StyledText {
                     text: I18nService.tr("System Overview")
                     font.pixelSize: Appearance.font.pixelSize.huge
+                    font.family: Appearance.font.family.title
                     font.weight: Font.DemiBold
                     color: Appearance.m3colors.m3onSurface
                     Layout.alignment: Qt.AlignVCenter
@@ -213,6 +214,7 @@ Item {
                 StyledText {
                     text: card.value
                     font.pixelSize: Appearance.font.pixelSize.large
+                    font.family: Appearance.font.family.numbers
                     font.weight: Font.DemiBold
                     color: Appearance.m3colors.m3onSurface
                 }

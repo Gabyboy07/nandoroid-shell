@@ -201,6 +201,7 @@ Item {
 
         StyledText {
             text: DateTime.currentDate + " • " + DateTime.currentTime
+            font.family: Appearance.font.family.numbers
             font.pixelSize: Appearance.font.pixelSize.small
             font.weight: Font.Medium
             color: root.contentColor
@@ -436,6 +437,7 @@ Item {
         visible: Config.ready && Config.options.statusBar && Config.options.statusBar.centerModule === "clock"
         anchors.verticalCenter: parent.verticalCenter
         x: dynamicIsland.x + dynamicIsland.pill.x - width - 16 * Appearance.effectiveScale
+        font.family: Appearance.font.family.numbers
         text: DateTime.currentTime
         font.pixelSize: Appearance.font.pixelSize.small
         font.weight: Font.Normal
@@ -447,6 +449,7 @@ Item {
         visible: Config.ready && Config.options.statusBar && Config.options.statusBar.centerModule === "clock"
         anchors.verticalCenter: parent.verticalCenter
         x: dynamicIsland.x + dynamicIsland.pill.x + dynamicIsland.pill.width + 16 * Appearance.effectiveScale
+        font.family: Appearance.font.family.numbers
         text: DateTime.currentDate
         font.pixelSize: Appearance.font.pixelSize.small
         font.weight: Font.Normal
@@ -500,6 +503,7 @@ Item {
                 Layout.leftMargin: 4 * Appearance.effectiveScale
 
                 StyledText {
+                    font.family: Appearance.font.family.numbers
                     font.pixelSize: Appearance.font.pixelSize.smallest
                     color: root.subtextColor
                     text: DateTime.currentDate
@@ -509,6 +513,7 @@ Item {
 
                 StyledText {
                     font.pixelSize: Appearance.font.pixelSize.smaller
+                    font.family: Appearance.font.family.numbers
                     color: root.contentColor
                     font.weight: Font.Normal
                     text: DateTime.currentTime

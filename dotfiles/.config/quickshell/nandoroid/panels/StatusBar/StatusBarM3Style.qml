@@ -100,11 +100,18 @@ Item {
                 Item {
                     implicitWidth: txSpeedMetrics.width
                     implicitHeight: txSpeedText.implicitHeight
-                    TextMetrics { id: txSpeedMetrics; text: "999.9 MB/s" }
+                    TextMetrics {
+                        id: txSpeedMetrics
+                        text: "999.9 MB/s"
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        font.weight: Font.Medium
+                        font.family: Appearance.font.family.numbers
+                    }
                     StyledText {
                         id: txSpeedText
                         anchors.centerIn: parent
                         text: m3NetSpeedWrapper.formatSpeed(SystemData.networkTxRate)
+                        font.family: Appearance.font.family.numbers
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: Font.Medium
                         color: m3NetSpeedWrapper.contentColor
@@ -127,11 +134,18 @@ Item {
                 Item {
                     implicitWidth: rxSpeedMetrics.width
                     implicitHeight: rxSpeedText.implicitHeight
-                    TextMetrics { id: rxSpeedMetrics; text: "999.9 MB/s" }
+                    TextMetrics {
+                        id: rxSpeedMetrics
+                        text: "999.9 MB/s"
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        font.weight: Font.Medium
+                        font.family: Appearance.font.family.numbers
+                    }
                     StyledText {
                         id: rxSpeedText
                         anchors.centerIn: parent
                         text: m3NetSpeedWrapper.formatSpeed(SystemData.networkRxRate)
+                        font.family: Appearance.font.family.numbers
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: Font.Medium
                         color: m3NetSpeedWrapper.contentColor
@@ -350,6 +364,7 @@ Item {
             property string ampm: timeParts[2] ?? ""
 
             StyledText {
+                font.family: Appearance.font.family.numbers
                 font.pixelSize: Appearance.font.pixelSize.small
                 color: Appearance.m3colors.m3onPrimaryContainer
                 text: DateTime.currentDate
@@ -372,6 +387,7 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     text: m3ClockPill.ampm !== "" ? m3ClockPill.hours.padStart(2, "0") + ":" + m3ClockPill.minutes.padStart(2, "0") : DateTime.currentTime
+                    font.family: Appearance.font.family.numbers
                     font.features: { "tnum": 1 }
                 }
             }
@@ -598,6 +614,7 @@ Item {
             StyledText {
                 text: DateTime.currentDate
                 font.pixelSize: Appearance.font.pixelSize.small
+                font.family: Appearance.font.family.numbers
                 font.weight: Font.Normal
                 color: centerDateWrapper.contentColor
                 horizontalAlignment: Text.AlignHCenter

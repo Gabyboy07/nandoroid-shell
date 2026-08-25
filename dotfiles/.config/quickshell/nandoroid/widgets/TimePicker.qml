@@ -230,6 +230,7 @@ Item {
                         horizontalAlignment: Text.AlignHCenter
                         text: root.selectMode === 0 ? String(root.selectedHour).padStart(2, '0') : root.hourDraft
                         font.pixelSize: Math.round(48 * Appearance.effectiveScale)
+                        font.family: Appearance.font.family.numbers
                         font.weight: Font.Normal
                         color: root.activeField === 0 ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
                         readOnly: root.selectMode === 0
@@ -285,6 +286,7 @@ Item {
             // Role 2: On surface (Separator ":")
             StyledText {
                 text: ":"
+                font.family: Appearance.font.family.numbers
                 font.pixelSize: Math.round(48 * Appearance.effectiveScale)
                 font.weight: Font.Normal
                 color: Appearance.m3colors.m3onSurface
@@ -313,6 +315,7 @@ Item {
                         horizontalAlignment: Text.AlignHCenter
                         text: root.selectMode === 0 ? String(root.selectedMinute).padStart(2, '0') : root.minuteDraft
                         font.pixelSize: Math.round(48 * Appearance.effectiveScale)
+                        font.family: Appearance.font.family.numbers
                         font.weight: Font.Normal
                         color: root.activeField === 1 ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
                         readOnly: root.selectMode === 0
@@ -511,7 +514,8 @@ Item {
                         StyledText {
                             anchors.centerIn: parent
                             text: parent.displayStr
-                            font.pixelSize: Math.round(16 * Appearance.effectiveScale)
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            font.family: Appearance.font.family.numbers
                             font.weight: Font.Normal
                             color: Appearance.m3colors.m3onSurface
                         }
@@ -602,7 +606,8 @@ Item {
                                 StyledText {
                                     anchors.centerIn: parent
                                     text: parent.displayStr
-                                    font.pixelSize: Math.round(16 * Appearance.effectiveScale)
+                                    font.pixelSize: Appearance.font.pixelSize.normal
+                                    font.family: Appearance.font.family.numbers
                                     font.weight: Font.Normal
                                     color: Appearance.m3colors.m3onPrimary
                                 }

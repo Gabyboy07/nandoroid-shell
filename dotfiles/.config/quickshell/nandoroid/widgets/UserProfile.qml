@@ -99,6 +99,7 @@ Rectangle {
                 return SystemInfo.distroName || "Linux System";
             }
             font.pixelSize: Math.round(11 * Appearance.effectiveScale)
+            font.family: Appearance.font.family.numbers
             color: Appearance.colors.colSubtext
             elide: Text.ElideRight
             Layout.fillWidth: true

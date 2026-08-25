@@ -629,7 +629,8 @@ Item {
                     rightMargin: 0
                     text: ""
                     font.weight: Font.Normal
-                    font.pixelSize: Appearance.font.pixelSize.xlarge || 24 * Appearance.effectiveScale
+                    font.pixelSize: Appearance.font.pixelSize.huge
+                    font.family: Appearance.font.family.title
                     placeholder: I18nService.tr("Title")
                     onTextChanged: saveTimer.restart()
                 }
@@ -673,6 +674,7 @@ Item {
                             color: Appearance.colors.colSubtext
                             visible: !parent.text && !parent.activeFocus
                             font.pixelSize: Appearance.font.pixelSize.large || 16 * Appearance.effectiveScale
+                            font.family: Appearance.font.family.title
                             wrapMode: Text.Wrap
                         }
                     }

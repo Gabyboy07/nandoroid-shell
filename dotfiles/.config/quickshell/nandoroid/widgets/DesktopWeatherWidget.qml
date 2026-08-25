@@ -275,6 +275,7 @@ Item {
                         Layout.fillWidth: true
                         text: Weather.loading ? I18nService.tr("Updating...") : I18nService.tr(Weather.current.condition || "Unknown")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.DemiBold
                         color: root.contentColor
                         elide: Text.ElideRight

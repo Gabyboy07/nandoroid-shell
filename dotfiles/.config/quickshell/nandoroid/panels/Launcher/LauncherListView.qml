@@ -70,7 +70,7 @@ RippleButton {
                     text: result.emoji || ""
                     visible: result && result.emoji !== ""
                     anchors.centerIn: parent
-                    font.pixelSize: Math.round(18 * Appearance.effectiveScale)
+                    font.pixelSize: Appearance.font.pixelSize.large
                 }
                 
                 MaterialSymbol {
@@ -98,7 +98,7 @@ RippleButton {
             
             StyledText {
                 text: (result && result.name) ? I18nService.tr(result.name) : ""
-                font.pixelSize: Math.round(14 * Appearance.effectiveScale)
+                font.pixelSize: Appearance.font.pixelSize.small
                 font.weight: root.selected ? Font.DemiBold : Font.Medium
                 color: root.selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurface
                 elide: Text.ElideRight

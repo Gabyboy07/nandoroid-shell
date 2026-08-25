@@ -287,6 +287,7 @@ Flickable {
             StyledText {
                 text: I18nService.tr("Customize")
                 font.pixelSize: Appearance.font.pixelSize.huge
+                font.family: Appearance.font.family.title
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }

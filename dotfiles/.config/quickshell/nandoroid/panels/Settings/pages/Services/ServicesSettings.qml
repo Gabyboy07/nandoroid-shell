@@ -39,7 +39,8 @@ Flickable {
             spacing: 4 * Appearance.effectiveScale
             StyledText {
                 text: I18nService.tr("Services")
-                font.pixelSize: Math.round(24 * Appearance.effectiveScale)
+                font.pixelSize: Appearance.font.pixelSize.huge
+                font.family: Appearance.font.family.title
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer1
             }

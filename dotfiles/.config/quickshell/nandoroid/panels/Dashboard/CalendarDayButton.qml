@@ -28,6 +28,7 @@ RippleButton {
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: (hasEvent && !isLabel) ? -3 * Appearance.effectiveScale : 0
         text: day
+        font.family: isLabel ? Appearance.font.family.main : Appearance.font.family.numbers
         horizontalAlignment: Text.AlignHCenter
         font.weight: (bold || isLabel) ? Font.DemiBold : Font.Normal
         color: isLabel ? Appearance.m3colors.m3onSurface : (isToday == 1) ? Appearance.m3colors.m3onPrimary : (isToday == 0) ? Appearance.m3colors.m3onSurface : Appearance.colors.colOutlineVariant

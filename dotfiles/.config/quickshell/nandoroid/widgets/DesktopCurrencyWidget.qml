@@ -176,6 +176,7 @@ Item {
                                 return CurrencyService.errorMessage || "...";
                             }
                             font.pixelSize: Appearance.font.pixelSize.small
+                            font.family: Appearance.font.family.numbers
                             font.weight: Font.Bold
                             color: Appearance.colors.colOnPrimaryContainer
                         }
@@ -203,6 +204,7 @@ Item {
                                 return CurrencyService.errorMessage || "...";
                             }
                             font.pixelSize: Appearance.font.pixelSize.small
+                            font.family: Appearance.font.family.numbers
                             font.weight: Font.Bold
                             color: Appearance.colors.colOnPrimaryContainer
                         }

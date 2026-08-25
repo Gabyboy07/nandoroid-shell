@@ -103,7 +103,7 @@ RippleButton {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
                 elide: Text.ElideRight
-                font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                font.pixelSize: Appearance.font.pixelSize.smaller
                 color: root.selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurface
                 font.weight: root.selected ? Font.DemiBold : Font.Medium
             }
@@ -114,7 +114,7 @@ RippleButton {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
                 elide: Text.ElideRight
-                font.pixelSize: Math.round(10 * Appearance.effectiveScale)
+                font.pixelSize: Appearance.font.pixelSize.smallest
                 color: root.selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurfaceVariant
                 opacity: 0.8
             }

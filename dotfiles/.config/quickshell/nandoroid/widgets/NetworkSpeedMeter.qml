@@ -46,6 +46,7 @@ ColumnLayout {
         Layout.alignment: Qt.AlignRight
         StyledText {
             text: root.formatSpeed(SystemData.networkTxRate)
+            font.family: Appearance.font.family.numbers
             font.pixelSize: Math.round(9 * Appearance.effectiveScale)
             font.weight: Font.Medium
             color: root.color
@@ -64,6 +65,7 @@ ColumnLayout {
         Layout.alignment: Qt.AlignRight
         StyledText {
             text: root.formatSpeed(SystemData.networkRxRate)
+            font.family: Appearance.font.family.numbers
             font.pixelSize: Math.round(9 * Appearance.effectiveScale)
             font.weight: Font.Medium
             color: root.color

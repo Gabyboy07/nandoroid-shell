@@ -369,6 +369,7 @@ ColumnLayout {
                     StyledText {
                         text: I18nService.tr("Recent Commits")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
@@ -423,6 +424,7 @@ ColumnLayout {
                     StyledText {
                         text: I18nService.tr("Recent Releases")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }

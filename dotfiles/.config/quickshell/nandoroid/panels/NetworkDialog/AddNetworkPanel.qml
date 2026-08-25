@@ -116,6 +116,7 @@ Scope {
                             horizontalAlignment: Text.AlignHCenter
                             text: I18nService.tr("Add Network")
                             font.pixelSize: Appearance.font.pixelSize.huge
+                            font.family: Appearance.font.family.title
                             font.weight: Font.Normal
                             color: Appearance.colors.colOnLayer1
                         }

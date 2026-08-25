@@ -799,6 +799,7 @@ Item {
                                 return SystemInfo.distroName || "Linux System";
                             }
                             font.pixelSize: Appearance.font.pixelSize.smaller
+                            font.family: Appearance.font.family.numbers
                             color: Appearance.m3colors.m3outline
                         }
                     }
@@ -1030,6 +1031,7 @@ Item {
                                     return SystemInfo.distroName || "Linux System";
                                 }
                                 font.pixelSize: Appearance.font.pixelSize.smaller
+                                font.family: Appearance.font.family.numbers
                                 color: Appearance.m3colors.m3outline
                             }
                         }
@@ -1515,7 +1517,7 @@ Item {
                     // Add/Remove
                     RowLayout {
                         spacing: 8 * Appearance.effectiveScale
-                        StyledText { text: I18nService.tr("Add/Remove"); font.pixelSize: Math.round(10 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1 }
+                        StyledText { text: I18nService.tr("Add/Remove"); font.pixelSize: Appearance.font.pixelSize.smallest; color: Appearance.colors.colOnLayer1 }
                         Rectangle {
                             width: 44 * Appearance.effectiveScale; height: 18 * Appearance.effectiveScale; radius: 4 * Appearance.effectiveScale
                             color: Appearance.m3colors.m3surfaceVariant
@@ -1526,7 +1528,7 @@ Item {
                     // Resize
                     RowLayout {
                         spacing: 8 * Appearance.effectiveScale
-                        StyledText { text: I18nService.tr("Resize"); font.pixelSize: Math.round(10 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1 }
+                        StyledText { text: I18nService.tr("Resize"); font.pixelSize: Appearance.font.pixelSize.smallest; color: Appearance.colors.colOnLayer1 }
                         Rectangle {
                             width: 44 * Appearance.effectiveScale; height: 18 * Appearance.effectiveScale; radius: 4 * Appearance.effectiveScale
                             color: Appearance.m3colors.m3surfaceVariant
@@ -1538,11 +1540,11 @@ Item {
                     // Move
                     RowLayout {
                         spacing: 8 * Appearance.effectiveScale
-                        StyledText { text: I18nService.tr("Move"); font.pixelSize: Math.round(10 * Appearance.effectiveScale); color: Appearance.colors.colOnLayer1 }
+                        StyledText { text: I18nService.tr("Move"); font.pixelSize: Appearance.font.pixelSize.smallest; color: Appearance.colors.colOnLayer1 }
                         Rectangle {
                             width: 38 * Appearance.effectiveScale; height: 18 * Appearance.effectiveScale; radius: 4 * Appearance.effectiveScale
                             color: Appearance.m3colors.m3surfaceVariant
-                            StyledText { anchors.centerIn: parent; text: "Scroll"; font.pixelSize: Math.round(10 * Appearance.effectiveScale); font.weight: Font.DemiBold }
+                            StyledText { anchors.centerIn: parent; text: "Scroll"; font.pixelSize: Appearance.font.pixelSize.smallest; font.weight: Font.DemiBold }
                         }
                     }
                 }

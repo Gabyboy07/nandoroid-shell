@@ -184,6 +184,7 @@ Item {
                 StyledText {
                     text: I18nService.tr("Display")
                     font.pixelSize: Appearance.font.pixelSize.huge
+                    font.family: Appearance.font.family.title
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
                 }
@@ -216,6 +217,7 @@ Item {
                             return base;
                         }
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                         Layout.fillWidth: true
@@ -401,6 +403,7 @@ Item {
                     StyledText {
                         text: I18nService.tr("Layout & Arrangement")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                         Layout.fillWidth: true
@@ -641,6 +644,7 @@ Item {
                             return I18nService.tr("Monitor ") + (root.currentMonitorIndex + 1) + ": " + desc;
                         }
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                         elide: Text.ElideRight
@@ -996,6 +1000,7 @@ Item {
                     StyledText {
                         text: I18nService.tr("UI Scaling")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                         Layout.fillWidth: true
@@ -1239,6 +1244,7 @@ Item {
                         Layout.fillWidth: true
                         text: I18nService.tr("Keep these display settings?")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         horizontalAlignment: Text.AlignHCenter
                         color: Appearance.m3colors.m3onSurface

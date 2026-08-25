@@ -221,6 +221,7 @@ Rectangle {
                                             text: modelData ? `${Math.round(modelData.usage * 100)}%` : ""
                                             font.pixelSize: Appearance.font.pixelSize.smaller
                                             font.weight: Font.DemiBold
+                                            font.family: Appearance.font.family.numbers
                                             color: Appearance.m3colors.m3onSurface
                                         }
                                     }
@@ -230,6 +231,7 @@ Rectangle {
                                             ? `${Math.round(modelData.used / (1024*1024*1024))}/${Math.round(modelData.total / (1024*1024*1024))} GB`
                                             : "--"
                                         font.pixelSize: Appearance.font.pixelSize.smallest
+                                        font.family: Appearance.font.family.numbers
                                         color: Appearance.colors.colSubtext
                                         opacity: 0.8
                                     }
@@ -309,6 +311,7 @@ Rectangle {
                     text: statCard.displayValue
                     font.pixelSize: Appearance.font.pixelSize.normal
                     font.weight: Font.Bold
+                    font.family: Appearance.font.family.numbers
                     color: Appearance.m3colors.m3onSurface
                 }
                 StyledText {

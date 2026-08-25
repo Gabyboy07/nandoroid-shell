@@ -39,7 +39,7 @@ Item {
 
             StyledText {
                 text: Functions.General.formatDuration(ScreenRecord.seconds)
-                font.pixelSize: Math.round(12 * Appearance.effectiveScale)
+                font.pixelSize: Appearance.font.pixelSize.smaller
                 font.weight: Font.DemiBold
                 color: Appearance.m3colors.m3onPrimary
             }

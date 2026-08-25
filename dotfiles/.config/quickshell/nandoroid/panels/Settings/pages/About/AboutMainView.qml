@@ -162,6 +162,7 @@ ColumnLayout {
                     StyledText {
                         text: I18nService.tr("System Information")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
@@ -200,6 +201,7 @@ ColumnLayout {
                     StyledText {
                         text: I18nService.tr("Hardware")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }
@@ -233,6 +235,7 @@ ColumnLayout {
                     StyledText {
                         text: I18nService.tr("Links & Resources")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.Medium
                         color: Appearance.colors.colOnLayer1
                     }

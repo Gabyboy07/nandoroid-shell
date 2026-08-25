@@ -21,6 +21,7 @@ ColumnLayout {
         StyledText {
             text: I18nService.tr("Step 2: Status Bar & Dynamic Island")
             font.pixelSize: Appearance.font.pixelSize.larger
+            font.family: Appearance.font.family.title
             font.weight: Font.DemiBold
             color: Appearance.colors.colOnLayer1
         }

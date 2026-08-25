@@ -19,6 +19,7 @@ import Quickshell
                         visible: Network.wifiEnabled && Network.friendlyWifiNetworks.length > 0
                         text: I18nService.tr("Available Networks")
                         font.pixelSize: Appearance.font.pixelSize.large
+                        font.family: Appearance.font.family.title
                         font.weight: Font.DemiBold
                         color: Appearance.colors.colOnLayer1
                         Layout.topMargin: 12 * Appearance.effectiveScale
@@ -360,6 +361,7 @@ import Quickshell
                             horizontalAlignment: Text.AlignHCenter
                             text: I18nService.tr("WiFi is turned off")
                             font.pixelSize: Appearance.font.pixelSize.large
+                            font.family: Appearance.font.family.title
                             color: Appearance.colors.colSubtext
                         }
                         

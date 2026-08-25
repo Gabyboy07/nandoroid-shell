@@ -108,6 +108,7 @@ Scope {
                             Layout.fillWidth: true
                             text: I18nService.tr("System Monitor")
                             font.pixelSize: Appearance.font.pixelSize.large
+                            font.family: Appearance.font.family.title
                             font.weight: Font.Medium
                             horizontalAlignment: Text.AlignHCenter
                             color: Appearance.colors.colOnLayer0

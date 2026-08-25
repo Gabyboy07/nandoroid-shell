@@ -211,7 +211,7 @@ ColumnLayout {
                         placeholderTextColor: Appearance.colors.colSubtext
                         color: Appearance.colors.colOnLayer1
                         font.family: Appearance.font.family.main
-                        font.pixelSize: Math.round(18 * Appearance.effectiveScale)
+                        font.pixelSize: Appearance.font.pixelSize.large
                         wrapMode: Text.Wrap; background: null; selectByMouse: true
                         onTextChanged: {
                             if (activeFocus || text === "") root.triggerTranslate();
@@ -290,7 +290,7 @@ ColumnLayout {
                         placeholderTextColor: TranslationService.status === "failed" ? Appearance.m3colors.m3error : Appearance.colors.colSubtext
                         color: Appearance.colors.colOnLayer1
                         font.family: Appearance.font.family.main
-                        font.pixelSize: Math.round(18 * Appearance.effectiveScale)
+                        font.pixelSize: Appearance.font.pixelSize.large
                         wrapMode: Text.Wrap; background: null; selectByMouse: true
                         
                         opacity: TranslationService.isTranslating ? 0.6 : 1.0

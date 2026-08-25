@@ -104,7 +104,8 @@ Scope {
                         StyledText {
                             Layout.alignment: Qt.AlignVCenter
                             text: "NAnDoroid Setup"
-                            font.pixelSize: Math.round(18 * Appearance.effectiveScale)
+                            font.pixelSize: Appearance.font.pixelSize.large
+                            font.family: Appearance.font.family.title
                             font.weight: Font.DemiBold
                             color: Appearance.colors.colOnLayer0
                         }
