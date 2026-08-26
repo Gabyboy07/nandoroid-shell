@@ -16,6 +16,154 @@ LOCK_COLOR_JSON="$HOME/.local/state/quickshell/user/generated/lockscreencolors.j
 
 mkdir -p "$PRESETS_DIR"
 
+# ---------------------------------------------------------------------------
+# build_preset_json <source_file>
+# Outputs a whitelist-filtered JSON suitable for sharing as a preset.
+# Excluded: credentials (github token), personal data (profile, location),
+#           runtime state (system, gameModeState), and machine-local paths
+#           (autoCycleDirectory, customFolders, savePath, avatar_path, etc.).
+# All widget positions, visibility, and lock states ARE included because
+# they are part of the visual layout and are tied to wallpaper choice.
+# ---------------------------------------------------------------------------
+build_preset_json() {
+    jq '
+    def compact:
+        if   type == "object" then with_entries(select(.value != null) | .value |= compact)
+        elif type == "array"  then map(select(. != null) | compact)
+        else .
+        end;
+    {
+        appearance: {
+            globalScale:  .appearance.globalScale,
+            autoScale:    .appearance.autoScale,
+            widgetZ:      .appearance.widgetZ,
+            fonts:        .appearance.fonts,
+            clockFonts:   .appearance.clockFonts,
+            atAGlance:    .appearance.atAGlance,
+            background: {
+                wallpaperPath:      .appearance.background.wallpaperPath,
+                darkmode:           .appearance.background.darkmode,
+                matugen:            .appearance.background.matugen,
+                matugenScheme:      .appearance.background.matugenScheme,
+                matugenCustomColor: .appearance.background.matugenCustomColor,
+                matugenThemeFile:   .appearance.background.matugenThemeFile,
+                matugenSource:      .appearance.background.matugenSource,
+                liveWallpaperPath:     .appearance.background.liveWallpaperPath,
+                liveWallpaperBackend:  .appearance.background.liveWallpaperBackend,
+                autoCycleEnabled:   .appearance.background.autoCycleEnabled,
+                autoCycleInterval:  .appearance.background.autoCycleInterval,
+                showCava:           .appearance.background.showCava,
+                cavaOpacity:        .appearance.background.cavaOpacity,
+                cavaBars:           .appearance.background.cavaBars,
+                showGrid:           .appearance.background.showGrid,
+                gridSpacing:        .appearance.background.gridSpacing,
+                showSnapLines:      .appearance.background.showSnapLines,
+                wallpaperTransition: .appearance.background.wallpaperTransition
+                # excluded: autoCycleDirectory, customFolders (machine-local paths)
+            },
+            screenCorners: .appearance.screenCorners,
+            clock:         .appearance.clock,
+            mediaWidget:   .appearance.mediaWidget,
+            systemMonitor: .appearance.systemMonitor,
+            weatherWidget: .appearance.weatherWidget,
+            currencyWidget: .appearance.currencyWidget,
+            githubWidget:  .appearance.githubWidget,
+            lyrics:        .appearance.lyrics
+        },
+        time:      .time,
+        language:  .language,
+        workspaces: .workspaces,
+        bar: {
+            show_distro_icon:     .bar.show_distro_icon,
+            distroIcon:           .bar.distroIcon,
+            show_network_speed:   .bar.show_network_speed,
+            network_speed_unit:   .bar.network_speed_unit,
+            networkSpeedInterval: .bar.networkSpeedInterval
+            # excluded: avatar_path (local path)
+        },
+        statusBar: .statusBar,
+        quickSettings: {
+            showBanner:            .quickSettings.showBanner,
+            showPerformanceStats:  .quickSettings.showPerformanceStats,
+            quickActionsPosition:  .quickSettings.quickActionsPosition,
+            toggles:               .quickSettings.toggles
+            # excluded: caffeineActive (runtime state)
+        },
+        dock: {
+            enable:            .dock.enable,
+            autoHide:          .dock.autoHide,
+            autoHideMode:      .dock.autoHideMode,
+            showOnlyInDesktop: .dock.showOnlyInDesktop,
+            backgroundStyle:   .dock.backgroundStyle,
+            hoverRegionHeight: .dock.hoverRegionHeight,
+            pinnedOnStartup:   .dock.pinnedOnStartup,
+            monochromeIcons:   .dock.monochromeIcons,
+            scale:             .dock.scale,
+            showLauncher:      .dock.showLauncher,
+            showOverview:      .dock.showOverview
+            # excluded: pinnedApps, ignoredAppRegexes (user-specific)
+        },
+        powerProfile:  .powerProfile,
+        nightMode:     .nightMode,
+        weather: {
+            enable:                   .weather.enable,
+            showInNotificationCenter: .weather.showInNotificationCenter,
+            unit:                     .weather.unit,
+            provider:                 .weather.provider,
+            showDailyForecast:        .weather.showDailyForecast,
+            updateInterval:           .weather.updateInterval
+            # excluded: location, autoLocation (personal data)
+        },
+        overview:      .overview,
+        notifications: .notifications,
+        battery:       .battery,
+        panels:        .panels,
+        search: {
+            mathPrefix:      .search.mathPrefix,
+            webPrefix:       .search.webPrefix,
+            emojiPrefix:     .search.emojiPrefix,
+            clipboardPrefix: .search.clipboardPrefix,
+            filePrefix:      .search.filePrefix,
+            commandPrefix:   .search.commandPrefix,
+            toolsPrefix:     .search.toolsPrefix,
+            settingsPrefix:  .search.settingsPrefix,
+            iconShape:       .search.iconShape,
+            enableGrouping:  .search.enableGrouping
+            # excluded: enableUsageTracking, imageSearch (personal behaviour)
+        },
+        lock: {
+            showCava:             .lock.showCava,
+            cavaOpacity:          .lock.cavaOpacity,
+            showMediaCard:        .lock.showMediaCard,
+            showWeather:          .lock.showWeather,
+            weather:              .lock.weather,
+            security:             .lock.security,
+            useSeparateWallpaper: .lock.useSeparateWallpaper
+            # excluded: wallpaperPath, launchOnStartup, useHyprlock (local/system config)
+        },
+        sounds:         .sounds,
+        media:          .media,
+        privacy:        .privacy,
+        screenSnip:     .screenSnip,
+        regionSelector: .regionSelector,
+        screenshot: {
+            autoSave:    .screenshot.autoSave,
+            showPreview: .screenshot.showPreview,
+            autoCopy:    .screenshot.autoCopy
+            # excluded: savePath, recordPath (local paths)
+        },
+        wallpaperEngine: .wallpaperEngine,
+        mpvpaper:        .mpvpaper,
+        interactions:    .interactions,
+        profile: {
+            avatarPicture: .profile.avatarPicture,
+            bannerImage:   .profile.bannerImage
+            # excluded: displayName, descriptionText (personal identity)
+        }
+    } | compact
+    ' "$1"
+}
+
 action="$1"
 name="$2"
 
@@ -27,7 +175,7 @@ fi
 case "$action" in
     --save)
         description="$3"
-        jq 'del(._presetMeta)' "$CONFIG_FILE" > "$PRESETS_DIR/${name}.json"
+        build_preset_json "$CONFIG_FILE" > "$PRESETS_DIR/${name}.json"
         if [ -n "$description" ]; then
             jq --arg desc "$description" '._presetMeta = {"description": $desc}' \
                 "$PRESETS_DIR/${name}.json" > "$PRESETS_DIR/${name}.json.tmp" \
@@ -44,9 +192,11 @@ case "$action" in
             exit 1
         fi
 
-        # Read settings from preset_file first to run matugen BEFORE updating config.json
-        # This prevents Quickshell from reloading active.json with outdated/fallback colors first
-        merged_json=$(jq -s '.[0] * .[1] | del(._presetMeta)' "$CONFIG_FILE" "$preset_file")
+        # Filter the preset through the whitelist before merging.
+        # This ensures backward compat with old presets that may contain
+        # sensitive fields (e.g. github tokens, profile data, system state).
+        filtered_preset=$(build_preset_json "$preset_file")
+        merged_json=$(jq -s '.[0] * .[1] | del(._presetMeta)' "$CONFIG_FILE" - <<< "$filtered_preset")
 
         matugen_enabled=$(echo "$merged_json" | jq -r '.appearance.background.matugen // false')
         custom_color=$(echo "$merged_json" | jq -r '.appearance.background.matugenCustomColor // .appearance.palette.accentColor // .palette.accentColor // ""')
