@@ -707,7 +707,7 @@ ColumnLayout {
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
-                        visible: sbSettingsCol.parent.sbAnyBgStyle && !sbSettingsCol.parent.isM3Style
+                        visible: sbSettingsCol.parent.sbAnyBgStyle && !sbSettingsCol.parent.isM3Style && (Config.ready ? Config.options.statusBar?.layoutStyle !== "centered" : true)
                         RowLayout {
                             id: sbCornerRow
                             anchors.fill: parent

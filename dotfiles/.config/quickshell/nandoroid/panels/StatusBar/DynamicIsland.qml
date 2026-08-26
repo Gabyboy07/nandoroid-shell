@@ -354,14 +354,14 @@ Item {
         // Concave Corners
         RoundCorner {
             anchors.right: parent.left; anchors.top: parent.top
-            implicitSize: 12 * Appearance.effectiveScale; color: "black"; corner: RoundCorner.CornerEnum.TopRight
+            implicitSize: parent.radius; color: "black"; corner: RoundCorner.CornerEnum.TopRight
             visible: isWaterdrop; opacity: visible ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 250 } }
         }
 
         RoundCorner {
             anchors.left: parent.right; anchors.top: parent.top
-            implicitSize: 12 * Appearance.effectiveScale; color: "black"; corner: RoundCorner.CornerEnum.TopLeft
+            implicitSize: parent.radius; color: "black"; corner: RoundCorner.CornerEnum.TopLeft
             visible: isWaterdrop; opacity: visible ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 250 } }
         }

@@ -117,9 +117,14 @@ Scope {
             }
 
             // ── Background visibility ──────────────────────────────────
+            readonly property bool isCentered: (!isM3 && Config.ready && Config.options.statusBar) ? Config.options.statusBar.layoutStyle === "centered" : false
+            readonly property real centeredWidth: Math.round((Config.ready && Config.options.statusBar ? Config.options.statusBar.centeredWidth : 1200) * Appearance.effectiveScale)
+
             readonly property int bgStyle: Config.ready && Config.options.statusBar
                 ? (Config.options.statusBar.backgroundStyle !== undefined ? Config.options.statusBar.backgroundStyle : 0) : 0
-            readonly property int cornerRadius: Math.round((Config.ready && Config.options.statusBar
+            
+            // In centered mode, use exactly half the bar height for a perfect S-curve transition
+            readonly property real cornerRadius: isCentered ? (actualStatusBarHeight / 2) : Math.round((Config.ready && Config.options.statusBar
                 ? (Config.options.statusBar.backgroundCornerRadius !== undefined ? Config.options.statusBar.backgroundCornerRadius : 20) : 20) * Appearance.effectiveScale)
 
             readonly property bool hasTiledWindows: {
@@ -136,9 +141,6 @@ Scope {
                 if (bgStyle === 2) return hasTiledWindows;
                 return false;
             }
-
-            readonly property bool isCentered: (!isM3 && Config.ready && Config.options.statusBar) ? Config.options.statusBar.layoutStyle === "centered" : false
-            readonly property real centeredWidth: Math.round((Config.ready && Config.options.statusBar ? Config.options.statusBar.centeredWidth : 1200) * Appearance.effectiveScale)
 
             // ── Main Content Container (Animated) ──
             Item {
@@ -181,8 +183,8 @@ Scope {
                         y: targetY
                         anchors.horizontalCenter: parent.horizontalCenter
                         
-                        // Overlap logic: In standard mode, make it 2px wider to eliminate screen edge gaps
-                        readonly property real overlap: 1.0
+                        // Overlap logic: To eliminate screen edge gaps, make barBg slightly wider
+                        readonly property real overlap: barWindow.isCentered ? 0.0 : 1.0
                         width: barWindow.isCentered 
                             ? Math.min(barWindow.centeredWidth, parent.width - (40 * Appearance.effectiveScale)) 
                             : parent.width + (overlap * 2)
@@ -199,18 +201,21 @@ Scope {
                         Behavior on height { NumberAnimation { duration: 450; easing.type: Easing.OutQuint } }
                         Behavior on radius { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
 
-                        // Standard Mode Corners (Bottom) - Pull OUT and UP
+                        readonly property bool isLeftPanelOpen: GlobalStates.dashboardOpen || (GlobalStates.notificationCenterOpen && barWindow.notifIsLeft)
+                        readonly property bool isRightPanelOpen: GlobalStates.quickSettingsOpen || (GlobalStates.notificationCenterOpen && !barWindow.notifIsLeft)
+
+                        // Standard Mode Corners (Bottom)
                         RoundCorner {
                             id: stdLeftCorner
                             anchors.top: parent.bottom; anchors.left: parent.left
-                            anchors.topMargin: -barBg.overlap; anchors.leftMargin: -barBg.overlap
+                            anchors.leftMargin: barBg.overlap
                             implicitSize: barWindow.cornerRadius; color: parent.color; corner: RoundCorner.CornerEnum.TopLeft
                             opacity: !barWindow.isCentered && barWindow.showBackground ? 1.0 : 0.0; visible: opacity > 0
                         }
                         RoundCorner {
                             id: stdRightCorner
                             anchors.top: parent.bottom; anchors.right: parent.right
-                            anchors.topMargin: -barBg.overlap; anchors.rightMargin: -barBg.overlap
+                            anchors.rightMargin: barBg.overlap
                             implicitSize: barWindow.cornerRadius; color: parent.color; corner: RoundCorner.CornerEnum.TopRight
                             opacity: !barWindow.isCentered && barWindow.showBackground ? 1.0 : 0.0; visible: opacity > 0
                         }

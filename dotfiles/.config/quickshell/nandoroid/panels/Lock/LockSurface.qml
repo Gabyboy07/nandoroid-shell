@@ -122,7 +122,7 @@ MouseArea {
         readonly property bool isCentered: (!isM3 && Config.ready && Config.options.statusBar) ? Config.options.statusBar.layoutStyle === "centered" : false
         readonly property real centeredWidth: (Config.ready && Config.options.statusBar) ? Config.options.statusBar.centeredWidth * Appearance.effectiveScale : 1200 * Appearance.effectiveScale
         readonly property real sidePadding: isCentered ? Math.round((parent.width - Math.min(centeredWidth, parent.width - 40 * Appearance.effectiveScale)) / 2) : 12 * Appearance.effectiveScale
-        readonly property int cornerRadius: Math.round(((Config.ready && Config.options.statusBar?.backgroundCornerRadius) || 20) * Appearance.effectiveScale)
+        readonly property real cornerRadius: isCentered ? (lockStatusBarContainer.height / 2) : Math.round(((Config.ready && Config.options.statusBar && Config.options.statusBar.backgroundCornerRadius !== undefined) ? Config.options.statusBar.backgroundCornerRadius : 20) * Appearance.effectiveScale)
 
         // Adaptive background detection
         readonly property int bgStyle: (Config.ready && Config.options.statusBar) ? (Config.options.statusBar.backgroundStyle ?? 0) : 0
@@ -255,13 +255,13 @@ MouseArea {
             // Concave Corners for Waterdrop
             RoundCorner {
                 anchors.right: parent.left; anchors.top: parent.top
-                implicitSize: 12 * Appearance.effectiveScale; color: "black"; corner: RoundCorner.CornerEnum.TopRight
+                implicitSize: parent.radius; color: "black"; corner: RoundCorner.CornerEnum.TopRight
                 visible: lockStatusBarContainer.isWaterdrop
             }
 
             RoundCorner {
                 anchors.left: parent.right; anchors.top: parent.top
-                implicitSize: 12 * Appearance.effectiveScale; color: "black"; corner: RoundCorner.CornerEnum.TopLeft
+                implicitSize: parent.radius; color: "black"; corner: RoundCorner.CornerEnum.TopLeft
                 visible: lockStatusBarContainer.isWaterdrop
             }
 
