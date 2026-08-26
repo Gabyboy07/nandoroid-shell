@@ -129,7 +129,8 @@ ColumnLayout {
                     { id: "stacked", name: I18nService.tr("Stacked"), icon: "view_day" },
                     { id: "text",    name: I18nService.tr("Text"),    icon: "text_fields" },
                     { id: "pill",    name: I18nService.tr("Pill"),    icon: "smart_button" },
-                    { id: "code",    name: I18nService.tr("Code"),    icon: "code" }
+                    { id: "code",    name: I18nService.tr("Code"),    icon: "code" },
+                    { id: "pixel",   name: I18nService.tr("Pixel"),   icon: "grid_view" }
                 ]
                 delegate: RippleButton {
                     id: clockStyleBtn
@@ -226,6 +227,7 @@ ColumnLayout {
             readonly property var stackedCfg: isLockCtx ? Config.options.appearance.clock.stackedLocked : Config.options.appearance.clock.stacked
             readonly property var textCfg: isLockCtx ? Config.options.appearance.clock.textLocked : Config.options.appearance.clock.text
             readonly property var pillCfg: isLockCtx ? Config.options.appearance.clock.pillLocked : Config.options.appearance.clock.pill
+            readonly property var pixelCfg: isLockCtx ? Config.options.appearance.clock.pixelLocked : Config.options.appearance.clock.pixel
 
             // ── Digital Advanced ──
             ColumnLayout {
@@ -762,13 +764,45 @@ ColumnLayout {
                     }
                 }
             }
+
+            // ── Pixel Advanced ──
+            ColumnLayout {
+                visible: advancedPanel.currentStyle === "pixel"
+                Layout.fillWidth: true; spacing: 8 * Appearance.effectiveScale
+                GridLayout {
+                    columns: 2; Layout.fillWidth: true; rowSpacing: 12 * Appearance.effectiveScale
+                    StyledText { text: I18nService.tr("Orientation"); color: Appearance.colors.colOnLayer1 }
+                    Row {
+                        Layout.alignment: Qt.AlignRight; spacing: 2 * Appearance.effectiveScale
+                        SegmentedButton { buttonText: I18nService.tr("Horizontal"); isHighlighted: Config.ready && !(advancedPanel.pixelCfg.isVertical ?? true); onClicked: advancedPanel.pixelCfg.isVertical = false }
+                        SegmentedButton { buttonText: I18nService.tr("Vertical"); isHighlighted: Config.ready && (advancedPanel.pixelCfg.isVertical ?? true); onClicked: advancedPanel.pixelCfg.isVertical = true }
+                    }
+                    StyledText { text: I18nService.tr("Clock Size"); color: Appearance.colors.colOnLayer1 }
+                    RowLayout {
+                        Layout.fillWidth: true; spacing: 12 * Appearance.effectiveScale
+                        Item { Layout.fillWidth: true }
+                        StyledStepper {
+                            Layout.alignment: Qt.AlignVCenter
+                            value: Config.ready ? (advancedPanel.pixelCfg.size || 100) : 100
+                            from: 50; to: 200; stepSize: 5
+                            decimals: 0
+                            suffix: "%"
+                            onValueChanged: advancedPanel.pixelCfg.size = Math.round(value)
+                        }
+                    }
+                }
+            }
         }
 
         // Clock Fonts & Date Settings
         ColumnLayout {
+            id: fontsCol
+
             Layout.fillWidth: true; spacing: 4 * Appearance.effectiveScale
             z: 10 // Ensure dropdowns overlap below elements
             visible: rootClock.dedicatedIsLock || (Config.ready && !Config.options.appearance.clock.useSameStyle)
+            // Pixel clock hardcodes its display font; the picker is locked while it is active
+            readonly property bool pixelFontLocked: Config.ready && advancedPanel.currentStyle === "pixel"
 
             Rectangle {
                 Layout.fillWidth: true; implicitHeight: 64 * Appearance.effectiveScale; color: Appearance.m3colors.m3surfaceContainerHigh
@@ -777,6 +811,7 @@ ColumnLayout {
                 bottomLeftRadius: (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
                 bottomRightRadius: (Appearance.rounding.unsharpenmore || 6) * Appearance.effectiveScale
                 z: 2 // Make sure top combo overlaps bottom combo
+                opacity: fontsCol.pixelFontLocked ? 0.45 : 1
                 RowLayout {
                     anchors.fill: parent; anchors.leftMargin: 16 * Appearance.effectiveScale; anchors.rightMargin: 16 * Appearance.effectiveScale
                     spacing: 16 * Appearance.effectiveScale
@@ -788,8 +823,10 @@ ColumnLayout {
                     StyledComboBox {
                         bgRadius: height / 2
                         Layout.preferredWidth: 300 * Appearance.effectiveScale
+                        enabled: !fontsCol.pixelFontLocked
                         model: SystemFonts.all
                         text: {
+                            if (fontsCol.pixelFontLocked) return "Google Sans Flex";
                             if (!Config.ready) return "Default";
                             const val = clockStyleSection.activeContext === "desktop" ? Config.options.appearance.clockFonts.desktopTimeFont : Config.options.appearance.clockFonts.lockscreenTimeFont;
                             return (val === "" || val === undefined) ? "Default" : val;
@@ -799,6 +836,15 @@ ColumnLayout {
                             if (clockStyleSection.activeContext === "desktop") Config.options.appearance.clockFonts.desktopTimeFont = (val === "Default" ? "" : val);
                             else Config.options.appearance.clockFonts.lockscreenTimeFont = (val === "Default" ? "" : val);
                         }
+                    }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: fontsCol.pixelFontLocked
+                    hoverEnabled: true
+                    property bool hovered: containsMouse
+                    StyledToolTip {
+                        text: I18nService.tr("Pixel clock is optimized for Google Sans Flex")
                     }
                 }
             }

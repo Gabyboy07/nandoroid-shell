@@ -62,6 +62,7 @@ Item {
             switch (root.style) {
                 case "analog": return "clock/AnalogClock.qml"
                 case "code": return "clock/CodeClock.qml"
+                case "pixel": return "clock/PixelClock.qml"
                 case "stacked": return "clock/StackedClock.qml"
                 case "text": return "clock/TextClock.qml"
                 case "pill": return "clock/PillClock.qml"

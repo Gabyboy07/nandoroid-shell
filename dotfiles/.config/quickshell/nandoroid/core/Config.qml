@@ -292,6 +292,14 @@ property JsonObject background: JsonObject {
                         property string dateColorStyle: "primary"
                         property string pillColorStyle: "surfaceContainerHigh"
                     }
+                    property JsonObject pixel: JsonObject {
+                        property bool isVertical: true
+                        property int size: 100
+                    }
+                    property JsonObject pixelLocked: JsonObject {
+                        property bool isVertical: true
+                        property int size: 100
+                    }
                 }
                 
                 property JsonObject mediaWidget: JsonObject {

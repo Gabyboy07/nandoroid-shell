@@ -10,6 +10,7 @@ HourMarks HourMarks.qml
 Lines Lines.qml
 MinuteHand MinuteHand.qml
 MinuteMarks MinuteMarks.qml
+PixelClock PixelClock.qml
 RectangleDate RectangleDate.qml
 RotatingDate RotatingDate.qml
 SecondHand SecondHand.qml
