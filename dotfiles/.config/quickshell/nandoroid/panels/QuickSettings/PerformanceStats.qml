@@ -52,16 +52,9 @@ Rectangle {
         }
     }
 
-    Timer {
-        id: diskCarouselTimer
-        interval: 1000
-        running: true
-        repeat: true
-        onTriggered: root.rebuildDiskModel()
-    }
-
-    // Rebuild the carousel model the instant SystemData (re)populates its disk
-    // list, so cards appear in sync with the layout instead of lagging a timer tick.
+    // Rebuild the carousel model the instant SystemData refreshes its disk list.
+    // SystemData emits this after every poll cycle while relevant panels are
+    // visible, so no fallback timer is needed here.
     Connections {
         target: SystemData
         function onDiskStatsUpdated() {
