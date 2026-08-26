@@ -11,8 +11,11 @@ import Quickshell
 import Quickshell.Io
 
 ColumnLayout {
+    id: prRoot
     Layout.fillWidth: true
     spacing: 0
+
+    property var wallpaperCache: ({})
 
     SearchHandler {
         searchString: "Presets"
@@ -173,6 +176,9 @@ ColumnLayout {
                     radius: cardRadius
                     color: Appearance.m3colors.m3surfaceContainerHigh
 
+                    Behavior on x { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+                    Behavior on y { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+
                     layer.enabled: true
                     layer.effect: OpacityMask {
                         maskSource: Rectangle {
@@ -182,12 +188,19 @@ ColumnLayout {
                         }
                     }
 
+                    Component.onCompleted: {
+                        const c = prRoot.wallpaperCache[fileName]
+                        if (c !== undefined) presetWallpaper = c
+                    }
+
                     FileView {
                         path: filePath
                         onLoaded: {
                             try {
                                 const data = JSON.parse(text())
-                                presetWallpaper = data?.appearance?.background?.wallpaperPath ?? ""
+                                const wp = data?.appearance?.background?.wallpaperPath ?? ""
+                                presetWallpaper = wp
+                                prRoot.wallpaperCache[fileName] = wp
                             } catch (e) {}
                         }
                     }
@@ -273,9 +286,8 @@ ColumnLayout {
                                     colBackground: "transparent"
                                     colBackgroundHover: Appearance.colors.colLayer2Hover
                                     onClicked: {
-                                        // Capture everything now: the list refresh after deleteProc
-                                        // destroys this delegate, so the deferred Undo callback
-                                        // can only touch plain values and captured objects
+                                        // Capture values now — after deleteProc runs, this delegate
+                                        // is gone and the Undo callback can only use captured locals
                                         const trashDir = Functions.FileUtils.trimFileProtocol(Directories.cache) + "/presets-trash";
                                         const presetsDir = Directories.presetsPath;
                                         const undoSource = trashDir + "/" + fileBaseName + ".json";
@@ -335,7 +347,8 @@ ColumnLayout {
         saveProc.command = ["bash", Directories.presetsScriptPath, "--save", name]
         saveProc.running = true
         presetNameInput.text = ""
-        refreshTimer.restart()
+        // No manual refresh needed — FolderListModel watches the directory via
+        // inotify and auto-adds the new file without destroying other delegates
     }
 
     FolderListModel {
@@ -345,31 +358,12 @@ ColumnLayout {
         nameFilters: ["*.json"]
         sortField: FolderListModel.Time
         sortReversed: false
+        // FolderListModel uses inotify to watch the directory. File additions and
+        // deletions are reflected as insertRows/removeRows — only the affected
+        // delegate is created/destroyed. Scroll position is preserved naturally.
     }
 
-    Timer {
-        id: refreshTimer
-        interval: 500
-        repeat: false
-        onTriggered: {
-            const current = presetsModel.folder
-            presetsModel.folder = ""
-            Qt.callLater(() => { presetsModel.folder = current })
-        }
-    }
-
-    Process {
-        id: saveProc
-        onExited: refreshTimer.restart()
-    }
-
-    Process {
-        id: deleteProc
-        onExited: refreshTimer.restart()
-    }
-
-    Process {
-        id: undoProc
-        onExited: refreshTimer.restart()
-    }
+    Process { id: saveProc }
+    Process { id: deleteProc }
+    Process { id: undoProc }
 }
