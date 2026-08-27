@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 import Qt.labs.folderlistmodel
 import "../core"
 import "../core/functions"
@@ -46,6 +47,12 @@ Singleton {
         { name: "Bluetooth Settings", subtitle: "Shell Interface", id: "cmd-bluetooth", icon: "bluetooth", isPlugin: true, emoji: "", execute: () => { GlobalStates.settingsPageIndex = 1; GlobalStates.settingsOpen = true; root.closeAll(); } },
         { name: "Network Settings", subtitle: "Shell Interface", id: "cmd-network", icon: "wifi", isPlugin: true, emoji: "", execute: () => { GlobalStates.settingsPageIndex = 0; GlobalStates.settingsOpen = true; root.closeAll(); } },
         { name: "Quick Actions", subtitle: "Tools Menu", id: "cmd-tools", icon: "construction", isPlugin: true, emoji: "", execute: () => { GlobalStates.quickActionsOpen = true; root.closeAll(); } },
+        { name: "Toggle Dark Mode", subtitle: "Appearance", id: "cmd-dark", icon: "dark_mode", isPlugin: true, emoji: "", execute: () => { Wallpapers.toggleDarkMode(); root.closeAll(); } },
+        { name: "Toggle Caffeine", subtitle: "System", id: "cmd-caffeine", icon: "coffee", isPlugin: true, emoji: "", execute: () => { Config.options.quickSettings.caffeineActive = !Config.options.quickSettings.caffeineActive; root.closeAll(); } },
+        { name: "Toggle Do Not Disturb", subtitle: "Notifications", id: "cmd-dnd", icon: "notifications_paused", isPlugin: true, emoji: "", execute: () => { Notifications.mode = Notifications.mode === 2 ? 0 : 2; root.closeAll(); } },
+        { name: "Toggle Night Light", subtitle: "Appearance", id: "cmd-nightlight", icon: "nightlight", isPlugin: true, emoji: "", execute: () => { Hyprsunset.toggle(); root.closeAll(); } },
+        { name: "Set Volume...", subtitle: "Type a number (0-100)", id: "cmd-vol-hint", icon: "volume_up", isPlugin: true, emoji: "", execute: () => { root.query = Config.options.search.commandPrefix + "vol "; } },
+        { name: "Set Brightness...", subtitle: "Type a number (0-100)", id: "cmd-bri-hint", icon: "light_mode", isPlugin: true, emoji: "", execute: () => { root.query = Config.options.search.commandPrefix + "bri "; } },
         { name: "Edit Config", subtitle: "Configuration File", id: "cmd-edit-config", icon: "edit_note", isPlugin: true, emoji: "", execute: () => { Quickshell.execDetached(["xdg-open", Directories.home.replace("file://", "") + "/.config/nandoroid/config.json"]); root.closeAll(); } },
         { name: "Clear All Clipboard", subtitle: "Clipboard Action", id: "cmd-clip-wipe", icon: "delete_sweep", isPlugin: true, emoji: "", execute: () => { Quickshell.execDetached(["cliphist", "wipe"]); root.closeAll(); } },
         { name: "Clear Old Clipboard", subtitle: "Keep 100 newest", id: "cmd-clip-clear-old", icon: "mop", isPlugin: true, emoji: "", execute: () => { Quickshell.execDetached(["sh", "-c", "cliphist list | tail -n +101 | cliphist delete"]); root.closeAll(); } },
@@ -756,6 +763,37 @@ Singleton {
             const cmdQuery = strippedQuery.slice(Config.options.search.commandPrefix.length).toLowerCase().trim();
             const cmdResults = [];
             
+            if (cmdQuery.startsWith("vol ") || cmdQuery.startsWith("volume ")) {
+                const volStr = cmdQuery.replace("volume ", "").replace("vol ", "").trim();
+                const volNum = parseInt(volStr);
+                if (!isNaN(volNum) && volNum >= 0 && volNum <= 100) {
+                    cmdResults.push({
+                        name: "Set Volume to " + volNum + "%", subtitle: "Audio Action", id: "cmd-vol-" + volNum, icon: "volume_up", isPlugin: true, emoji: "",
+                        execute: () => { 
+                            Audio.setVolume(volNum / 100);
+                            root.closeAll(); 
+                        }
+                    });
+                }
+            }
+
+            if (cmdQuery.startsWith("bri ") || cmdQuery.startsWith("brightness ")) {
+                const briStr = cmdQuery.replace("brightness ", "").replace("bri ", "").trim();
+                const briNum = parseInt(briStr);
+                if (!isNaN(briNum) && briNum >= 0 && briNum <= 100) {
+                    cmdResults.push({
+                        name: "Set Brightness to " + briNum + "%", subtitle: "Display Action", id: "cmd-bri-" + briNum, icon: "light_mode", isPlugin: true, emoji: "",
+                        execute: () => { 
+                            const focusedName = Hyprland.focusedMonitor?.name;
+                            const monitor = Brightness.getMonitorByName(focusedName);
+                            if (monitor) monitor.setBrightness(briNum / 100);
+                            else if (Brightness.monitors.length > 0) Brightness.monitors[0].setBrightness(briNum / 100);
+                            root.closeAll(); 
+                        }
+                    });
+                }
+            }
+
             // Search both commands and tools under the command prefix
             const allCommandsAndTools = root.quickCommands.concat(root.quickTools);
             
