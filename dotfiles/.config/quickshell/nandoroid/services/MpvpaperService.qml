@@ -223,7 +223,7 @@ print(json.dumps(out))
         const job = _thumbQueue.shift();
         _thumbRunning = 1;
         thumbProc._job = job;
-        thumbProc.command = ["ffmpeg", "-y", "-ss", "3", "-i", job.src, "-frames:v", "1", "-an", "-vf", "scale=min(512\\,iw):-2", "-q:v", "3", "-loglevel", "error", job.out];
+        thumbProc.command = ["ffmpeg", "-y", "-ss", "3", "-i", job.src, "-frames:v", "1", "-an", "-vf", "scale=min(1024\\,iw):-2", "-loglevel", "error", job.out];
         thumbProc.running = true;
     }
 

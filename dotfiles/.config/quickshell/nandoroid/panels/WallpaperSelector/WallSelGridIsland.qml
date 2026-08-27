@@ -169,7 +169,8 @@ import Quickshell.Io
                         opacity: mainSelector.lockSelectionDisabled ? 0.6 : 1
                         Behavior on opacity { NumberAnimation { duration: 200 } }
                         cellWidth: width / (mainSelector.showDetails ? 3 : 4)
-                        cellHeight: cellWidth * 9/16 + (40 * Appearance.effectiveScale)
+                        property bool hideText: mainSelector.wallhavenMode || mainSelector.naiveMode
+                        cellHeight: cellWidth * 3/4 + (hideText ? (24 * Appearance.effectiveScale) : (40 * Appearance.effectiveScale))
                         clip: true; interactive: true
                         
                         // Memory optimization: Load only what's necessary (about 1.5 extra screen heights)
@@ -434,7 +435,7 @@ import Quickshell.Io
 
                                             RippleButton {
                                                 id: favBtn
-                                                visible: !delegateRoot.inWallhavenMode && !delegateRoot.inNaiveMode && currentFilePath !== ""
+                                                visible: !delegateRoot.inWallhavenMode && !delegateRoot.inNaiveMode && !delegateRoot.inLiveMode && currentFilePath !== ""
                                                 implicitWidth: 36 * Appearance.effectiveScale; implicitHeight: 36 * Appearance.effectiveScale; buttonRadius: 18 * Appearance.effectiveScale; colBackground: "transparent"
                                                 readonly property bool isFav: currentFilePath !== "" && Wallpapers.isFavorite(currentFilePath)
                                                 MaterialSymbol {
@@ -498,8 +499,9 @@ import Quickshell.Io
                                     }
                                 }
                                 StyledText {
+                                    visible: !delegateRoot.inWallhavenMode && !delegateRoot.inNaiveMode
                                     Layout.fillWidth: true; text: currentFileName; horizontalAlignment: Text.AlignHCenter
-                                    font.pixelSize: Appearance.font.pixelSize.smallest; elide: Text.ElideRight; color: delegateRoot.isCurrentWallpaper ? Appearance.m3colors.m3primary : Appearance.colors.colOnLayer1; opacity: delegateRoot.isCurrentWallpaper ? 1 : 0.7
+                                    font.pixelSize: Appearance.font.pixelSize.smaller; elide: Text.ElideRight; color: delegateRoot.isCurrentWallpaper ? Appearance.m3colors.m3primary : Appearance.colors.colOnLayer0; opacity: 1
                                 }
                             }
                         }

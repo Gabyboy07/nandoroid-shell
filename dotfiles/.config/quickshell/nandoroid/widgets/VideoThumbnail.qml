@@ -66,17 +66,19 @@ Item {
 
     // Play badge
     Rectangle {
-        anchors.centerIn: parent
-        width: 28 * Appearance.effectiveScale
-        height: 28 * Appearance.effectiveScale
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.margins: 8 * Appearance.effectiveScale
+        width: 24 * Appearance.effectiveScale
+        height: 24 * Appearance.effectiveScale
         radius: width / 2
         color: Qt.rgba(0, 0, 0, 0.5)
         visible: img.visible || !root._requested
 
         MaterialSymbol {
             anchors.centerIn: parent
-            text: "play_arrow"
-            iconSize: 18 * Appearance.effectiveScale
+            text: "movie" // Menggunakan icon movie ala badge
+            iconSize: 14 * Appearance.effectiveScale
             color: "white"
         }
     }
