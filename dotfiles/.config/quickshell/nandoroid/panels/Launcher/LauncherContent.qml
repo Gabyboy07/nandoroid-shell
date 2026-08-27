@@ -188,45 +188,79 @@ Rectangle {
                 // currentIndex is REMOVED to prevent automatic scrolling artifacts
             }
 
-            ListView {
-                id: pluginList
+            Item {
                 anchors.fill: parent
-                visible: root.hasQuery
-                interactive: true
-                clip: true
-                spacing: 8 * Appearance.effectiveScale
+                visible: root.hasQuery && !LauncherSearch.isEmojiMode
                 
-                property real _savedY: -1
-                function loadMoreKeepingPosition() {
-                    if (pluginList.contentY > 0) pluginList._savedY = pluginList.contentY;
-                    LauncherSearch.loadMoreWallpapers();
-                    if (pluginList._savedY >= 0) {
-                        // Restore right away (covers synchronous model reset) and again
-                        // after deferred binding evaluation so no frame renders at 0.
-                        pluginList.contentY = pluginList._savedY;
-                        Qt.callLater(() => {
-                            if (pluginList._savedY >= 0) {
-                                pluginList.contentY = pluginList._savedY;
-                                pluginList._savedY = -1;
-                            }
-                        });
-                    }
-                }
-                
-                model: visible ? root.resultsProxy : []
-                delegate: LauncherListView {
-                    result: modelData
-                    selected: root.selectedIndex === index
-                    onHoveredChanged: {
-                        if (hovered && GlobalStates.launcherOpen && root.selectedIndex !== index) {
-                            root.isKeyboardNavigation = false;
-                            root.selectedIndex = index;
+                ListView {
+                    id: pluginList
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    width: LauncherSearch.isClipboardMode ? Math.floor(parent.width * 0.40) : parent.width
+                    Behavior on width {
+                        enabled: root.opacity === 1.0 && LauncherSearch.query !== ""
+                        NumberAnimation { 
+                            duration: 300
+                            easing.type: Easing.BezierSpline
+                            easing.bezierCurve: Appearance.animationCurves.emphasizedDecel
                         }
                     }
+                    interactive: true
+                    clip: true
+                    spacing: 4 * Appearance.effectiveScale
+                    
+                    property real _savedY: -1
+                    function loadMoreKeepingPosition() {
+                        if (pluginList.contentY > 0) pluginList._savedY = pluginList.contentY;
+                        LauncherSearch.loadMoreWallpapers();
+                        if (pluginList._savedY >= 0) {
+                            pluginList.contentY = pluginList._savedY;
+                            Qt.callLater(() => {
+                                if (pluginList._savedY >= 0) {
+                                    pluginList.contentY = pluginList._savedY;
+                                    pluginList._savedY = -1;
+                                }
+                            });
+                        }
+                    }
+                    
+                    model: visible ? root.resultsProxy : []
+                    delegate: LauncherListView {
+                        result: modelData
+                        selected: root.selectedIndex === index
+                        onHoveredChanged: {
+                            if (hovered) {
+                                root.selectedIndex = index
+                                root.isKeyboardNavigation = false
+                            }
+                        }
+                    }
+                    currentIndex: root.selectedIndex
+                    onCurrentIndexChanged: {
+                        if (visible && currentIndex >= 0) {
+                            positionViewAtIndex(currentIndex, ListView.Contain);
+                            if (count > 0 && currentIndex >= count - 5) Qt.callLater(() => pluginList.loadMoreKeepingPosition());
+                        }
+                    }
+                    onMovementEnded: {
+                        if (contentHeight - contentY - height < 100) Qt.callLater(() => pluginList.loadMoreKeepingPosition());
+                    }
                 }
-                // currentIndex is REMOVED to prevent automatic scrolling artifacts
-                onMovementEnded: {
-                    if (contentHeight - contentY - height < 100) Qt.callLater(() => pluginList.loadMoreKeepingPosition());
+                
+                ClipboardPreview {
+                    id: clipboardPreview
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    anchors.left: pluginList.right
+                    anchors.leftMargin: LauncherSearch.isClipboardMode ? 12 * Appearance.effectiveScale : 0
+                    anchors.right: parent.right
+                    visible: opacity > 0
+                    opacity: LauncherSearch.isClipboardMode ? 1.0 : 0.0
+                    Behavior on opacity {
+                        NumberAnimation { duration: 150; easing.type: Easing.OutExpo }
+                    }
+                    selectedItem: root.resultsProxy[root.selectedIndex] || null
                 }
             }
         }

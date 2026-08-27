@@ -51,7 +51,18 @@ Variants {
         SpotlightContent {
             id: content
             
-            width: Math.min(panelWindow.width * 0.5, 600 * Appearance.effectiveScale)
+            width: {
+                const targetWidth = LauncherSearch.isClipboardMode ? 760 : 560;
+                return Math.min(panelWindow.width * 0.9, targetWidth * Appearance.effectiveScale);
+            }
+            Behavior on width {
+                enabled: content.opacity === 1.0 && LauncherSearch.query !== ""
+                NumberAnimation { 
+                    duration: 300
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: Appearance.animationCurves.emphasizedDecel
+                }
+            }
             anchors.horizontalCenter: parent.horizontalCenter
             y: Math.max(0, (parent.height - height) / 2 - 30 * Appearance.effectiveScale) 
             

@@ -27,6 +27,12 @@ Singleton {
         });
     }
 
+    function deleteClipboardItem(item) {
+        if (!item || !item.rawValue) return;
+        Quickshell.execDetached(["sh", "-c", "echo -n \"$1\" | cliphist delete", "sh", item.rawValue]);
+        Qt.callLater(() => { cliphistProc.running = true; });
+    }
+    
     function closeAll() {
         GlobalStates.launcherOpen = false;
         GlobalStates.spotlightOpen = false;
@@ -300,7 +306,7 @@ Singleton {
 
     Process {
         id: cliphistProc
-        command: ["cliphist", "list"]
+        command: ["cliphist", "-preview-width", "500", "list"]
         stdout: StdioCollector {
             onStreamFinished: {
                 const lines = this.text.split("\n").filter(l => l.trim().length > 0);
@@ -608,6 +614,11 @@ Singleton {
         return root.query.trim().startsWith(Config.options.search.emojiPrefix);
     }
 
+    readonly property bool isClipboardMode: {
+        if (!Config.ready || !Config.options.search) return false;
+        return root.query.trim().startsWith(Config.options.search.clipboardPrefix);
+    }
+
     readonly property string emojiQuery: root.isEmojiMode ? root.query.trim().slice(Config.options.search.emojiPrefix.length).trim().toLowerCase() : ""
 
     readonly property var emojiSections: {
@@ -733,9 +744,17 @@ Singleton {
                 const cleanName = entry.replace(/^\d+\t/, "").trim();
                 if (cleanName.toLowerCase().includes(clipQuery) || clipQuery === "") {
                     const thumbPath = entryObj.isImage ? (root.clipboardThumbnailDir + "/" + entryObj.id + ".png") : "";
+                    let displayName = cleanName;
+                    if (entryObj.isImage) {
+                        const match = cleanName.match(/\[\[ binary data (.*?) \]\]/);
+                        if (match && match[1]) {
+                            displayName = match[1];
+                        }
+                    }
                     clipResults.push({
-                        name: entryObj.isImage ? "Clipboard Image" : "Clipboard Entry",
-                        subtitle: cleanName, rawValue: entry, id: "clip-" + entryObj.id, icon: entryObj.isImage ? "image" : "content_paste",
+                        name: displayName,
+                        subtitle: entryObj.isImage ? "Image" : "",
+                        rawValue: entry, id: "clip-" + entryObj.id, icon: entryObj.isImage ? "image" : "content_paste",
                         isPlugin: true, isImage: entryObj.isImage, imagePath: thumbPath, emoji: "",
                         execute: () => {
                             Quickshell.execDetached(["sh", "-c", "cliphist decode \"$1\" | wl-copy", "sh", entryObj.id]);

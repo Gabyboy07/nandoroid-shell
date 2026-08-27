@@ -86,6 +86,7 @@ RippleButton {
                     sourcePath: (result && result.isImage) ? result.imagePath : ""
                     visible: !!(result && result.isImage)
                     fillMode: Image.PreserveAspectCrop
+                    clip: true
                 }
             }
         }
@@ -97,7 +98,8 @@ RippleButton {
             spacing: 1 * Appearance.effectiveScale
             
             StyledText {
-                text: (result && result.name) ? I18nService.tr(result.name) : ""
+                textFormat: Text.StyledText
+                text: (result && result.name) ? I18nService.tr(result.name).replace(/</g, "&lt;").replace(/>/g, "&gt;") : ""
                 font.pixelSize: Appearance.font.pixelSize.small
                 font.weight: root.selected ? Font.DemiBold : Font.Medium
                 color: root.selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurface
@@ -107,7 +109,8 @@ RippleButton {
             }
             
             StyledText {
-                text: (result && result.subtitle) ? I18nService.tr(result.subtitle) : ""
+                textFormat: Text.StyledText
+                text: (result && result.subtitle) ? I18nService.tr(result.subtitle).replace(/</g, "&lt;").replace(/>/g, "&gt;") : ""
                 visible: text !== ""
                 font.pixelSize: Math.round(11 * Appearance.effectiveScale)
                 color: root.selected ? Appearance.m3colors.m3primary : Appearance.m3colors.m3onSurfaceVariant

@@ -136,6 +136,11 @@ Rectangle {
                         lc.selectedIndex = isEmojiGrid ? lc.emojiNavigate(1, 0) : Math.min(total - 1, lc.selectedIndex + 1);
                         event.accepted = true;
                     }
+                } else if (event.key === Qt.Key_Delete) {
+                    if (LauncherSearch.isClipboardMode && lc.selectedIndex >= 0 && lc.selectedIndex < total) {
+                        LauncherSearch.deleteClipboardItem(LauncherSearch.results[lc.selectedIndex]);
+                        event.accepted = true;
+                    }
                 }
             }
 
