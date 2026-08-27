@@ -24,6 +24,7 @@ Scope {
             required property var modelData
             property int monitorIndex: modelData.index !== undefined ? modelData.index : 0
             readonly property bool isM3: Config.ready && Config.options.statusBar && Config.options.statusBar.moduleStyle === "m3"
+            readonly property bool notifIsLeft: (Config.ready && Config.options.notifications) ? Config.options.notifications.position === "left" : false
 
             screen: modelData
             exclusionMode: ExclusionMode.Ignore
