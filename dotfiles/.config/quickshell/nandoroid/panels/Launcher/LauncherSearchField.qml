@@ -106,8 +106,8 @@ Rectangle {
             Keys.onPressed: (event) => {
                 if (!root.launcherContent) return;
                 
-                const isEmojiGrid = root.isSpotlightMode && LauncherSearch.isEmojiMode;
-                const emojiFlat = isEmojiGrid && root.launcherContent.emojiView ? root.launcherContent.emojiView.flat : null;
+                const isEmojiGrid = LauncherSearch.isEmojiMode;
+                const emojiFlat = isEmojiGrid && root.launcherContent && root.launcherContent.emojiView ? root.launcherContent.emojiView.flat : null;
                 const navResults = isEmojiGrid ? emojiFlat : LauncherSearch.results;
                 const total = navResults ? navResults.length : 0;
                 if (total <= 0) return;
