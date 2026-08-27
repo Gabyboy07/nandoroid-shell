@@ -429,13 +429,12 @@ Singleton {
             Config.options.appearance.background.matugenCustomColor = theme.colors[0];
             Config.options.appearance.background.matugenThemeFile = fileName; // Unique identifier
             
-            // Automatic mode switching based on theme file
-            const lowerFile = fileName.toLowerCase();
-            const isLight = lowerFile.includes("latte") || lowerFile.includes("_light") || lowerFile.includes("mercury") || lowerFile.includes("github");
+            // Automatic mode switching based on explicit theme property
+            const isDarkTheme = theme.isDark !== undefined ? theme.isDark : true;
             
-            if (isLight && Config.options.appearance.background.darkmode) {
+            if (!isDarkTheme && Config.options.appearance.background.darkmode) {
                 Config.options.appearance.background.darkmode = false;
-            } else if (!isLight && !Config.options.appearance.background.darkmode) {
+            } else if (isDarkTheme && !Config.options.appearance.background.darkmode) {
                 Config.options.appearance.background.darkmode = true;
             }
 
@@ -490,35 +489,35 @@ Singleton {
 
     function findBasicThemeByFile(fileName) {
         const basicThemes = [
-            { file: "angel.json", colors: ["#5682A3"] },
-            { file: "angel_light.json", colors: ["#5682A3"] },
-            { file: "ayu.json", colors: ["#ffb454"] },
-            { file: "cobalt2.json", colors: ["#ffc600"] },
-            { file: "cursor.json", colors: ["#2DD5B7"] },
-            { file: "dracula.json", colors: ["#bd93f9"] },
-            { file: "flexoki.json", colors: ["#ceb3a2"] },
-            { file: "frappe.json", colors: ["#ca9ee6"] },
-            { file: "github.json", colors: ["#d73a49"] },
-            { file: "gruvbox.json", colors: ["#fab387"] },
-            { file: "kanagawa.json", colors: ["#7e9cd8"] },
-            { file: "latte.json", colors: ["#8839ef"] },
-            { file: "macchiato.json", colors: ["#c6a0f6"] },
-            { file: "material_ocean.json", colors: ["#89ddff"] },
-            { file: "matrix.json", colors: ["#00FF41"] },
-            { file: "mercury.json", colors: ["#E0E0E0"] },
-            { file: "mocha.json", colors: ["#cba6f7"] },
-            { file: "nord.json", colors: ["#88c0d0"] },
-            { file: "open_code.json", colors: ["#2DD5B7"] },
-            { file: "orng.json", colors: ["#FF9500"] },
-            { file: "osaka_jade.json", colors: ["#00A676"] },
-            { file: "rose_pine.json", colors: ["#c4a7e7"] },
-            { file: "sakura.json", colors: ["#d4869c"] },
-            { file: "samurai.json", colors: ["#c41e3a"] },
-            { file: "synthwave84.json", colors: ["#36f9f6"] },
-            { file: "vercel.json", colors: ["#0070F3"] },
-            { file: "vesper.json", colors: ["#FFC799"] },
-            { file: "zen_burn.json", colors: ["#8cd0d3"] },
-            { file: "zen_garden.json", colors: ["#7a9a7a"] }
+            { file: "angel.json", colors: ["#e8b882"], isDark: true },
+            { file: "angel_light.json", colors: ["#9a6830"], isDark: false },
+            { file: "ayu.json", colors: ["#ffb454"], isDark: true },
+            { file: "cobalt2.json", colors: ["#0088ff"], isDark: true },
+            { file: "cursor.json", colors: ["#88c0d0"], isDark: true },
+            { file: "dracula.json", colors: ["#bd93f9"], isDark: true },
+            { file: "flexoki.json", colors: ["#DA702C"], isDark: true },
+            { file: "frappe.json", colors: ["#ef9f76"], isDark: true },
+            { file: "github.json", colors: ["#58a6ff"], isDark: true },
+            { file: "gruvbox.json", colors: ["#fab387"], isDark: true },
+            { file: "kanagawa.json", colors: ["#7e9cd8"], isDark: true },
+            { file: "latte.json", colors: ["#8839ef"], isDark: false },
+            { file: "macchiato.json", colors: ["#f5a97f"], isDark: true },
+            { file: "material_ocean.json", colors: ["#82aaff"], isDark: true },
+            { file: "matrix.json", colors: ["#00ff41"], isDark: true },
+            { file: "mercury.json", colors: ["#8da4f5"], isDark: true },
+            { file: "mocha.json", colors: ["#cba6f7"], isDark: true },
+            { file: "nord.json", colors: ["#88c0d0"], isDark: true },
+            { file: "open_code.json", colors: ["#fab283"], isDark: true },
+            { file: "orng.json", colors: ["#EC5B2B"], isDark: true },
+            { file: "osaka_jade.json", colors: ["#2DD5B7"], isDark: true },
+            { file: "rose_pine.json", colors: ["#c4a7e7"], isDark: true },
+            { file: "sakura.json", colors: ["#d4869c"], isDark: false },
+            { file: "samurai.json", colors: ["#c41e3a"], isDark: true },
+            { file: "synthwave84.json", colors: ["#36f9f6"], isDark: true },
+            { file: "vercel.json", colors: ["#0070F3"], isDark: true },
+            { file: "vesper.json", colors: ["#FFC799"], isDark: true },
+            { file: "zen_burn.json", colors: ["#8cd0d3"], isDark: true },
+            { file: "zen_garden.json", colors: ["#7a9a7a"], isDark: true }
         ];
         return basicThemes.find(t => t.file === fileName);
     }
