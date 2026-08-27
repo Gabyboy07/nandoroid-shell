@@ -506,6 +506,7 @@ Singleton {
             { file: "matrix.json", colors: ["#00ff41"], isDark: true },
             { file: "mercury.json", colors: ["#8da4f5"], isDark: true },
             { file: "mocha.json", colors: ["#cba6f7"], isDark: true },
+            { file: "nandoroid.json", colors: ["#477ad6"], isDark: true },
             { file: "nord.json", colors: ["#88c0d0"], isDark: true },
             { file: "open_code.json", colors: ["#fab283"], isDark: true },
             { file: "orng.json", colors: ["#EC5B2B"], isDark: true },

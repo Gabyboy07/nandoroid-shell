@@ -59,6 +59,7 @@ Flickable {
         { name: "Matrix", file: "matrix.json", colors: ["#00ff41", "#008f11", "#ffffff"], isDark: true },
         { name: "Mercury", file: "mercury.json", colors: ["#8da4f5", "#a7b6f8", "#77becf"], isDark: true },
         { name: "Mocha", file: "mocha.json", colors: ["#cba6f7", "#f5c2e7", "#94e2d5"], isDark: true },
+        { name: "NAnDoroid", file: "nandoroid.json", colors: ["#477ad6", "#7ea0d6", "#b479d6"], isDark: true },
         { name: "Nord", file: "nord.json", colors: ["#88c0d0", "#81a1c1", "#b48ead"], isDark: true },
         { name: "Open Code", file: "open_code.json", colors: ["#fab283", "#5c9cf5", "#9d7cd8"], isDark: true },
         { name: "Orng", file: "orng.json", colors: ["#EC5B2B", "#EE7948", "#FFF7F1"], isDark: true },
