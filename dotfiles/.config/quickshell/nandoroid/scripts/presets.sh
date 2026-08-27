@@ -245,7 +245,16 @@ case "$action" in
             fi
         }
 
-        if [ "$matugen_enabled" = "false" ] && [ -n "$custom_color" ] && [ "$custom_color" != "null" ] && [ "$custom_color" != '""' ]; then
+        if [ "$matugen_enabled" = "false" ] && [ -n "$theme_file" ] && [ "$theme_file" != "null" ] && [ "$theme_file" != '""' ]; then
+            # Cache the theme colors so lockscreen mirroring stays consistent
+            theme_source="$SCRIPT_DIR/../assets/themes/$theme_file"
+            [ -f "$theme_source" ] && cp "$theme_source" "$COLOR_JSON"
+            echo "$merged_json" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
+            # Basic themes apply to both desktop and lockscreen
+            if [ "$(echo "$merged_json" | jq -r '.lock.useSeparateWallpaper // false')" = "true" ]; then
+                cp "$COLOR_JSON" "$LOCK_COLOR_JSON"
+            fi
+        elif [ "$matugen_enabled" = "false" ] && [ -n "$custom_color" ] && [ "$custom_color" != "null" ] && [ "$custom_color" != '""' ]; then
             custom_color_clean="${custom_color#\#}"
             # Ensure both matugenCustomColor and palette.accentColor in merged_json have the '#' prefix
             merged_json=$(echo "$merged_json" | jq --arg c "#$custom_color_clean" '.appearance.background.matugenCustomColor = $c | .appearance.palette.accentColor = $c')
@@ -256,15 +265,6 @@ case "$action" in
             # Write config.json after matugen finishes
             echo "$merged_json" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
             refresh_lock_colors
-        elif [ "$matugen_enabled" = "false" ] && [ -n "$theme_file" ] && [ "$theme_file" != "null" ]; then
-            # Cache the theme colors so lockscreen mirroring stays consistent
-            theme_source="$SCRIPT_DIR/../assets/themes/$theme_file"
-            [ -f "$theme_source" ] && cp "$theme_source" "$COLOR_JSON"
-            echo "$merged_json" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
-            # Basic themes apply to both desktop and lockscreen
-            if [ "$(echo "$merged_json" | jq -r '.lock.useSeparateWallpaper // false')" = "true" ]; then
-                cp "$COLOR_JSON" "$LOCK_COLOR_JSON"
-            fi
         else
             wallpaper=$(echo "$merged_json" | jq -r '.appearance.background.wallpaperPath // ""')
             wallpaper="${wallpaper#file://}"
