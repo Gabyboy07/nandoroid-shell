@@ -94,7 +94,7 @@ Scope {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.top: parent.top
-                height: (autoHide && !mustShow) ? 3 * Appearance.effectiveScale : parent.height
+                height: (autoHide && !mustShow) ? 3 * Appearance.effectiveScale : actualStatusBarHeight
             }
 
             // ── Hover Detection Infrastructure ──────────────────

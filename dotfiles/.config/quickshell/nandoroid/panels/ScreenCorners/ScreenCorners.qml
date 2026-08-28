@@ -27,6 +27,7 @@ Scope {
         WlrLayershell.namespace: "nandoroid:screenCorners"
         WlrLayershell.layer: WlrLayer.Overlay
         color: "transparent"
+        mask: Region {} // Allow clicks to pass through the corner decoration
 
         anchors {
             top: cornerWidget.isTop
