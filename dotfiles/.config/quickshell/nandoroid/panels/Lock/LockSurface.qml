@@ -78,7 +78,7 @@ MouseArea {
 
     // ── Background Cava (v1.2 Wave Visualizer) ──
     property bool _cavaActive: false
-    readonly property bool shouldVisualize: root.visible && MprisController.isPlaying && (Config.ready && Config.options.lock.showCava)
+    readonly property bool shouldVisualize: root.visible && MprisController.isPlaying && (Config.ready && Config.options.lock.showCava) && !GameMode.active
     onShouldVisualizeChanged: {
         if (shouldVisualize && !_cavaActive) {
             CavaService.refCount++;

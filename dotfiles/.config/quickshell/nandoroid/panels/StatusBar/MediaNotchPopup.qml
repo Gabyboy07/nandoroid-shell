@@ -131,12 +131,12 @@ Variants {
                     }
                 }
 
-                // ── 3. Slider ──
+                // ── 3. Slider — flat when GameMode (keep handle)
                 StyledSlider {
                     id: progressSlider
                     Layout.fillWidth: true; Layout.preferredHeight: 14 * Appearance.effectiveScale
-                    configuration: StyledSlider.Configuration.Wavy
-                    wavy: MprisController.isPlaying
+                    configuration: GameMode.active ? StyledSlider.Configuration.X0 : StyledSlider.Configuration.Wavy
+                    wavy: GameMode.active ? false : MprisController.isPlaying
                     // This popup's `visible` lingers true during the 250ms
                     // opacity fade-out, and the window itself stays visible
                     // while `contentRect.opacity > 0`. Bind the wavy Canvas

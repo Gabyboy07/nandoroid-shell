@@ -24,8 +24,10 @@ Rectangle {
     property bool isLockscreen: false
     // When on lockscreen, wavy is only enabled if the big lockWave visualizer is active
     // (LockSurface.shouldVisualize). Otherwise flat cheap path like DesktopMediaWidget art style.
+    // Also flat when GameMode is active (notification center etc).
     property bool isLockWaveActive: false
-    readonly property bool _flatLockscreen: isLockscreen && !isLockWaveActive
+    readonly property bool _useFlat: GameMode.active || (isLockscreen && !isLockWaveActive)
+    readonly property bool _flatLockscreen: _useFlat
     // Effective shown-state for the wavy progress bar. When false, the WavyLine
     // Canvas + its 60fps FrameAnimation are destroyed (no off-screen repaint).
     // Defaults to `visible` (correct for hosts that actually toggle visibility),
@@ -58,7 +60,7 @@ Rectangle {
 
     // --- Cava Lifecycle Management ---
     property bool _cavaActive: false
-    readonly property bool shouldVisualize: root.visible && MprisController.isPlaying && root.showVisualizer
+    readonly property bool shouldVisualize: root.visible && MprisController.isPlaying && root.showVisualizer && !GameMode.active
     onShouldVisualizeChanged: {
         if (shouldVisualize && !_cavaActive) {
             CavaService.refCount++;

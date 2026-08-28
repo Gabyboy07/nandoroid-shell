@@ -123,6 +123,7 @@ Variants {
         // ── Desktop Visualizer State ──
         readonly property bool _showVisualizer: {
             if (!Config.ready || !Config.options.appearance.background.showCava) return false;
+            if (GameMode.active) return false;
             return MprisController.isPlaying;
         }
         property bool _cavaActive: false
