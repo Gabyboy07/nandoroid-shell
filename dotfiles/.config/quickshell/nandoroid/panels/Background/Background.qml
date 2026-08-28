@@ -70,7 +70,7 @@ Variants {
             return desktopPath;
         }
         
-        property var shaderList: ["circlePit", "circleSelect", "magic", "Doom", "Peel", "transition", "pixelate", "stripes", "crt", "dissolve", "glitch", "ripple", "shatter"]
+        property var shaderList: ["materialshape", "circlePit", "circleSelect", "magic", "Doom", "Peel", "transition", "pixelate", "stripes", "crt", "dissolve", "glitch", "ripple", "shatter"]
         property string currentShader: "pixelate"
         property real transitionProgress: 1.0
         property string wallpaperTransition: Config.ready && Config.options.appearance.background ? Config.options.appearance.background.wallpaperTransition : "random"
@@ -126,6 +126,10 @@ Variants {
 
             currentShader = pickShader();
 
+            if (currentShader === "materialshape") {
+                materialShapeTransition.pickRandomShape();
+            }
+
             transitionProgress = 0.0;
             transitionAnim.restart();
         }
@@ -156,7 +160,7 @@ Variants {
                 id: previousWallpaper
                 anchors.fill: parent
                 fillMode: Image.PreserveAspectCrop
-                visible: false
+                visible: bgRoot.transitionProgress < 1.0 && bgRoot.currentShader === "materialshape"
                 cache: true
                 smooth: true
                 asynchronous: false
@@ -178,7 +182,7 @@ Variants {
             ShaderEffect {
                 id: transitionEffect
                 anchors.fill: parent
-                visible: bgRoot.transitionProgress < 1.0
+                visible: bgRoot.transitionProgress < 1.0 && bgRoot.currentShader !== "materialshape"
                 property var fromImage: previousWallpaper
                 property var toImage: wallpaper
                 property var source1: previousWallpaper
@@ -198,6 +202,13 @@ Variants {
                     onTriggered: transitionEffect.time += interval / 1000.0
                 }
                 onVisibleChanged: if (!visible) transitionEffect.time = 0.0
+            }
+            MaterialShapeTransition {
+                id: materialShapeTransition
+                anchors.fill: parent
+                sourceItem: wallpaper
+                active: bgRoot.currentShader === "materialshape"
+                progress: bgRoot.transitionProgress
             }
         }
 

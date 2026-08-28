@@ -20,6 +20,7 @@ ColumnLayout {
     property var transitionOptions: [
         { name: "Random", value: "random", icon: "shuffle" },
         { name: "None", value: "", icon: "block" },
+        { name: "Material Shape", value: "materialshape", icon: "category" },
         { name: "Circle", value: "circleSelect", icon: "circle" },
         { name: "Circle Pit", value: "circlePit", icon: "blur_circular" },
         { name: "Magic", value: "magic", icon: "auto_awesome" },
