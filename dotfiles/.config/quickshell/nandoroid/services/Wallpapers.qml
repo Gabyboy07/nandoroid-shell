@@ -154,8 +154,8 @@ Singleton {
         command: ["bash", "-c", `matugen -c ~/.config/matugen/config.toml -t "$1" -m "$2" color hex "$3"`, "matugen", scheme, (Config.options.appearance.background.darkmode ? "dark" : "light"), hexColor]
         property string hexColor
         property string scheme: {
-            // When in Basic mode, always use tonal-spot for the system generation
-            if (Config.ready && !Config.options.appearance.background.matugen) return "scheme-tonal-spot";
+            // When in Basic mode (using a predefined theme file), always use tonal-spot
+            if (Config.ready && !Config.options.appearance.background.matugen && Config.options.appearance.background.matugenThemeFile !== "") return "scheme-tonal-spot";
             return Config.options.appearance.background.matugenScheme || "scheme-tonal-spot";
         }
 
@@ -184,7 +184,7 @@ Singleton {
         ]
         property string filePath
         property string scheme: {
-            if (Config.ready && !Config.options.appearance.background.matugen) return "scheme-tonal-spot";
+            if (Config.ready && !Config.options.appearance.background.matugen && Config.options.appearance.background.matugenThemeFile !== "") return "scheme-tonal-spot";
             return Config.options.appearance.background.matugenScheme || "scheme-tonal-spot";
         }
 
