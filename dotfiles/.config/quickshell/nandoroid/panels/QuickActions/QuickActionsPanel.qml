@@ -28,7 +28,7 @@ Variants {
     anchors.bottom: true
     anchors.left: true
     anchors.right: true
-    implicitHeight: 72 * Appearance.effectiveScale
+    implicitHeight: 140 * Appearance.effectiveScale
 
     Timer { id: closeTimer; interval: 300 }
 
@@ -48,7 +48,12 @@ Variants {
       }
     }
 
+    mask: Region {
+      item: qaContent
+    }
+
     QuickActionsContent {
+      id: qaContent
       anchors.horizontalCenter: parent.horizontalCenter
       anchors.bottom: parent.bottom
       anchors.bottomMargin: panelWindow.isOpen ? 0 : -implicitHeight

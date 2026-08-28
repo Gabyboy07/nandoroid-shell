@@ -193,8 +193,8 @@ FocusScope {
         color: root.barColor
         
         anchors.bottom: parent.bottom
-        height: 64 * Appearance.effectiveScale
-        width: layout.implicitWidth + (40 * Appearance.effectiveScale)
+        height: 56 * Appearance.effectiveScale
+        width: layout.implicitWidth + (32 * Appearance.effectiveScale)
         anchors.horizontalCenter: parent.horizontalCenter
         
         radius: height / 2
@@ -210,13 +210,13 @@ FocusScope {
         // Concave Corners (HUD Style)
         RoundCorner {
             anchors.right: parent.left; anchors.bottom: parent.bottom
-            implicitSize: 12 * Appearance.effectiveScale; color: root.barColor
+            implicitSize: parent.radius; color: root.barColor
             corner: RoundCorner.CornerEnum.BottomRight
         }
 
         RoundCorner {
             anchors.left: parent.right; anchors.bottom: parent.bottom
-            implicitSize: 12 * Appearance.effectiveScale; color: root.barColor
+            implicitSize: parent.radius; color: root.barColor
             corner: RoundCorner.CornerEnum.BottomLeft
         }
         
@@ -252,7 +252,6 @@ FocusScope {
             width: Math.abs(animX2 - animX1) + buttonWidth
             height: buttonHeight
             anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -2 * Appearance.effectiveScale
             radius: Appearance.rounding.button
             
             color: Appearance.m3colors.darkmode ? Appearance.colors.colNotchPrimary : Appearance.colors.colPrimaryContainer
@@ -266,7 +265,6 @@ FocusScope {
         RowLayout {
             id: layout
             anchors.centerIn: parent
-            anchors.verticalCenterOffset: -2 * Appearance.effectiveScale
             spacing: 8 * Appearance.effectiveScale
             
             onXChanged: tabHighlight.updatePositions(false)
@@ -277,7 +275,7 @@ FocusScope {
             
             Rectangle {
                 id: sep1
-                width: 1 * Appearance.effectiveScale
+                Layout.preferredWidth: 1 * Appearance.effectiveScale
                 height: 32 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3outlineVariant
                 Layout.leftMargin: 6 * Appearance.effectiveScale
@@ -291,7 +289,7 @@ FocusScope {
 
             Rectangle {
                 id: sep2
-                width: 1 * Appearance.effectiveScale
+                Layout.preferredWidth: 1 * Appearance.effectiveScale
                 height: 32 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3outlineVariant
                 Layout.leftMargin: 6 * Appearance.effectiveScale
@@ -331,7 +329,8 @@ FocusScope {
         
         StyledToolTip {
             text: btn.tooltip
-            delay: 500
+            y: -38 * Appearance.effectiveScale
+            x: (parent.width - width) / 2
         }
     }
 }
