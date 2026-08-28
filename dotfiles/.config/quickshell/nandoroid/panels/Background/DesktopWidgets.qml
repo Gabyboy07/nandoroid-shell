@@ -193,6 +193,7 @@ Variants {
             anchors.right: parent.right
             height: parent.height * 0.4
             z: 5
+            style: Config.ready ? (Config.options.appearance.background.cavaStyle ?? "wave") : "wave"
             color: Appearance.m3colors.m3primary
             opacityMultiplier: Config.options.appearance.background.cavaOpacity
             opacity: widgetRoot._showVisualizer ? 1.0 : 0

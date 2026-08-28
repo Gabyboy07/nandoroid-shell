@@ -149,6 +149,7 @@ property JsonObject background: JsonObject {
                 property bool showCava: false
                 property real cavaOpacity: 0.15
                 property int cavaBars: 128
+                property string cavaStyle: "wave" // "wave" | "bars"
                 property bool showGrid: false
                 property int gridSpacing: 12
                 property bool showSnapLines: true
@@ -540,6 +541,7 @@ property JsonObject background: JsonObject {
                 property bool useSeparateWallpaper: false
                 property bool showCava: true
                 property real cavaOpacity: 0.15
+                property string cavaStyle: "wave" // "wave" | "bars"
                 property bool showMediaCard: true
                 property bool showWeather: true
                 property JsonObject weather: JsonObject { property string textColorMode: "adaptive" }

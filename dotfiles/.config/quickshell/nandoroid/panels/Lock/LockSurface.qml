@@ -99,6 +99,7 @@ MouseArea {
         anchors.right: parent.right
         height: parent.height * 0.6
         z: -1 // Behind Jam and Password input
+        style: Config.ready ? (Config.options.lock.cavaStyle ?? "wave") : "wave"
         color: Appearance.lockM3colors.m3primary
         opacityMultiplier: (Config.ready && Config.options.lock) ? Config.options.lock.cavaOpacity : 0.15
         opacity: root.shouldVisualize ? root.islandOpacity : 0

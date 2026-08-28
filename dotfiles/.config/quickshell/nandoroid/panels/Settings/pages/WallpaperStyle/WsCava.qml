@@ -117,6 +117,48 @@ ColumnLayout {
                 }
             }
 
+            // --- Desktop Style Picker — like WsStatusBar Text Color ---
+            SegmentedWrapper {
+                Layout.fillWidth: true
+                visible: Config.ready && Config.options.appearance.background.showCava
+                implicitHeight: desktopStyleRow.implicitHeight + (24 * Appearance.effectiveScale)
+                orientation: Qt.Vertical
+                maxRadius: 20 * Appearance.effectiveScale
+                color: Appearance.m3colors.m3surfaceContainerHigh
+                RowLayout {
+                    id: desktopStyleRow
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
+                    spacing: 16 * Appearance.effectiveScale
+                    MaterialSymbol { text: "auto_awesome_mosaic"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText { text: I18nService.tr("Desktop style"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    Row {
+                        spacing: 2 * Appearance.effectiveScale
+                        SegmentedButton {
+                            buttonText: I18nService.tr("Wave")
+                            isHighlighted: Config.ready && (Config.options.appearance.background.cavaStyle ?? "wave") === "wave"
+                            colActive: Appearance.m3colors.m3primary
+                            colActiveText: Appearance.m3colors.m3onPrimary
+                            colInactive: Appearance.m3colors.m3surfaceContainerLow
+                            onClicked: if (Config.ready) Config.options.appearance.background.cavaStyle = "wave"
+                        }
+                        SegmentedButton {
+                            buttonText: I18nService.tr("Bars")
+                            isHighlighted: Config.ready && (Config.options.appearance.background.cavaStyle ?? "wave") === "bars"
+                            colActive: Appearance.m3colors.m3primary
+                            colActiveText: Appearance.m3colors.m3onPrimary
+                            colInactive: Appearance.m3colors.m3surfaceContainerLow
+                            onClicked: if (Config.ready) Config.options.appearance.background.cavaStyle = "bars"
+                        }
+                    }
+                }
+            }
+
             // --- Lockscreen Visualizer Toggle ---
             SegmentedWrapper {
                 id: lockCavaCard
@@ -186,6 +228,48 @@ ColumnLayout {
                         suffix: "%"
                         value: Config.options.lock.cavaOpacity
                         onValueChanged: Config.options.lock.cavaOpacity = value
+                    }
+                }
+            }
+
+            // --- Lockscreen Style Picker — like WsStatusBar Text Color ---
+            SegmentedWrapper {
+                Layout.fillWidth: true
+                visible: Config.ready && Config.options.lock.showCava
+                implicitHeight: lockStyleRow.implicitHeight + (24 * Appearance.effectiveScale)
+                orientation: Qt.Vertical
+                maxRadius: 20 * Appearance.effectiveScale
+                color: Appearance.m3colors.m3surfaceContainerHigh
+                RowLayout {
+                    id: lockStyleRow
+                    anchors.fill: parent
+                    anchors {
+                        leftMargin: 16 * Appearance.effectiveScale
+                        rightMargin: 16 * Appearance.effectiveScale
+                        topMargin: 12 * Appearance.effectiveScale
+                        bottomMargin: 12 * Appearance.effectiveScale
+                    }
+                    spacing: 16 * Appearance.effectiveScale
+                    MaterialSymbol { text: "auto_awesome_mosaic"; iconSize: 24 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                    StyledText { text: I18nService.tr("Lock screen style"); Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                    Row {
+                        spacing: 2 * Appearance.effectiveScale
+                        SegmentedButton {
+                            buttonText: I18nService.tr("Wave")
+                            isHighlighted: Config.ready && (Config.options.lock.cavaStyle ?? "wave") === "wave"
+                            colActive: Appearance.m3colors.m3primary
+                            colActiveText: Appearance.m3colors.m3onPrimary
+                            colInactive: Appearance.m3colors.m3surfaceContainerLow
+                            onClicked: if (Config.ready) Config.options.lock.cavaStyle = "wave"
+                        }
+                        SegmentedButton {
+                            buttonText: I18nService.tr("Bars")
+                            isHighlighted: Config.ready && (Config.options.lock.cavaStyle ?? "wave") === "bars"
+                            colActive: Appearance.m3colors.m3primary
+                            colActiveText: Appearance.m3colors.m3onPrimary
+                            colInactive: Appearance.m3colors.m3surfaceContainerLow
+                            onClicked: if (Config.ready) Config.options.lock.cavaStyle = "bars"
+                        }
                     }
                 }
             }
