@@ -22,6 +22,10 @@ Rectangle {
 
     property bool showVisualizer: true
     property bool isLockscreen: false
+    // When on lockscreen, wavy is only enabled if the big lockWave visualizer is active
+    // (LockSurface.shouldVisualize). Otherwise flat cheap path like DesktopMediaWidget art style.
+    property bool isLockWaveActive: false
+    readonly property bool _flatLockscreen: isLockscreen && !isLockWaveActive
     // Effective shown-state for the wavy progress bar. When false, the WavyLine
     // Canvas + its 60fps FrameAnimation are destroyed (no off-screen repaint).
     // Defaults to `visible` (correct for hosts that actually toggle visibility),
@@ -281,21 +285,24 @@ Rectangle {
                     renderType: Text.QtRendering
                 }
 
-                // Slider
+                // Slider — flat when lockscreen + big wave off (cheap), wavy when lockWave on or desktop
                 StyledSlider {
                     id: progressSlider
                     Layout.fillWidth: true
                     Layout.preferredHeight: 14 * Appearance.effectiveScale
-                    handleMargins: 0 
-                    configuration: StyledSlider.Configuration.Wavy
+                    handleMargins: 0
+                    configuration: root._flatLockscreen ? StyledSlider.Configuration.X0 : StyledSlider.Configuration.Wavy
                     stopIndicatorValues: []
                     animateValue: false
                     wavyVisible: root.wavyVisible
                     value: (MprisController.length > 0 ? (MprisController.position / MprisController.length) : 0) || 0
-                    wavy: MprisController.isPlaying
+                    wavy: root._flatLockscreen ? false : MprisController.isPlaying
                     highlightColor: root.effectivePrimary
                     trackColor: root.effectiveSecondaryContainer
                     handleColor: root.effectivePrimary
+                    showTrailingDot: !root._flatLockscreen
+                    // Art style is handle-less (DesktopMediaWidget art: handle: Item {})
+                    handleWidth: root._flatLockscreen ? 0 : 3 * Appearance.effectiveScale
                     
                     onMoved: {
                         if (player && player.canSeek) {
