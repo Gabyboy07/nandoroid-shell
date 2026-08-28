@@ -451,14 +451,16 @@ Singleton {
         themeWriteProc.sourcePath = fullPath;
         themeWriteProc.running = true;
 
-        // Basic themes apply to both desktop and lockscreen
         Qt.callLater(() => {
             root._applyingTheme = false;
-            if (Config.ready && Config.options.lock.useSeparateWallpaper) {
-                Quickshell.execDetached([
-                    "sh", "-c", 'cp "$1" "$2"',
-                    "sh", Directories.generatedMaterialThemePath, Directories.generatedLockColorsPath
-                ]);
+            if (Config.ready && Config.options.lock.useSeparateWallpaper && Config.options.lock.wallpaperPath) {
+                const lockPath = Config.options.lock.wallpaperPath.toString().replace("file://", "");
+                const desktopPath = Config.options.appearance.background.wallpaperPath.toString().replace("file://", "");
+                if (lockPath !== "" && lockPath !== desktopPath) {
+                    matugenLockscreenProc.running = false;
+                    matugenLockscreenProc.filePath = lockPath;
+                    Qt.callLater(() => { matugenLockscreenProc.running = true; });
+                }
             }
         });
     }
