@@ -279,7 +279,7 @@ FocusScope {
                 id: sep1
                 width: 1 * Appearance.effectiveScale
                 height: 32 * Appearance.effectiveScale
-                color: Qt.rgba(1, 1, 1, 0.2)
+                color: Appearance.m3colors.m3outlineVariant
                 Layout.leftMargin: 6 * Appearance.effectiveScale
                 Layout.rightMargin: 6 * Appearance.effectiveScale
             }
@@ -293,7 +293,7 @@ FocusScope {
                 id: sep2
                 width: 1 * Appearance.effectiveScale
                 height: 32 * Appearance.effectiveScale
-                color: Qt.rgba(1, 1, 1, 0.2)
+                color: Appearance.m3colors.m3outlineVariant
                 Layout.leftMargin: 6 * Appearance.effectiveScale
                 Layout.rightMargin: 6 * Appearance.effectiveScale
             }

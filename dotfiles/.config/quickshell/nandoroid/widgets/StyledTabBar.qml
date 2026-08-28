@@ -36,7 +36,7 @@ Item {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         height: 1 * Appearance.effectiveScale
-        color: Appearance.m3colors.m3surfaceVariant
+        color: Appearance.m3colors.m3outlineVariant
         opacity: 0.5
     }
 
