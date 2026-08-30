@@ -221,7 +221,14 @@ Singleton {
 
                     const isOneShot = !a.days || a.days.length === 0;
                     updateAlarm(a.id, { lastFiredKey: key, enabled: isOneShot ? false : a.enabled });
-                    root.ring(a);
+                    
+                    // Skip ringing if missed during a long suspend
+                    const maxLateness = root.maxRingMinutes * 60000;
+                    const lateness = Date.now() - target.getTime();
+
+                    if (lateness <= maxLateness) {
+                        root.ring(a);
+                    }
                     break;
                 }
             }
