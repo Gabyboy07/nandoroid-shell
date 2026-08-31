@@ -124,25 +124,13 @@ if [[ "$DEP_CHOICE" =~ ^[Yy] ]]; then
     read -r CONFIRM_MODE < /dev/tty
     CONFIRM_MODE="${CONFIRM_MODE:-1}"
     if [[ "$CONFIRM_MODE" == "2" ]]; then
-        CONFIRM_FLAG="--noconfirm"
+        CONFIRM_FLAG="-y"
         substep "${C_YELLOW}Auto confirm enabled. Conflicts will be skipped automatically.${C_RST}"
     else
         substep "Manual confirm. You will be prompted for each action."
     fi
 
-    # paru check
-    if ! command -v paru >/dev/null 2>&1; then
-        info "Installing paru (AUR helper)..."
-        sudo pacman -S --needed $CONFIRM_FLAG base-devel git < /dev/tty
-        git clone https://aur.archlinux.org/paru.git /tmp/paru
-        cd /tmp/paru
-        makepkg -si $CONFIRM_FLAG < /dev/tty
-        cd "$INSTALL_DIR"
-        rm -rf /tmp/paru
-        success "paru installed."
-    else
-        substep "paru already available."
-    fi
+    
 
     # 3a. Core, Services, Utilities, and Theming
     info "Mandatory shell dependencies..."
