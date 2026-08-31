@@ -103,7 +103,7 @@ if [ -d "$INSTALL_DIR" ]; then
     fi
 else
     info "Cloning repository..."
-    git clone https://github.com/na-ive/nandoroid-shell.git "$INSTALL_DIR"
+    git clone https://github.com/Gabyboy07/nandoroid-shell.git "$INSTALL_DIR"
     success "Repository cloned."
 fi
 
@@ -139,9 +139,7 @@ if [[ "$DEP_CHOICE" =~ ^[Yy] ]]; then
     ./scripts/install_deps.sh services "$CONFIRM_FLAG" < /dev/tty
     ./scripts/install_deps.sh utilities "$CONFIRM_FLAG" < /dev/tty
     ./scripts/install_deps.sh theming "$CONFIRM_FLAG" < /dev/tty
-    ./scripts/install_deps.sh fonts "$CONFIRM_FLAG" < /dev/tty
     bash "$INSTALL_DIR/scripts/install_extras_fedora.sh"
-    success "All fonts installed."
     success "Mandatory dependencies installed."
 
     # 3b. KDE Material You Venv (Optional but recommended)
@@ -189,6 +187,7 @@ if [[ "$DEP_CHOICE" =~ ^[Yy] ]]; then
 
         # Official & AUR fonts
         ./scripts/install_deps.sh fonts "$CONFIRM_FLAG" < /dev/tty
+        bash "$INSTALL_DIR/scripts/install_extras_fedora.sh"
         success "All fonts installed."
     else
         success "Skipped."
