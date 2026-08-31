@@ -17,7 +17,7 @@ if ! command -v quickshell >/dev/null 2>&1; then
 fi
 
 echo "── songrec (flatpak) ──"
-flatpak install -y flathub com.github.marinm.songrec
+flatpak install -y --user flathub re.fossplant.songrec
 
 echo "── Material Symbols ──"
 FONT_DIR="$HOME/.local/share/fonts/material-symbols"
