@@ -18,6 +18,12 @@ Singleton {
     id: root
 
     property string translatedText: ""
+    property string transliteratedText: ""
+    // Alias for compatibility (secondTranslatedText)
+    property string secondTranslatedText: transliteratedText
+    property bool hasTransliteration: transliteratedText.length > 0
+    property bool canTransliterate: true
+    property string pendingText: ""
     property string detectedLanguage: ""
     property bool isTranslating: translateProc.running
     property var availableLanguages: ["auto", "en", "id", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"]
@@ -61,7 +67,14 @@ Singleton {
         const esc = Functions.StringUtils.shellSingleQuoteEscape;
         const qText = `'${esc(text)}'`;
         const qSource = `'${esc(source)}'`;
-        const qTarget = `'${esc(target)}'`;
+        // If canTransliterate, request `target+@target` to get romaji/pinyin alongside script
+        let qTarget;
+        if (root.canTransliterate) {
+            const tEsc = esc(target);
+            qTarget = `'${tEsc}+@${tEsc}'`;
+        } else {
+            qTarget = `'${esc(target)}'`;
+        }
         const order = root.engineOrder();
 
         let lines = [];
@@ -84,12 +97,42 @@ Singleton {
         return ["bash", "-c", lines.join("\n")];
     }
 
+    // Split `buffer` (RES) into main translation and transliteration (romaji/pinyin)
+    // Handles both 2*N (e.g. zh,ko,ru) and N+1 (e.g. ja) layouts from `trans -t tgt+@tgt`
+    function parseResult(buffer, inputText) {
+        const raw = (buffer || "").trim();
+        if (raw.length === 0) return { main: "", translit: "" };
+        let lines = raw.split(/\r?\n/).filter(l => l.length > 0);
+        if (lines.length === 0) return { main: "", translit: "" };
+        if (lines.length === 1) return { main: lines[0], translit: "" };
+
+        const inp = (inputText || "").trim();
+        const inputLines = inp.length > 0 ? inp.split(/\r?\n/).length : 1;
+        let tr = "", tl = "";
+        if (lines.length === inputLines * 2) {
+            tr = lines.slice(0, inputLines).join("\n");
+            tl = lines.slice(inputLines).join("\n");
+        } else if (lines.length === inputLines + 1) {
+            tr = lines.slice(0, inputLines).join("\n");
+            tl = lines.slice(inputLines).join("\n");
+        } else {
+            const mid = lines.length >> 1;
+            tr = lines.slice(0, mid).join("\n");
+            tl = lines.slice(mid).join("\n");
+        }
+        tr = tr.trim();
+        tl = tl.trim();
+        if (tl.length > 0 && tl === tr) tl = "";
+        return { main: tr, translit: tl };
+    }
+
     function translate(text, source, target) {
         const cleanText = (text || "").trim();
         root.currentQuery = cleanText;
         if (cleanText.length === 0) {
             if (translateProc.running) translateProc.running = false;
             root.translatedText = "";
+            root.transliteratedText = "";
             root.detectedLanguage = "";
             root.lastEngine = "";
             root.status = "idle";
@@ -101,10 +144,16 @@ Singleton {
         const s = source || "auto";
         const t = target || "en";
 
+        // Reset transliteration capability when target changes
+        if (root.pendingTarget !== t) {
+            root.canTransliterate = true;
+        }
+
         root.requestId++;
         translateProc.requestId = root.requestId;
         root.pendingSource = s;
         root.pendingTarget = t;
+        root.pendingText = cleanText;
         root.detectedLanguage = "";
         root.status = "idle";
 
@@ -126,6 +175,7 @@ Singleton {
         property bool succeeded: false
         property bool headerDone: false
         property bool expectCode: false
+        property bool canTransliterate: true
         stdout: SplitParser {
             onRead: (line) => {
                 const textLine = line.toString();
@@ -162,12 +212,19 @@ Singleton {
             if (translateProc.requestId !== root.requestId || root.currentQuery.length === 0) return;
 
             if (translateProc.succeeded && exitCode === 0) {
-                root.translatedText = translateProc.buffer.trim();
+                const parsed = root.parseResult(translateProc.buffer, root.pendingText);
+                root.translatedText = parsed.main;
+                root.transliteratedText = parsed.translit;
+                // Adapt canTransliterate for next request
+                const hasSecond = parsed.translit.length > 0;
+                translateProc.canTransliterate = hasSecond;
+                root.canTransliterate = hasSecond;
                 if (root.lastEngine !== "") root.preferredEngine = root.lastEngine;
                 root.status = "ok";
             } else {
                 console.error("[TranslationService] All engines failed (rate limit or unavailable). Exit code:", exitCode);
                 root.translatedText = "";
+                root.transliteratedText = "";
                 root.status = "failed";
             }
         }

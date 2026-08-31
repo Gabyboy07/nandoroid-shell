@@ -150,7 +150,8 @@ ColumnLayout {
                     let oldResult = TranslationService.translatedText || "";
                     if (oldResult.length > 0) {
                         inputText.text = oldResult;
-                        TranslationService.translatedText = ""; 
+                        TranslationService.translatedText = "";
+                        TranslationService.transliteratedText = "";
                     }
 
                     root.triggerTranslate();
@@ -257,7 +258,7 @@ ColumnLayout {
                         
                         MaterialSymbol { anchors.centerIn: parent; text: "close"; iconSize: 20 * Appearance.effectiveScale; color: Appearance.colors.colOnLayer1 }
                         
-                        onClicked: { inputText.text = ""; TranslationService.translatedText = ""; TranslationService.detectedLanguage = ""; }
+                        onClicked: { inputText.text = ""; TranslationService.translatedText = ""; TranslationService.transliteratedText = ""; TranslationService.detectedLanguage = ""; }
                         StyledToolTip { text: I18nService.tr("Clear input"); extraVisibleCondition: clearBtn.realHovered }
                     }
                 }
@@ -295,6 +296,69 @@ ColumnLayout {
                         
                         opacity: TranslationService.isTranslating ? 0.6 : 1.0
                         Behavior on opacity { NumberAnimation { duration: 200 } }
+                    }
+                }
+
+                // Transliteration / Romaji
+                Rectangle {
+                    id: transliterationBubble
+                    Layout.fillWidth: true
+                    visible: TranslationService.transliteratedText.length > 0 && TranslationService.status !== "failed"
+                    opacity: visible ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 120 } }
+                    radius: 12 * Appearance.effectiveScale
+                    color: Qt.darker(Appearance.m3colors.m3surfaceContainerHigh, 1.15)
+                    implicitHeight: transliterationText.implicitHeight + 20 * Appearance.effectiveScale + (transliterationCopyBtn.visible ? 0 : 0)
+                    property bool hovered: false
+
+                    HoverHandler {
+                        onHoveredChanged: transliterationBubble.hovered = hovered
+                    }
+
+                    StyledText {
+                        id: transliterationText
+                        text: TranslationService.transliteratedText
+                        wrapMode: Text.Wrap
+                        color: Appearance.colors.colOnLayer1
+                        font.family: Appearance.font.family.main
+                        font.pixelSize: Appearance.font.pixelSize.normal
+                        font.italic: true
+                        anchors {
+                            top: parent.top
+                            left: parent.left
+                            right: parent.right
+                            margins: 10 * Appearance.effectiveScale
+                            bottomMargin: 10 * Appearance.effectiveScale
+                        }
+                    }
+
+                    RippleButton {
+                        id: transliterationCopyBtn
+                        implicitWidth: 28 * Appearance.effectiveScale
+                        implicitHeight: 28 * Appearance.effectiveScale
+                        buttonRadius: 14 * Appearance.effectiveScale
+                        anchors {
+                            right: parent.right
+                            bottom: parent.bottom
+                            margins: 6 * Appearance.effectiveScale
+                        }
+                        opacity: transliterationBubble.hovered ? 1.0 : 0.0
+                        visible: opacity > 0.01
+                        colBackground: Appearance.m3colors.m3surfaceContainerHighest
+                        Behavior on opacity { NumberAnimation { duration: 150 } }
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: "content_copy"
+                            iconSize: 14 * Appearance.effectiveScale
+                            color: Appearance.colors.colOnLayer1
+                        }
+
+                        onClicked: {
+                            Quickshell.clipboardText = TranslationService.transliteratedText;
+                            SnackbarService.show(I18nService.tr("Transliteration copied to clipboard"));
+                        }
+                        StyledToolTip { text: I18nService.tr("Copy transliteration"); extraVisibleCondition: transliterationBubble.hovered }
                     }
                 }
 
