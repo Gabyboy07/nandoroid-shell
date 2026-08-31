@@ -139,6 +139,9 @@ if [[ "$DEP_CHOICE" =~ ^[Yy] ]]; then
     ./scripts/install_deps.sh services "$CONFIRM_FLAG" < /dev/tty
     ./scripts/install_deps.sh utilities "$CONFIRM_FLAG" < /dev/tty
     ./scripts/install_deps.sh theming "$CONFIRM_FLAG" < /dev/tty
+    ./scripts/install_deps.sh fonts "$CONFIRM_FLAG" < /dev/tty
+    bash "$INSTALL_DIR/scripts/install_extras_fedora.sh"
+    success "All fonts installed."
     success "Mandatory dependencies installed."
 
     # 3b. KDE Material You Venv (Optional but recommended)
