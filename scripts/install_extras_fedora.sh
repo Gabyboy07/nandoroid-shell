@@ -39,5 +39,5 @@ unzip -o "$HOME/tmp-build/jbmono.zip" -d "$FONT_DIR2"
 rm "$HOME/tmp-build/jbmono.zip"
 
 fc-cache -fv
-
+rm -rf "$HOME/tmp-build"
 echo "Terminé. Vérifie matugen, quickshell (manuel), songrec, et les fonts.
