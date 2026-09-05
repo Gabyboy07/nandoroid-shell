@@ -22,17 +22,22 @@ flatpak install -y --user flathub re.fossplant.songrec
 echo "── Material Symbols ──"
 FONT_DIR="$HOME/.local/share/fonts/material-symbols"
 mkdir -p "$FONT_DIR"
-git clone --depth 1 https://github.com/google/material-design-icons.git /tmp/material-icons
-cp /tmp/material-icons/variablefont/*.ttf "$FONT_DIR"/ 2>/dev/null || true
-rm -rf /tmp/material-icons
+mkdir -p "$HOME/tmp-build"
+git clone --depth 1 --filter=blob:none --sparse https://github.com/google/material-design-icons.git "$HOME/tmp-build/material-icons"
+cd "$HOME/tmp-build/material-icons"
+git sparse-checkout set variablefont
+cp variablefont/*.ttf "$FONT_DIR"/ 2>/dev/null || true
+cd "$HOME"
+rm -rf "$HOME/tmp-build/material-icons"
 
 echo "── JetBrains Mono Nerd Font ──"
 FONT_DIR2="$HOME/.local/share/fonts/jetbrains-mono-nerd"
 mkdir -p "$FONT_DIR2"
-wget -O /tmp/jbmono.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
-unzip -o /tmp/jbmono.zip -d "$FONT_DIR2"
-rm /tmp/jbmono.zip
+mkdir -p "$HOME/tmp-build"
+wget -O "$HOME/tmp-build/jbmono.zip" https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
+unzip -o "$HOME/tmp-build/jbmono.zip" -d "$FONT_DIR2"
+rm "$HOME/tmp-build/jbmono.zip"
 
 fc-cache -fv
 
-echo "Terminé. Vérifie matugen, quickshell (manuel), songrec, et les fonts."
+echo "Terminé. Vérifie matugen, quickshell (manuel), songrec, et les fonts.
